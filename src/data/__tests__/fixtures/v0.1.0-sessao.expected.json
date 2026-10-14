@@ -1,0 +1,292 @@
+{
+ "profile": {
+  "name": "Teo",
+  "goal": "enem",
+  "dailyMinutes": 15,
+  "selfLevel": "intermediario",
+  "examYear": 2026,
+  "onboarded": true,
+  "createdAt": 1791644400000,
+  "lastActiveAt": 1791648000007,
+  "xp": 212,
+  "ink": 71,
+  "restedPool": 0,
+  "equipped": {
+   "frame": "frame-bronze",
+   "core": "core-ambar",
+   "aura": null,
+   "title": "title-tracador"
+  },
+  "targets": {
+   "razao-proporcao": 2.7200000000000006,
+   "porcentagem": 1.78,
+   "financeira": 2,
+   "basica": 2.12,
+   "equacoes": 2,
+   "funcoes": 2,
+   "graficos": 2,
+   "estatistica": 2.12,
+   "probabilidade": 2,
+   "combinatoria": 2,
+   "geo-plana": 2.12,
+   "geo-espacial": 2,
+   "grandezas": 2
+  },
+  "totals": {
+   "answered": 10,
+   "correct": 9,
+   "timeMs": 230000,
+   "sessions": 2
+  },
+  "settings": {
+   "haptics": true,
+   "reduceMotion": "system"
+  }
+ },
+ "questionStates": {
+  "RZP-001": {
+   "questionId": "RZP-001",
+   "box": 2,
+   "dueAt": 1791889200000,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791644400000,
+   "lastCorrectAt": 1791644400000,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791644400000,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  },
+  "PCT-002": {
+   "questionId": "PCT-002",
+   "box": 1,
+   "dueAt": 1791716460000,
+   "seen": 1,
+   "correct": 0,
+   "wrong": 1,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791644460000,
+   "lastCorrectAt": null,
+   "lastWrongAt": 1791644460000,
+   "lastWrongSessionId": "exp1",
+   "lastXpAt": null,
+   "echo": true,
+   "favorite": false,
+   "flagged": false
+  },
+  "EST-001": {
+   "questionId": "EST-001",
+   "box": 2,
+   "dueAt": 1791889380000,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791644580000,
+   "lastCorrectAt": 1791644580000,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791644580000,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  },
+  "GEO-001": {
+   "questionId": "GEO-001",
+   "box": 2,
+   "dueAt": 1791889320000,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791644520000,
+   "lastCorrectAt": 1791644520000,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791644520000,
+   "echo": false,
+   "favorite": true,
+   "flagged": false
+  },
+  "RZP-007": {
+   "questionId": "RZP-007",
+   "box": 2,
+   "dueAt": 1791892800000,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791648000000,
+   "lastCorrectAt": 1791648000000,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791648000000,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  },
+  "RZP-008": {
+   "questionId": "RZP-008",
+   "box": 2,
+   "dueAt": 1791892800001,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791648000001,
+   "lastCorrectAt": 1791648000001,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791648000001,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  },
+  "RZP-013": {
+   "questionId": "RZP-013",
+   "box": 2,
+   "dueAt": 1791892800002,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791648000002,
+   "lastCorrectAt": 1791648000002,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791648000002,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  },
+  "RZP-018": {
+   "questionId": "RZP-018",
+   "box": 2,
+   "dueAt": 1791892800003,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791648000003,
+   "lastCorrectAt": 1791648000003,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791648000003,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  },
+  "RZP-003": {
+   "questionId": "RZP-003",
+   "box": 2,
+   "dueAt": 1791892800004,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791648000004,
+   "lastCorrectAt": 1791648000004,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791648000004,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  },
+  "BAS-001": {
+   "questionId": "BAS-001",
+   "box": 2,
+   "dueAt": 1791892800007,
+   "seen": 1,
+   "correct": 1,
+   "wrong": 0,
+   "guessedCorrect": 0,
+   "lastAnsweredAt": 1791648000007,
+   "lastCorrectAt": 1791648000007,
+   "lastWrongAt": null,
+   "lastWrongSessionId": null,
+   "lastXpAt": 1791648000007,
+   "echo": false,
+   "favorite": false,
+   "flagged": false
+  }
+ },
+ "inventory": {
+  "frame-cobre": {
+   "itemId": "frame-cobre",
+   "acquiredAt": 1791644400000,
+   "source": "inicial"
+  },
+  "core-quartzo": {
+   "itemId": "core-quartzo",
+   "acquiredAt": 1791644400000,
+   "source": "inicial"
+  },
+  "frame-bronze": {
+   "itemId": "frame-bronze",
+   "acquiredAt": 1791648000000,
+   "source": "level:2"
+  },
+  "title-tracador": {
+   "itemId": "title-tracador",
+   "acquiredAt": 1791648000004,
+   "source": "level:3"
+  },
+  "core-ambar": {
+   "itemId": "core-ambar",
+   "acquiredAt": 1791648000005,
+   "source": "level:4"
+  }
+ },
+ "ledger": {
+  "level:2": 1791648000000,
+  "level:3": 1791648000004,
+  "mission:r1-m1:first": 1791648000005,
+  "level:4": 1791648000005
+ },
+ "campaign": {
+  "r1-m1": {
+   "nodeId": "r1-m1",
+   "completedAt": 1791648000005,
+   "bestCorrect": 5,
+   "runs": 1
+  }
+ },
+ "bosses": {},
+ "session": {
+  "id": "exp2",
+  "mode": "expedition",
+  "nodeId": null,
+  "minutes": 3,
+  "startedAt": 1791648000006,
+  "queue": [
+   "BAS-001",
+   "GRA-001",
+   "PRB-001"
+  ],
+  "index": 1,
+  "answers": [
+   {
+    "questionId": "BAS-001",
+    "chosen": "A",
+    "correct": true,
+    "guessed": false,
+    "hints": 0,
+    "timeMs": 10000,
+    "xp": 10,
+    "ink": 1,
+    "kind": "first"
+   }
+  ],
+  "skippedOnce": [],
+  "scaffoldIds": [],
+  "xp": 10,
+  "ink": 1,
+  "restedBonus": 0
+ },
+ "battle": null
+}
