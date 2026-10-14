@@ -9,6 +9,7 @@ import type { TopicId } from '../content/types';
 import * as game from '../domain/game/game';
 import type { AnswerInput, OnboardingInput } from '../domain/game/game';
 import type { GameEvent, Result, Settings } from '../domain/game/types';
+import { dayKey, weekKey } from '../domain/quests/quests';
 import { hashString } from '../domain/util/random';
 import { GameController } from './controller';
 import { publish, useGameStore } from './store';
@@ -108,6 +109,21 @@ export const retreat = () => run((s) => game.retreatBattle(s));
 export const dismissBattle = () => run((s) => game.dismissBattle(s));
 
 export const equip = (itemId: string) => run((s) => game.equipItem(s, itemId));
+export const buy = (itemId: string) => run((s, now) => game.buyItem(s, itemId, now));
+
+/** Troca as encomendas se o dia/semana virou com o app aberto (sem gravar nada se não mudou). */
+export async function refreshQuests(): Promise<void> {
+  const s = ctrl().current;
+  if (!s || !s.profile.onboarded) return;
+  const now = Date.now();
+  const tz = s.profile.tzOffsetMin;
+  if (s.quests.daily?.key === dayKey(now, tz) && s.quests.weekly?.key === weekKey(now, tz)) return;
+  await run((st, at) => game.refreshQuestBoards(st, at));
+}
+
+export function dismissToast(id: string) {
+  useGameStore.setState((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
+}
 export const unequip = (slot: 'aura' | 'title') => run((s) => game.unequipSlot(s, slot));
 export const toggleFavorite = (questionId: string) => run((s) => game.toggleQuestionFlag(s, questionId, 'favorite'));
 export const toggleDoubt = (questionId: string) => run((s) => game.toggleQuestionFlag(s, questionId, 'flagged'));

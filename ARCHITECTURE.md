@@ -62,7 +62,7 @@ UI (toque "Confirmar")
 - **Sessões retomáveis**: o estado da sessão ativa é gravado a cada resposta
   (`active_session`). Fechar o app no meio não perde nada; o Acampamento oferece "Retomar".
 
-## Banco local (v1)
+## Banco local (esquema v2)
 
 | Tabela | Conteúdo |
 | --- | --- |
@@ -73,7 +73,8 @@ UI (toque "Confirmar")
 | `inventory` | itens possuídos + origem |
 | `campaign_progress` | nós concluídos (missões) com melhor resultado |
 | `boss_progress` | tentativas, vitórias, melhor desempenho por chefão |
-| `active_session` | sessão em andamento serializada (retomada) |
+| `active_run` | sessão e batalha em andamento serializadas (retomada) |
+| `quest_board` (v2) | quadros de encomendas do dia e da semana (metas, progresso, dias de estudo) |
 
 Migrações em `src/data/migrations.ts`: lista ordenada; cada uma roda numa transação e
 incrementa `PRAGMA user_version`. Nunca editar uma migração publicada — sempre criar outra.
@@ -81,6 +82,28 @@ incrementa `PRAGMA user_version`. Nunca editar uma migração publicada — semp
 **Preparação para nuvem**: todas as entidades usam IDs estáveis (texto) e carimbos de tempo
 em milissegundos desde a época (UTC); `attempts` é *append-only* (fácil de sincronizar por log). Um futuro `SyncService`
 pode enviar o log e reconciliar o perfil sem mudar o domínio.
+
+## Atualizações e preservação do progresso
+
+O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualização. Regras:
+
+1. **Atualização pela internet (EAS Update, canal `preview`)** troca só o código JavaScript. O app
+   verifica ao abrir e ao voltar do segundo plano (no máximo a cada 30 min), baixa em segundo plano
+   e mostra "Atualizar agora" no Acampamento. Ao reabrir, `migrate()` aplica migrações pendentes.
+2. **`runtimeVersion` = versão do app** (`policy: appVersion`). Mudou dependência nativa (nova lib
+   nativa, SDK, config plugin)? Suba `version` e `android.versionCode` e gere APK novo — atualizações
+   pela internet só chegam a APKs da mesma versão de runtime, então um APK antigo nunca recebe código
+   que ele não consegue rodar.
+3. **APK novo por cima do antigo** preserva os dados se: mesmo pacote (`com.questforge.app`),
+   `versionCode` maior e **mesma assinatura**. Os APKs de teste são assinados com a chave de debug
+   padrão do React Native (SHA-256 `fa:c6:17:45:dc:09:03:78:6f:b9:ed:e6:2a:96:2b:39:9f:73:48:f0:bb:6f:89:9b:83:32:66:75:91:03:3b:9c`).
+   Trocar essa chave obrigaria a desinstalar e apagaria o progresso — antes de publicar na Play Store,
+   planejar a migração (exportar/importar progresso ou sincronização em nuvem).
+4. **Estados antigos são normalizados** em `domain/game/normalize.ts`: campos que surgiram depois
+   recebem padrão e nada existente é alterado. Migrações nunca são editadas depois de publicadas.
+5. **Teste de atualização real**: `src/data/__tests__/fixtures/` guarda bancos SQLite gravados pelo
+   código da v0.1.0; `upgrade.test.ts` abre-os com o código atual e exige que todo o progresso
+   continue idêntico, inclusive sessão e batalha em andamento.
 
 ## Conteúdo
 
@@ -111,6 +134,11 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
 - **Sem `Date.now()` durante a renderização**: o "agora" das telas vem do store (`now`), atualizado
   a cada publicação de estado — compatível com as regras de pureza do React Compiler.
 - **Reanimated com `.set()`** em valores compartilhados fora de worklets (compatível com o compilador).
+- **Encomendas com recompensa automática**: cumprir já entrega XP e Tinta (registro `quest:*`), então
+  nada "expira sem resgatar"; virar o dia só troca o quadro. O "dia" usa o fuso do aparelho
+  (`profile.tzOffsetMin`, atualizado ao abrir).
+- **Mecânicas de chefão como dados** (`BossTrait`): couraça (Golem) e cofre de juros (Mercador)
+  compartilham a quebra na fase 2; a arte de cada chefão vem de um registro (`features/boss/BossArt`).
 - **Fontes empacotadas por peso** (`@expo-google-fonts/<família>/<peso>`) para não embutir pesos não usados.
 
 ## Qualidade

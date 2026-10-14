@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LevelUpOverlay } from '../features/celebration/LevelUpOverlay';
+import { ToastHost } from '../features/toast/ToastHost';
 import { boot } from '../state/actions';
 import { useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
@@ -75,6 +76,7 @@ export default function RootLayout() {
               <Stack.Screen name="boss" options={{ gestureEnabled: false, animation: 'fade' }} />
               <Stack.Screen name="summary" options={{ gestureEnabled: false }} />
             </Stack>
+            <ToastHost />
             <LevelUpOverlay />
           </>
         )}

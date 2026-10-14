@@ -86,7 +86,12 @@ export default function Summary() {
       return { label: 'Tentar a missão de novo', detail: 'As questões serão outras — o que errou vira Eco para revisar.', action: () => start('retry', () => startMission(id), { replace: true }) };
     }
     if (next && next.node.kind === 'boss') {
-      return { label: 'Enfrentar o Golem Proporcional', detail: 'O guardião do Vale está à sua espera.', action: () => router.replace('/boss') };
+      const bossNode = next.node;
+      return {
+        label: `Enfrentar ${bossNode.title}`,
+        detail: `O guardião de ${next.region.name} está à sua espera.`,
+        action: () => router.replace(`/boss?id=${bossNode.bossId}`),
+      };
     }
     if (next && next.node.kind === 'mission') {
       const node = next.node;

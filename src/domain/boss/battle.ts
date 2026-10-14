@@ -1,6 +1,7 @@
 /**
  * Motor de batalha determinístico. Nenhum elemento de sorte: o dano depende
- * apenas da dificuldade, do combo, das dicas e da couraça.
+ * apenas da dificuldade, do combo, das dicas e da mecânica do chefão
+ * (couraça do Golem, cofre de juros do Mercador).
  */
 import type { BossDef } from '../../content/bosses';
 import type { Difficulty } from '../../content/types';
@@ -15,7 +16,10 @@ export interface BattleTurn {
   hints: number;
   damage: number;
   technique: boolean;
+  /** A mecânica do chefão quebrou neste turno (início da fase 2). */
   armorBroke: boolean;
+  /** Vida recuperada pelo chefão neste turno ("juros"). Ausente em batalhas da v0.1.0. */
+  healed?: number;
 }
 
 export interface BattleState {
@@ -26,6 +30,7 @@ export interface BattleState {
   maxHp: number;
   resolve: number;
   maxResolve: number;
+  /** Fase 2: a mecânica do chefão (couraça, cofre…) foi quebrada. */
   armorBroken: boolean;
   combo: number;
   maxCombo: number;
@@ -80,8 +85,8 @@ export interface DamageInput {
 export function computeDamage(boss: BossDef, battle: BattleState, input: DamageInput) {
   const comboAfter = battle.combo + 1;
   let dmg = boss.damage[input.difficulty];
-  const armored = !battle.armorBroken && input.difficulty === 1;
-  if (armored) dmg *= boss.trait.easyMultiplier;
+  const armored = boss.trait.kind === 'armor' && !battle.armorBroken && input.difficulty === 1;
+  if (boss.trait.kind === 'armor' && armored) dmg *= boss.trait.easyMultiplier;
   dmg *= comboMultiplier(comboAfter);
   dmg *= hintMultiplier(input.hints);
   if (input.guessed) dmg *= GUESS_MULT;
@@ -125,16 +130,32 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
     next.maxCombo = Math.max(battle.maxCombo, next.combo);
     const armorBroke = !battle.armorBroken && next.hp <= boss.maxHp * boss.trait.breaksAtHpRatio;
     if (armorBroke) next.armorBroken = true;
-    turn = { ...pick(answer), damage, technique, armorBroke };
+    turn = { ...pick(answer), damage, technique, armorBroke, healed: 0 };
     if (next.hp === 0) next.status = 'won';
   } else {
     next.combo = 0;
     next.resolve = battle.resolve - 1;
-    turn = { ...pick(answer), damage: 0, technique: false, armorBroke: false };
+    const healed = interestHeal(boss, battle);
+    next.hp = Math.min(boss.maxHp, battle.hp + healed);
+    turn = { ...pick(answer), damage: 0, technique: false, armorBroke: false, healed };
     if (next.resolve <= 0) next.status = 'retreated';
   }
   next.turns.push(turn);
   return { battle: next, turn };
+}
+
+/** Erros seguidos no fim da batalha, contando o erro atual. */
+export function missStreak(battle: BattleState): number {
+  let n = 1;
+  for (let i = battle.turns.length - 1; i >= 0 && !battle.turns[i].correct; i--) n++;
+  return n;
+}
+
+/** Cofre de juros: enquanto inteiro, cada erro devolve vida ao chefão, crescendo com erros seguidos. */
+export function interestHeal(boss: BossDef, battle: BattleState): number {
+  if (boss.trait.kind !== 'interest' || battle.armorBroken) return 0;
+  const heal = Math.round(boss.maxHp * boss.trait.healRatio * missStreak(battle));
+  return Math.max(0, Math.min(heal, boss.maxHp - battle.hp));
 }
 
 function pick(a: BattleAnswer) {

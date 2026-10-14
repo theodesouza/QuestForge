@@ -39,6 +39,8 @@ export interface ItemDef {
   /** Como se obtém — mostrado na coleção para itens ainda não conquistados. */
   howToGet: string;
   visual: ItemVisual;
+  /** Preço em Tinta na Oficina. Só itens comuns e incomuns são vendidos — raros vêm de feitos. */
+  price?: number;
 }
 
 export const ITEMS: ItemDef[] = [
@@ -262,6 +264,125 @@ export const ITEMS: ItemDef[] = [
     howToGet: 'Alcance o nível 50.',
     visual: { color: '#FFD36B' },
   },
+  // ——— Região 2: Mercado de Âmbar ———
+  {
+    id: 'frame-ambar-cunhado',
+    slot: 'frame',
+    name: 'Moldura de Âmbar Cunhado',
+    rarity: 'raro',
+    description: 'Fundida com as moedas do cofre do Mercador. Brilha como conta paga em dia.',
+    howToGet: 'Derrote o Mercador Composto.',
+    visual: { color: '#FF9F43', color2: '#FFD36B', frameStyle: 'notched' },
+  },
+  {
+    id: 'title-amortizador',
+    slot: 'title',
+    name: 'Amortizador',
+    rarity: 'raro',
+    description: 'Juros não assustam quem sabe fazer a conta.',
+    howToGet: 'Derrote o Mercador Composto.',
+    visual: { color: '#FF9F43' },
+  },
+  {
+    id: 'core-tesouro',
+    slot: 'core',
+    name: 'Núcleo do Tesouro',
+    rarity: 'lendario',
+    description: 'O coração do cofre do Mercador, entregue a quem não pagou um centavo de juros.',
+    howToGet: 'Derrote o Mercador Composto sem erros e sem usar dicas.',
+    visual: { color: '#FFD36B', color2: '#FF9F43' },
+  },
+  // ——— Encomendas ———
+  {
+    id: 'title-constante',
+    slot: 'title',
+    name: 'Constante',
+    rarity: 'incomum',
+    description: 'Uma semana inteira de encomendas cumpridas. Constância vale mais que pressa.',
+    howToGet: 'Cumpra todas as encomendas de uma semana.',
+    visual: { color: '#38D6B0' },
+  },
+  // ——— Oficina (compráveis com Tinta) ———
+  {
+    id: 'frame-ferro',
+    slot: 'frame',
+    name: 'Moldura de Ferro Forjado',
+    rarity: 'comum',
+    description: 'Sólida e sem enfeites, feita na bigorna da Oficina.',
+    howToGet: 'Oficina: 60 de Tinta.',
+    visual: { color: '#8C93B8', frameStyle: 'plain' },
+    price: 60,
+  },
+  {
+    id: 'frame-prata',
+    slot: 'frame',
+    name: 'Moldura de Prata Lunar',
+    rarity: 'incomum',
+    description: 'Dois anéis de prata que refletem a lua sobre o mapa.',
+    howToGet: 'Oficina: 150 de Tinta.',
+    visual: { color: '#DCE3FF', frameStyle: 'double' },
+    price: 150,
+  },
+  {
+    id: 'core-rubi',
+    slot: 'core',
+    name: 'Núcleo de Rubi',
+    rarity: 'comum',
+    description: 'Vermelho intenso, como a primeira resposta certa depois de um erro.',
+    howToGet: 'Oficina: 60 de Tinta.',
+    visual: { color: '#FF5C7A', color2: '#B3243F' },
+    price: 60,
+  },
+  {
+    id: 'core-safira',
+    slot: 'core',
+    name: 'Núcleo de Safira',
+    rarity: 'incomum',
+    description: 'Azul profundo, calmo como uma prova bem preparada.',
+    howToGet: 'Oficina: 140 de Tinta.',
+    visual: { color: '#5C8DFF', color2: '#2A3F9E' },
+    price: 140,
+  },
+  {
+    id: 'aura-nevoa',
+    slot: 'aura',
+    name: 'Aura de Névoa Domada',
+    rarity: 'comum',
+    description: 'Um pouco da Névoa, agora a seu serviço.',
+    howToGet: 'Oficina: 80 de Tinta.',
+    visual: { color: '#9AA3C7', color2: '#DCE3FF' },
+    price: 80,
+  },
+  {
+    id: 'aura-lunar',
+    slot: 'aura',
+    name: 'Aura Lunar',
+    rarity: 'incomum',
+    description: 'Um halo frio e prateado para as sessões noturnas.',
+    howToGet: 'Oficina: 180 de Tinta.',
+    visual: { color: '#DCE3FF', color2: '#7FB6FF' },
+    price: 180,
+  },
+  {
+    id: 'title-viajante',
+    slot: 'title',
+    name: 'Viajante Noturno',
+    rarity: 'comum',
+    description: 'Para quem estuda sob as estrelas.',
+    howToGet: 'Oficina: 50 de Tinta.',
+    visual: { color: '#9AA3C7' },
+    price: 50,
+  },
+  {
+    id: 'title-contador',
+    slot: 'title',
+    name: 'Contador de Estrelas',
+    rarity: 'incomum',
+    description: 'Nenhum número escapa da sua conta.',
+    howToGet: 'Oficina: 120 de Tinta.',
+    visual: { color: '#F2B54A' },
+    price: 120,
+  },
 ];
 
 const BY_ID = new Map(ITEMS.map((i) => [i.id, i]));
@@ -271,6 +392,11 @@ export function getItem(id: string): ItemDef {
   if (!item) throw new Error(`Item desconhecido: ${id}`);
   return item;
 }
+
+/** Itens à venda na Oficina, do mais barato ao mais caro. */
+export const SHOP_ITEMS: ItemDef[] = ITEMS.filter((i) => i.price !== undefined).sort(
+  (a, b) => (a.price ?? 0) - (b.price ?? 0),
+);
 
 export function hasItem(id: string): boolean {
   return BY_ID.has(id);

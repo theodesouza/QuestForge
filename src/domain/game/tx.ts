@@ -28,6 +28,7 @@ export function emptyDelta(): Delta {
     bosses: [],
     session: false,
     battle: false,
+    quests: false,
   };
 }
 
@@ -94,6 +95,11 @@ export class Tx {
   setBattle(b: BattleState | null) {
     this.state.battle = b;
     this.delta.battle = true;
+  }
+
+  setQuests(q: GameState['quests']) {
+    this.state.quests = q;
+    this.delta.quests = true;
   }
 
   emit(e: GameEvent) {

@@ -2,6 +2,7 @@
  * Herói — o astrolábio em destaque, estatísticas honestas, equipamentos,
  * coleção (com o caminho para cada item) e a estrada de recompensas.
  */
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ITEMS, RARITY_LABEL, SLOT_LABEL, getItem, type ItemSlot } from '../../content/items';
@@ -135,10 +136,13 @@ export default function Hero() {
 
       <View style={{ gap: space.md }}>
         <View style={styles.collectionHead}>
-          <Text variant="subheading">Coleção</Text>
-          <Text variant="caption" color={colors.mist}>
-            {owned} de {ITEMS.length} itens
-          </Text>
+          <View>
+            <Text variant="subheading">Coleção</Text>
+            <Text variant="caption" color={colors.mist}>
+              {owned} de {ITEMS.length} itens
+            </Text>
+          </View>
+          <Chip label={`Oficina · ${profile.ink} Tinta`} icon="ink" color={colors.iris} onPress={() => router.push('/workshop')} />
         </View>
         <View style={styles.filters}>
           {SLOTS.map((s) => (
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
   slot: { alignItems: 'center', gap: 6, padding: space.sm, borderRadius: radius.md, borderWidth: 1, borderColor: 'transparent', minWidth: 68 },
   slotActive: { borderColor: colors.line, backgroundColor: colors.ink850 },
   emptySlot: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.ink500 },
-  collectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  collectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   none: { flexDirection: 'row', alignItems: 'center', gap: space.sm, alignSelf: 'flex-start', paddingVertical: space.xs },
   item: {

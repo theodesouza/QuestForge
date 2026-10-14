@@ -85,6 +85,17 @@ export const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    description: 'Encomendas diárias e semanais (v0.2.0)',
+    sql: `
+      CREATE TABLE quest_board (
+        period TEXT PRIMARY KEY CHECK (period IN ('daily', 'weekly')),
+        data TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+    `,
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

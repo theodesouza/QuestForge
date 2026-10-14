@@ -1,4 +1,5 @@
 import type { Attempt, Delta, GameState } from '../../domain/game/types';
+import { normalizeState } from '../../domain/game/normalize';
 import type { GameRepository } from './GameRepository';
 
 /**
@@ -12,7 +13,7 @@ export class MemoryGameRepository implements GameRepository {
   failNextCommit = false;
 
   async load(): Promise<GameState | null> {
-    return this.snapshot ? (JSON.parse(this.snapshot) as GameState) : null;
+    return this.snapshot ? normalizeState(JSON.parse(this.snapshot) as GameState, Date.now()) : null;
   }
 
   async commit(state: GameState, delta: Delta): Promise<void> {

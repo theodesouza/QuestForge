@@ -1,6 +1,7 @@
 /**
  * Teste ponta a ponta no navegador (pré-visualização web), jogando o fluxo do MVP:
- * onboarding → expedição → 3 missões → chefão, com capturas de tela.
+ * onboarding → expedição → Região 1 (3 missões + Golem) → Região 2 (3 missões + Mercador)
+ * → encomendas → Oficina → ajustes, com capturas de tela.
  *
  * Uso:
  *   EXPO_PUBLIC_QA=1 npx expo export --platform web --output-dir dist-web
@@ -92,75 +93,115 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await wait(500);
 
   // Três missões para desbloquear o chefão
-  for (let m = 0; m < 3; m++) {
+  const dismissCelebrations = async (shotName) => {
+    for (let i = 0; i < 4; i++) {
+      const c = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
+      if (!c) break;
+      if (shotName) await shot(shotName);
+      await click('Continuar'); await wait(300);
+    }
+  };
+
+  const playMission = async (label) => {
     await click('Começar missão');
     await wait(1000);
     while (await current()) {
       await answerOne(true);
-      if (m === 0) {
-        const lv = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
-        if (lv) { await shot('levelup-midsession'); await click('Continuar'); await wait(300); }
-      }
+      await dismissCelebrations(label === 'r1-m1' ? 'levelup-midsession' : null);
       const s = await page.evaluate(() => globalThis.__qf.store.getState().game.session);
       const more = s && s.queue[s.index];
-      for (let i = 0; i < 3; i++) {
-        const c = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
-        if (!c) break;
-        await click('Continuar'); await wait(300);
-      }
       await click(more ? 'Próxima questão' : 'Concluir expedição');
       await wait(400);
     }
     await wait(800);
-    // fecha celebrações pendentes
-    for (let i = 0; i < 3; i++) {
-      const c = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
-      if (!c) break;
-      await click('Continuar'); await wait(400);
-    }
-    if (m === 0) await shot('mission-summary');
+    await dismissCelebrations(null);
+    if (label === 'r1-m1' || label === 'r2-m1') await shot(`${label}-summary`);
     await click('Voltar ao acampamento');
     await wait(800);
-  }
-  await shot('camp-boss-ready');
-  await click('Enfrentar o chefão');
-  await wait(2500);
-  await shot('boss-intro');
-  await click('Enfrentar o Golem');
-  await wait(1200);
-  await shot('boss-battle');
-  let turns = 0;
-  while (turns++ < 30) {
-    const b = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
-    if (!b || b.status !== 'active') break;
-    await answerOne(turns !== 2, 'Atacar');
-    if (turns === 1) await shot('boss-hit');
-    if (turns === 2) await shot('boss-miss');
-    for (let i = 0; i < 3; i++) {
-      const c = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
-      if (!c) break;
-      if (turns > 2) await shot('boss-levelup');
-      await click('Continuar'); await wait(300);
+  };
+
+  const fightBoss = async (prefix, bossName) => {
+    await shot(`${prefix}-camp-ready`);
+    await click('Enfrentar o chefão');
+    await wait(2500);
+    await shot(`${prefix}-intro`);
+    await click(`Enfrentar ${bossName}`);
+    await wait(1200);
+    await shot(`${prefix}-battle`);
+    let turns = 0;
+    while (turns++ < 40) {
+      const b = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
+      if (!b || b.status !== 'active') break;
+      await answerOne(turns !== 2, 'Atacar');
+      if (turns === 1) await shot(`${prefix}-hit`);
+      if (turns === 2) await shot(`${prefix}-miss`);
+      await dismissCelebrations(null);
+      const after = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
+      if (after.status !== 'active') await shot(`${prefix}-final-blow`);
+      await click(after.status === 'active' ? 'Próximo golpe' : 'Ver resultado');
+      await wait(400);
     }
-    const after = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
-    if (after.status !== 'active') await shot('boss-final-blow');
-    await click(after.status === 'active' ? 'Próximo golpe' : 'Ver resultado');
-    await wait(400);
-  }
-  for (let i = 0; i < 3; i++) {
-    const c = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
-    if (!c) break;
-    await click('Continuar'); await wait(400);
-  }
-  await shot('boss-result');
-  await page.mouse.wheel(0, 600);
-  await shot('boss-result-loot');
-  await click('Voltar ao Atlas');
+    await dismissCelebrations(null);
+    await shot(`${prefix}-result`);
+    await click('Voltar ao Atlas');
+    await wait(800);
+  };
+
+  // Região 1: três missões e o Golem.
+  for (const m of ['r1-m1', 'r1-m2', 'r1-m3']) await playMission(m);
+  await fightBoss('golem', 'Golem Proporcional');
+  await shot('atlas-after-golem');
+  await page.getByRole('tab', { name: 'Acampamento' }).click();
   await wait(800);
-  await shot('atlas-after');
+
+  // Região 2: Mercado de Âmbar e o Mercador Composto.
+  for (const m of ['r2-m1', 'r2-m2', 'r2-m3']) await playMission(m);
+  await fightBoss('mercador', 'Mercador Composto');
+  await page.mouse.move(195, 500);
+  await page.mouse.wheel(0, 900);
+  await shot('atlas-after-mercador');
+
+  // Encomendas.
+  await page.getByRole('tab', { name: 'Acampamento' }).click();
+  await wait(800);
+  await page.mouse.move(195, 500);
+  await page.mouse.wheel(0, 700);
+  await shot('camp-quests');
+  await page.getByRole('button', { name: /Encomendas do dia/ }).click();
+  await wait(800);
+  await shot('quests');
+  await page.mouse.move(195, 500);
+  await page.mouse.wheel(0, 900);
+  await shot('quests-weekly');
+  await page.getByRole('button', { name: 'Voltar' }).first().click();
+  await wait(600);
+
+  // Oficina: compra em dois toques.
+  await page.getByRole('button', { name: /Abrir a Oficina/ }).click();
+  await wait(800);
+  await shot('workshop');
+  const before = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.ink);
+  await page.getByRole('button', { name: /^Comprar · / }).first().click();
+  await wait(300);
+  await shot('workshop-confirm');
+  await page.getByRole('button', { name: /^Confirmar · / }).first().click();
+  await wait(800);
+  await shot('workshop-bought');
+  const after = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.ink);
+  if (!(after < before)) throw new Error(`Compra não descontou Tinta: ${before} → ${after}`);
+  await page.getByRole('button', { name: 'Voltar' }).first().click();
+  await wait(600);
+
   await page.getByRole('tab', { name: 'Herói' }).click();
   await shot('hero-after');
-  const g = await page.evaluate(() => { const g = globalThis.__qf.store.getState().game; return { xp: g.profile.xp, inv: Object.keys(g.inventory), bosses: g.bosses, equipped: g.profile.equipped }; });
+  await page.getByRole('tab', { name: 'Acampamento' }).click();
+  await wait(500);
+  await page.getByRole('button', { name: 'Ajustes' }).click();
+  await wait(700);
+  await page.mouse.move(195, 500);
+  await page.mouse.wheel(0, 700);
+  await shot('settings');
+  const g = await page.evaluate(() => { const g = globalThis.__qf.store.getState().game; return { xp: g.profile.xp, ink: g.profile.ink, inv: Object.keys(g.inventory), bosses: g.bosses, equipped: g.profile.equipped, quests: g.quests }; });
   console.log(JSON.stringify(g));
   console.log('ERRORS', JSON.stringify(errors.slice(0, 20), null, 1));
   await browser.close();

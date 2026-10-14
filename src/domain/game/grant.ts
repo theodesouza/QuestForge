@@ -2,10 +2,8 @@ import { getItem, STARTER_ITEMS } from '../../content/items';
 import { levelForXp } from '../progression/levels';
 import { applyRested } from '../progression/rested';
 import { rewardsForLevel, type Reward } from '../progression/rewards';
-import type { XpKind } from '../progression/xp';
 import type { Tx } from './tx';
-
-type XpSource = XpKind | 'session' | 'mission' | 'boss';
+import type { XpSource } from './types';
 
 /**
  * Concede XP (com bônus de descanso opcional), processa subidas de nível e as

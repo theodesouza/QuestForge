@@ -21,7 +21,6 @@ import { Text } from '../../ui/Text';
 import { TAB_BAR_SPACE, colors, space } from '../../ui/theme';
 
 const UPCOMING = [
-  'Mercado de Âmbar',
   'Planícies Numéricas',
   'Torres Euclidianas',
   'Cavernas Volumétricas',
@@ -79,7 +78,7 @@ export default function Atlas() {
       Alert.alert('Ainda envolto em névoa', `Conclua primeiro: ${req}.`);
       return;
     }
-    if (node.kind === 'boss') router.push('/boss');
+    if (node.kind === 'boss') router.push(`/boss?id=${node.bossId}`);
     else start(node.id, () => startMission(node.id));
   };
 

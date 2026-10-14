@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { QUESTIONS } from '../content/bank';
 import { bankReport } from '../content/validation/validate';
+import { checkAndFetch, updatesEnabled, versionInfo } from '../features/updates/updates';
 import type { ReduceMotionPref } from '../domain/game/types';
 import { resetProgress, updateProfile, updateSettings } from '../state/actions';
 import { useGame } from '../state/store';
@@ -25,6 +26,9 @@ const report = bankReport(QUESTIONS);
 export default function Settings() {
   const profile = useGame((g) => g.profile);
   const [name, setName] = useState(profile.name);
+  const [checking, setChecking] = useState(false);
+  const [updateMsg, setUpdateMsg] = useState<string | null>(null);
+  const info = versionInfo();
 
   const confirmReset = () =>
     Alert.alert('Apagar todo o progresso?', 'Nível, itens, histórico e revisões serão apagados deste aparelho. Isso não pode ser desfeito.', [
@@ -99,6 +103,49 @@ export default function Settings() {
             <Chip key={m.id} label={m.label} selected={profile.settings.reduceMotion === m.id} onPress={() => updateSettings({ reduceMotion: m.id })} />
           ))}
         </View>
+      </Panel>
+
+      <Panel>
+        <Text variant="label" color={colors.brass}>
+          Versão do app
+        </Text>
+        <Text variant="body" style={styles.gap}>
+          QuestForge {info.version}
+          {info.embedded ? '' : ` · atualização de ${info.updatedAt ? info.updatedAt.toLocaleDateString('pt-BR') : '—'}`}
+        </Text>
+        <Text variant="caption" color={colors.mist}>
+          {updatesEnabled
+            ? 'As versões novas chegam sozinhas pela internet e seu progresso continua salvo no aparelho.'
+            : 'Atualizações automáticas ficam ativas no app instalado no celular.'}
+        </Text>
+        {updatesEnabled ? (
+          <>
+            <Button
+              label={checking ? 'Procurando…' : 'Procurar atualização'}
+              variant="secondary"
+              size="md"
+              loading={checking}
+              onPress={async () => {
+                setChecking(true);
+                const outcome = await checkAndFetch();
+                setChecking(false);
+                setUpdateMsg(
+                  outcome === 'downloaded'
+                    ? 'Versão nova baixada! Volte ao Acampamento e toque em “Atualizar agora”.'
+                    : outcome === 'up-to-date'
+                      ? 'Você já está na versão mais recente.'
+                      : 'Não foi possível verificar agora. Confira a internet e tente de novo.',
+                );
+              }}
+              style={styles.gap}
+            />
+            {updateMsg ? (
+              <Text variant="caption" color={colors.parchmentDim} style={styles.gap}>
+                {updateMsg}
+              </Text>
+            ) : null}
+          </>
+        ) : null}
       </Panel>
 
       <Panel>

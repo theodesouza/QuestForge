@@ -1,9 +1,9 @@
 /**
- * Batalha contra o Golem Proporcional. Cada turno é uma questão: acertos causam
+ * Batalha contra um chefão (rota /boss?id=…). Cada turno é uma questão: acertos causam
  * dano (maior em questões difíceis e em combo), erros custam Determinação.
  * Sem cronômetro e sem sorte — o foco continua sendo a questão.
  */
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -16,12 +16,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { findQuestion } from '../content/bank';
-import { getBoss } from '../content/bosses';
+import { BOSSES, getBoss, type BossDef } from '../content/bosses';
+import { getRegion } from '../content/regions';
 import { getItem, RARITY_LABEL } from '../content/items';
 import type { BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import type { GameEvent } from '../domain/game/types';
-import { GolemArt } from '../features/boss/GolemArt';
+import { BossArt } from '../features/boss/BossArt';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { useAttempt } from '../features/question/useAttempt';
@@ -39,26 +40,23 @@ import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
 import { colors, radius, rarityColor, space } from '../ui/theme';
 
-const BOSS_ID = 'golem-proporcional';
-const boss = getBoss(BOSS_ID);
-
 function pickLine(lines: string[], n: number) {
   return lines[n % lines.length];
 }
 
 // ——————————————————————————————————————————————— introdução
 
-function Intro() {
+function Intro({ boss }: { boss: BossDef }) {
   const reduce = useReduceMotion();
-  const progress = useGame((g) => g.bosses[BOSS_ID]);
-  const status = useGame((g) => bossNodeStatus(g, BOSS_ID));
+  const progress = useGame((g) => g.bosses[boss.id]);
+  const status = useGame((g) => bossNodeStatus(g, boss.id));
   const [busy, setBusy] = useState(false);
   const knowledge = Math.min(30, (progress?.failedSinceWin ?? 0) * 10);
 
   const fight = async () => {
     setBusy(true);
     try {
-      await beginBattle(BOSS_ID);
+      await beginBattle(boss.id);
     } catch (e) {
       Alert.alert('A batalha não começou', e instanceof Error ? e.message : String(e));
     } finally {
@@ -68,15 +66,15 @@ function Intro() {
 
   if (status === 'locked') {
     return (
-      <Screen footer={<Button label="Voltar" variant="secondary" onPress={() => router.back()} />} glow={colors.ember}>
+      <Screen footer={<Button label="Voltar" variant="secondary" onPress={() => router.back()} />} glow={boss.accent}>
         <View style={styles.introArt}>
-          <GolemArt size={200} defeated />
+          <BossArt art={boss.art} size={200} defeated />
         </View>
         <Text variant="title" align="center">
           O guardião dorme
         </Text>
         <Text variant="body" color={colors.parchmentDim} align="center">
-          Conclua as três missões do Vale das Proporções para despertar o Golem Proporcional.
+          Conclua as missões de {getRegion(boss.regionId).name} para despertar {boss.name}.
         </Text>
       </Screen>
     );
@@ -84,19 +82,19 @@ function Intro() {
 
   return (
     <Screen
-      glow={colors.ember}
+      glow={boss.accent}
       footer={
         <>
-          <Button label="Enfrentar o Golem" icon="sword" onPress={fight} loading={busy} />
+          <Button label={`Enfrentar ${boss.name}`} icon="sword" onPress={fight} loading={busy} />
           <Button label="Agora não" variant="ghost" onPress={() => router.back()} />
         </>
       }
     >
       <Animated.View entering={reduce ? undefined : FadeIn.duration(600)} style={styles.introArt}>
-        <GolemArt size={230} />
+        <BossArt art={boss.art} size={230} />
       </Animated.View>
       <View style={styles.center}>
-        <Text variant="label" color={colors.ember}>
+        <Text variant="label" color={boss.accent}>
           {boss.epithet}
         </Text>
         <Text variant="hero" align="center">
@@ -112,9 +110,9 @@ function Intro() {
           </Animated.View>
         ))}
       </View>
-      <Panel accent={colors.ember}>
+      <Panel accent={boss.accent}>
         <View style={styles.rule}>
-          <Icon name="shield" size={20} color={colors.mist} />
+          <Icon name={boss.trait.kind === 'armor' ? 'shield' : 'lock'} size={20} color={colors.mist} />
           <View style={{ flex: 1 }}>
             <Text variant="subheading">{boss.trait.name}</Text>
             <Text variant="caption" color={colors.parchmentDim}>
@@ -152,18 +150,27 @@ function Intro() {
 
 // ——————————————————————————————————————————————— batalha
 
-function Hud({ battle, hit, line }: { battle: BattleState; hit: { id: number; damage: number; technique: boolean } | null; line: string }) {
+type Hit = { id: number; damage: number; technique: boolean; healed: number };
+
+function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; hit: Hit | null; line: string }) {
   const reduce = useReduceMotion();
   return (
     <View style={styles.hud}>
       <View style={styles.hudRow}>
         <Text variant="subheading">{boss.name}</Text>
         <View style={styles.hpRow}>
-          {hit ? (
+          {hit && hit.damage > 0 ? (
             <Animated.View key={hit.id} entering={reduce ? FadeIn : FadeInDown.springify()} accessibilityLiveRegion="polite">
               <Text variant="number" color={hit.technique ? colors.brass : colors.parchment}>
                 −{hit.damage}
                 {hit.technique ? ` · ${boss.technique.name}!` : ''}
+              </Text>
+            </Animated.View>
+          ) : null}
+          {hit && hit.healed > 0 ? (
+            <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : FadeInDown.springify()} accessibilityLiveRegion="polite">
+              <Text variant="number" color={colors.ember}>
+                +{hit.healed} juros
               </Text>
             </Animated.View>
           ) : null}
@@ -172,7 +179,7 @@ function Hud({ battle, hit, line }: { battle: BattleState; hit: { id: number; da
           </Text>
         </View>
       </View>
-      <ProgressBar value={battle.hp / battle.maxHp} color={colors.ember} height={10} accessibilityLabel={`Vida do Golem: ${battle.hp} de ${battle.maxHp}`} />
+      <ProgressBar value={battle.hp / battle.maxHp} color={colors.ember} height={10} accessibilityLabel={`Vida de ${boss.name}: ${battle.hp} de ${battle.maxHp}`} />
       <View style={styles.hudRow}>
         <View style={styles.resolve} accessible accessibilityLabel={`Determinação: ${battle.resolve} de ${battle.maxResolve}`}>
           {Array.from({ length: battle.maxResolve }, (_, i) => (
@@ -181,9 +188,11 @@ function Hud({ battle, hit, line }: { battle: BattleState; hit: { id: number; da
         </View>
         <View style={styles.hudTags}>
           {!battle.armorBroken ? (
-            <View style={styles.tag}>
-              <Icon name="shield" size={13} color={colors.mist} />
-              <Text variant="caption" color={colors.mist}>couraça</Text>
+            <View style={styles.tag} accessible accessibilityLabel={`${boss.trait.name} ativa`}>
+              <Icon name={boss.trait.kind === 'armor' ? 'shield' : 'lock'} size={13} color={colors.mist} />
+              <Text variant="caption" color={colors.mist}>
+                {boss.trait.kind === 'armor' ? 'couraça' : 'cofre'}
+              </Text>
             </View>
           ) : null}
           {battle.combo > 0 ? (
@@ -201,7 +210,7 @@ function Hud({ battle, hit, line }: { battle: BattleState; hit: { id: number; da
   );
 }
 
-function Battle({ battle, onFinished }: { battle: BattleState; onFinished: (events: GameEvent[]) => void }) {
+function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleState; onFinished: (events: GameEvent[]) => void }) {
   const insets = useSafeAreaInsets();
   const reduce = useReduceMotion();
   const [shownId, setShownId] = useState<string | null>(battle.currentQuestionId);
@@ -210,7 +219,7 @@ function Battle({ battle, onFinished }: { battle: BattleState; onFinished: (even
   const feedbackOffset = useRef(0);
   const shake = useSharedValue(0);
   const flash = useSharedValue(0);
-  const [hit, setHit] = useState<{ id: number; damage: number; technique: boolean } | null>(null);
+  const [hit, setHit] = useState<Hit | null>(null);
   const [line, setLine] = useState<string>(boss.lines.intro[2]);
   const finalEvents = useRef<GameEvent[]>([]);
 
@@ -229,7 +238,7 @@ function Battle({ battle, onFinished }: { battle: BattleState; onFinished: (even
     if (after && turn) {
       if (turn.correct) {
         haptic(turn.technique ? 'heavy' : 'impact');
-        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique });
+        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: 0 });
         if (!reduce) {
           shake.set(withSequence(withTiming(10, { duration: 60 }), withTiming(-8, { duration: 70 }), withTiming(0, { duration: 80 })));
           flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
@@ -244,7 +253,7 @@ function Battle({ battle, onFinished }: { battle: BattleState; onFinished: (even
                 : pickLine(boss.lines.playerHit, after.turns.length),
         );
       } else {
-        setHit(null);
+        setHit((turn.healed ?? 0) > 0 ? { id: after.turns.length, damage: 0, technique: false, healed: turn.healed ?? 0 } : null);
         setLine(after.status === 'retreated' ? boss.lines.retreat : pickLine(boss.lines.bossHit, after.turns.length));
       }
       if (after.status !== 'active') finalEvents.current = events;
@@ -277,17 +286,17 @@ function Battle({ battle, onFinished }: { battle: BattleState; onFinished: (even
 
   return (
     <View style={styles.root}>
-      <MapBackdrop glow={colors.ember} />
+      <MapBackdrop glow={boss.accent} />
       <View style={[styles.top, { paddingTop: insets.top + space.xs }]}>
         <IconButton icon="close" label="Pausar ou recuar" onPress={onClose} color={colors.parchment} />
         <View style={{ flex: 1 }}>
-          <Hud battle={battle} hit={hit} line={line} />
+          <Hud boss={boss} battle={battle} hit={hit} line={line} />
         </View>
       </View>
       <ScrollView ref={scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.arena} onLayout={(e) => (feedbackOffset.current = e.nativeEvent.layout.height + space.lg)}>
           <Animated.View style={artStyle}>
-            <GolemArt size={150} cracked={battle.armorBroken} defeated={battle.status === 'won'} />
+            <BossArt art={boss.art} size={150} cracked={battle.armorBroken} defeated={battle.status === 'won'} />
           </Animated.View>
         </View>
         {question ? (
@@ -315,9 +324,9 @@ function Battle({ battle, onFinished }: { battle: BattleState; onFinished: (even
 
 // ——————————————————————————————————————————————— resultado
 
-function Result({ battle, events }: { battle: BattleState; events: GameEvent[] }) {
+function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; events: GameEvent[] }) {
   const reduce = useReduceMotion();
-  const progress = useGame((g) => g.bosses[BOSS_ID]);
+  const progress = useGame((g) => g.bosses[boss.id]);
   const won = battle.status === 'won';
   const items = events.filter((e): e is Extract<GameEvent, { type: 'item' }> => e.type === 'item' && e.source.startsWith('boss:'));
   const correct = battle.turns.filter((t) => t.correct).length;
@@ -331,7 +340,7 @@ function Result({ battle, events }: { battle: BattleState; events: GameEvent[] }
     setBusy(true);
     try {
       await dismissBattle();
-      await beginBattle(BOSS_ID);
+      await beginBattle(boss.id);
     } finally {
       setBusy(false);
     }
@@ -343,7 +352,7 @@ function Result({ battle, events }: { battle: BattleState; events: GameEvent[] }
 
   return (
     <Screen
-      glow={won ? colors.brass : colors.ember}
+      glow={won ? colors.brass : boss.accent}
       footer={
         <>
           {!won ? <Button label="Tentar de novo" icon="sword" onPress={again} loading={busy} /> : null}
@@ -352,7 +361,7 @@ function Result({ battle, events }: { battle: BattleState; events: GameEvent[] }
       }
     >
       <Animated.View entering={reduce ? undefined : FadeIn.duration(500)} style={styles.introArt}>
-        <GolemArt size={190} defeated={won} cracked />
+        <BossArt art={boss.art} size={190} defeated={won} cracked />
       </Animated.View>
       <View style={styles.center}>
         <Text variant="label" color={won ? colors.brass : colors.mist}>
@@ -417,19 +426,31 @@ function Result({ battle, events }: { battle: BattleState; events: GameEvent[] }
   );
 }
 
+function resolveBoss(id: string | undefined): BossDef {
+  try {
+    return getBoss(id ?? BOSSES[0].id);
+  } catch {
+    return BOSSES[0];
+  }
+}
+
 export default function BossScreen() {
+  const params = useLocalSearchParams<{ id?: string }>();
   const battle = useGame((g) => g.battle);
+  // Uma batalha salva sempre manda; senão, o chefão pedido na rota.
+  const boss = resolveBoss(battle?.bossId ?? params.id);
   const [finalEvents, setFinalEvents] = useState<GameEvent[]>([]);
   // Mantém a tela de batalha até o jogador ver o feedback do último golpe.
   const [fighting, setFighting] = useState<string | null>(null);
   const activeId = battle?.status === 'active' ? battle.id : null;
   if (activeId && fighting !== activeId) setFighting(activeId);
 
-  if (!battle) return <Intro />;
+  if (!battle) return <Intro boss={boss} />;
   if (battle.status === 'active' || fighting === battle.id) {
     return (
       <Battle
         key={battle.id}
+        boss={boss}
         battle={battle}
         onFinished={(events) => {
           setFinalEvents(events);
@@ -438,7 +459,7 @@ export default function BossScreen() {
       />
     );
   }
-  return <Result battle={battle} events={finalEvents} />;
+  return <Result boss={boss} battle={battle} events={finalEvents} />;
 }
 
 const styles = StyleSheet.create({

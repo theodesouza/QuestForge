@@ -9,6 +9,14 @@ export interface LevelUpCelebration {
   rewards: { level: number; rewards: Reward[] }[];
 }
 
+/** Aviso curto no topo da tela (encomenda cumprida, baú, compra). */
+export interface Toast {
+  id: string;
+  title: string;
+  detail: string;
+  tone: 'quest' | 'bonus' | 'purchase';
+}
+
 export interface GameStore {
   status: 'loading' | 'ready' | 'error';
   error: string | null;
@@ -19,6 +27,7 @@ export interface GameStore {
   restedNotice: number | null;
   /** Momento da última publicação de estado (evita Date.now() durante a renderização). */
   now: number;
+  toasts: Toast[];
 }
 
 export const useGameStore = create<GameStore>(() => ({
@@ -29,6 +38,7 @@ export const useGameStore = create<GameStore>(() => ({
   lastSummary: null,
   restedNotice: null,
   now: 0,
+  toasts: [],
 }));
 
 let celebrationSeq = 0;
@@ -43,10 +53,23 @@ export function publish(state: GameState, events: GameEvent[]) {
       ...levelUps.map((e) => ({ id: `c${celebrationSeq++}`, from: e.from, to: e.to, rewards: e.rewards })),
     ];
   }
+  const toasts: Toast[] = [];
   for (const e of events) {
     if (e.type === 'sessionComplete') patch.lastSummary = e.summary;
     if (e.type === 'rested') patch.restedNotice = e.gained;
+    if (e.type === 'questComplete') {
+      toasts.push({ id: `t${celebrationSeq++}`, tone: 'quest', title: 'Encomenda cumprida', detail: `${e.title} · +${e.xp} XP · +${e.ink} Tinta` });
+    }
+    if (e.type === 'questBonus') {
+      toasts.push({
+        id: `t${celebrationSeq++}`,
+        tone: 'bonus',
+        title: e.period === 'daily' ? 'Baú do dia aberto!' : 'Baú da semana aberto!',
+        detail: `+${e.xp} XP · +${e.ink} Tinta${e.itemId ? ' · novo título' : ''}`,
+      });
+    }
   }
+  if (toasts.length) patch.toasts = [...useGameStore.getState().toasts, ...toasts];
   useGameStore.setState(patch);
 }
 

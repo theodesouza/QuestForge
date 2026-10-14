@@ -2,11 +2,12 @@
  * Acampamento — a tela inicial. Em um olhar: quem sou, quanto falta para o
  * próximo nível, qual recompensa me espera, e como começar com UM toque.
  */
-import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { QUESTIONS } from '../../content/bank';
+import { getBoss } from '../../content/bosses';
 import { getItem } from '../../content/items';
 import { subtopicLabel } from '../../content/topics';
 import { nextNode } from '../../domain/campaign/campaign';
@@ -15,8 +16,10 @@ import { recommendFocus } from '../../domain/learning/recommend';
 import { dueQuestionIds } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { nextItemLevel } from '../../domain/progression/rewards';
+import { DailyQuestCard } from '../../features/quests/DailyQuestCard';
+import { UpdateBanner } from '../../features/updates/UpdateBanner';
 import { useStarter } from '../../features/useStarter';
-import { dismissRestedNotice, startEchoHunt, startExpedition, startFocus, startMission } from '../../state/actions';
+import { dismissRestedNotice, refreshQuests, startEchoHunt, startExpedition, startFocus, startMission } from '../../state/actions';
 import { useGame, useGameStore } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
 import { Button } from '../../ui/Button';
@@ -53,6 +56,11 @@ export default function Camp() {
   const restedNotice = useGameStore((s) => s.restedNotice);
   const now = useGameStore((s) => s.now);
   const { busy, start } = useStarter();
+  useFocusEffect(
+    useCallback(() => {
+      refreshQuests().catch(() => undefined);
+    }, []),
+  );
 
   const progress = levelProgress(profile.xp);
   const rank = rankFor(progress.level);
@@ -65,7 +73,7 @@ export default function Camp() {
   const resume = session
     ? { label: session.mode === 'mission' ? 'Missão em andamento' : 'Expedição em andamento', detail: `${Math.min(session.index + 1, session.queue.length)} de ${session.queue.length}`, to: '/session' as const }
     : battle && battle.status === 'active'
-      ? { label: 'Batalha em andamento', detail: `Golem com ${battle.hp} de vida`, to: '/boss' as const }
+      ? { label: 'Batalha em andamento', detail: `${getBoss(battle.bossId).name} com ${battle.hp} de vida`, to: `/boss?id=${battle.bossId}` }
       : null;
 
   return (
@@ -77,9 +85,13 @@ export default function Camp() {
           </Text>
           <Text variant="title">Acampamento</Text>
         </View>
-        <Pill icon="ink" value={String(profile.ink)} color={colors.iris} label="Tinta" />
+        <Pressable onPress={() => router.push('/workshop')} accessibilityRole="button" accessibilityLabel={`Tinta: ${profile.ink}. Abrir a Oficina`}>
+          <Pill icon="ink" value={String(profile.ink)} color={colors.iris} label="Tinta" />
+        </Pressable>
         <IconButton icon="settings" label="Ajustes" onPress={() => router.push('/settings')} />
       </View>
+
+      <UpdateBanner />
 
       {restedNotice ? (
         <Animated.View entering={enter(0)}>
@@ -187,7 +199,7 @@ export default function Camp() {
               loading={busy === 'mission'}
               onPress={() => {
                 const node = next.node;
-                if (node.kind === 'boss') router.push('/boss');
+                if (node.kind === 'boss') router.push(`/boss?id=${node.bossId}`);
                 else start('mission', () => startMission(node.id));
               }}
               style={{ marginTop: space.sm }}
@@ -198,12 +210,17 @@ export default function Camp() {
             <Text variant="label" color={colors.verdigris}>
               Região conquistada
             </Text>
-            <Text variant="heading">O Vale das Proporções é seu.</Text>
+            <Text variant="heading">Todas as regiões abertas foram conquistadas.</Text>
             <Text variant="body" color={colors.parchmentDim}>
               Novas regiões serão reveladas em próximas atualizações. Enquanto isso, mantenha o mapa vivo com expedições e caçando Ecos.
             </Text>
           </Panel>
         )}
+      </Animated.View>
+
+      {/* Encomendas do dia */}
+      <Animated.View entering={enter(3)}>
+        <DailyQuestCard />
       </Animated.View>
 
       {/* Expedição rápida */}

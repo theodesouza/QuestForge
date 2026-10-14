@@ -27,7 +27,9 @@ import {
   type XpResult,
 } from '../progression/xp';
 import { hashString } from '../util/random';
+import { dayKey, type QuestIncrement } from '../quests/quests';
 import { grantInk, grantItem, grantXp, once } from './grant';
+import { progressQuests, refreshQuests } from './quests';
 import { Tx } from './tx';
 import type {
   ActiveSession,
@@ -44,6 +46,8 @@ import type {
 // ————————————————————————————————————————————————————————— estado inicial
 
 export const DEFAULT_SETTINGS: Settings = { haptics: true, reduceMotion: 'system' };
+/** Horário de Brasília (UTC−3), até o aparelho informar o fuso real. */
+export const DEFAULT_TZ_OFFSET_MIN = 180;
 
 export function createInitialState(now: number): GameState {
   const profile: Profile = {
@@ -62,6 +66,7 @@ export function createInitialState(now: number): GameState {
     targets: {},
     totals: { answered: 0, correct: 0, timeMs: 0, sessions: 0 },
     settings: DEFAULT_SETTINGS,
+    tzOffsetMin: DEFAULT_TZ_OFFSET_MIN,
   };
   const inventory: GameState['inventory'] = {};
   for (const itemId of STARTER_ITEMS) inventory[itemId] = { itemId, acquiredAt: now, source: 'inicial' };
@@ -74,6 +79,7 @@ export function createInitialState(now: number): GameState {
     bosses: {},
     session: null,
     battle: null,
+    quests: { daily: null, weekly: null },
   };
 }
 
@@ -89,6 +95,7 @@ export function fullDelta(state: GameState): Result['delta'] {
     bosses: Object.keys(state.bosses),
     session: true,
     battle: true,
+    quests: true,
   };
 }
 
@@ -121,17 +128,32 @@ export function completeOnboarding(state: GameState, input: OnboardingInput, now
     targets,
     lastActiveAt: now,
   });
+  refreshQuests(tx, now);
   return tx.done();
 }
 
-/** Chamado ao abrir o app: converte ausência em Descanso do Viajante. */
-export function touch(state: GameState, now: number): Result {
+/**
+ * Chamado ao abrir o app: registra o fuso do aparelho, converte ausência em
+ * Descanso do Viajante e troca as encomendas do dia/semana se for preciso.
+ */
+export function touch(state: GameState, now: number, tzOffsetMin?: number): Result {
   const tx = new Tx(state);
+  if (tzOffsetMin !== undefined && Number.isFinite(tzOffsetMin) && tzOffsetMin !== tx.profile.tzOffsetMin) {
+    tx.patchProfile({ tzOffsetMin });
+  }
   const p = tx.profile;
   if (!p.onboarded) return tx.done();
   const { pool, gained } = accrueRested(p.restedPool, p.lastActiveAt, now);
   tx.patchProfile({ restedPool: pool, lastActiveAt: now });
   if (gained > 0) tx.emit({ type: 'rested', gained, pool });
+  refreshQuests(tx, now);
+  return tx.done();
+}
+
+/** Troca as encomendas se o dia/semana virou com o app aberto. */
+export function refreshQuestBoards(state: GameState, now: number): Result {
+  const tx = new Tx(state);
+  refreshQuests(tx, now);
   return tx.done();
 }
 
@@ -325,6 +347,15 @@ function recordAnswer(
     kind: xp.kind,
     createdAt: now,
   });
+
+  const incs: QuestIncrement[] = [{ metric: 'answered', amount: 1 }];
+  if (correct) {
+    incs.push({ metric: 'correct', amount: 1 });
+    if (q.difficulty >= 3) incs.push({ metric: 'correctHard', amount: 1 });
+    if (!guessed) incs.push({ metric: 'topicCorrect', amount: 1, topic: q.topic, subtopic: q.subtopic });
+  }
+  if (xp.kind === 'redemption') incs.push({ metric: 'redemptions', amount: 1 });
+  progressQuests(tx, { incs, answerTimeMs: input.timeMs }, now);
   return { correct, xp, granted };
 }
 
@@ -474,6 +505,10 @@ export function finishSession(state: GameState, now: number): Result {
 
   if (answered.length > 0) {
     tx.patchProfile({ totals: { ...tx.profile.totals, sessions: tx.profile.totals.sessions + 1 } });
+    const incs: QuestIncrement[] = [{ metric: 'sessions', amount: 1 }];
+    if (bonus.perfect) incs.push({ metric: 'perfectSessions', amount: 1 });
+    if (missionPassed) incs.push({ metric: 'missions', amount: 1 });
+    progressQuests(tx, { incs }, now);
   }
 
   const summary: SessionSummary = {
@@ -573,9 +608,6 @@ export function startBattle(state: GameState, bossId: string, battleId: string, 
   return tx.done();
 }
 
-function utcDay(now: number): string {
-  return new Date(now).toISOString().slice(0, 10);
-}
 
 export function battleAnswer(state: GameState, input: AnswerInput, now: number): Result {
   const battle = state.battle;
@@ -604,7 +636,7 @@ export function battleAnswer(state: GameState, input: AnswerInput, now: number):
       for (const itemId of boss.rewards.firstItems) grantItem(tx, itemId, `boss:${boss.id}`, now);
     });
     if (!first) {
-      once(tx, `boss:${boss.id}:win:${utcDay(now)}`, now, () => {
+      once(tx, `boss:${boss.id}:win:${dayKey(now, tx.profile.tzOffsetMin)}`, now, () => {
         next.xpEarned += grantXp(tx, boss.rewards.repeatXp, 'boss', now, false);
       });
     }
@@ -622,10 +654,12 @@ export function battleAnswer(state: GameState, input: AnswerInput, now: number):
       bestTurns: prev.bestTurns === null ? next.turns.length : Math.min(prev.bestTurns, next.turns.length),
     });
     tx.patchProfile({ totals: { ...tx.profile.totals, sessions: tx.profile.totals.sessions + 1 } });
+    progressQuests(tx, { incs: [{ metric: 'bossWins', amount: 1 }, { metric: 'sessions', amount: 1 }] }, now);
     tx.emit({ type: 'bossDefeated', bossId: boss.id, first, flawless });
   } else if (next.status === 'retreated') {
     tx.setBossProgress({ ...prev, failedSinceWin: prev.failedSinceWin + 1 });
     tx.patchProfile({ totals: { ...tx.profile.totals, sessions: tx.profile.totals.sessions + 1 } });
+    progressQuests(tx, { incs: [{ metric: 'sessions', amount: 1 }] }, now);
   } else {
     next.currentQuestionId = pickBossQuestion(tx.state, boss, next, now);
   }
@@ -694,5 +728,23 @@ export function updateProfileBasics(
   const clean = { ...patch };
   if (clean.name !== undefined) clean.name = clean.name.trim().slice(0, 24);
   tx.patchProfile(clean);
+  return tx.done();
+}
+
+/** Oficina: compra um cosmético com Tinta e já o equipa. Cada item só pode ser comprado uma vez. */
+export function buyItem(state: GameState, itemId: string, now: number): Result {
+  const item = getItem(itemId);
+  if (item.price === undefined) throw new Error('Este item não está à venda');
+  if (state.inventory[itemId]) throw new Error('Você já tem este item');
+  if (state.profile.ink < item.price) throw new Error('Tinta insuficiente');
+  const tx = new Tx(state);
+  const price = item.price;
+  const bought = once(tx, `shop:${itemId}`, now, () => {
+    tx.patchProfile({ ink: tx.profile.ink - price });
+    grantItem(tx, itemId, 'oficina', now);
+    tx.patchProfile({ equipped: { ...tx.profile.equipped, [item.slot]: itemId } });
+    tx.emit({ type: 'purchase', itemId, price });
+  });
+  if (!bought) throw new Error('Compra já registrada');
   return tx.done();
 }

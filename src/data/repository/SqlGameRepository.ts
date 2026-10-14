@@ -4,7 +4,9 @@ import type { QuestionState } from '../../domain/learning/srs';
 import type { ActiveSession, Attempt, Delta, GameState } from '../../domain/game/types';
 import { migrate } from '../migrations';
 import type { SqlDriver, SqlExecutor, SqlValue } from '../sql/driver';
-import { hydrateProfile, type GameRepository } from './GameRepository';
+import { normalizeState } from '../../domain/game/normalize';
+import type { QuestBoard } from '../../domain/quests/quests';
+import type { GameRepository } from './GameRepository';
 
 const b = (v: boolean): number => (v ? 1 : 0);
 
@@ -129,17 +131,26 @@ export class SqlGameRepository implements GameRepository {
     const runs = await this.db.all<{ kind: string; data: string }>('SELECT kind, data FROM active_run');
     const sessionRow = runs.find((r) => r.kind === 'session');
     const battleRow = runs.find((r) => r.kind === 'battle');
-
-    return {
-      profile: hydrateProfile(safeParse(profileRow.data), now),
-      questionStates,
-      inventory,
-      ledger,
-      campaign,
-      bosses,
-      session: sessionRow ? safeParse<ActiveSession>(sessionRow.data) : null,
-      battle: battleRow ? safeParse<BattleState>(battleRow.data) : null,
+    const boards = await this.db.all<{ period: string; data: string }>('SELECT period, data FROM quest_board');
+    const board = (period: string) => {
+      const row = boards.find((b) => b.period === period);
+      return row ? safeParse<QuestBoard>(row.data) : null;
     };
+
+    return normalizeState(
+      {
+        profile: safeParse(profileRow.data),
+        questionStates,
+        inventory,
+        ledger,
+        campaign,
+        bosses,
+        session: sessionRow ? safeParse<ActiveSession>(sessionRow.data) : null,
+        battle: battleRow ? safeParse<BattleState>(battleRow.data) : null,
+        quests: { daily: board('daily'), weekly: board('weekly') },
+      },
+      now,
+    );
   }
 
   async commit(state: GameState, delta: Delta): Promise<void> {
@@ -180,6 +191,20 @@ export class SqlGameRepository implements GameRepository {
       }
       if (delta.session) await writeRun(tx, 'session', state.session, now);
       if (delta.battle) await writeRun(tx, 'battle', state.battle, now);
+      if (delta.quests) {
+        for (const period of ['daily', 'weekly'] as const) {
+          const b = state.quests[period];
+          if (b) {
+            await tx.run('INSERT OR REPLACE INTO quest_board (period, data, updated_at) VALUES (?, ?, ?)', [
+              period,
+              JSON.stringify(b),
+              now,
+            ]);
+          } else {
+            await tx.run('DELETE FROM quest_board WHERE period = ?', [period]);
+          }
+        }
+      }
     });
   }
 
@@ -195,6 +220,7 @@ export class SqlGameRepository implements GameRepository {
         'campaign_progress',
         'boss_progress',
         'active_run',
+        'quest_board',
       ]) {
         await tx.exec(`DELETE FROM ${table}`);
       }

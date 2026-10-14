@@ -3,8 +3,11 @@ import type { AltKey, TopicId } from '../../content/types';
 import type { BattleState } from '../boss/battle';
 import type { BossProgress, NodeProgress } from '../campaign/campaign';
 import type { QuestionState } from '../learning/srs';
+import type { QuestPeriod, QuestsState } from '../quests/quests';
 import type { Reward } from '../progression/rewards';
 import type { XpKind } from '../progression/xp';
+
+export type XpSource = XpKind | 'session' | 'mission' | 'boss' | 'quest';
 
 export type Goal = 'enem' | 'reforco' | 'curiosidade';
 export type SelfLevel = 'iniciante' | 'intermediario' | 'avancado';
@@ -39,6 +42,8 @@ export interface Profile {
   targets: Partial<Record<TopicId, number>>;
   totals: { answered: number; correct: number; timeMs: number; sessions: number };
   settings: Settings;
+  /** Fuso do aparelho (minutos, como Date#getTimezoneOffset) — define o "dia" das encomendas. */
+  tzOffsetMin: number;
 }
 
 export type SessionMode = 'expedition' | 'mission' | 'boss';
@@ -105,6 +110,7 @@ export interface GameState {
   bosses: Record<string, BossProgress>;
   session: ActiveSession | null;
   battle: BattleState | null;
+  quests: QuestsState;
 }
 
 /** O que precisa ser gravado após uma operação (chaves "sujas" + tentativas novas). */
@@ -118,6 +124,7 @@ export interface Delta {
   bosses: string[];
   session: boolean;
   battle: boolean;
+  quests: boolean;
 }
 
 export interface SessionSummary {
@@ -155,7 +162,7 @@ export type GameEvent =
       restedBonus: number;
       ink: number;
     }
-  | { type: 'xp'; amount: number; restedBonus: number; source: XpKind | 'session' | 'mission' | 'boss' }
+  | { type: 'xp'; amount: number; restedBonus: number; source: XpSource }
   | { type: 'ink'; amount: number }
   | { type: 'levelUp'; from: number; to: number; rewards: { level: number; rewards: Reward[] }[] }
   | { type: 'item'; itemId: string; source: string; autoEquipped: boolean; slot: ItemSlot }
@@ -165,7 +172,10 @@ export type GameEvent =
   | { type: 'scaffold'; questionId: string; subtopic: string; conceptFrom: string }
   | { type: 'missionComplete'; nodeId: string; first: boolean }
   | { type: 'bossDefeated'; bossId: string; first: boolean; flawless: boolean }
-  | { type: 'sessionComplete'; summary: SessionSummary };
+  | { type: 'sessionComplete'; summary: SessionSummary }
+  | { type: 'questComplete'; period: QuestPeriod; questId: string; title: string; xp: number; ink: number }
+  | { type: 'questBonus'; period: QuestPeriod; xp: number; ink: number; itemId: string | null }
+  | { type: 'purchase'; itemId: string; price: number };
 
 export interface Result {
   state: GameState;

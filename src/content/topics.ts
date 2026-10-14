@@ -34,6 +34,8 @@ export const TOPICS: Topic[] = [
     subtopics: [
       { id: 'juros-simples', label: 'Juros simples' },
       { id: 'juros-compostos', label: 'Juros compostos' },
+      { id: 'compras-a-prazo', label: 'Compras à vista e a prazo' },
+      { id: 'custo-beneficio', label: 'Preço unitário e custo-benefício' },
     ],
   },
   {

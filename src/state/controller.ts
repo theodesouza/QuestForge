@@ -15,6 +15,8 @@ export type Reducer = (state: GameState, now: number) => Result;
 export interface ControllerDeps {
   repo: GameRepository;
   clock?: () => number;
+  /** Fuso do aparelho em minutos (Date#getTimezoneOffset). */
+  tzOffset?: () => number;
   onState: (state: GameState, events: GameEvent[]) => void;
 }
 
@@ -22,9 +24,11 @@ export class GameController {
   private state: GameState | null = null;
   private queue: Promise<unknown> = Promise.resolve();
   private readonly clock: () => number;
+  private readonly tzOffset: () => number;
 
   constructor(private readonly deps: ControllerDeps) {
     this.clock = deps.clock ?? Date.now;
+    this.tzOffset = deps.tzOffset ?? (() => new Date().getTimezoneOffset());
   }
 
   get current(): GameState | null {
@@ -40,7 +44,7 @@ export class GameController {
         state = createInitialState(now);
         await this.deps.repo.commit(state, fullDelta(state));
       }
-      const touched = touch(state, now);
+      const touched = touch(state, now, this.tzOffset());
       await this.deps.repo.commit(touched.state, touched.delta);
       this.state = touched.state;
       this.deps.onState(touched.state, touched.events);
