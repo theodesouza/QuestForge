@@ -1,14 +1,15 @@
 /**
  * Avisos curtos no topo (encomenda cumprida, baú aberto). Somem sozinhos; tocar dispensa.
- * Ficam na fila enquanto há uma questão ou batalha em andamento (para não cobrir o HUD
- * nem o botão de sair) e enquanto a celebração de nível está na tela.
+ * Ficam na fila enquanto a tela de questão ou de batalha está aberta (para não cobrir o
+ * HUD nem o botão de sair) e enquanto a celebração de nível está na tela.
  */
-import { useEffect, useState } from 'react';
-import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
+import { usePathname } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInUp, FadeOut, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { dismissToast } from '../../state/actions';
-import { useGame, useGameStore } from '../../state/store';
+import { useGameStore } from '../../state/store';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
@@ -17,10 +18,14 @@ import { colors, radius, space } from '../../ui/theme';
 const VISIBLE_MS = 2800;
 /** Com leitor de tela, o aviso fica mais tempo (dá para ouvir e tocar). */
 const VISIBLE_SCREEN_READER_MS = 7000;
+/** Telas em que o aviso esperaria: cobriria o HUD e o botão de sair. */
+const HOLD_ON: readonly string[] = ['/session', '/boss'];
 
 function useScreenReader(): boolean {
   const [on, setOn] = useState(false);
   useEffect(() => {
+    // No navegador o react-native-web sempre responde "ligado"; lá o aviso usa o tempo normal.
+    if (Platform.OS === 'web') return;
     let alive = true;
     AccessibilityInfo.isScreenReaderEnabled()
       .then((v) => {
@@ -39,16 +44,21 @@ function useScreenReader(): boolean {
 export function ToastHost() {
   const queued = useGameStore((s) => s.toasts[0]);
   const celebrating = useGameStore((s) => s.celebrations.length > 0);
-  const playing = useGame((g) => !!g.session || g.battle?.status === 'active');
+  const pathname = usePathname();
   const reduce = useReduceMotion();
   const insets = useSafeAreaInsets();
   const screenReader = useScreenReader();
-  const toast = celebrating || playing ? undefined : queued;
+  const toast = celebrating || HOLD_ON.includes(pathname) ? undefined : queued;
+  const announced = useRef<string | null>(null);
 
   useEffect(() => {
     if (!toast) return;
-    haptic('success');
-    AccessibilityInfo.announceForAccessibility(`${toast.title}. ${toast.detail}`);
+    // Vibração e anúncio uma vez por aviso (o efeito pode rodar de novo se o leitor de tela mudar).
+    if (announced.current !== toast.id) {
+      announced.current = toast.id;
+      haptic('success');
+      AccessibilityInfo.announceForAccessibility(`${toast.title}. ${toast.detail}`);
+    }
     const t = setTimeout(() => dismissToast(toast.id), screenReader ? VISIBLE_SCREEN_READER_MS : VISIBLE_MS);
     return () => clearTimeout(t);
   }, [toast, screenReader]);
@@ -56,7 +66,7 @@ export function ToastHost() {
   if (!toast) return null;
   const bonus = toast.tone === 'bonus';
   return (
-    <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + space.sm }]} accessibilityLiveRegion="polite">
+    <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + space.sm }]}>
       <Animated.View
         key={toast.id}
         entering={reduce ? FadeIn : FadeInUp.springify().damping(18)}

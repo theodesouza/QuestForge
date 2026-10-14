@@ -5,10 +5,10 @@
 import { REGIONS } from '../../content/regions';
 import { nodeStatus } from '../campaign/campaign';
 import {
-  DAILY_BONUS,
-  WEEKLY_BONUS,
   WEEKLY_FIRST_ITEM,
   allDone,
+  boardBonus,
+  grantsWeeklyItem,
   applyIncrements,
   dayKey,
   generateDaily,
@@ -50,8 +50,8 @@ export function refreshQuests(tx: Tx, now: number) {
   const dKey = dayKey(now, tz);
   const wKey = weekKey(now, tz);
   const q = tx.state.quests;
-  const needDaily = !q.daily || shouldReplaceBoard(dKey, q.daily.key, 2);
-  const needWeekly = !q.weekly || shouldReplaceBoard(wKey, q.weekly.key, 7);
+  const needDaily = !q.daily || shouldReplaceBoard(dKey, q.daily.key, dKey);
+  const needWeekly = !q.weekly || shouldReplaceBoard(wKey, q.weekly.key, dKey);
   if (!needDaily && !needWeekly) return;
   const ctx = generationContext(tx.state, now);
   tx.setQuests({
@@ -96,11 +96,11 @@ export function progressQuests(tx: Tx, input: ProgressInput, now: number) {
     }
     if (completed.length > 0 && allDone(next)) {
       once(tx, `quest:${next.period}:${next.key}:bonus`, now, () => {
-        const bonus = next.period === 'daily' ? DAILY_BONUS : WEEKLY_BONUS;
+        const bonus = boardBonus(next);
         grantXp(tx, bonus.xp, 'quest', now, false);
         grantInk(tx, bonus.ink);
         let itemId: string | null = null;
-        if (next.period === 'weekly' && !tx.state.inventory[WEEKLY_FIRST_ITEM]) {
+        if (grantsWeeklyItem(next) && !tx.state.inventory[WEEKLY_FIRST_ITEM]) {
           grantItem(tx, WEEKLY_FIRST_ITEM, 'encomendas', now);
           itemId = WEEKLY_FIRST_ITEM;
         }

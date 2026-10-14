@@ -51,6 +51,11 @@ export interface QuestBoard {
   days: string[];
   /** Tempo de estudo acumulado no período (para "estude por N minutos"). */
   studyMs: number;
+  /**
+   * Fração do período coberta pelo quadro (1 = semana inteira). Um quadro semanal criado
+   * no meio da semana tem metas e recompensas proporcionais. Ausente em quadros antigos (= 1).
+   */
+  share?: number;
 }
 
 export interface QuestsState {
@@ -62,13 +67,44 @@ export const DAILY_REWARD = { xp: 25, ink: 10 } as const;
 export const DAILY_BONUS = { xp: 20, ink: 15 } as const;
 export const WEEKLY_REWARD = { xp: 80, ink: 40 } as const;
 export const WEEKLY_BONUS = { xp: 100, ink: 60 } as const;
-/** Título concedido na primeira semana completa. */
+/** Título concedido na primeira semana inteira (quadro criado na segunda-feira) cumprida. */
 export const WEEKLY_FIRST_ITEM = 'title-constante';
 /** Tempo máximo que uma resposta conta para "estude por N minutos" (evita contar o app aberto parado). */
 export const STUDY_CAP_PER_ANSWER_MS = 5 * 60 * 1000;
 
 const MINUTE = 60 * 1000;
 const DAY = 24 * 60 * MINUTE;
+
+/** Arredonda para múltiplo de 5, respeitando um mínimo. */
+function round5(n: number, min: number): number {
+  return Math.max(min, Math.round(n / 5) * 5);
+}
+
+/** Recompensa de cada encomenda semanal, proporcional à parte da semana coberta. */
+export function weeklyReward(share: number) {
+  if (share >= 1) return { ...WEEKLY_REWARD };
+  return { xp: round5(WEEKLY_REWARD.xp * share, 20), ink: round5(WEEKLY_REWARD.ink * share, 10) };
+}
+
+/** Baú de um quadro (o semanal é proporcional à parte da semana coberta). */
+export function boardBonus(board: QuestBoard): { xp: number; ink: number } {
+  if (board.period === 'daily') return { ...DAILY_BONUS };
+  const share = board.share ?? 1;
+  if (share >= 1) return { ...WEEKLY_BONUS };
+  return { xp: round5(WEEKLY_BONUS.xp * share, 25), ink: round5(WEEKLY_BONUS.ink * share, 15) };
+}
+
+/** O título da Constância só vem de uma semana inteira. */
+export function grantsWeeklyItem(board: QuestBoard): boolean {
+  return board.period === 'weekly' && (board.share ?? 1) >= 1;
+}
+
+/** Rótulo de subassunto no meio de uma frase: só a inicial vira minúscula (e siglas ficam). */
+export function inlineLabel(label: string): string {
+  const isUpper = (c: string) => c !== '' && c === c.toUpperCase() && c !== c.toLowerCase();
+  if (isUpper(label.charAt(0)) && isUpper(label.charAt(1))) return label;
+  return label.charAt(0).toLowerCase() + label.slice(1);
+}
 
 // ———————————————————————————————————————————— calendário local
 
@@ -108,17 +144,24 @@ export function daysLeftInWeek(key: string, now: number, tzOffsetMin: number): n
   return Math.max(1, Math.min(7, 7 - elapsed));
 }
 
+/** Tolerância para um quadro "à frente" do dia local: viagem de fuso muda a data em no máximo 2 dias. */
+export const BOARD_AHEAD_TOLERANCE_DAYS = 2;
+
 /**
  * O quadro guardado deve ser trocado pelo do período atual? Só quando o período
  * avançou: mudar o fuso para "trás" não devolve um quadro já cumprido nem apaga o
- * progresso de hoje. Um quadro muito à frente (relógio do aparelho estava errado)
- * também é trocado, para não ficar preso.
+ * progresso de hoje. Um quadro que começa mais de 2 dias depois de hoje (relógio do
+ * aparelho estava adiantado) também é trocado, para não ficar preso.
+ *
+ * @param currentKey chave do período atual (dia ou semana)
+ * @param boardKey chave do quadro guardado
+ * @param today dia local de hoje (AAAA-MM-DD), referência para o "à frente"
  */
-export function shouldReplaceBoard(currentKey: string, boardKey: string, toleranceDays: number): boolean {
+export function shouldReplaceBoard(currentKey: string, boardKey: string, today: string): boolean {
   if (boardKey === currentKey) return false;
-  const strip = (k: string) => Date.parse(`${k.startsWith('S-') ? k.slice(2) : k}T00:00:00Z`);
-  const ahead = (strip(boardKey) - strip(currentKey)) / DAY;
-  return !(ahead > 0 && ahead <= toleranceDays);
+  const start = Date.parse(`${boardKey.startsWith('S-') ? boardKey.slice(2) : boardKey}T00:00:00Z`);
+  const ahead = (start - Date.parse(`${today}T00:00:00Z`)) / DAY;
+  return !(ahead > 0 && ahead <= BOARD_AHEAD_TOLERANCE_DAYS);
 }
 
 // ———————————————————————————————————————————— geração
@@ -182,7 +225,7 @@ function dailyCandidates(key: string, ctx: GenerationContext): { opener: Candida
     // Nunca mais acertos do que o subassunto tem de questões.
     const pool = questionsFor({ topics: [rec.topic], subtopics: [rec.subtopic] }).length;
     const target = Math.min(pick([2, 2, 3]), pool);
-    const label = subtopicLabel(rec.topic, rec.subtopic).toLowerCase();
+    const label = inlineLabel(subtopicLabel(rec.topic, rec.subtopic));
     if (target > 0) {
       focus = {
         metric: 'topicCorrect',
@@ -209,10 +252,13 @@ export function generateDaily(key: string, ctx: GenerationContext): QuestBoard {
 export function generateWeekly(key: string, ctx: GenerationContext): QuestBoard {
   const rng = createRng(hashString(`weekly:${key}:${ctx.createdAt}`));
   const t = tier(ctx.dailyMinutes);
-  // Quadro criado no meio da semana: metas proporcionais aos dias que restam.
+  // Quadro criado no meio da semana: metas e recompensas proporcionais aos dias que restam,
+  // com folga (o dia de hoje conta, mesmo que o quadro tenha surgido só ao abrir o app).
   const left = daysLeftInWeek(key, ctx.now, ctx.tzOffsetMin);
-  const scale = (full: number, min: number) => Math.max(min, Math.ceil((full * left) / 7));
-  const days = Math.min([3, 4, 5][t], left);
+  const share = left / 7;
+  const scale = (full: number, min: number) => Math.max(min, Math.ceil(full * share));
+  const fullDays = [3, 4, 5][t];
+  const days = Math.max(1, Math.min(fullDays, Math.floor(fullDays * share)));
   const answered = scale([20, 35, 50][t], 5);
   const hard = scale([4, 6, 10][t], 1);
   const missions = scale(2, 1);
@@ -236,8 +282,9 @@ export function generateWeekly(key: string, ctx: GenerationContext): QuestBoard 
     { metric: 'answered', target: answered, title: `Resolva ${answered} questões` },
     shuffle(third, rng)[0],
   ];
-  const quests = chosen.map((c, i) => ({ ...c, id: `w${i}-${c.metric}`, ...WEEKLY_REWARD }));
-  return { period: 'weekly', key, quests, progress: {}, days: [], studyMs: 0 };
+  const reward = weeklyReward(share);
+  const quests = chosen.map((c, i) => ({ ...c, id: `w${i}-${c.metric}`, ...reward }));
+  return { period: 'weekly', key, quests, progress: {}, days: [], studyMs: 0, share };
 }
 
 // ———————————————————————————————————————————— progresso

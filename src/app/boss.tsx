@@ -442,12 +442,15 @@ export default function BossScreen() {
   const [finalEvents, setFinalEvents] = useState<GameEvent[]>([]);
   // Mantém a tela de batalha até o jogador ver o feedback do último golpe.
   const [fighting, setFighting] = useState<string | null>(null);
+  // Batalha que esta tela mostrou (para exibir o resultado dela mesmo que a rota peça outro chefão).
+  const [shown, setShown] = useState<string | null>(null);
   const activeId = saved?.status === 'active' ? saved.id : null;
   if (activeId && fighting !== activeId) setFighting(activeId);
+  if (activeId && shown !== activeId) setShown(activeId);
   // Uma batalha em andamento sempre manda. Já o resultado de uma batalha encerrada contra
-  // outro chefão não é mostrado ao abrir este: aí vale a introdução do chefão pedido.
+  // outro chefão, que esta tela não mostrou, não aparece ao abrir este: vale a introdução.
   const stale =
-    !!saved && saved.status !== 'active' && fighting !== saved.id && !!params.id && saved.bossId !== params.id;
+    !!saved && saved.status !== 'active' && shown !== saved.id && !!params.id && saved.bossId !== params.id;
   const battle = stale ? null : saved;
   const boss = resolveBoss(battle?.bossId ?? params.id);
 

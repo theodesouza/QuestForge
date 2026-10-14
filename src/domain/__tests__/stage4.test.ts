@@ -20,7 +20,12 @@ import type { GameEvent, GameState, Result } from '../game/types';
 import {
   DAILY_BONUS,
   DAILY_REWARD,
+  WEEKLY_BONUS,
+  WEEKLY_FIRST_ITEM,
+  WEEKLY_REWARD,
   applyIncrements,
+  boardBonus,
+  inlineLabel,
   dayKey,
   generateDaily,
   generateWeekly,
@@ -105,8 +110,9 @@ describe('geração das encomendas', () => {
     expect(any).toBe(true);
   });
   it('metas escalam com o tempo diário escolhido', () => {
-    const small = generateWeekly('S-2026-10-12', { ...ctx, dailyMinutes: 5 });
-    const big = generateWeekly('S-2026-10-12', { ...ctx, dailyMinutes: 25 });
+    const mon = Date.UTC(2026, 9, 12, 15); // quadro criado na segunda: metas cheias
+    const small = generateWeekly('S-2026-10-12', { ...ctx, dailyMinutes: 5, now: mon });
+    const big = generateWeekly('S-2026-10-12', { ...ctx, dailyMinutes: 25, now: mon });
     const answered = (b: typeof small) => b.quests.find((q) => q.metric === 'answered')!.target;
     expect(answered(small)).toBeLessThan(answered(big));
     expect(small.quests.find((q) => q.metric === 'studyDays')!.target).toBe(3);
@@ -342,5 +348,94 @@ describe('encomendas: correções da revisão', () => {
     // Relógio muito adiantado e depois corrigido: o quadro "do futuro" é trocado.
     const future = refreshQuestBoards(onboarded(T0 + 30 * DAY), T0).state;
     expect(future.quests.daily!.key).toBe('2026-10-14');
+  });
+});
+
+describe('encomendas: segunda revisão', () => {
+  const base = { dailyMinutes: 25, createdAt: T0, questionStates: {}, bossAvailable: false, now: T0, tzOffsetMin: BRT };
+  const monday = Date.UTC(2026, 9, 12, 15);
+
+  it('a meta de dias de estudo sempre deixa folga quando restam 2+ dias', () => {
+    for (const dailyMinutes of [5, 10, 25]) {
+      for (let i = 0; i < 7; i++) {
+        const left = 7 - i;
+        const b = generateWeekly('S-2026-10-12', { ...base, dailyMinutes, now: monday + i * DAY });
+        const days = b.quests.find((q) => q.metric === 'studyDays')!.target;
+        expect(days).toBeGreaterThanOrEqual(1);
+        if (left >= 2) expect(days).toBeLessThanOrEqual(left - 1);
+      }
+    }
+  });
+
+  it('quadro criado tarde na quarta e sem estudo nesse dia ainda é cumprível de quinta a domingo', () => {
+    let s = onboarded(Date.UTC(2026, 9, 5, 15), 25); // onboarding na semana anterior
+    s = touch(s, Date.UTC(2026, 9, 15, 2, 50), BRT).state; // quarta 23h50 em Brasília
+    expect(s.quests.weekly!.key).toBe('S-2026-10-12');
+    for (let d = 15; d <= 18; d++) s = play(s, ['RZP-001'], [], Date.UTC(2026, 9, d, 15)).state;
+    const q = s.quests.weekly!.quests.find((x) => x.metric === 'studyDays')!;
+    expect(s.quests.weekly!.progress[q.id]).toBe(q.target);
+  });
+
+  it('quadro do meio da semana paga proporcionalmente e não dá o título da semana inteira', () => {
+    const sunday = Date.UTC(2026, 9, 18, 15);
+    const late = generateWeekly('S-2026-10-12', { ...base, now: sunday });
+    expect(late.share).toBeCloseTo(1 / 7);
+    for (const q of late.quests) {
+      expect(q.xp).toBeLessThan(WEEKLY_REWARD.xp);
+      expect(q.ink).toBeLessThan(WEEKLY_REWARD.ink);
+    }
+    expect(boardBonus(late).xp).toBeLessThan(WEEKLY_BONUS.xp);
+    const full = generateWeekly('S-2026-10-12', { ...base, now: monday });
+    expect(full.share).toBe(1);
+    expect(full.quests[0].xp).toBe(WEEKLY_REWARD.xp);
+    expect(boardBonus(full)).toEqual(WEEKLY_BONUS);
+    // Quadros salvos antes deste campo existir contam como semana inteira.
+    expect(boardBonus({ ...full, share: undefined })).toEqual(WEEKLY_BONUS);
+
+    // Cumprir o quadro tardio: baú proporcional, sem título.
+    const one = (b: typeof late) => ({ ...b, quests: [{ ...b.quests[1], metric: 'answered' as const, target: 1 }], progress: {} });
+    let s = onboarded(Date.UTC(2026, 9, 5, 15), 25);
+    s = touch(s, sunday, BRT).state;
+    s = { ...s, quests: { ...s.quests, weekly: one(s.quests.weekly!) } };
+    const r = play(s, ['RZP-001'], [], sunday);
+    const bonus = r.results.flatMap((x) => events(x, 'questBonus')).find((e) => e.period === 'weekly')!;
+    expect(bonus.itemId).toBeNull();
+    expect(bonus.xp).toBe(boardBonus(s.quests.weekly!).xp);
+    expect(r.state.inventory[WEEKLY_FIRST_ITEM]).toBeUndefined();
+
+    // Semana inteira: título concedido.
+    let f = onboarded(monday, 25);
+    f = { ...f, quests: { ...f.quests, weekly: one(f.quests.weekly!) } };
+    expect(f.quests.weekly!.share).toBe(1);
+    const rf = play(f, ['RZP-001'], [], monday);
+    expect(rf.results.flatMap((x) => events(x, 'questBonus')).find((e) => e.period === 'weekly')!.itemId).toBe(WEEKLY_FIRST_ITEM);
+    expect(rf.state.inventory[WEEKLY_FIRST_ITEM]).toBeDefined();
+  });
+
+  it('relógio adiantado e depois corrigido troca também o quadro semanal', () => {
+    let s = onboarded(T0); // quarta 14/10
+    s = touch(s, Date.UTC(2026, 9, 19, 15), BRT).state; // relógio 5 dias adiantado: segunda 19/10
+    expect(s.quests.weekly!.key).toBe('S-2026-10-19');
+    s = touch(s, Date.UTC(2026, 9, 15, 15), BRT).state; // corrigido: quinta 15/10
+    expect(s.quests.weekly!.key).toBe('S-2026-10-12');
+    s = play(s, ['RZP-001'], [], Date.UTC(2026, 9, 15, 15)).state;
+    expect(s.quests.weekly!.days).toEqual(['2026-10-15']);
+  });
+
+  it('viagem de fuso na virada da semana mantém o quadro novo e o progresso', () => {
+    const sundayNight = Date.UTC(2026, 9, 19, 2); // domingo 23h em Brasília = segunda 11h em Tóquio
+    let s = touch(onboarded(T0), sundayNight, -540).state;
+    expect(s.quests.weekly!.key).toBe('S-2026-10-19');
+    s = play(s, ['RZP-001'], [], sundayNight).state;
+    const progress = s.quests.weekly!.progress;
+    const back = touch(s, sundayNight + 60_000, BRT).state; // de volta: ainda domingo em Brasília
+    expect(back.quests.weekly!.key).toBe('S-2026-10-19');
+    expect(back.quests.weekly!.progress).toEqual(progress);
+  });
+
+  it('rótulo no meio da frase: siglas e nomes próprios ficam', () => {
+    expect(inlineLabel('MMC e MDC')).toBe('MMC e MDC');
+    expect(inlineLabel('Teorema de Pitágoras')).toBe('teorema de Pitágoras');
+    expect(inlineLabel('Juros compostos')).toBe('juros compostos');
   });
 });

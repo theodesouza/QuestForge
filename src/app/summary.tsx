@@ -11,6 +11,7 @@ import { findNode } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { nextNode } from '../domain/campaign/campaign';
 import { recommendFocus } from '../domain/learning/recommend';
+import { inlineLabel } from '../domain/quests/quests';
 import { levelProgress } from '../domain/progression/levels';
 import { useStarter } from '../features/useStarter';
 import { startExpedition, startFocus, startMission } from '../state/actions';
@@ -99,7 +100,7 @@ export default function Summary() {
     }
     if (focus) {
       const f = focus;
-      return { label: `Treinar ${subtopicLabel(f.topic, f.subtopic).toLowerCase()}`, detail: '5 questões no ponto que mais vai render agora.', action: () => start('focus', () => startFocus(f.topic, f.subtopic), { replace: true }) };
+      return { label: `Treinar ${inlineLabel(subtopicLabel(f.topic, f.subtopic))}`, detail: '5 questões no ponto que mais vai render agora.', action: () => start('focus', () => startFocus(f.topic, f.subtopic), { replace: true }) };
     }
     return { label: 'Mais uma expedição de 5 min', detail: 'Rápida e adaptada a você.', action: () => start('exp', () => startExpedition(5), { replace: true }) };
   })();

@@ -133,7 +133,7 @@ export const updateProfile = (patch: Parameters<typeof game.updateProfileBasics>
 
 export async function resetProgress(): Promise<void> {
   await ctrl().reset();
-  useGameStore.setState({ celebrations: [], lastSummary: null, restedNotice: null });
+  useGameStore.setState({ celebrations: [], toasts: [], lastSummary: null, restedNotice: null });
 }
 
 export function dismissCelebration(id: string) {

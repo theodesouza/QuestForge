@@ -7,11 +7,11 @@ import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { getItem } from '../content/items';
 import {
-  DAILY_BONUS,
-  WEEKLY_BONUS,
   WEEKLY_FIRST_ITEM,
   allDone,
+  boardBonus,
   dayKey,
+  grantsWeeklyItem,
   isQuestDone,
   weekDays,
   type QuestBoard,
@@ -37,12 +37,15 @@ function Board({
   bonus,
   onTrain,
   training,
+  paused,
 }: {
   title: string;
   board: QuestBoard;
   bonus: string;
   onTrain?: (q: QuestDef) => void;
   training?: boolean;
+  /** Há uma sessão pausada: o botão retoma em vez de começar outra (e não a descarta). */
+  paused?: boolean;
 }) {
   const finished = allDone(board);
   return (
@@ -56,13 +59,17 @@ function Board({
             <QuestRow board={board} quest={q} />
             {onTrain && q.metric === 'topicCorrect' && q.topic && !isQuestDone(board, q) ? (
               <Button
-                label="Treinar este assunto"
+                label={paused ? 'Retomar a sessão pausada' : 'Treinar este assunto'}
                 size="md"
                 variant="secondary"
-                icon="target"
+                icon={paused ? 'play' : 'target'}
                 loading={training}
-                onPress={() => onTrain(q)}
-                accessibilityHint="Começa 5 questões do assunto desta encomenda"
+                onPress={() => (paused ? router.push('/session') : onTrain(q))}
+                accessibilityHint={
+                  paused
+                    ? 'Volta para a sessão que você pausou; termine-a para treinar este assunto'
+                    : 'Começa uma expedição curta focada no assunto desta encomenda'
+                }
                 style={styles.train}
               />
             ) : null}
@@ -79,10 +86,17 @@ function Board({
   );
 }
 
+function weeklyBonusText(board: QuestBoard, ownsTitle: boolean): string {
+  const { xp, ink } = boardBonus(board);
+  if (ownsTitle || !grantsWeeklyItem(board)) return `Cumpra as 3 para abrir o Baú da semana: +${xp} XP e +${ink} Tinta.`;
+  return `Cumpra as 3 para abrir o Baú da semana: +${xp} XP, +${ink} Tinta e o título “${getItem(WEEKLY_FIRST_ITEM).name}”.`;
+}
+
 export default function Quests() {
   const quests = useGame((g) => g.quests);
   const tz = useGame((g) => g.profile.tzOffsetMin);
   const ownsTitle = useGame((g) => !!g.inventory[WEEKLY_FIRST_ITEM]);
+  const paused = useGame((g) => !!g.session);
   const now = useGameStore((s) => s.now);
   const { busy, start } = useStarter();
   const train = (q: QuestDef) => {
@@ -116,7 +130,8 @@ export default function Quests() {
           board={quests.daily}
           onTrain={train}
           training={busy === 'focus'}
-          bonus={`Cumpra as 3 para abrir o Baú do dia: +${DAILY_BONUS.xp} XP e +${DAILY_BONUS.ink} Tinta.`}
+          paused={paused}
+          bonus={`Cumpra as 3 para abrir o Baú do dia: +${boardBonus(quests.daily).xp} XP e +${boardBonus(quests.daily).ink} Tinta.`}
         />
       ) : null}
 
@@ -150,12 +165,14 @@ export default function Quests() {
           <Board
             title="Esta semana"
             board={quests.weekly}
-            bonus={
-              ownsTitle
-                ? `Cumpra as 3 para abrir o Baú da semana: +${WEEKLY_BONUS.xp} XP e +${WEEKLY_BONUS.ink} Tinta.`
-                : `Cumpra as 3 para abrir o Baú da semana: +${WEEKLY_BONUS.xp} XP, +${WEEKLY_BONUS.ink} Tinta e o título “${getItem(WEEKLY_FIRST_ITEM).name}”.`
-            }
+            bonus={weeklyBonusText(quests.weekly, ownsTitle)}
           />
+          {(quests.weekly.share ?? 1) < 1 ? (
+            <Text variant="caption" color={colors.mist}>
+              Este quadro começou no meio da semana: metas e recompensas são proporcionais aos dias que restavam. Na segunda chega um
+              quadro completo.
+            </Text>
+          ) : null}
         </>
       ) : null}
     </Screen>
