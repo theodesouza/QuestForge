@@ -3,7 +3,7 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (86 testes), `npm run typecheck`, `npm run lint`,
+Como verificar: `npm test` (109 testes), `npm run typecheck`, `npm run lint`,
 `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
@@ -58,13 +58,22 @@ Interface (verificada no roteiro ponta a ponta web, sem erros de console):
 Aparelho real:
 - [x] APK release (arm64, Android 7+) gerado com Gradle e instalado/testado pelo usuário num Android físico, sem problemas relatados
 
-## Etapa 4 — Expansão do RPG (pendente)
-- [ ] Regiões 2–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
-- [ ] Oficina: gastar Tinta em cosméticos
+## Etapa 4 — Expansão do RPG (parcial)
+- [x] **Região 2 — Mercado de Âmbar** (matemática financeira): 3 missões + chefão, abre após vencer o Golem
+- [x] **Mercador Composto**: cofre de juros (erros devolvem vida, crescendo com erros seguidos, até o cofre quebrar abaixo de 50%), arte vetorial própria, espólios e título
+- [x] Chefões descritos como dados (`BossTrait`: couraça ou juros) — a tela de batalha serve qualquer chefão (`/boss?id=…`)
+- [x] **25 questões autorais de financeira** (juros simples/compostos, compras a prazo, custo-benefício), cada uma resolvida às cegas por dois revisores independentes antes de entrar
+- [x] **Encomendas diárias e semanais**: 3 por quadro, recompensa automática (sem "resgatar"), Baú ao cumprir as 3, quadro troca sem penalidade
+  - metas proporcionais ao tempo diário; semanal criada no meio da semana é proporcional aos dias que restam
+  - uma diária mira o assunto recomendado (nunca pede mais acertos do que o subassunto tem) com botão "Treinar este assunto"
+  - "Derrote N Ecos" só aparece quando há N Ecos voltando para revisão no período
+  - dia/semana pelo fuso do aparelho; o quadro só avança no calendário (trocar o fuso não apaga progresso)
+- [x] **Chama da Constância**: dias de estudo da semana, sem sequência que zera
+- [x] **Oficina**: gastar Tinta em cosméticos comuns/incomuns (compra em dois toques); raros e lendários só por feitos
+- [x] Avisos curtos (encomenda cumprida, baú) que esperam o fim da questão/batalha e da celebração, anunciados ao leitor de tela
+- [ ] Regiões 3–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
 - [ ] Conquistas e coleções
-- [ ] Missões diárias e semanais
 - [ ] Companheiros
-- [ ] Chama da Constância (meta semanal sem zerar)
 - [ ] Selos de domínio gravados no astrolábio
 
 ## Etapa 5 — Aprendizado adaptativo (pendente)
@@ -77,7 +86,7 @@ Aparelho real:
 - [ ] Pausa saudável após 25 min contínuos
 
 ## Etapa 6 — Conteúdo (pendente)
-- [ ] Expandir de 91 para 500 questões validadas, em lotes por assunto (combinatória, financeira, geometria espacial e equações têm poucos itens hoje)
+- [~] Expandir para 500 questões validadas, em lotes por assunto — **116 hoje** (91 do MVP + 25 de financeira); combinatória, geometria espacial e equações têm poucos itens
 
 ## Etapa 7 — Polimento (pendente)
 - [ ] Sons (desativáveis)
@@ -87,4 +96,7 @@ Aparelho real:
 ## Etapa 8 — Entrega (parcial)
 - [x] Instruções para Android no `README.md` (Expo Go, build local e APK via EAS) e `eas.json`
 - [x] APK de teste gerado localmente (`npx expo prebuild` + `./gradlew assembleRelease`, assinado com chave de debug)
+- [x] **Atualizações pela internet (EAS Update)**: o APK instalado baixa versões novas sozinho (canal `preview`, runtime = versão do app); aviso "Atualizar agora" no Acampamento e nos Ajustes
+- [x] **Progresso preservado em atualizações**: mesmo pacote, `versionCode` crescente e mesma chave de assinatura (`credentials/`, também usada pela EAS); migrações testadas contra bancos SQLite reais gravados pela v0.1.0
+- [ ] APK v0.2.0 gerado e conferido (assinatura igual à da v0.1.0, `versionCode` 2)
 - [ ] Chave de assinatura própria para publicação na Play Store

@@ -50,12 +50,33 @@ npx expo run:android
 npx eas-cli@latest build -p android --profile preview
 ```
 
-Ao final, o EAS fornece um link para baixar o `.apk`.
+Ao final, o EAS fornece um link para baixar o `.apk`. O perfil `preview` assina com a
+mesma chave do APK já instalado (`credentials/`), então ele instala **por cima** e o
+progresso continua lá. Nunca distribua um APK assinado com outra chave: o Android
+recusaria a atualização e a única saída seria desinstalar — apagando o progresso.
+
+## Atualizações pela internet (sem APK novo)
+
+O APK instalado procura versões novas ao abrir (e ao voltar para o app). Para publicar
+uma mudança de código (telas, regras, questões):
+
+```bash
+npx eas-cli@latest update --channel preview --message "o que mudou"
+```
+
+Na próxima abertura o app baixa a versão; o Acampamento mostra **Atualizar agora**
+(ou ela entra sozinha na abertura seguinte). O progresso fica no SQLite do aparelho e
+não é tocado — a versão nova só roda as migrações pendentes.
+
+Mudou algo **nativo** (nova biblioteca com código nativo, permissões, ícone, `app.json`
+de plataforma)? Aí é preciso um APK novo: suba `version` e `android.versionCode` no
+`app.json` e gere o APK com a mesma chave. A `runtimeVersion` segue a `version`, então
+um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 
 ## Verificações
 
 ```bash
-npm test                 # 86 testes: domínio, conteúdo e persistência SQLite real
+npm test                 # 109 testes: domínio, conteúdo, persistência SQLite real e atualização a partir da v0.1.0
 npm run typecheck        # TypeScript estrito
 npm run lint             # ESLint (config Expo + regras de hooks do React)
 npm run validate:content # só o validador do banco de questões

@@ -97,8 +97,10 @@ O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualizaç
 3. **APK novo por cima do antigo** preserva os dados se: mesmo pacote (`com.questforge.app`),
    `versionCode` maior e **mesma assinatura**. Os APKs de teste são assinados com a chave de debug
    padrão do React Native (SHA-256 `fa:c6:17:45:dc:09:03:78:6f:b9:ed:e6:2a:96:2b:39:9f:73:48:f0:bb:6f:89:9b:83:32:66:75:91:03:3b:9c`).
-   Trocar essa chave obrigaria a desinstalar e apagaria o progresso — antes de publicar na Play Store,
-   planejar a migração (exportar/importar progresso ou sincronização em nuvem).
+   A chave fica versionada em `credentials/` e o perfil `preview` da EAS a usa
+   (`credentialsSource: "local"` + `credentials.json`), então um APK gerado na nuvem também instala
+   por cima. Trocar essa chave obrigaria a desinstalar e apagaria o progresso — antes de publicar na
+   Play Store, planejar a migração (exportar/importar progresso ou sincronização em nuvem).
 4. **Estados antigos são normalizados** em `domain/game/normalize.ts`: campos que surgiram depois
    recebem padrão e nada existente é alterado. Migrações nunca são editadas depois de publicadas.
 5. **Teste de atualização real**: `src/data/__tests__/fixtures/` guarda bancos SQLite gravados pelo
@@ -136,7 +138,10 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
 - **Reanimated com `.set()`** em valores compartilhados fora de worklets (compatível com o compilador).
 - **Encomendas com recompensa automática**: cumprir já entrega XP e Tinta (registro `quest:*`), então
   nada "expira sem resgatar"; virar o dia só troca o quadro. O "dia" usa o fuso do aparelho
-  (`profile.tzOffsetMin`, atualizado ao abrir).
+  (`profile.tzOffsetMin`, atualizado ao abrir), e o quadro só **avança** no calendário: voltar o fuso
+  mantém o quadro e o progresso (um quadro muito "no futuro", de relógio errado, é trocado). O quadro é
+  gerado antes de registrar a resposta, para que o Eco criado por ela não vire encomenda do mesmo dia;
+  metas semanais criadas no meio da semana são proporcionais aos dias restantes.
 - **Mecânicas de chefão como dados** (`BossTrait`): couraça (Golem) e cofre de juros (Mercador)
   compartilham a quebra na fase 2; a arte de cada chefão vem de um registro (`features/boss/BossArt`).
 - **Fontes empacotadas por peso** (`@expo-google-fonts/<família>/<peso>`) para não embutir pesos não usados.
