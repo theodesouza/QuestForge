@@ -43,3 +43,4 @@ yarn-error.*
 # Pré-visualização web e testes ponta a ponta
 dist-web/
 e2e-shots/
+*.apk
