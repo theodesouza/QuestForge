@@ -3,7 +3,7 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (109 testes), `npm run typecheck`, `npm run lint`,
+Como verificar: `npm test` (115 testes), `npm run typecheck`, `npm run lint`,
 `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
@@ -98,5 +98,6 @@ Aparelho real:
 - [x] APK de teste gerado localmente (`npx expo prebuild` + `./gradlew assembleRelease`, assinado com chave de debug)
 - [x] **Atualizações pela internet (EAS Update)**: o APK instalado baixa versões novas sozinho (canal `preview`, runtime = versão do app); aviso "Atualizar agora" no Acampamento e nos Ajustes
 - [x] **Progresso preservado em atualizações**: mesmo pacote, `versionCode` crescente e mesma chave de assinatura (`credentials/`, também usada pela EAS); migrações testadas contra bancos SQLite reais gravados pela v0.1.0
-- [ ] APK v0.2.0 gerado e conferido (assinatura igual à da v0.1.0, `versionCode` 2)
+- [x] APK v0.2.0 conferido com `apksigner`/`aapt2`: mesmo pacote, `versionCode` 2 > 1 e certificado idêntico ao da v0.1.0 (instala por cima)
+- [x] Primeira atualização publicada no canal `preview` (runtime 0.2.0); manifesto e bundle conferidos como o app os baixa
 - [ ] Chave de assinatura própria para publicação na Play Store

@@ -61,7 +61,7 @@ O APK instalado procura versões novas ao abrir (e ao voltar para o app). Para p
 uma mudança de código (telas, regras, questões):
 
 ```bash
-npx eas-cli@latest update --channel preview --message "o que mudou"
+npx eas-cli@latest update --channel preview --environment preview --platform android --message "o que mudou"
 ```
 
 Na próxima abertura o app baixa a versão; o Acampamento mostra **Atualizar agora**
@@ -76,7 +76,7 @@ um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 ## Verificações
 
 ```bash
-npm test                 # 109 testes: domínio, conteúdo, persistência SQLite real e atualização a partir da v0.1.0
+npm test                 # 115 testes: domínio, conteúdo, persistência SQLite real e atualização a partir da v0.1.0
 npm run typecheck        # TypeScript estrito
 npm run lint             # ESLint (config Expo + regras de hooks do React)
 npm run validate:content # só o validador do banco de questões
