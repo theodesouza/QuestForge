@@ -72,7 +72,7 @@ export function computeXp(input: XpInput): XpResult {
 }
 
 /** Bônus de sessão (≥ 3 respondidas) e de sessão perfeita (≥ 5, sem erros). */
-export const SESSION_BONUS = 15;
+export const SESSION_BONUS = 20;
 export const PERFECT_BONUS = 20;
 export const MISSION_FIRST_XP = 40;
 export const MISSION_FIRST_INK = 10;

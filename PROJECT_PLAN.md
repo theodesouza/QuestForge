@@ -82,7 +82,7 @@ Totais exatos são calculados e testados em `src/domain/progression/levels.ts`.
 | Revisão devida (repetição espaçada) | 60% da base |
 | Repetição fora do prazo de revisão | 10% da base, no máx. 1× a cada 20 h por questão |
 | Erro | 0 XP — vira um **Eco** (revisão futura com bônus de redenção) |
-| Sessão concluída (≥ 3 respondidas) | +15 · Sessão perfeita (≥ 5, sem erros) +20 |
+| Sessão concluída (≥ 3 respondidas) | +20 · Sessão perfeita (≥ 5, sem erros) +20 — 3 acertos fáceis já garantem o nível 2 |
 | Missão concluída (1ª vez) | +40 |
 | Chefão derrotado (1ª vez) | +150 + item exclusivo |
 | Descanso do Viajante | Bônus que **dobra** o XP de questões até esgotar o saldo (acumula 150/dia de ausência, teto 600) |

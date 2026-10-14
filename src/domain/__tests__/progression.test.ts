@@ -136,8 +136,8 @@ describe('regras de XP', () => {
 
   it('bônus de sessão', () => {
     expect(sessionBonus(2, 0)).toEqual({ xp: 0, perfect: false });
-    expect(sessionBonus(3, 1)).toEqual({ xp: 15, perfect: false });
-    expect(sessionBonus(5, 0)).toEqual({ xp: 35, perfect: true });
+    expect(sessionBonus(3, 1)).toEqual({ xp: 20, perfect: false });
+    expect(sessionBonus(5, 0)).toEqual({ xp: 40, perfect: true });
   });
 });
 
