@@ -1,0 +1,280 @@
+/**
+ * Catálogo de cosméticos do Astrolábio. Itens são puramente visuais e nunca
+ * vendidos por dinheiro real. Raros e lendários vêm de feitos, nunca de sorte.
+ */
+
+export type ItemSlot = 'frame' | 'core' | 'aura' | 'title';
+export type Rarity = 'comum' | 'incomum' | 'raro' | 'lendario';
+
+export const RARITY_LABEL: Record<Rarity, string> = {
+  comum: 'Comum',
+  incomum: 'Incomum',
+  raro: 'Raro',
+  lendario: 'Lendário',
+};
+
+export const SLOT_LABEL: Record<ItemSlot, string> = {
+  frame: 'Moldura',
+  core: 'Núcleo',
+  aura: 'Aura',
+  title: 'Título',
+};
+
+/** Parâmetros visuais interpretados pelo componente Astrolabe. */
+export interface ItemVisual {
+  /** Cor principal (moldura/núcleo) ou primeira cor da aura. */
+  color: string;
+  /** Segunda cor (aura em gradiente, brilho do núcleo). */
+  color2?: string;
+  /** Estilo da moldura. */
+  frameStyle?: 'plain' | 'double' | 'notched' | 'armillary';
+}
+
+export interface ItemDef {
+  id: string;
+  slot: ItemSlot;
+  name: string;
+  rarity: Rarity;
+  description: string;
+  /** Como se obtém — mostrado na coleção para itens ainda não conquistados. */
+  howToGet: string;
+  visual: ItemVisual;
+}
+
+export const ITEMS: ItemDef[] = [
+  // ——— Molduras ———
+  {
+    id: 'frame-cobre',
+    slot: 'frame',
+    name: 'Moldura de Cobre',
+    rarity: 'comum',
+    description: 'O primeiro anel de todo cartógrafo. Simples, firme, confiável.',
+    howToGet: 'Equipamento inicial.',
+    visual: { color: '#C98A5B', frameStyle: 'plain' },
+  },
+  {
+    id: 'frame-bronze',
+    slot: 'frame',
+    name: 'Moldura de Bronze',
+    rarity: 'comum',
+    description: 'Gravada com as primeiras marcas de escala. Prova de que você começou de verdade.',
+    howToGet: 'Alcance o nível 2.',
+    visual: { color: '#E0A35C', frameStyle: 'double' },
+  },
+  {
+    id: 'frame-latao',
+    slot: 'frame',
+    name: 'Moldura de Latão Gravado',
+    rarity: 'incomum',
+    description: 'Cada entalhe marca um conceito que você já conseguiu medir.',
+    howToGet: 'Alcance o nível 8.',
+    visual: { color: '#F2B54A', frameStyle: 'notched' },
+  },
+  {
+    id: 'frame-basalto',
+    slot: 'frame',
+    name: 'Moldura de Basalto',
+    rarity: 'raro',
+    description: 'Talhada da couraça do Golem Proporcional. Pesa como uma regra de três bem montada.',
+    howToGet: 'Derrote o Golem Proporcional.',
+    visual: { color: '#8C93B8', color2: '#38D6B0', frameStyle: 'notched' },
+  },
+  {
+    id: 'frame-celeste',
+    slot: 'frame',
+    name: 'Moldura Celeste',
+    rarity: 'incomum',
+    description: 'Reflete o céu noturno sobre o qual todos os mapas são traçados.',
+    howToGet: 'Alcance o nível 16.',
+    visual: { color: '#7FB6FF', frameStyle: 'double' },
+  },
+  {
+    id: 'frame-meridiana',
+    slot: 'frame',
+    name: 'Moldura Meridiana',
+    rarity: 'raro',
+    description: 'Os meridianos se cruzam aqui. Marca de quem já traçou metade do Atlas.',
+    howToGet: 'Alcance o nível 25.',
+    visual: { color: '#38D6B0', frameStyle: 'armillary' },
+  },
+  {
+    id: 'frame-armilar',
+    slot: 'frame',
+    name: 'Esfera Armilar',
+    rarity: 'raro',
+    description: 'Anéis dentro de anéis: o modelo completo do céu.',
+    howToGet: 'Alcance o nível 40.',
+    visual: { color: '#9B87FF', color2: '#F2B54A', frameStyle: 'armillary' },
+  },
+  // ——— Núcleos ———
+  {
+    id: 'core-quartzo',
+    slot: 'core',
+    name: 'Núcleo de Quartzo',
+    rarity: 'comum',
+    description: 'Transparente, à espera de ser preenchido.',
+    howToGet: 'Equipamento inicial.',
+    visual: { color: '#DCE3FF', color2: '#9AA3C7' },
+  },
+  {
+    id: 'core-ambar',
+    slot: 'core',
+    name: 'Núcleo de Âmbar',
+    rarity: 'comum',
+    description: 'Guarda o calor das primeiras sessões de estudo.',
+    howToGet: 'Alcance o nível 4.',
+    visual: { color: '#FFB648', color2: '#FF6A55' },
+  },
+  {
+    id: 'core-verdete',
+    slot: 'core',
+    name: 'Núcleo de Verdete',
+    rarity: 'incomum',
+    description: 'O verde do bronze antigo: o tempo trabalhando a seu favor.',
+    howToGet: 'Alcance o nível 10.',
+    visual: { color: '#38D6B0', color2: '#1E8C7A' },
+  },
+  {
+    id: 'core-iris',
+    slot: 'core',
+    name: 'Núcleo de Íris',
+    rarity: 'incomum',
+    description: 'Muda de tom conforme o ângulo, como um problema visto de outro jeito.',
+    howToGet: 'Alcance o nível 18.',
+    visual: { color: '#9B87FF', color2: '#FF8FD1' },
+  },
+  {
+    id: 'core-solar',
+    slot: 'core',
+    name: 'Núcleo Solar',
+    rarity: 'raro',
+    description: 'Brilha com a constância de quem estuda dia após dia.',
+    howToGet: 'Alcance o nível 30.',
+    visual: { color: '#FFE08A', color2: '#FF9F43' },
+  },
+  {
+    id: 'core-pulsar',
+    slot: 'core',
+    name: 'Núcleo Pulsar',
+    rarity: 'raro',
+    description: 'Pulsa em intervalos exatos, como a repetição espaçada.',
+    howToGet: 'Alcance o nível 45.',
+    visual: { color: '#7FF3FF', color2: '#9B87FF' },
+  },
+  // ——— Auras ———
+  {
+    id: 'aura-brasa',
+    slot: 'aura',
+    name: 'Aura de Brasa',
+    rarity: 'comum',
+    description: 'Uma chama baixa e persistente.',
+    howToGet: 'Alcance o nível 6.',
+    visual: { color: '#FF6A55', color2: '#F2B54A' },
+  },
+  {
+    id: 'aura-mare',
+    slot: 'aura',
+    name: 'Aura de Maré',
+    rarity: 'incomum',
+    description: 'Vai e volta, como as revisões que fixam o que você aprendeu.',
+    howToGet: 'Alcance o nível 14.',
+    visual: { color: '#38D6B0', color2: '#3D7BFF' },
+  },
+  {
+    id: 'aura-aurora',
+    slot: 'aura',
+    name: 'Aura Boreal',
+    rarity: 'raro',
+    description: 'Cortinas de luz que só aparecem para quem vai longe.',
+    howToGet: 'Alcance o nível 20.',
+    visual: { color: '#38D6B0', color2: '#9B87FF' },
+  },
+  {
+    id: 'aura-nebulosa',
+    slot: 'aura',
+    name: 'Aura Nebulosa',
+    rarity: 'raro',
+    description: 'Poeira de estrelas em formação.',
+    howToGet: 'Alcance o nível 35.',
+    visual: { color: '#FF8FD1', color2: '#9B87FF' },
+  },
+  {
+    id: 'aura-aurea',
+    slot: 'aura',
+    name: 'Proporção Áurea',
+    rarity: 'lendario',
+    description: 'Concedida a quem derrota o Golem sem errar e sem dicas. Perfeição medida em φ.',
+    howToGet: 'Derrote o Golem Proporcional sem erros e sem usar dicas.',
+    visual: { color: '#FFD36B', color2: '#FFF3C4' },
+  },
+  {
+    id: 'aura-zenite',
+    slot: 'aura',
+    name: 'Aura do Zênite',
+    rarity: 'lendario',
+    description: 'O ponto mais alto do céu. Não há mapa acima deste.',
+    howToGet: 'Alcance o nível 50.',
+    visual: { color: '#FFFFFF', color2: '#F2B54A' },
+  },
+  // ——— Títulos ———
+  {
+    id: 'title-tracador',
+    slot: 'title',
+    name: 'Traçador de Rotas',
+    rarity: 'comum',
+    description: 'Você já sabe por onde começar.',
+    howToGet: 'Alcance o nível 3.',
+    visual: { color: '#F4ECDC' },
+  },
+  {
+    id: 'title-quebra-golem',
+    slot: 'title',
+    name: 'Quebra-Golem',
+    rarity: 'raro',
+    description: 'Proporções não assustam mais você.',
+    howToGet: 'Derrote o Golem Proporcional.',
+    visual: { color: '#38D6B0' },
+  },
+  {
+    id: 'title-incansavel',
+    slot: 'title',
+    name: 'Incansável',
+    rarity: 'incomum',
+    description: 'Doze níveis de dedicação.',
+    howToGet: 'Alcance o nível 12.',
+    visual: { color: '#F2B54A' },
+  },
+  {
+    id: 'title-mestre',
+    slot: 'title',
+    name: 'Mestre Cartógrafo',
+    rarity: 'raro',
+    description: 'Metade do caminho até o Zênite.',
+    howToGet: 'Alcance o nível 25.',
+    visual: { color: '#9B87FF' },
+  },
+  {
+    id: 'title-arquiteto',
+    slot: 'title',
+    name: 'Arquiteto do Atlas',
+    rarity: 'lendario',
+    description: 'Você redesenhou o mundo inteiro.',
+    howToGet: 'Alcance o nível 50.',
+    visual: { color: '#FFD36B' },
+  },
+];
+
+const BY_ID = new Map(ITEMS.map((i) => [i.id, i]));
+
+export function getItem(id: string): ItemDef {
+  const item = BY_ID.get(id);
+  if (!item) throw new Error(`Item desconhecido: ${id}`);
+  return item;
+}
+
+export function hasItem(id: string): boolean {
+  return BY_ID.has(id);
+}
+
+/** Itens com que todo jogador começa (equipados por padrão). */
+export const STARTER_ITEMS = ['frame-cobre', 'core-quartzo'] as const;
