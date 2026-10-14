@@ -55,8 +55,8 @@ Interface (verificada no roteiro ponta a ponta web, sem erros de console):
 - [x] Herói: estatísticas honestas (precisão só após 10 respostas), equipamento, coleção com "como conseguir", estrada de recompensas
 - [x] Ajustes: nome, meta diária, tátil, animações, apagar progresso; transparência sobre conteúdo e TRI
 
-Não verificado neste ambiente:
-- [ ] Execução em aparelho/emulador Android físico (o bundle Android compila; a UI foi validada na pré-visualização web)
+Aparelho real:
+- [x] APK release (arm64, Android 7+) gerado com Gradle e instalado/testado pelo usuário num Android físico, sem problemas relatados
 
 ## Etapa 4 — Expansão do RPG (pendente)
 - [ ] Regiões 2–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
@@ -86,3 +86,5 @@ Não verificado neste ambiente:
 
 ## Etapa 8 — Entrega (parcial)
 - [x] Instruções para Android no `README.md` (Expo Go, build local e APK via EAS) e `eas.json`
+- [x] APK de teste gerado localmente (`npx expo prebuild` + `./gradlew assembleRelease`, assinado com chave de debug)
+- [ ] Chave de assinatura própria para publicação na Play Store
