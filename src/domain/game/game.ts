@@ -17,7 +17,7 @@ import {
 } from '../boss/battle';
 import { nodeStatus, type BossProgress } from '../campaign/campaign';
 import { DEFAULT_TARGET, adjustTarget, selectQuestions } from '../learning/selection';
-import { emptyQuestionState, schedule } from '../learning/srs';
+import { dueQuestionIds, emptyQuestionState, schedule } from '../learning/srs';
 import { accrueRested } from '../progression/rested';
 import {
   MISSION_FIRST_INK,
@@ -164,6 +164,44 @@ export function planMission(state: GameState, node: MissionNode, now: number, se
   }).map((q) => q.id);
 }
 
+/** Foco num subassunto (recomendação): completa com o assunto se faltar questão. */
+export function planFocus(
+  state: GameState,
+  topic: TopicId,
+  subtopic: string,
+  count: number,
+  now: number,
+  seed: number,
+): string[] {
+  const primary = selectQuestions({
+    pool: questionsFor({ topics: [topic], subtopics: [subtopic] }),
+    states: state.questionStates,
+    count,
+    now,
+    seed,
+    targets: state.profile.targets,
+  });
+  if (primary.length >= count) return primary.map((q) => q.id);
+  const extra = selectQuestions({
+    pool: questionsFor({ topics: [topic] }),
+    states: state.questionStates,
+    count: count - primary.length,
+    now,
+    seed: seed + 1,
+    targets: state.profile.targets,
+    exclude: new Set(primary.map((q) => q.id)),
+  });
+  return [...primary, ...extra].map((q) => q.id);
+}
+
+/** Caça aos Ecos: só questões com revisão vencida, as mais antigas primeiro. */
+export const ECHO_HUNT_SIZE = 5;
+export function planEchoHunt(state: GameState, now: number): string[] {
+  return dueQuestionIds(state.questionStates, now)
+    .filter((id) => findQuestion(id))
+    .slice(0, ECHO_HUNT_SIZE);
+}
+
 // ————————————————————————————————————————————————————————— sessões
 
 export interface StartSessionInput {
@@ -245,7 +283,19 @@ function recordAnswer(
   if (!correct && !prior?.echo) tx.emit({ type: 'echo', questionId: q.id });
   if (xp.kind === 'redemption') tx.emit({ type: 'redemption', questionId: q.id });
 
+  const poolBefore = tx.profile.restedPool;
   const granted = grantXp(tx, xp.xp, xp.kind, now, true);
+  tx.emit({
+    type: 'answered',
+    questionId: q.id,
+    chosen: input.chosen,
+    correct,
+    guessed,
+    kind: xp.kind,
+    xp: granted,
+    restedBonus: poolBefore - tx.profile.restedPool,
+    ink: xp.ink,
+  });
   grantInk(tx, xp.ink);
 
   const p = tx.profile;
@@ -397,6 +447,8 @@ export function finishSession(state: GameState, now: number): Result {
 
   let missionPassed: boolean | null = null;
   let missionFirstClear = false;
+  let missionXp = 0;
+  let missionInk = 0;
   if (session.mode === 'mission' && session.nodeId) {
     const found = findNode(session.nodeId);
     if (found && found.node.kind === 'mission') {
@@ -411,7 +463,8 @@ export function finishSession(state: GameState, now: number): Result {
       });
       if (missionPassed) {
         missionFirstClear = once(tx, `mission:${node.id}:first`, now, () => {
-          grantXp(tx, MISSION_FIRST_XP, 'mission', now, false);
+          missionXp = grantXp(tx, MISSION_FIRST_XP, 'mission', now, false);
+          missionInk = MISSION_FIRST_INK;
           grantInk(tx, MISSION_FIRST_INK);
         });
         tx.emit({ type: 'missionComplete', nodeId: node.id, first: missionFirstClear });
@@ -437,6 +490,8 @@ export function finishSession(state: GameState, now: number): Result {
     perfect: bonus.perfect,
     missionPassed,
     missionFirstClear,
+    missionXp,
+    missionInk,
     echoes: answered.filter((a) => !a.correct).map((a) => a.questionId),
     redemptions: answered.filter((a) => a.kind === 'redemption').map((a) => a.questionId),
     durationMs: Math.max(0, now - session.startedAt),
@@ -628,5 +683,16 @@ export function toggleQuestionFlag(
 export function updateSettings(state: GameState, patch: Partial<Settings>): Result {
   const tx = new Tx(state);
   tx.patchProfile({ settings: { ...tx.profile.settings, ...patch } });
+  return tx.done();
+}
+
+export function updateProfileBasics(
+  state: GameState,
+  patch: Partial<Pick<Profile, 'name' | 'dailyMinutes' | 'goal' | 'examYear'>>,
+): Result {
+  const tx = new Tx(state);
+  const clean = { ...patch };
+  if (clean.name !== undefined) clean.name = clean.name.trim().slice(0, 24);
+  tx.patchProfile(clean);
   return tx.done();
 }

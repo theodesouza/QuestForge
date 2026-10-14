@@ -14,6 +14,7 @@ import {
   dismissBattle,
   equipItem,
   finishSession,
+  planEchoHunt,
   planExpedition,
   planMission,
   retreatBattle,
@@ -25,6 +26,7 @@ import {
 } from '../game/game';
 import type { GameEvent, GameState, Result } from '../game/types';
 import { masteryFromCounts } from '../learning/mastery';
+import { recommendFocus } from '../learning/recommend';
 import { selectQuestions, spreadSubtopics } from '../learning/selection';
 import { DAY_MS, schedule } from '../learning/srs';
 import { levelForXp } from '../progression/levels';
@@ -330,5 +332,33 @@ describe('personagem', () => {
   it('favoritar cria estado sem contar como resposta', () => {
     const s = toggleQuestionFlag(onboarded(), 'GEO-001', 'favorite').state;
     expect(s.questionStates['GEO-001']).toMatchObject({ favorite: true, seen: 0 });
+  });
+});
+
+describe('recomendação e planos especiais', () => {
+  it('recomenda um subassunto fraco quando há evidência de dificuldade', () => {
+    const states: GameState['questionStates'] = {};
+    let t = T0;
+    for (const id of ['EST-001', 'EST-003', 'EST-004', 'EST-006']) {
+      states[id] = schedule(undefined, id, 'wrong', t++, 'x');
+    }
+    states['EST-001'] = schedule(states['EST-001'], 'EST-001', 'wrong', t++, 'y');
+    const rec = recommendFocus(QUESTIONS, states);
+    expect(rec).toMatchObject({ topic: 'estatistica', subtopic: 'media', reason: 'fraco' });
+  });
+
+  it('sem histórico, recomenda um assunto inexplorado de alto peso', () => {
+    const rec = recommendFocus(QUESTIONS, {});
+    expect(rec?.reason).toBe('inexplorado');
+  });
+
+  it('caça aos Ecos usa só revisões vencidas', () => {
+    const s = onboarded();
+    s.questionStates = {
+      'PCT-001': schedule(undefined, 'PCT-001', 'wrong', T0, 'a'),
+      'PCT-002': schedule(undefined, 'PCT-002', 'correct', T0, 'a'),
+    };
+    expect(planEchoHunt(s, T0 + 1000)).toEqual([]);
+    expect(planEchoHunt(s, T0 + 2 * DAY_MS)).toEqual(['PCT-001']);
   });
 });

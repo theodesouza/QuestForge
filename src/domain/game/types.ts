@@ -134,12 +134,27 @@ export interface SessionSummary {
   perfect: boolean;
   missionPassed: boolean | null;
   missionFirstClear: boolean;
+  /** XP e Tinta da primeira conclusão da missão (0 se não houve). */
+  missionXp: number;
+  missionInk: number;
   echoes: string[];
   redemptions: string[];
   durationMs: number;
 }
 
 export type GameEvent =
+  | {
+      type: 'answered';
+      questionId: string;
+      chosen: AltKey;
+      correct: boolean;
+      guessed: boolean;
+      kind: XpKind;
+      /** XP total concedido pela resposta (já com o bônus de descanso). */
+      xp: number;
+      restedBonus: number;
+      ink: number;
+    }
   | { type: 'xp'; amount: number; restedBonus: number; source: XpKind | 'session' | 'mission' | 'boss' }
   | { type: 'ink'; amount: number }
   | { type: 'levelUp'; from: number; to: number; rewards: { level: number; rewards: Reward[] }[] }
