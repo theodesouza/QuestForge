@@ -33,10 +33,12 @@ describe('banco de questões', () => {
     expect(issues).toEqual([]);
   });
 
-  it('tem gabaritos bem distribuídos entre A–E (nenhuma letra acima de 35%)', () => {
+  it('tem gabaritos equilibrados entre A–E (cada letra entre 15% e 25%)', () => {
     const { answerDistribution, total } = bankReport(QUESTIONS);
     for (const k of ['A', 'B', 'C', 'D', 'E']) {
-      expect((answerDistribution[k] ?? 0) / total).toBeLessThan(0.35);
+      const share = (answerDistribution[k] ?? 0) / total;
+      expect(share).toBeGreaterThanOrEqual(0.15);
+      expect(share).toBeLessThanOrEqual(0.25);
     }
   });
 

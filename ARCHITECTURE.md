@@ -79,7 +79,7 @@ Migrações em `src/data/migrations.ts`: lista ordenada; cada uma roda numa tran
 incrementa `PRAGMA user_version`. Nunca editar uma migração publicada — sempre criar outra.
 
 **Preparação para nuvem**: todas as entidades usam IDs estáveis (texto) e carimbos de tempo
-ISO; `attempts` é *append-only* (fácil de sincronizar por log). Um futuro `SyncService`
+em milissegundos desde a época (UTC); `attempts` é *append-only* (fácil de sincronizar por log). Um futuro `SyncService`
 pode enviar o log e reconciliar o perfil sem mudar o domínio.
 
 ## Conteúdo
@@ -101,6 +101,17 @@ pode enviar o log e reconciliar o perfil sem mudar o domínio.
 
 A build web existe só para pré-visualização e capturas de tela de design. Nela, o
 repositório é o `MemoryGameRepository` (arquivo `.web.ts`), porque o foco do produto é nativo.
+Com `EXPO_PUBLIC_QA=1`, o app expõe `globalThis.__qf` (somente leitura do estado) para o teste
+ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativo.
+
+## Decisões registradas
+
+- **Reducer puro + Delta**: cada operação devolve o estado novo, os eventos para a interface e as
+  chaves alteradas. Testável sem React, sem banco, e gravável numa transação só.
+- **Sem `Date.now()` durante a renderização**: o "agora" das telas vem do store (`now`), atualizado
+  a cada publicação de estado — compatível com as regras de pureza do React Compiler.
+- **Reanimated com `.set()`** em valores compartilhados fora de worklets (compatível com o compilador).
+- **Fontes empacotadas por peso** (`@expo-google-fonts/<família>/<peso>`) para não embutir pesos não usados.
 
 ## Qualidade
 
