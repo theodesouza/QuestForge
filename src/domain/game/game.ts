@@ -285,6 +285,8 @@ function recordAnswer(
   now: number,
 ): { correct: boolean; xp: XpResult; granted: number } {
   validateAnswer(input);
+  // Quadro do dia gerado antes da resposta: um Eco criado agora não vira encomenda de hoje.
+  refreshQuests(tx, now);
   const prior = tx.state.questionStates[q.id];
   const correct = input.chosen === q.answer;
   const guessed = correct && input.guessed;

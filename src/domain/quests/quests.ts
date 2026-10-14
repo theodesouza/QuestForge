@@ -7,7 +7,7 @@
  * - uma encomenda diária mira o assunto que o treinador recomenda.
  * Funções puras; a aplicação ao estado fica em game/quests.ts.
  */
-import { QUESTIONS } from '../../content/bank';
+import { QUESTIONS, questionsFor } from '../../content/bank';
 import { subtopicLabel } from '../../content/topics';
 import type { TopicId } from '../../content/types';
 import { recommendFocus } from '../learning/recommend';
@@ -68,6 +68,7 @@ export const WEEKLY_FIRST_ITEM = 'title-constante';
 export const STUDY_CAP_PER_ANSWER_MS = 5 * 60 * 1000;
 
 const MINUTE = 60 * 1000;
+const DAY = 24 * 60 * MINUTE;
 
 // ———————————————————————————————————————————— calendário local
 
@@ -87,7 +88,37 @@ export function weekKey(now: number, tzOffsetMin: number): string {
 /** Os 7 dias (AAAA-MM-DD) da semana de uma chave semanal. */
 export function weekDays(key: string): string[] {
   const start = Date.parse(`${key.slice(2)}T00:00:00Z`);
-  return Array.from({ length: 7 }, (_, i) => new Date(start + i * 24 * 60 * MINUTE).toISOString().slice(0, 10));
+  return Array.from({ length: 7 }, (_, i) => new Date(start + i * DAY).toISOString().slice(0, 10));
+}
+
+/** Instante (UTC) em que o dia local de uma chave diária termina. */
+export function dayEnd(key: string, tzOffsetMin: number): number {
+  return Date.parse(`${key}T00:00:00Z`) + DAY + tzOffsetMin * MINUTE;
+}
+
+/** Instante (UTC) em que a semana local de uma chave semanal termina. */
+export function weekEnd(key: string, tzOffsetMin: number): number {
+  return Date.parse(`${key.slice(2)}T00:00:00Z`) + 7 * DAY + tzOffsetMin * MINUTE;
+}
+
+/** Dias da semana que ainda restam, contando hoje (segunda = 7, domingo = 1). */
+export function daysLeftInWeek(key: string, now: number, tzOffsetMin: number): number {
+  const today = Date.parse(`${dayKey(now, tzOffsetMin)}T00:00:00Z`);
+  const elapsed = Math.round((today - Date.parse(`${key.slice(2)}T00:00:00Z`)) / DAY);
+  return Math.max(1, Math.min(7, 7 - elapsed));
+}
+
+/**
+ * O quadro guardado deve ser trocado pelo do período atual? Só quando o período
+ * avançou: mudar o fuso para "trás" não devolve um quadro já cumprido nem apaga o
+ * progresso de hoje. Um quadro muito à frente (relógio do aparelho estava errado)
+ * também é trocado, para não ficar preso.
+ */
+export function shouldReplaceBoard(currentKey: string, boardKey: string, toleranceDays: number): boolean {
+  if (boardKey === currentKey) return false;
+  const strip = (k: string) => Date.parse(`${k.startsWith('S-') ? k.slice(2) : k}T00:00:00Z`);
+  const ahead = (strip(boardKey) - strip(currentKey)) / DAY;
+  return !(ahead > 0 && ahead <= toleranceDays);
 }
 
 // ———————————————————————————————————————————— geração
@@ -98,6 +129,9 @@ export interface GenerationContext {
   questionStates: Record<string, QuestionState>;
   /** Há algum chefão desbloqueado e ainda ativo para enfrentar? */
   bossAvailable: boolean;
+  /** Momento da geração e fuso do aparelho (metas proporcionais ao que resta do período). */
+  now: number;
+  tzOffsetMin: number;
 }
 
 function tier(dailyMinutes: number): 0 | 1 | 2 {
@@ -108,15 +142,16 @@ function plural(n: number, one: string, many: string) {
   return n === 1 ? one : many;
 }
 
-function echoTotal(states: Record<string, QuestionState>): number {
+/** Ecos que voltam para revisão até o fim do período — os que dá para derrotar nele. */
+function echoesDueBy(states: Record<string, QuestionState>, until: number): number {
   let n = 0;
-  for (const s of Object.values(states)) if (s.echo) n++;
+  for (const s of Object.values(states)) if (s.echo && s.dueAt !== null && s.dueAt <= until) n++;
   return n;
 }
 
 type Candidate = Omit<QuestDef, 'id' | 'xp' | 'ink'>;
 
-function dailyCandidates(ctx: GenerationContext): { opener: Candidate[]; extra: Candidate[]; focus: Candidate | null } {
+function dailyCandidates(key: string, ctx: GenerationContext): { opener: Candidate[]; extra: Candidate[]; focus: Candidate | null } {
   const t = tier(ctx.dailyMinutes);
   const pick = (a: [number, number, number]) => a[t];
   const answered = pick([3, 5, 8]);
@@ -137,26 +172,33 @@ function dailyCandidates(ctx: GenerationContext): { opener: Candidate[]; extra: 
     { metric: 'correct', target: correct, title: `Acerte ${correct} questões` },
     { metric: 'correctHard', target: hard, title: plural(hard, 'Acerte 1 questão difícil', `Acerte ${hard} questões difíceis`) },
   ];
-  const echoes = echoTotal(ctx.questionStates);
-  if (echoes >= 1) extra.push({ metric: 'redemptions', target: 1, title: 'Derrote 1 Eco' });
+  if (echoesDueBy(ctx.questionStates, dayEnd(key, ctx.tzOffsetMin)) >= 1) {
+    extra.push({ metric: 'redemptions', target: 1, title: 'Derrote 1 Eco' });
+  }
 
   const rec = recommendFocus(QUESTIONS, ctx.questionStates);
-  const focusTarget = pick([2, 2, 3]);
-  const focus: Candidate | null = rec
-    ? {
+  let focus: Candidate | null = null;
+  if (rec) {
+    // Nunca mais acertos do que o subassunto tem de questões.
+    const pool = questionsFor({ topics: [rec.topic], subtopics: [rec.subtopic] }).length;
+    const target = Math.min(pick([2, 2, 3]), pool);
+    const label = subtopicLabel(rec.topic, rec.subtopic).toLowerCase();
+    if (target > 0) {
+      focus = {
         metric: 'topicCorrect',
-        target: focusTarget,
+        target,
         topic: rec.topic,
         subtopic: rec.subtopic,
-        title: `Acerte ${focusTarget} questões de ${subtopicLabel(rec.topic, rec.subtopic).toLowerCase()}`,
-      }
-    : null;
+        title: plural(target, `Acerte 1 questão de ${label}`, `Acerte ${target} questões de ${label}`),
+      };
+    }
+  }
   return { opener, extra, focus };
 }
 
 export function generateDaily(key: string, ctx: GenerationContext): QuestBoard {
   const rng = createRng(hashString(`daily:${key}:${ctx.createdAt}`));
-  const { opener, extra, focus } = dailyCandidates(ctx);
+  const { opener, extra, focus } = dailyCandidates(key, ctx);
   const chosen: Candidate[] = [shuffle(opener, rng)[0]];
   if (focus) chosen.push(focus);
   for (const c of shuffle(extra, rng)) if (chosen.length < 3) chosen.push(c);
@@ -167,17 +209,30 @@ export function generateDaily(key: string, ctx: GenerationContext): QuestBoard {
 export function generateWeekly(key: string, ctx: GenerationContext): QuestBoard {
   const rng = createRng(hashString(`weekly:${key}:${ctx.createdAt}`));
   const t = tier(ctx.dailyMinutes);
-  const days = [3, 4, 5][t];
-  const answered = [20, 35, 50][t];
+  // Quadro criado no meio da semana: metas proporcionais aos dias que restam.
+  const left = daysLeftInWeek(key, ctx.now, ctx.tzOffsetMin);
+  const scale = (full: number, min: number) => Math.max(min, Math.ceil((full * left) / 7));
+  const days = Math.min([3, 4, 5][t], left);
+  const answered = scale([20, 35, 50][t], 5);
+  const hard = scale([4, 6, 10][t], 1);
+  const missions = scale(2, 1);
+  const perfect = scale(2, 1);
+  const echoes = scale(3, 1);
   const third: Candidate[] = [
-    { metric: 'missions', target: 2, title: 'Conclua 2 missões do Atlas' },
-    { metric: 'correctHard', target: [4, 6, 10][t], title: `Acerte ${[4, 6, 10][t]} questões difíceis` },
-    { metric: 'perfectSessions', target: 2, title: 'Faça 2 sessões perfeitas (5+ questões, sem erros)' },
+    { metric: 'missions', target: missions, title: plural(missions, 'Conclua 1 missão do Atlas', `Conclua ${missions} missões do Atlas`) },
+    { metric: 'correctHard', target: hard, title: plural(hard, 'Acerte 1 questão difícil', `Acerte ${hard} questões difíceis`) },
+    {
+      metric: 'perfectSessions',
+      target: perfect,
+      title: plural(perfect, 'Faça 1 sessão perfeita (5+ questões, sem erros)', `Faça ${perfect} sessões perfeitas (5+ questões, sem erros)`),
+    },
   ];
-  if (echoTotal(ctx.questionStates) >= 2) third.push({ metric: 'redemptions', target: 3, title: 'Derrote 3 Ecos' });
+  if (echoesDueBy(ctx.questionStates, weekEnd(key, ctx.tzOffsetMin)) >= echoes) {
+    third.push({ metric: 'redemptions', target: echoes, title: plural(echoes, 'Derrote 1 Eco', `Derrote ${echoes} Ecos`) });
+  }
   if (ctx.bossAvailable) third.push({ metric: 'bossWins', target: 1, title: 'Vença um chefão' });
   const chosen: Candidate[] = [
-    { metric: 'studyDays', target: days, title: `Estude em ${days} dias diferentes` },
+    { metric: 'studyDays', target: days, title: plural(days, 'Estude em pelo menos 1 dia', `Estude em ${days} dias diferentes`) },
     { metric: 'answered', target: answered, title: `Resolva ${answered} questões` },
     shuffle(third, rng)[0],
   ];

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { QUESTIONS } from '../content/bank';
 import { bankReport } from '../content/validation/validate';
+import { PendingUpdateButton } from '../features/updates/UpdateBanner';
 import { checkAndFetch, updatesEnabled, versionInfo } from '../features/updates/updates';
 import type { ReduceMotionPref } from '../domain/game/types';
 import { resetProgress, updateProfile, updateSettings } from '../state/actions';
@@ -131,7 +132,7 @@ export default function Settings() {
                 setChecking(false);
                 setUpdateMsg(
                   outcome === 'downloaded'
-                    ? 'Versão nova baixada! Volte ao Acampamento e toque em “Atualizar agora”.'
+                    ? 'Versão nova baixada! Toque em “Atualizar agora” ou deixe para a próxima vez que abrir o app.'
                     : outcome === 'up-to-date'
                       ? 'Você já está na versão mais recente.'
                       : 'Não foi possível verificar agora. Confira a internet e tente de novo.',
@@ -144,6 +145,7 @@ export default function Settings() {
                 {updateMsg}
               </Text>
             ) : null}
+            <PendingUpdateButton style={styles.gap} />
           </>
         ) : null}
       </Panel>

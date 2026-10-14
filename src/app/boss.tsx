@@ -438,14 +438,18 @@ function resolveBoss(id: string | undefined): BossDef {
 
 export default function BossScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
-  const battle = useGame((g) => g.battle);
-  // Uma batalha salva sempre manda; senão, o chefão pedido na rota.
-  const boss = resolveBoss(battle?.bossId ?? params.id);
+  const saved = useGame((g) => g.battle);
   const [finalEvents, setFinalEvents] = useState<GameEvent[]>([]);
   // Mantém a tela de batalha até o jogador ver o feedback do último golpe.
   const [fighting, setFighting] = useState<string | null>(null);
-  const activeId = battle?.status === 'active' ? battle.id : null;
+  const activeId = saved?.status === 'active' ? saved.id : null;
   if (activeId && fighting !== activeId) setFighting(activeId);
+  // Uma batalha em andamento sempre manda. Já o resultado de uma batalha encerrada contra
+  // outro chefão não é mostrado ao abrir este: aí vale a introdução do chefão pedido.
+  const stale =
+    !!saved && saved.status !== 'active' && fighting !== saved.id && !!params.id && saved.bossId !== params.id;
+  const battle = stale ? null : saved;
+  const boss = resolveBoss(battle?.bossId ?? params.id);
 
   if (!battle) return <Intro boss={boss} />;
   if (battle.status === 'active' || fighting === battle.id) {

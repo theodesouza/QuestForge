@@ -13,7 +13,9 @@ import {
   dayKey,
   generateDaily,
   generateWeekly,
+  shouldReplaceBoard,
   studyMinutesGained,
+  weekDays,
   weekKey,
   type GenerationContext,
   type QuestBoard,
@@ -23,7 +25,7 @@ import { grantInk, grantItem, grantXp, once } from './grant';
 import type { Tx } from './tx';
 import type { GameState } from './types';
 
-function generationContext(state: GameState): GenerationContext {
+function generationContext(state: GameState, now: number): GenerationContext {
   const view = { progress: state.campaign, bosses: state.bosses };
   const bossAvailable = REGIONS.some((r) =>
     r.nodes.some((n) => n.kind === 'boss' && nodeStatus(n, view) !== 'locked'),
@@ -33,20 +35,25 @@ function generationContext(state: GameState): GenerationContext {
     createdAt: state.profile.createdAt,
     questionStates: state.questionStates,
     bossAvailable,
+    now,
+    tzOffsetMin: state.profile.tzOffsetMin,
   };
 }
 
-/** Garante quadros do dia e da semana atuais. Quadros antigos são trocados sem penalidade. */
+/**
+ * Garante quadros do dia e da semana atuais. Quadros antigos são trocados sem penalidade;
+ * o quadro só avança no calendário (trocar o fuso para trás mantém o quadro e o progresso).
+ */
 export function refreshQuests(tx: Tx, now: number) {
   if (!tx.profile.onboarded) return;
   const tz = tx.profile.tzOffsetMin;
   const dKey = dayKey(now, tz);
   const wKey = weekKey(now, tz);
   const q = tx.state.quests;
-  const needDaily = q.daily?.key !== dKey;
-  const needWeekly = q.weekly?.key !== wKey;
+  const needDaily = !q.daily || shouldReplaceBoard(dKey, q.daily.key, 2);
+  const needWeekly = !q.weekly || shouldReplaceBoard(wKey, q.weekly.key, 7);
   if (!needDaily && !needWeekly) return;
-  const ctx = generationContext(tx.state);
+  const ctx = generationContext(tx.state, now);
   tx.setQuests({
     daily: needDaily ? generateDaily(dKey, ctx) : q.daily,
     weekly: needWeekly ? generateWeekly(wKey, ctx) : q.weekly,
@@ -74,7 +81,7 @@ export function progressQuests(tx: Tx, input: ProgressInput, now: number) {
       const { totalMs, minutes } = studyMinutesGained(b.studyMs ?? 0, input.answerTimeMs ?? 0);
       b = { ...b, studyMs: totalMs };
       if (minutes > 0) incs.push({ metric: 'studyMinutes', amount: minutes });
-      if (b.period === 'weekly' && !b.days.includes(today)) {
+      if (b.period === 'weekly' && !b.days.includes(today) && weekDays(b.key).includes(today)) {
         b = { ...b, days: [...b.days, today] };
         incs.push({ metric: 'studyDays', amount: 1 });
       }

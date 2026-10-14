@@ -1,33 +1,62 @@
-/** Avisos curtos no topo (encomenda cumprida, baú aberto). Somem sozinhos; tocar dispensa. */
-import { useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+/**
+ * Avisos curtos no topo (encomenda cumprida, baú aberto). Somem sozinhos; tocar dispensa.
+ * Ficam na fila enquanto há uma questão ou batalha em andamento (para não cobrir o HUD
+ * nem o botão de sair) e enquanto a celebração de nível está na tela.
+ */
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInUp, FadeOut, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { dismissToast } from '../../state/actions';
-import { useGameStore } from '../../state/store';
+import { useGame, useGameStore } from '../../state/store';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
 import { colors, radius, space } from '../../ui/theme';
 
 const VISIBLE_MS = 2800;
+/** Com leitor de tela, o aviso fica mais tempo (dá para ouvir e tocar). */
+const VISIBLE_SCREEN_READER_MS = 7000;
+
+function useScreenReader(): boolean {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isScreenReaderEnabled()
+      .then((v) => {
+        if (alive) setOn(v);
+      })
+      .catch(() => undefined);
+    const sub = AccessibilityInfo.addEventListener('screenReaderChanged', setOn);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return on;
+}
 
 export function ToastHost() {
-  const toast = useGameStore((s) => s.toasts[0]);
+  const queued = useGameStore((s) => s.toasts[0]);
+  const celebrating = useGameStore((s) => s.celebrations.length > 0);
+  const playing = useGame((g) => !!g.session || g.battle?.status === 'active');
   const reduce = useReduceMotion();
   const insets = useSafeAreaInsets();
+  const screenReader = useScreenReader();
+  const toast = celebrating || playing ? undefined : queued;
 
   useEffect(() => {
     if (!toast) return;
     haptic('success');
-    const t = setTimeout(() => dismissToast(toast.id), VISIBLE_MS);
+    AccessibilityInfo.announceForAccessibility(`${toast.title}. ${toast.detail}`);
+    const t = setTimeout(() => dismissToast(toast.id), screenReader ? VISIBLE_SCREEN_READER_MS : VISIBLE_MS);
     return () => clearTimeout(t);
-  }, [toast]);
+  }, [toast, screenReader]);
 
   if (!toast) return null;
   const bonus = toast.tone === 'bonus';
   return (
-    <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + space.sm }]}>
+    <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + space.sm }]} accessibilityLiveRegion="polite">
       <Animated.View
         key={toast.id}
         entering={reduce ? FadeIn : FadeInUp.springify().damping(18)}
@@ -37,6 +66,7 @@ export function ToastHost() {
           onPress={() => dismissToast(toast.id)}
           accessibilityRole="alert"
           accessibilityLabel={`${toast.title}. ${toast.detail}`}
+          accessibilityHint="Toque para dispensar"
           style={[styles.toast, bonus && styles.toastBonus]}
         >
           <View style={[styles.icon, bonus && styles.iconBonus]}>

@@ -12,12 +12,16 @@ import {
   WEEKLY_FIRST_ITEM,
   allDone,
   dayKey,
+  isQuestDone,
   weekDays,
   type QuestBoard,
+  type QuestDef,
 } from '../domain/quests/quests';
 import { QuestRow } from '../features/quests/QuestRow';
-import { refreshQuests } from '../state/actions';
+import { useStarter } from '../features/useStarter';
+import { refreshQuests, startFocus } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
+import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
 import { Panel } from '../ui/Panel';
@@ -27,7 +31,19 @@ import { colors, radius, space } from '../ui/theme';
 
 const WEEKDAY = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
-function Board({ title, board, bonus }: { title: string; board: QuestBoard; bonus: string }) {
+function Board({
+  title,
+  board,
+  bonus,
+  onTrain,
+  training,
+}: {
+  title: string;
+  board: QuestBoard;
+  bonus: string;
+  onTrain?: (q: QuestDef) => void;
+  training?: boolean;
+}) {
   const finished = allDone(board);
   return (
     <Panel>
@@ -36,7 +52,21 @@ function Board({ title, board, bonus }: { title: string; board: QuestBoard; bonu
       </Text>
       <View style={styles.rows}>
         {board.quests.map((q) => (
-          <QuestRow key={q.id} board={board} quest={q} />
+          <View key={q.id} style={styles.quest}>
+            <QuestRow board={board} quest={q} />
+            {onTrain && q.metric === 'topicCorrect' && q.topic && !isQuestDone(board, q) ? (
+              <Button
+                label="Treinar este assunto"
+                size="md"
+                variant="secondary"
+                icon="target"
+                loading={training}
+                onPress={() => onTrain(q)}
+                accessibilityHint="Começa 5 questões do assunto desta encomenda"
+                style={styles.train}
+              />
+            ) : null}
+          </View>
         ))}
       </View>
       <View style={[styles.bonus, finished && styles.bonusDone]}>
@@ -54,6 +84,10 @@ export default function Quests() {
   const tz = useGame((g) => g.profile.tzOffsetMin);
   const ownsTitle = useGame((g) => !!g.inventory[WEEKLY_FIRST_ITEM]);
   const now = useGameStore((s) => s.now);
+  const { busy, start } = useStarter();
+  const train = (q: QuestDef) => {
+    if (q.topic && q.subtopic) start('focus', () => startFocus(q.topic!, q.subtopic!));
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -80,6 +114,8 @@ export default function Quests() {
         <Board
           title="Hoje"
           board={quests.daily}
+          onTrain={train}
+          training={busy === 'focus'}
           bonus={`Cumpra as 3 para abrir o Baú do dia: +${DAILY_BONUS.xp} XP e +${DAILY_BONUS.ink} Tinta.`}
         />
       ) : null}
@@ -129,6 +165,8 @@ export default function Quests() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: space.xs, marginLeft: -space.sm },
   rows: { gap: space.sm, marginTop: space.sm },
+  quest: { gap: space.sm },
+  train: { alignSelf: 'flex-start', marginLeft: 32 + space.md },
   bonus: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -82,7 +82,7 @@ describe('calendário local das encomendas', () => {
 });
 
 describe('geração das encomendas', () => {
-  const ctx = { dailyMinutes: 10, createdAt: T0, questionStates: {}, bossAvailable: false };
+  const ctx = { dailyMinutes: 10, createdAt: T0, questionStates: {}, bossAvailable: false, now: T0, tzOffsetMin: BRT };
   it('é determinística por dia, tem 3 encomendas distintas e varia entre dias', () => {
     const a = generateDaily('2026-10-14', ctx);
     expect(generateDaily('2026-10-14', ctx)).toEqual(a);
@@ -260,5 +260,87 @@ describe('Região 2 e Mercador Composto', () => {
     expect(broke).toBe(true);
     expect(b.status).toBe('won');
     for (const id of [...boss.rewards.firstItems, boss.rewards.flawlessItem]) expect(getItem(id)).toBeDefined();
+  });
+});
+
+describe('encomendas: correções da revisão', () => {
+  const base = { dailyMinutes: 25, createdAt: T0, questionStates: {}, bossAvailable: true, now: T0, tzOffsetMin: BRT };
+  const sunday = Date.UTC(2026, 9, 18, 15); // domingo, 12h em Brasília
+  const monday = Date.UTC(2026, 9, 12, 15);
+
+  it('quadro semanal criado no meio da semana tem metas alcançáveis nos dias que restam', () => {
+    const full = generateWeekly('S-2026-10-12', { ...base, now: monday });
+    const late = generateWeekly('S-2026-10-12', { ...base, now: sunday });
+    const target = (b: typeof full, m: string) => b.quests.find((q) => q.metric === m)!.target;
+    expect(target(full, 'studyDays')).toBe(5);
+    expect(target(full, 'answered')).toBe(50);
+    expect(target(late, 'studyDays')).toBe(1);
+    expect(target(late, 'answered')).toBe(8);
+    expect(late.quests.find((q) => q.metric === 'studyDays')!.title).toBe('Estude em pelo menos 1 dia');
+    for (let i = 0; i < 7; i++) {
+      const b = generateWeekly('S-2026-10-12', { ...base, now: monday + i * DAY });
+      expect(target(b, 'studyDays')).toBeLessThanOrEqual(7 - i);
+      for (const q of b.quests) expect(q.target).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('a encomenda de foco nunca pede mais acertos do que o subassunto tem de questões', () => {
+    const bySub = new Map<string, string[]>();
+    for (const q of questionsFor({})) bySub.set(`${q.topic}/${q.subtopic}`, [...(bySub.get(`${q.topic}/${q.subtopic}`) ?? []), q.id]);
+    let checked = 0;
+    for (const ids of bySub.values()) {
+      // Erros no subassunto fazem o treinador recomendá-lo.
+      const states = Object.fromEntries(ids.map((id) => [id, schedule(undefined, id, 'wrong', T0 - 3 * DAY, 'x')]));
+      const board = generateDaily('2026-10-14', { ...base, questionStates: states });
+      const focus = board.quests.find((q) => q.metric === 'topicCorrect');
+      if (!focus) continue;
+      const pool = questionsFor({ topics: [focus.topic!], subtopics: [focus.subtopic!] }).length;
+      expect(focus.target).toBeLessThanOrEqual(pool);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(10);
+  });
+
+  it('Eco só vira encomenda se volta para revisão no período; "Derrote N Ecos" exige N Ecos', () => {
+    // Eco criado agora volta só amanhã: não entra no quadro de hoje.
+    const fresh = { 'PCT-001': schedule(undefined, 'PCT-001', 'wrong', T0, 'x') };
+    for (let i = 0; i < 20; i++) {
+      const b = generateDaily('2026-10-14', { ...base, createdAt: T0 + i, questionStates: fresh });
+      expect(b.quests.some((q) => q.metric === 'redemptions')).toBe(false);
+    }
+    // Dois Ecos devidos na semana não bastam para "Derrote 3 Ecos".
+    const two = Object.fromEntries(['PCT-001', 'PCT-002'].map((id) => [id, schedule(undefined, id, 'wrong', monday, 'x')]));
+    for (let i = 0; i < 30; i++) {
+      const w = generateWeekly('S-2026-10-12', { ...base, now: monday, createdAt: T0 + i, questionStates: two });
+      expect(w.quests.some((q) => q.metric === 'redemptions')).toBe(false);
+    }
+  });
+
+  it('o primeiro erro do dia não gera "Derrote 1 Eco" com o próprio Eco recém-criado', () => {
+    const s = onboarded(T0);
+    // Quadro de ontem: a próxima resposta é a primeira do dia seguinte.
+    const next = T0 + DAY;
+    const r = play(s, ['RZP-001'], [false], next);
+    expect(r.state.quests.daily!.key).toBe('2026-10-15');
+    expect(r.state.quests.daily!.quests.some((q) => q.metric === 'redemptions')).toBe(false);
+    expect(r.state.questionStates['RZP-001'].echo).toBe(true);
+  });
+
+  it('trocar o fuso para trás não devolve o quadro anterior nem apaga o progresso', () => {
+    let s = onboarded(Date.UTC(2026, 9, 15, 1)); // 22h de quarta em Brasília
+    s = touch(s, Date.UTC(2026, 9, 15, 1), -540).state; // viajou para Tóquio: já é quinta
+    expect(s.quests.daily!.key).toBe('2026-10-15');
+    s = play(s, ['RZP-001', 'RZP-004'], [], Date.UTC(2026, 9, 15, 1, 5)).state;
+    const progress = s.quests.daily!.progress;
+    expect(Object.keys(progress).length).toBeGreaterThan(0);
+    const back = touch(s, Date.UTC(2026, 9, 15, 2), BRT).state; // voltou: quarta 23h em Brasília
+    expect(back.quests.daily!.key).toBe('2026-10-15');
+    expect(back.quests.daily!.progress).toEqual(progress);
+    // Quando o dia local alcança o quadro, segue normalmente; no dia seguinte, troca.
+    expect(refreshQuestBoards(back, Date.UTC(2026, 9, 15, 15)).state.quests.daily!.key).toBe('2026-10-15');
+    expect(refreshQuestBoards(back, Date.UTC(2026, 9, 16, 15)).state.quests.daily!.key).toBe('2026-10-16');
+    // Relógio muito adiantado e depois corrigido: o quadro "do futuro" é trocado.
+    const future = refreshQuestBoards(onboarded(T0 + 30 * DAY), T0).state;
+    expect(future.quests.daily!.key).toBe('2026-10-14');
   });
 });
