@@ -3,6 +3,10 @@
  * Novos lotes entram aqui; o validador garante consistência (src/content/validation).
  */
 import { BASICA } from './questions/basica';
+import { FIN_COMPRAS_A_PRAZO } from './questions/financeira/compras-a-prazo';
+import { FIN_CUSTO_BENEFICIO } from './questions/financeira/custo-beneficio';
+import { FIN_JUROS_COMPOSTOS } from './questions/financeira/juros-compostos';
+import { FIN_JUROS_SIMPLES } from './questions/financeira/juros-simples';
 import { ESTATISTICA } from './questions/estatistica';
 import { FUNCOES } from './questions/funcoes';
 import { GEOMETRIA } from './questions/geometria';
@@ -23,6 +27,10 @@ export const QUESTIONS: readonly Question[] = [
   ...FUNCOES,
   ...GRAFICOS,
   ...GRANDEZAS,
+  ...FIN_JUROS_SIMPLES,
+  ...FIN_JUROS_COMPOSTOS,
+  ...FIN_COMPRAS_A_PRAZO,
+  ...FIN_CUSTO_BENEFICIO,
 ];
 
 const BY_ID = new Map(QUESTIONS.map((q) => [q.id, q]));

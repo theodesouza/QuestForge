@@ -22,7 +22,7 @@ export const FIN_COMPRAS_A_PRAZO = batch([
     alternatives: alts('R$ 2.208,00', 'R$ 19,20', 'R$ 240,00', 'R$ 1.920,00', 'R$ 192,00'),
     answer: 'E',
     hints: [
-      'No parcelamento sem juros, Teresa paga o valor total anunciado; à vista, ela deixa de pagar exatamente o valor do desconto.',
+      'Compare quanto Teresa pagaria no total em cada forma de pagamento; a economia é a diferença entre esses dois valores.',
       'Primeiro passo: confirme o total parcelado (10 × R$ 240,00) e escreva 8% na forma decimal.',
     ],
     solution: [
@@ -65,7 +65,7 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Total no crediário: 600 + 2.760 = R$ 3.360,00.',
       'Acréscimo em reais: 3.360 − 3.000 = R$ 360,00.',
       'Acréscimo percentual sobre o preço à vista: 360 ÷ 3.000 = 0,12 = 12%.',
-      'Armadilha: 360 ÷ 3.360 ≈ 10,7% usa o valor final como referência, e não o preço à vista.',
+      'Armadilhas: 360 ÷ 3.360 ≈ 10,7% usa o valor final como referência, e não o preço à vista; 360 ÷ 2.400 = 15% usa como base o valor financiado (3.000 − 600), mas a pergunta compara o total pago no crediário com o preço à vista.',
     ],
     concept:
       'Acréscimo percentual = (valor final − valor de referência) ÷ valor de referência. Na comparação entre crediário e compra à vista, a referência é o preço à vista.',
@@ -77,7 +77,7 @@ export const FIN_COMPRAS_A_PRAZO = batch([
     id: 'FIN-021',
     topic: 'financeira',
     subtopic: 'compras-a-prazo',
-    difficulty: 2,
+    difficulty: 3,
     skills: ['H16', 'H18'],
     stem: [
       {
@@ -97,8 +97,8 @@ export const FIN_COMPRAS_A_PRAZO = batch([
     alternatives: alts('10%', '25%', '20%', '≈ 11,1%', '5%'),
     answer: 'B',
     hints: [
-      'O preço real da chuteira é o preço à vista. Quem parcela paga a 1ª parcela no ato e fica devendo apenas o que falta desse preço.',
-      'Primeiro passo: calcule o preço à vista e subtraia dele a parcela paga no ato; o resultado é o saldo financiado.',
+      'Se pagar à vista sai mais barato, o parcelamento “sem juros” está cobrando algo a mais. Qual é o preço real da chuteira?',
+      'Primeiro passo: calcule o preço à vista. Depois, pense em quanto Thiago ainda deve logo após pagar a 1ª parcela.',
     ],
     solution: [
       'Preço à vista: 400 − 0,10 × 400 = R$ 360,00.',
@@ -109,11 +109,11 @@ export const FIN_COMPRAS_A_PRAZO = batch([
     ],
     concept:
       'Um parcelamento “sem juros” que convive com desconto à vista esconde juros. A taxa é calculada sobre o saldo financiado: preço à vista menos o que foi pago no ato.',
-    estimatedSeconds: 100,
+    estimatedSeconds: 120,
     source: AUTORAL,
     verify: () => {
       const vista = 400 - 0.1 * 400;
-      const parcela = 400 / 2;
+      const parcela = 200;
       const saldo = vista - parcela;
       return ((parcela - saldo) / saldo) * 100;
     },
@@ -170,7 +170,7 @@ export const FIN_COMPRAS_A_PRAZO = batch([
     id: 'FIN-023',
     topic: 'financeira',
     subtopic: 'compras-a-prazo',
-    difficulty: 3,
+    difficulty: 2,
     skills: ['H3', 'H21'],
     stem: [
       {
@@ -179,7 +179,7 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       },
       {
         kind: 'p',
-        text: 'paga-se, no ato da compra, uma entrada de 20% do preço à vista; o restante (saldo devedor) é quitado em um único pagamento 2 meses depois, corrigido por juros compostos de 5% ao mês.',
+        text: 'Paga-se, no ato da compra, uma entrada de 20% do preço à vista; o restante (saldo devedor) é quitado em um único pagamento 2 meses depois, corrigido por juros compostos de 5% ao mês.',
       },
     ],
     ask: 'Qual é o valor total que Bruno pagará pelo sofá nessa opção a prazo?',
@@ -194,7 +194,7 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Saldo devedor: 1.500 − 300 = R$ 1.200,00.',
       'Após 1 mês: 1.200 × 1,05 = R$ 1.260,00; após 2 meses: 1.260 × 1,05 = R$ 1.323,00.',
       'Total pago: 300 + 1.323 = R$ 1.623,00.',
-      'Armadilhas: com juros simples, o saldo viraria R$ 1.320,00 (total de R$ 1.620,00); aplicar os juros compostos ao preço inteiro, ignorando a entrada, leva a R$ 1.653,75.',
+      'Armadilhas: R$ 1.323,00 é apenas o pagamento feito após 2 meses, sem somar a entrada; com juros simples, o saldo viraria R$ 1.320,00 (total de R$ 1.620,00); aplicar os juros compostos ao preço inteiro, ignorando a entrada, leva a R$ 1.653,75; e juros simples sobre o preço inteiro dão 1.500 × 1,10 = R$ 1.650,00.',
     ],
     concept:
       'No crediário, os juros compostos incidem sobre o saldo devedor: M = S × (1 + i)ⁿ, com S = preço à vista − entrada. O total pago é a entrada mais esse montante.',
@@ -231,18 +231,19 @@ export const FIN_COMPRAS_A_PRAZO = batch([
         text: 'A loja informa que as duas parcelas foram calculadas com juros compostos, a uma taxa mensal fixa, aplicados sobre o saldo financiado.',
       },
     ],
-    ask: 'A taxa mensal de juros cobrada pela loja é, aproximadamente, de',
+    ask: 'A taxa mensal de juros cobrada pela loja é de',
     alternatives: alts('3,0%', '3,8%', '6,1%', '7,6%', '5,0%'),
     answer: 'E',
     hints: [
       'Com juros compostos, cada parcela futura vale menos na data da compra: o saldo financiado é igual à soma das parcelas “trazidas” para hoje, dividindo cada uma por (1 + i) elevado ao número de meses.',
-      'Primeiro passo: calcule o saldo financiado (2.550 − 500). Depois, teste as taxas das alternativas e veja qual faz 1.102,50 ÷ (1 + i) + 1.102,50 ÷ (1 + i)² resultar nesse saldo.',
+      'Primeiro passo: calcule o saldo financiado (2.550 − 500). Depois, acompanhe a dívida mês a mês: ela cresce com os juros e cai com cada parcela, até zerar após a 2ª.',
     ],
     solution: [
       'Saldo financiado: 2.550 − 500 = R$ 2.050,00.',
       'A taxa i deve satisfazer 1.102,50 ÷ (1 + i) + 1.102,50 ÷ (1 + i)² = 2.050.',
       'Testando i = 5%: 1.102,50 ÷ 1,05 = R$ 1.050,00 e 1.102,50 ÷ 1,05² = 1.102,50 ÷ 1,1025 = R$ 1.000,00.',
       'Soma: 1.050 + 1.000 = R$ 2.050,00, exatamente o saldo financiado; logo, a taxa é de 5% ao mês.',
+      'Conferindo mês a mês: 2.050 × 1,05 − 1.102,50 = R$ 1.050,00 de dívida após a 1ª parcela; 1.050 × 1,05 − 1.102,50 = 0, ou seja, a 2ª parcela zera a dívida.',
       'Armadilhas: o acréscimo total (500 + 2 × 1.102,50 − 2.550 = R$ 155,00) dividido pelo saldo dá ≈ 7,6% e, dividido pelo preço à vista, ≈ 6,1%. Nenhum deles é taxa mensal, e dividi-los por 2 meses (≈ 3,8% e ≈ 3,0%) ignora que os juros são compostos e que a 1ª parcela já reduz a dívida.',
     ],
     concept:

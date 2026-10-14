@@ -54,7 +54,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
       },
       {
         kind: 'p',
-        text: 'Ele vai comprar todos os pacotes em um único mercado: aquele em que o gasto total for menor.',
+        text: 'No Mercado A, a promoção vale para cada grupo de 3 pacotes levados. Kenji vai comprar todos os pacotes em um único mercado: aquele em que o gasto total for menor.',
       },
     ],
     ask: 'Quanto Kenji gastará na compra dos 6 pacotes?',
@@ -76,7 +76,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
       'A promoção "leve 3, pague 2" equivale a um desconto de 1/3 em cada grupo de 3 unidades; para compará-la com um desconto percentual, calcula-se o gasto total (ou o preço efetivo por unidade) em cada opção.',
     estimatedSeconds: 90,
     source: AUTORAL,
-    verify: () => Math.min((6 - 6 / 3) * 21, 6 * 19 * (1 - 0.25)),
+    verify: () => Math.min((6 - Math.floor(6 / 3)) * 21, 6 * 19 * (1 - 0.25)),
   },
   {
     id: 'FIN-027',
@@ -103,10 +103,10 @@ export const FIN_CUSTO_BENEFICIO = batch([
       },
       {
         kind: 'p',
-        text: 'Considere que, com etanol, o rendimento do carro de Adriana é exatamente 70% do rendimento com gasolina.',
+        text: 'Considere que, com etanol, o rendimento do carro de Adriana é exatamente 70% do rendimento com gasolina e que todo o combustível consumido na viagem será comprado nesse posto, a esses preços.',
       },
     ],
-    ask: 'Ao escolher o combustível mais vantajoso para essa viagem, Adriana economizará, em relação ao outro combustível,',
+    ask: 'Ao escolher o combustível mais vantajoso para essa viagem, Adriana economizará, em relação ao que gastaria com o outro combustível,',
     alternatives: alts('R$ 1,70', 'R$ 59,50', 'R$ 5,60', 'R$ 225,00', 'R$ 8,00'),
     answer: 'E',
     hints: [
@@ -139,7 +139,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
     topic: 'financeira',
     subtopic: 'custo-beneficio',
     difficulty: 3,
-    skills: ['H23', 'H25'],
+    skills: ['H21', 'H23', 'H25'],
     stem: [
       {
         kind: 'p',
@@ -162,7 +162,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
     alternatives: alts('12 GB', '11 GB', '4 GB', '13 GB', '15 GB'),
     answer: 'A',
     hints: [
-      'Até 15 GB, a mensalidade do Plus não muda; já no Básico, cada GB acima de 8 GB encarece a conta.',
+      'Até 15 GB, a conta do Plus fica fixa em R$ 59,90; já no Básico, cada GB acima de 8 GB encarece a conta.',
       'Calcule quanto o Básico pode cobrar em GB adicionais antes de alcançar a mensalidade do Plus: 59,90 − 39,90.',
     ],
     solution: [
@@ -188,7 +188,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
     id: 'FIN-029',
     topic: 'financeira',
     subtopic: 'custo-beneficio',
-    difficulty: 4,
+    difficulty: 3,
     skills: ['H3', 'H24', 'H25'],
     stem: [
       {

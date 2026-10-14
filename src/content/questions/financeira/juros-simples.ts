@@ -75,7 +75,7 @@ export const FIN_JUROS_SIMPLES = batch([
     stem: [
       {
         kind: 'p',
-        text: 'Uma loja de eletrodomésticos de Recife oferece duas formas de pagamento: à vista ou em um pagamento único, 3 meses após a compra. No pagamento a prazo, a loja cobra juros simples, com a mesma taxa mensal para todos os produtos. Veja alguns preços:',
+        text: 'Uma loja de eletrodomésticos do Recife oferece duas formas de pagamento: à vista ou em um pagamento único, 3 meses após a compra. No pagamento a prazo, a loja cobra juros simples, com a mesma taxa mensal para todos os produtos. Veja alguns preços:',
       },
       {
         kind: 'table',
@@ -89,7 +89,7 @@ export const FIN_JUROS_SIMPLES = batch([
       },
     ],
     ask: 'A taxa mensal de juros simples cobrada pela loja no pagamento a prazo é de',
-    alternatives: alts('2,75%', '9%', '3%', '27%', '≈ 2,9%'),
+    alternatives: alts('2,75%', '9%', '3%', '27%', '2,9%'),
     answer: 'C',
     hints: [
       'Os juros são a diferença entre o valor pago a prazo e o preço à vista, e correspondem a 3 meses de financiamento.',
@@ -100,7 +100,8 @@ export const FIN_JUROS_SIMPLES = batch([
       'Taxa no período: 216 ÷ 2.400 = 0,09 = 9% em 3 meses.',
       'Taxa mensal em juros simples: 9% ÷ 3 = 3% ao mês.',
       'Conferência com o ventilador: 180 × 0,03 × 3 = 16,20 e 180 + 16,20 = R$ 196,20.',
-      'Armadilha: dividir os juros pelo valor a prazo (216 ÷ 2.616) subestima a taxa, pois o valor financiado é o preço à vista.',
+      'Armadilha: dividir os juros pelo valor a prazo (216 ÷ 2.616 ÷ 3 ≈ 2,75% ao mês) subestima a taxa, pois o valor financiado é o preço à vista.',
+      'Armadilha: cerca de 2,9% ao mês seria a taxa em juros compostos, em que (1 + i)³ = 1,09; em juros simples, basta dividir a taxa do período pelo número de meses.',
     ],
     concept:
       'Em juros simples, a taxa do período é a taxa mensal multiplicada pelo número de meses; por isso, i = J ÷ (C × t), em que C é o preço à vista.',
@@ -112,12 +113,12 @@ export const FIN_JUROS_SIMPLES = batch([
     id: 'FIN-008',
     topic: 'financeira',
     subtopic: 'juros-simples',
-    difficulty: 3,
+    difficulty: 2,
     skills: ['H3', 'H21'],
     stem: [
       {
         kind: 'p',
-        text: 'Bianca tem um pequeno salão de beleza e combinou com um fornecedor a compra de duas cadeiras de cabeleireiro por R$ 5.600,00, a serem pagas à vista daqui a 8 meses.',
+        text: 'Bianca tem um pequeno salão de beleza e combinou com um fornecedor a compra de duas cadeiras de cabeleireiro por R$ 5.600,00, com pagamento único daqui a 8 meses.',
       },
       {
         kind: 'p',
@@ -152,23 +153,23 @@ export const FIN_JUROS_SIMPLES = batch([
     stem: [
       {
         kind: 'p',
-        text: 'Edson recebeu R$ 20.000,00 de verbas rescisórias e dividiu esse valor entre duas aplicações que pagam juros simples: uma parte foi para a aplicação A, com taxa de 0,8% ao mês, e o restante foi para a aplicação B, com taxa de 1,2% ao mês.',
+        text: 'Edson recebeu R$ 20.000,00 de verbas rescisórias e dividiu esse valor entre duas aplicações que pagam juros simples: uma parte foi para a aplicação P, com taxa de 0,8% ao mês, e o restante foi para a aplicação Q, com taxa de 1,2% ao mês.',
       },
       {
         kind: 'p',
         text: 'Após 10 meses, ele verificou que as duas aplicações renderam, juntas, R$ 2.080,00 de juros.',
       },
     ],
-    ask: 'A quantia que Edson aplicou na aplicação B foi',
+    ask: 'A quantia que Edson investiu na aplicação Q foi',
     alternatives: alts('R$ 4.000,00', 'R$ 8.000,00', 'R$ 10.000,00', 'R$ 10.400,00', 'R$ 12.000,00'),
     answer: 'E',
     hints: [
-      'Chame de x a quantia aplicada em B; a quantia aplicada em A é o que sobra dos R$ 20.000,00.',
+      'Chame de x a quantia aplicada em Q; a quantia aplicada em P é o que sobra dos R$ 20.000,00.',
       'Calcule a taxa acumulada em 10 meses de cada aplicação e escreva uma equação para a soma dos juros.',
     ],
     solution: [
-      'Em 10 meses, A rende 0,8% × 10 = 8% e B rende 1,2% × 10 = 12% do valor aplicado.',
-      'Se x foi aplicado em B, então 20.000 − x foi aplicado em A.',
+      'Em 10 meses, P rende 0,8% × 10 = 8% e Q rende 1,2% × 10 = 12% do valor aplicado.',
+      'Se x foi aplicado em Q, então 20.000 − x foi aplicado em P.',
       'Juros totais: 0,12x + 0,08 × (20.000 − x) = 2.080.',
       '0,12x + 1.600 − 0,08x = 2.080, logo 0,04x = 480 e x = R$ 12.000,00.',
       'Conferência: 12.000 × 0,12 + 8.000 × 0,08 = 1.440 + 640 = R$ 2.080,00.',
@@ -179,9 +180,9 @@ export const FIN_JUROS_SIMPLES = batch([
     source: AUTORAL,
     verify: () => {
       const total = 20000;
-      const taxaA = 0.008 * 10;
-      const taxaB = 0.012 * 10;
-      return (2080 - total * taxaA) / (taxaB - taxaA);
+      const taxaP = 0.008 * 10;
+      const taxaQ = 0.012 * 10;
+      return (2080 - total * taxaP) / (taxaQ - taxaP);
     },
   },
   {
@@ -199,14 +200,14 @@ export const FIN_JUROS_SIMPLES = batch([
         kind: 'table',
         header: ['Aplicação', 'Taxa de juros simples', 'Custo no resgate'],
         rows: [
-          ['P', '0,9% ao mês', 'Isenta'],
+          ['P', '0,9% ao mês', 'R$ 0,00'],
           ['Q', '1,2% ao mês', 'R$ 90,00'],
           ['R', '1,5% ao mês', 'R$ 270,00'],
         ],
       },
       {
         kind: 'p',
-        text: 'Considere como rendimento líquido os juros obtidos menos o custo no resgate, e que o prazo de aplicação é um número inteiro de meses.',
+        text: 'Considere que o rendimento líquido é a diferença entre os juros obtidos e o custo no resgate, e que o prazo de aplicação é um número inteiro de meses.',
       },
     ],
     ask: 'O menor prazo para o qual a aplicação R proporciona rendimento líquido maior que o de cada uma das outras duas é de',
@@ -231,16 +232,15 @@ export const FIN_JUROS_SIMPLES = batch([
     verify: () => {
       const capital = 6000;
       const liquido = (taxa: number, custo: number, t: number) => capital * taxa * t - custo;
-      let t = 1;
-      while (
-        !(
+      for (let t = 1; t <= 600; t++) {
+        if (
           liquido(0.015, 270, t) - liquido(0.009, 0, t) > 0.005 &&
           liquido(0.015, 270, t) - liquido(0.012, 90, t) > 0.005
-        )
-      ) {
-        t++;
+        ) {
+          return t;
+        }
       }
-      return t;
+      return NaN;
     },
   },
 ]);

@@ -10,7 +10,7 @@ export const FIN_JUROS_COMPOSTOS = batch([
     stem: [
       {
         kind: 'p',
-        text: 'Tiago é microempreendedor individual (MEI) e guardou R$ 8.000,00 da reserva de emergência do seu negócio em uma aplicação que rende 6% ao ano, no regime de juros compostos. Ele não fará novos depósitos nem retiradas.',
+        text: 'Gustavo é microempreendedor individual (MEI) e guardou R$ 8.000,00 da reserva de emergência do seu negócio em uma aplicação que rende 6% ao ano, no regime de juros compostos. Ele não fará novos depósitos nem retiradas.',
       },
     ],
     ask: 'Ao final de 2 anos, o montante dessa aplicação será de',
@@ -80,27 +80,27 @@ export const FIN_JUROS_COMPOSTOS = batch([
     stem: [
       {
         kind: 'p',
-        text: 'A fatura do cartão de crédito de Camila veio no valor de R$ 1.500,00. No vencimento, ela pagou apenas R$ 700,00, e o restante passou a ser cobrado no crédito rotativo, com juros compostos de 12% ao mês.',
+        text: 'A fatura do cartão de crédito de Renata veio no valor de R$ 1.500,00. No vencimento, ela pagou apenas R$ 700,00, e o restante passou a ser cobrado pelo banco com juros compostos de 12% ao mês.',
       },
       {
         kind: 'p',
-        text: 'Camila não fez novas compras no cartão nem outros pagamentos nos dois meses seguintes.',
+        text: 'Renata não fez novas compras no cartão nem outros pagamentos nos dois meses seguintes. Para simplificar, suponha que, nesse período, o saldo não pago seja corrigido apenas por esses juros, sem multa, IOF, parcelamento ou outros encargos.',
       },
     ],
-    ask: 'Dois meses após esse vencimento, a dívida de Camila no cartão será de',
+    ask: 'Dois meses após esse vencimento, a dívida de Renata no cartão será de',
     alternatives: alts('R$ 203,52', 'R$ 896,00', 'R$ 992,00', 'R$ 1.003,52', 'R$ 1.181,60'),
     answer: 'D',
     hints: [
-      'Os juros do rotativo incidem apenas sobre a parte da fatura que não foi paga, e os juros de um mês passam a fazer parte da dívida no mês seguinte.',
-      'Comece calculando o saldo que entrou no rotativo: 1.500 − 700.',
+      'Os juros do cartão incidem apenas sobre a parte da fatura que não foi paga, e os juros de um mês passam a fazer parte da dívida no mês seguinte.',
+      'Comece calculando o saldo que ficou sem pagar: 1.500 − 700.',
     ],
     solution: [
-      'Saldo financiado no rotativo: 1.500 − 700 = R$ 800,00.',
+      'Saldo financiado: 1.500 − 700 = R$ 800,00.',
       'Após 1 mês: 800 × 1,12 = R$ 896,00.',
       'Após 2 meses: 896 × 1,12 = R$ 1.003,52.',
       'Erros comuns: juros simples dariam 800 + 2 × 96 = R$ 992,00; aplicar os juros sobre a fatura inteira e só depois descontar o pagamento dá 1.500 × 1,2544 − 700 = R$ 1.181,60.',
     ],
-    concept: 'A dívida no rotativo cresce a juros compostos sobre o saldo não pago: D = (fatura − pagamento) × (1 + i)ⁿ.',
+    concept: 'Um saldo devedor sujeito a juros compostos cresce como D = (fatura − pagamento) × (1 + i)ⁿ. Na prática, o crédito rotativo do cartão só pode ser usado até o vencimento da fatura seguinte; depois disso, o saldo deve ser parcelado, e atrasos geram multa e juros de mora.',
     estimatedSeconds: 120,
     source: AUTORAL,
     verify: () => (1500 - 700) * Math.pow(1 + 0.12, 2),
@@ -130,25 +130,27 @@ export const FIN_JUROS_COMPOSTOS = batch([
       'Em 12 meses, o fator de multiplicação da dívida é 1,08¹² = (1,08⁶)².',
       'Com a aproximação dada: 1,59² = 2,5281.',
       'Taxa anual: 2,5281 − 1 = 1,5281, ou seja, cerca de 153% ao ano.',
-      'Armadilhas: 12 × 8% = 96% ignora o juro sobre juro; 59% corresponde a apenas 6 meses; 253% esquece de subtrair o capital (o fator 1).',
+      'O valor exato, 1,08¹² ≈ 2,518, dá cerca de 151,8% ao ano; a diferença vem do arredondamento de 1,08⁶ para 1,59. Entre as alternativas, 153% continua sendo a mais próxima.',
+      'Armadilhas: 12 × 8% = 96% ignora o juro sobre juro; 59% corresponde a apenas 6 meses; 118% = 2 × 59% soma as taxas dos dois semestres em vez de multiplicar os fatores (1,59 × 1,59); 253% esquece de subtrair o capital (o fator 1).',
     ],
     concept: 'Taxas equivalentes: se i é a taxa mensal, a taxa anual equivalente I satisfaz 1 + I = (1 + i)¹², e não I = 12 × i.',
     estimatedSeconds: 150,
     source: AUTORAL,
-    // 1,08¹² = (1,08⁶)², com 1,08⁶ ≈ 1,59 dado no enunciado.
-    verify: () => (Math.pow(1.59, 2) - 1) * 100,
-    tolerance: 0.5,
+    // Valor exato: 1,08¹² − 1 ≈ 151,8%. A tolerância cobre o arredondamento 1,08⁶ ≈ 1,59
+    // do enunciado (que leva a ≈ 152,8%) e só a alternativa 153% fica dentro da faixa.
+    verify: () => (Math.pow(1.08, 12) - 1) * 100,
+    tolerance: 1.5,
   },
   {
     id: 'FIN-015',
     topic: 'financeira',
     subtopic: 'juros-compostos',
-    difficulty: 3,
+    difficulty: 2,
     skills: ['H21', 'H24', 'H25'],
     stem: [
       {
         kind: 'p',
-        text: 'Bianca faz entregas por aplicativo e quer trocar de moto. Ela aplicou R$ 4.500,00 em um investimento que rende 7% ao ano, no regime de juros compostos, e só pretende resgatar o dinheiro quando o saldo atingir, no mínimo, R$ 9.000,00. Ela não fará novos depósitos nem retiradas.',
+        text: 'Quando a filha nasceu, Helena aplicou R$ 4.500,00 em um investimento que rende 7% ao ano, no regime de juros compostos. Para ajudar nos estudos da filha, ela só pretende resgatar o dinheiro quando o saldo atingir, no mínimo, R$ 9.000,00. Ela não fará novos depósitos nem retiradas.',
       },
       {
         kind: 'table',
@@ -163,18 +165,19 @@ export const FIN_JUROS_COMPOSTOS = batch([
         caption: 'Potências aproximadas de 1,07',
       },
     ],
-    ask: 'O menor número inteiro de anos necessário para que Bianca atinja o valor desejado é',
-    alternatives: alts('11 anos', '10 anos', '15 anos', '14 anos', '7 anos'),
+    ask: 'O menor número inteiro de anos necessário para que Helena atinja o valor desejado é',
+    alternatives: alts('11 anos', '10 anos', '15 anos', '14 anos', '12 anos'),
     answer: 'A',
     hints: [
-      'Passar de R$ 4.500,00 para R$ 9.000,00 significa multiplicar o capital por um certo fator; descubra qual é esse fator.',
+      'Não é preciso calcular o saldo ano a ano: depois de n anos, o saldo é 4.500 × 1,07ⁿ. Compare o crescimento necessário com as potências da tabela.',
       'Divida a meta pelo valor aplicado para obter o valor mínimo que 1,07ⁿ precisa alcançar.',
     ],
     solution: [
       'A meta exige 4.500 × 1,07ⁿ ≥ 9.000, ou seja, 1,07ⁿ ≥ 9.000 ÷ 4.500 = 2.',
       'Pela tabela, 1,07¹⁰ ≈ 1,97 < 2: com 10 anos, o saldo é cerca de 4.500 × 1,97 = R$ 8.865,00, ainda abaixo da meta.',
       'Já 1,07¹¹ ≈ 2,10 ≥ 2: com 11 anos, o saldo é cerca de 4.500 × 2,10 = R$ 9.450,00.',
-      'Logo, são necessários 11 anos. Com juros simples, seriam 15 anos, pois 15 × 7% = 105% é o primeiro múltiplo de 7% que chega a 100%.',
+      'Logo, são necessários 11 anos. Responder 12 anos é contar um ano a mais: 1,07¹² ≈ 2,25 também supera 2, mas não é a primeira potência a fazê-lo.',
+      'Com juros simples, seriam 15 anos, pois 15 × 7% = 105% é o primeiro múltiplo de 7% que chega a 100%.',
     ],
     concept: 'Para saber em quanto tempo um capital C atinge um valor M, resolve-se C × (1 + i)ⁿ ≥ M, comparando (1 + i)ⁿ com M ÷ C; como o tempo é contado em períodos inteiros, toma-se o primeiro n que satisfaz a desigualdade.',
     estimatedSeconds: 150,
@@ -205,10 +208,6 @@ export const FIN_JUROS_COMPOSTOS = batch([
           ['3º', '5%'],
         ],
       },
-      {
-        kind: 'p',
-        text: 'Para que o salário mantenha o mesmo poder de compra, ele precisa ser corrigido pela inflação acumulada no período.',
-      },
     ],
     ask: 'Ao final dos três anos, para manter o poder de compra, o salário de Sueli deveria ser de',
     alternatives: alts('R$ 2.420,00', 'R$ 2.448,60', 'R$ 2.226,00', 'R$ 448,60', 'R$ 1.633,59'),
@@ -238,7 +237,7 @@ export const FIN_JUROS_COMPOSTOS = batch([
     stem: [
       {
         kind: 'p',
-        text: 'Paula quer comprar uma moto de R$ 8.000,00 para trabalhar com entregas. Para isso, ela fará três depósitos de R$ 2.000,00 em uma aplicação que rende 10% ao ano, no regime de juros compostos: um no início do 1º ano, outro no início do 2º ano e o último no início do 3º ano.',
+        text: 'Paula quer comprar uma moto usada de R$ 8.000,00 para trabalhar com entregas. Para isso, ela fará três depósitos de R$ 2.000,00 em uma aplicação que rende 10% ao ano, no regime de juros compostos: um no início do 1º ano, outro no início do 2º ano e o último no início do 3º ano.',
       },
       {
         kind: 'p',
@@ -249,7 +248,7 @@ export const FIN_JUROS_COMPOSTOS = batch([
     alternatives: alts('R$ 1.380,00', 'R$ 800,00', 'R$ 718,00', 'R$ 14,00', 'R$ 2.000,00'),
     answer: 'C',
     hints: [
-      'Cada depósito rende por um tempo diferente: o primeiro fica aplicado por 3 anos, o segundo por 2 anos e o terceiro por apenas 1 ano.',
+      'Os três depósitos não ficam aplicados pelo mesmo tempo: conte quantos anos cada um rende até o fim do 3º ano.',
       'Comece calculando quanto vale, ao final do 3º ano, o primeiro depósito: 2.000 × 1,1³.',
     ],
     solution: [
@@ -258,7 +257,7 @@ export const FIN_JUROS_COMPOSTOS = batch([
       '3º depósito (1 ano aplicado): 2.000 × 1,1 = R$ 2.200,00.',
       'Saldo ao final do 3º ano: 2.662 + 2.420 + 2.200 = R$ 7.282,00.',
       'Falta: 8.000 − 7.282 = R$ 718,00.',
-      'Armadilhas: supor os três depósitos rendendo 3 anos dá 6.000 × 1,331 = R$ 7.986,00 (faltariam R$ 14,00); ignorar o rendimento do último ano dá R$ 6.620,00 (faltariam R$ 1.380,00); usar juros simples dá R$ 7.200,00 (faltariam R$ 800,00).',
+      'Armadilhas: supor os três depósitos rendendo 3 anos dá 6.000 × 1,331 = R$ 7.986,00 (faltariam R$ 14,00); supor os depósitos feitos no fim de cada ano (cada um rendendo um ano a menos) dá 2.420 + 2.200 + 2.000 = R$ 6.620,00 (faltariam R$ 1.380,00); usar juros simples dá R$ 7.200,00 (faltariam R$ 800,00).',
     ],
     concept: 'Em uma sequência de depósitos, cada parcela é corrigida pelo seu próprio prazo: o saldo final é a soma de P × (1 + i)ᵏ, em que k é o número de períodos que cada depósito permaneceu aplicado.',
     estimatedSeconds: 240,
