@@ -157,7 +157,9 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
   return (
     <View style={styles.hud}>
       <View style={styles.hudRow}>
-        <Text variant="subheading">{boss.name}</Text>
+        <Text variant="subheading" numberOfLines={1} style={styles.hudName}>
+          {boss.name}
+        </Text>
         <View style={styles.hpRow}>
           {hit && hit.damage > 0 ? (
             <Animated.View key={hit.id} entering={reduce ? FadeIn : FadeInDown.springify()} accessibilityLiveRegion="polite">
@@ -471,13 +473,14 @@ const styles = StyleSheet.create({
   rule: { flexDirection: 'row', gap: space.md, paddingVertical: space.sm },
   top: { flexDirection: 'row', alignItems: 'flex-start', gap: space.xs, paddingHorizontal: space.sm, paddingBottom: space.sm },
   hud: { gap: 6, paddingRight: space.md, paddingTop: 4 },
-  hudRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  hudRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  hudName: { flexShrink: 1 },
   hudTags: { flexDirection: 'row', gap: space.xs },
   resolve: { flexDirection: 'row', gap: 4 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, height: 24, borderRadius: radius.pill, backgroundColor: colors.ink800 },
   content: { paddingHorizontal: space.xl, paddingBottom: space.xxxl, gap: space.lg },
   arena: { alignItems: 'center' },
-  hpRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  hpRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexShrink: 0 },
   narration: { fontStyle: 'italic' },
   footer: { paddingHorizontal: space.xl, paddingTop: space.md, backgroundColor: colors.ink900, borderTopWidth: 1, borderTopColor: colors.lineSoft },
   resultStats: { flexDirection: 'row', gap: space.sm },
