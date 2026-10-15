@@ -21,7 +21,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "versionCode": 2
+      "versionCode": 3
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -35,7 +35,7 @@
         {
           "backgroundColor": "#0B1020",
           "image": "./assets/splash-icon.png",
-          "imageWidth": 160
+          "imageWidth": 200
         }
       ]
     ],
