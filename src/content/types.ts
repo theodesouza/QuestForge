@@ -88,6 +88,11 @@ export interface Question {
   verify?: () => number;
   /** Tolerância absoluta na comparação de `verify` (respostas arredondadas). */
   tolerance?: number;
+  /**
+   * As alternativas são embaralhadas a cada tentativa. Marque `true` só quando a ordem
+   * faz parte do sentido (ex.: alternativas que se referem umas às outras).
+   */
+  fixedOrder?: boolean;
 }
 
 export interface Subtopic {

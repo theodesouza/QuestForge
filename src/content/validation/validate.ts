@@ -75,6 +75,19 @@ export function validateQuestion(q: Question): Issue[] {
   if (q.concept.trim().length < 20) add('explicação do conceito ausente');
   if (q.estimatedSeconds < 15 || q.estimatedSeconds > 600) add('tempo estimado fora de 15–600 s');
 
+  // Alternativas embaralhadas a cada tentativa: textos não podem depender de letra ou posição.
+  if (!q.fixedOrder) {
+    const letterRef = /\b([Aa]lternativa|[Ll]etra|[Oo]p[çc][ãa]o|[Ii]tem)\s+["“(]?[A-E]\b|\(([A-E])\)\s*$|^[A-E]\)/;
+    for (const text of [...q.hints, ...q.solution, q.concept]) {
+      if (letterRef.test(text)) add(`texto cita alternativa pela letra (as alternativas são embaralhadas): "${text.slice(0, 60)}"`);
+    }
+    for (const text of texts) {
+      if (/anterior(es)?\b|nenhuma das|todas as (alternativas|anteriores)|acima|abaixo/i.test(text)) {
+        add(`alternativa depende da posição (as alternativas são embaralhadas): "${text}"`);
+      }
+    }
+  }
+
   if (q.source.kind === 'enem') {
     if (!q.source.year || !q.source.license) add('questão oficial sem ano ou licença');
   }

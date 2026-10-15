@@ -7,6 +7,18 @@ import { FIN_COMPRAS_A_PRAZO } from './questions/financeira/compras-a-prazo';
 import { FIN_CUSTO_BENEFICIO } from './questions/financeira/custo-beneficio';
 import { FIN_JUROS_COMPOSTOS } from './questions/financeira/juros-compostos';
 import { FIN_JUROS_SIMPLES } from './questions/financeira/juros-simples';
+import { MISSAO_R1M1_A } from './questions/missoes/r1-m1-a';
+import { MISSAO_R1M1_B } from './questions/missoes/r1-m1-b';
+import { MISSAO_R1M2_A } from './questions/missoes/r1-m2-a';
+import { MISSAO_R1M2_B } from './questions/missoes/r1-m2-b';
+import { MISSAO_R1M3_A } from './questions/missoes/r1-m3-a';
+import { MISSAO_R1M3_B } from './questions/missoes/r1-m3-b';
+import { MISSAO_R2M1_A } from './questions/missoes/r2-m1-a';
+import { MISSAO_R2M1_B } from './questions/missoes/r2-m1-b';
+import { MISSAO_R2M2_A } from './questions/missoes/r2-m2-a';
+import { MISSAO_R2M2_B } from './questions/missoes/r2-m2-b';
+import { MISSAO_R2M3_A } from './questions/missoes/r2-m3-a';
+import { MISSAO_R2M3_B } from './questions/missoes/r2-m3-b';
 import { ESTATISTICA } from './questions/estatistica';
 import { FUNCOES } from './questions/funcoes';
 import { GEOMETRIA } from './questions/geometria';
@@ -31,6 +43,18 @@ export const QUESTIONS: readonly Question[] = [
   ...FIN_JUROS_COMPOSTOS,
   ...FIN_COMPRAS_A_PRAZO,
   ...FIN_CUSTO_BENEFICIO,
+  ...MISSAO_R1M1_A,
+  ...MISSAO_R1M1_B,
+  ...MISSAO_R1M2_A,
+  ...MISSAO_R1M2_B,
+  ...MISSAO_R1M3_A,
+  ...MISSAO_R1M3_B,
+  ...MISSAO_R2M1_A,
+  ...MISSAO_R2M1_B,
+  ...MISSAO_R2M2_A,
+  ...MISSAO_R2M2_B,
+  ...MISSAO_R2M3_A,
+  ...MISSAO_R2M3_B,
 ];
 
 const BY_ID = new Map(QUESTIONS.map((q) => [q.id, q]));
