@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { subtopicLabel } from '../../content/topics';
 import type { Question } from '../../content/types';
+import { alternativeOrder, displayLetter } from '../../domain/learning/alternatives';
 import { toggleDoubt, toggleFavorite } from '../../state/actions';
 import { useGame } from '../../state/store';
 import { DifficultyPips } from '../../ui/DifficultyPips';
@@ -18,12 +20,15 @@ import type { Attempt } from './useAttempt';
 interface Props {
   question: Question;
   attempt: Attempt;
+  /** Identifica a tentativa (sessão ou batalha): define a ordem das alternativas. */
+  attemptKey: string;
   /** Posição vertical do feedback, para a tela rolar até ele após a resposta. */
   onFeedbackLayout?: (y: number) => void;
 }
 
-export function QuestionBody({ question, attempt, onFeedbackLayout }: Props) {
+export function QuestionBody({ question, attempt, attemptKey, onFeedbackLayout }: Props) {
   const reduce = useReduceMotion();
+  const order = useMemo(() => alternativeOrder(question, attemptKey), [question, attemptKey]);
   const qs = useGame((g) => g.questionStates[question.id]);
   const isEcho = !!qs?.echo;
 
@@ -85,6 +90,7 @@ export function QuestionBody({ question, attempt, onFeedbackLayout }: Props) {
 
       <Alternatives
         question={question}
+        order={order}
         selected={attempt.selected}
         onSelect={attempt.select}
         revealedChoice={attempt.outcome?.answered.chosen ?? null}
@@ -92,7 +98,7 @@ export function QuestionBody({ question, attempt, onFeedbackLayout }: Props) {
 
       {attempt.outcome ? (
         <View onLayout={(e) => onFeedbackLayout?.(e.nativeEvent.layout.y)}>
-          <Feedback question={question} outcome={attempt.outcome} />
+          <Feedback question={question} outcome={attempt.outcome} answerLetter={displayLetter(order, question.answer)} />
         </View>
       ) : null}
 

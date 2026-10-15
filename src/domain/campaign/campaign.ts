@@ -7,6 +7,12 @@ export interface NodeProgress {
   completedAt: number | null;
   bestCorrect: number;
   runs: number;
+  /** Melhor pontuação (0–1000); null se nenhuma tentativa foi pontuada (versões antigas). */
+  bestScore: number | null;
+  /** Melhor número de estrelas (0–3). */
+  bestStars: number;
+  /** Pontuação da última tentativa. */
+  lastScore: number | null;
 }
 
 export interface BossProgress {

@@ -1,4 +1,4 @@
-import type { TopicId } from './types';
+import type { Difficulty, TopicId } from './types';
 
 export interface MissionNode {
   kind: 'mission';
@@ -9,6 +9,11 @@ export interface MissionNode {
   topics: TopicId[];
   subtopics: string[];
   questionCount: number;
+  /**
+   * Dificuldade-alvo de cada questão da tentativa (tamanho = questionCount), em ordem
+   * crescente: a missão começa acessível e termina no seu nível mais alto.
+   */
+  difficulty: Difficulty[];
   /** Acertos necessários para concluir a missão. */
   passCorrect: number;
   requires: string[];
@@ -54,6 +59,7 @@ export const REGIONS: Region[] = [
         topics: ['razao-proporcao'],
         subtopics: ['razao', 'proporcao', 'escala'],
         questionCount: 5,
+        difficulty: [1, 1, 2, 2, 3],
         passCorrect: 3,
         requires: [],
       },
@@ -66,6 +72,7 @@ export const REGIONS: Region[] = [
         topics: ['razao-proporcao'],
         subtopics: ['regra-de-tres', 'regra-de-tres-inversa', 'regra-de-tres-composta'],
         questionCount: 5,
+        difficulty: [1, 2, 2, 3, 3],
         passCorrect: 3,
         requires: ['r1-m1'],
       },
@@ -78,6 +85,7 @@ export const REGIONS: Region[] = [
         topics: ['porcentagem'],
         subtopics: ['porcentagem-basica', 'variacao-percentual', 'aumentos-sucessivos'],
         questionCount: 5,
+        difficulty: [1, 2, 2, 3, 4],
         passCorrect: 3,
         requires: ['r1-m2'],
       },
@@ -109,6 +117,7 @@ export const REGIONS: Region[] = [
         topics: ['financeira'],
         subtopics: ['juros-simples'],
         questionCount: 5,
+        difficulty: [1, 2, 2, 3, 3],
         passCorrect: 3,
         requires: ['r1-boss'],
       },
@@ -121,6 +130,7 @@ export const REGIONS: Region[] = [
         topics: ['financeira'],
         subtopics: ['juros-compostos'],
         questionCount: 5,
+        difficulty: [1, 2, 3, 3, 4],
         passCorrect: 3,
         requires: ['r2-m1'],
       },
@@ -133,6 +143,7 @@ export const REGIONS: Region[] = [
         topics: ['financeira'],
         subtopics: ['compras-a-prazo', 'custo-beneficio'],
         questionCount: 5,
+        difficulty: [2, 2, 3, 3, 4],
         passCorrect: 3,
         requires: ['r2-m2'],
       },

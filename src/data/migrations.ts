@@ -96,6 +96,15 @@ export const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    version: 3,
+    description: 'Pontuação e estrelas das missões (rejogabilidade)',
+    sql: `
+      ALTER TABLE campaign_progress ADD COLUMN best_score INTEGER;
+      ALTER TABLE campaign_progress ADD COLUMN best_stars INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE campaign_progress ADD COLUMN last_score INTEGER;
+    `,
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

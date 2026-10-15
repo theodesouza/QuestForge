@@ -144,6 +144,18 @@ export interface SessionSummary {
   /** XP e Tinta da primeira conclusão da missão (0 se não houve). */
   missionXp: number;
   missionInk: number;
+  /** Pontuação (0–1000) e estrelas desta tentativa de missão; null fora de missões. */
+  missionScore: number | null;
+  missionStars: number | null;
+  /** Melhor pontuação antes desta tentativa (null se é a primeira pontuada). */
+  previousBest: number | null;
+  /** Bateu o recorde anterior (só a partir da segunda tentativa pontuada). */
+  newRecord: boolean;
+  /** Recompensas únicas por estrela conquistadas nesta tentativa. */
+  starXp: number;
+  starInk: number;
+  /** Questões da missão que o jogador ainda não resolveu (após esta tentativa). */
+  unseenLeft: number | null;
   echoes: string[];
   redemptions: string[];
   durationMs: number;

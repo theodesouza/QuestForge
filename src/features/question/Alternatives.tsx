@@ -9,6 +9,8 @@ import { colors, fonts, radius, space } from '../../ui/theme';
 
 interface Props {
   question: Question;
+  /** Letras canônicas na ordem de exibição (alternativas embaralhadas por tentativa). */
+  order: readonly AltKey[];
   selected: AltKey | null;
   onSelect: (k: AltKey) => void;
   /** Depois da correção: alternativa escolhida. */
@@ -77,11 +79,13 @@ function Row({ k, text, state, onPress, disabled }: { k: AltKey; text: string; s
   );
 }
 
-export function Alternatives({ question, selected, onSelect, revealedChoice }: Props) {
+export function Alternatives({ question, order, selected, onSelect, revealedChoice }: Props) {
   const revealed = revealedChoice !== null;
   return (
     <View style={styles.list} accessibilityRole="radiogroup">
-      {ALT_KEYS.map((k) => {
+      {order.map((k, i) => {
+        // k = letra canônica (gabarito); a tela mostra a letra da posição.
+        const shown = ALT_KEYS[i];
         let state: RowState = 'idle';
         if (revealed) {
           if (k === question.answer) state = 'correct';
@@ -89,7 +93,7 @@ export function Alternatives({ question, selected, onSelect, revealedChoice }: P
           else state = 'dimmed';
         } else if (k === selected) state = 'selected';
         return (
-          <Row key={k} k={k} text={question.alternatives[k]} state={state} disabled={revealed} onPress={() => onSelect(k)} />
+          <Row key={k} k={shown} text={question.alternatives[k]} state={state} disabled={revealed} onPress={() => onSelect(k)} />
         );
       })}
     </View>

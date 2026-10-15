@@ -22,6 +22,7 @@ import { Icon, type IconName } from '../ui/Icon';
 import { Panel } from '../ui/Panel';
 import { ProgressBar } from '../ui/ProgressBar';
 import { Screen } from '../ui/Screen';
+import { Stars } from '../ui/Stars';
 import { Text } from '../ui/Text';
 import { colors, radius, space } from '../ui/theme';
 
@@ -59,7 +60,8 @@ export default function Summary() {
   const progress = levelProgress(profile.xp);
   const next = nextNode({ progress: campaign, bosses });
   const missionNode = summary.nodeId ? findNode(summary.nodeId)?.node : undefined;
-  const totalXp = summary.xp + summary.bonusXp + summary.missionXp;
+  const totalXp = summary.xp + summary.bonusXp + summary.missionXp + summary.starXp;
+  const scored = summary.mode === 'mission' && summary.missionScore !== null;
   const enter = (i: number) => (reduce ? undefined : FadeInDown.delay(80 * i).duration(380));
 
   const title =
@@ -110,6 +112,15 @@ export default function Summary() {
       footer={
         <>
           <Button label={nextStep.label} icon="play" onPress={nextStep.action} loading={busy !== null} />
+          {summary.mode === 'mission' && summary.missionPassed && summary.nodeId ? (
+            <Button
+              label={(summary.missionStars ?? 0) < 3 ? 'Repetir para melhorar a pontuação' : 'Repetir a missão'}
+              variant="secondary"
+              icon="flag"
+              onPress={() => start('retry', () => startMission(summary.nodeId!), { replace: true })}
+              disabled={busy !== null}
+            />
+          ) : null}
           <Button label="Voltar ao acampamento" variant="ghost" onPress={() => router.replace('/camp')} />
         </>
       }
@@ -129,8 +140,61 @@ export default function Summary() {
       <Animated.View entering={enter(1)} style={styles.stats}>
         <Stat icon="bolt" value={`+${totalXp}`} label="XP" color={colors.brass} />
         <Stat icon="check" value={`${summary.correct}/${summary.answered}`} label="acertos" color={colors.verdigris} />
-        <Stat icon="ink" value={`+${summary.ink + summary.missionInk}`} label="Tinta" color={colors.iris} />
+        <Stat icon="ink" value={`+${summary.ink + summary.missionInk + summary.starInk}`} label="Tinta" color={colors.iris} />
       </Animated.View>
+
+      {scored ? (
+        <Animated.View entering={enter(2)}>
+          <Panel tone="raised" accent={summary.newRecord ? colors.brass : colors.lineSoft}>
+            <View style={styles.scoreRow}>
+              <View style={{ gap: 2 }}>
+                <Text variant="label" color={colors.mist}>
+                  Pontuação
+                </Text>
+                <Text variant="hero" color={summary.newRecord ? colors.brass : colors.parchment} style={styles.score}>
+                  {summary.missionScore}
+                </Text>
+              </View>
+              <View style={{ alignItems: 'flex-end', gap: 6 }}>
+                <Stars value={summary.missionStars ?? 0} size={26} animated delay={300} />
+                {summary.newRecord ? (
+                  <View style={styles.recordTag}>
+                    <Icon name="sparkle" size={14} color={colors.ink900} fill={colors.ink900} />
+                    <Text variant="label" color={colors.ink900}>
+                      Novo recorde
+                    </Text>
+                  </View>
+                ) : summary.previousBest !== null ? (
+                  <Text variant="caption" color={colors.mist}>
+                    Recorde: {Math.max(summary.previousBest, summary.missionScore ?? 0)}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+            <Text variant="caption" color={colors.mist} style={{ marginTop: space.sm }}>
+              {summary.missionStars === 3
+                ? 'Três estrelas: todas certas. Dicas e chutes ainda podem render pontos a mais.'
+                : summary.missionStars === 2
+                  ? 'Duas estrelas: só uma escapou. Acerte todas para a terceira.'
+                  : summary.missionStars === 1
+                    ? 'Uma estrela. Errar no máximo uma rende a segunda; acertar todas, a terceira.'
+                    : 'Conclua a missão para ganhar a primeira estrela.'}
+            </Text>
+            {summary.starXp > 0 ? (
+              <Text variant="caption" color={colors.brass}>
+                Estrela nova: +{summary.starXp} XP e +{summary.starInk} de Tinta (recompensa única).
+              </Text>
+            ) : null}
+            {summary.unseenLeft !== null ? (
+              <Text variant="caption" color={summary.unseenLeft > 0 ? colors.verdigris : colors.mist}>
+                {summary.unseenLeft > 0
+                  ? `${summary.unseenLeft} questões inéditas desta missão esperam pela próxima tentativa.`
+                  : 'Você já resolveu todas as questões desta missão: as próximas tentativas trazem primeiro as que você errou e as que precisam de revisão.'}
+              </Text>
+            ) : null}
+          </Panel>
+        </Animated.View>
+      ) : null}
 
       <Animated.View entering={enter(2)}>
         <Panel>
@@ -144,6 +208,7 @@ export default function Summary() {
           <View style={styles.breakdown}>
             {summary.bonusXp > 0 ? <Text variant="caption" color={colors.mist}>Bônus de sessão {summary.perfect ? 'perfeita ' : ''}+{summary.bonusXp}</Text> : null}
             {summary.missionFirstClear ? <Text variant="caption" color={colors.mist}>Primeira conclusão da missão +{summary.missionXp}</Text> : null}
+            {summary.starXp > 0 ? <Text variant="caption" color={colors.mist}>Estrelas novas +{summary.starXp}</Text> : null}
             {summary.restedBonus > 0 ? <Text variant="caption" color={colors.verdigris}>Descanso do Viajante +{summary.restedBonus}</Text> : null}
           </View>
         </Panel>
@@ -213,6 +278,17 @@ const styles = StyleSheet.create({
     borderColor: colors.lineSoft,
   },
   levelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: space.sm },
+  scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  score: { fontSize: 44, lineHeight: 48 },
+  recordTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: space.sm,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brass,
+  },
   breakdown: { marginTop: space.sm, gap: 2 },
   note: {
     flexDirection: 'row',

@@ -71,14 +71,21 @@ export function computeXp(input: XpInput): XpResult {
   return { kind, base, xp, ink };
 }
 
-/** Bônus de sessão (≥ 3 respondidas) e de sessão perfeita (≥ 5, sem erros). */
+/**
+ * Bônus de sessão (≥ 3 respondidas) e de sessão perfeita (≥ 5, sem erros).
+ * Anti-farm: o bônus só vale quando ao menos 3 respostas foram aprendizado de verdade
+ * (questão inédita, Eco redimido ou revisão no tempo certo). Repetir sem parar as
+ * mesmas questões fáceis não rende bônus — nem XP, que já cai a 10% e depois a 0.
+ */
+export const VALUABLE_KINDS: readonly XpKind[] = ['first', 'redemption', 'review'];
+export const MIN_VALUABLE_FOR_BONUS = 3;
 export const SESSION_BONUS = 20;
 export const PERFECT_BONUS = 20;
 export const MISSION_FIRST_XP = 40;
 export const MISSION_FIRST_INK = 10;
 
-export function sessionBonus(answered: number, wrong: number): { xp: number; perfect: boolean } {
-  if (answered < 3) return { xp: 0, perfect: false };
+export function sessionBonus(answered: number, wrong: number, valuable = answered): { xp: number; perfect: boolean } {
+  if (answered < 3 || valuable < MIN_VALUABLE_FOR_BONUS) return { xp: 0, perfect: false };
   const perfect = answered >= 5 && wrong === 0;
   return { xp: SESSION_BONUS + (perfect ? PERFECT_BONUS : 0), perfect };
 }

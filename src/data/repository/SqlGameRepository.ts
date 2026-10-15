@@ -103,10 +103,24 @@ export class SqlGameRepository implements GameRepository {
       inventory[r.item_id] = { itemId: r.item_id, acquiredAt: r.acquired_at, source: r.source };
     }
     const campaign: GameState['campaign'] = {};
-    for (const r of await this.db.all<{ node_id: string; completed_at: number | null; best_correct: number; runs: number }>(
-      'SELECT * FROM campaign_progress',
-    )) {
-      campaign[r.node_id] = { nodeId: r.node_id, completedAt: r.completed_at, bestCorrect: r.best_correct, runs: r.runs };
+    for (const r of await this.db.all<{
+      node_id: string;
+      completed_at: number | null;
+      best_correct: number;
+      runs: number;
+      best_score: number | null;
+      best_stars: number | null;
+      last_score: number | null;
+    }>('SELECT * FROM campaign_progress')) {
+      campaign[r.node_id] = {
+        nodeId: r.node_id,
+        completedAt: r.completed_at,
+        bestCorrect: r.best_correct,
+        runs: r.runs,
+        bestScore: r.best_score ?? null,
+        bestStars: r.best_stars ?? 0,
+        lastScore: r.last_score ?? null,
+      };
     }
     const bosses: GameState['bosses'] = {};
     for (const r of await this.db.all<{
@@ -284,8 +298,9 @@ async function insertAttempt(tx: SqlExecutor, a: Attempt) {
 
 async function upsertNode(tx: SqlExecutor, p: NodeProgress) {
   await tx.run(
-    'INSERT OR REPLACE INTO campaign_progress (node_id, completed_at, best_correct, runs) VALUES (?, ?, ?, ?)',
-    [p.nodeId, p.completedAt, p.bestCorrect, p.runs],
+    `INSERT OR REPLACE INTO campaign_progress (node_id, completed_at, best_correct, runs, best_score, best_stars, last_score)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [p.nodeId, p.completedAt, p.bestCorrect, p.runs, p.bestScore, p.bestStars, p.lastScore],
   );
 }
 

@@ -32,7 +32,18 @@ const KIND_NOTE: Record<string, string | null> = {
   wrong: null,
 };
 
-export function Feedback({ question, outcome, showSolutionByDefault }: { question: Question; outcome: AttemptOutcome; showSolutionByDefault?: boolean }) {
+export function Feedback({
+  question,
+  outcome,
+  answerLetter,
+  showSolutionByDefault,
+}: {
+  question: Question;
+  outcome: AttemptOutcome;
+  /** Letra da alternativa correta como aparece na tela (as alternativas são embaralhadas). */
+  answerLetter: string;
+  showSolutionByDefault?: boolean;
+}) {
   const reduce = useReduceMotion();
   const { answered, scaffold } = outcome;
   const [open, setOpen] = useState(showSolutionByDefault ?? !answered.correct);
@@ -47,7 +58,7 @@ export function Feedback({ question, outcome, showSolutionByDefault }: { questio
     ? answered.guessed
       ? 'Ela volta amanhã para você confirmar que sabe — sem sorte desta vez.'
       : KIND_NOTE[answered.kind]
-    : `A resposta é ${question.answer}. Este Eco volta amanhã — derrotá-lo vale 150% de XP.`;
+    : `A resposta é ${answerLetter}. Este Eco volta amanhã — derrotá-lo vale 150% de XP.`;
 
   return (
     <Animated.View entering={reduce ? undefined : FadeInDown.duration(320)} style={styles.wrap} accessibilityLiveRegion="polite">

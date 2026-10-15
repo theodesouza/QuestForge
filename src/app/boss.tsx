@@ -305,6 +305,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
           <QuestionBody
             question={question}
             attempt={attempt}
+            attemptKey={battle.id}
             onFeedbackLayout={(y) => scroll.current?.scrollTo({ y: Math.max(0, y + feedbackOffset.current - 140), animated: !reduce })}
           />
         ) : null}

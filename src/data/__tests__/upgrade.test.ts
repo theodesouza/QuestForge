@@ -9,7 +9,7 @@ import { getQuestion } from '../../content/bank';
 import { battleAnswer, currentQuestionId, answerCurrent } from '../../domain/game/game';
 import type { GameState } from '../../domain/game/types';
 import { GameController } from '../../state/controller';
-import { LATEST_VERSION, currentVersion } from '../migrations';
+import { LATEST_VERSION, MIGRATIONS, currentVersion, migrate } from '../migrations';
 import { SqlGameRepository } from '../repository/SqlGameRepository';
 import { openNodeDriver } from '../testing/nodeDriver';
 
@@ -39,7 +39,14 @@ describe.each(['v0.1.0-sessao', 'v0.1.0-batalha'])('atualização a partir de %s
     expect(loaded.questionStates).toEqual(old.questionStates);
     expect(loaded.inventory).toEqual(old.inventory);
     expect(loaded.ledger).toEqual(old.ledger);
-    expect(loaded.campaign).toEqual(old.campaign);
+    // Missões: campos antigos idênticos; pontuação nova em branco e estrelas deduzidas dos acertos.
+    expect(Object.keys(loaded.campaign)).toEqual(Object.keys(old.campaign));
+    for (const [id, p] of Object.entries(old.campaign)) {
+      expect(loaded.campaign[id]).toMatchObject(p);
+      expect(loaded.campaign[id].bestScore).toBeNull();
+      expect(loaded.campaign[id].lastScore).toBeNull();
+      expect(loaded.campaign[id].bestStars).toBe(p.completedAt ? (p.bestCorrect >= 5 ? 3 : p.bestCorrect >= 4 ? 2 : 1) : 0);
+    }
     expect(loaded.bosses).toEqual(old.bosses);
     expect(loaded.session).toEqual(old.session);
     // Perfil: todos os campos antigos idênticos; campos novos recebem padrão.
@@ -94,6 +101,30 @@ describe.each(['v0.1.0-sessao', 'v0.1.0-batalha'])('atualização a partir de %s
     // Reabrir de novo: tudo o que foi feito depois da atualização também persiste.
     const repo2 = new SqlGameRepository(driver, () => LATER + 1000);
     expect(await repo2.load()).toEqual(next);
+    driver.close();
+  });
+});
+
+describe('atualização a partir da v0.2.0 (banco na versão 2)', () => {
+  it('acrescenta a pontuação das missões sem mexer no progresso', async () => {
+    const driver = openNodeDriver(':memory:');
+    await migrate(driver, MIGRATIONS.slice(0, 2));
+    expect(await currentVersion(driver)).toBe(2);
+    await driver.exec(`INSERT INTO profile (id, data, updated_at) VALUES (1, '${JSON.stringify({ name: 'Lia', onboarded: true, xp: 300, level: 3 })}', 1)`);
+    await driver.run('INSERT INTO campaign_progress (node_id, completed_at, best_correct, runs) VALUES (?, ?, ?, ?)', ['r1-m1', 1000, 4, 2]);
+    await driver.run('INSERT INTO campaign_progress (node_id, completed_at, best_correct, runs) VALUES (?, ?, ?, ?)', ['r1-m2', null, 2, 1]);
+    const repo = new SqlGameRepository(driver, () => LATER);
+    const loaded = (await repo.load())!;
+    expect(await currentVersion(driver)).toBe(LATEST_VERSION);
+    expect(loaded.profile.xp).toBe(300);
+    expect(loaded.campaign['r1-m1']).toEqual({ nodeId: 'r1-m1', completedAt: 1000, bestCorrect: 4, runs: 2, bestScore: null, bestStars: 2, lastScore: null });
+    expect(loaded.campaign['r1-m2']).toEqual({ nodeId: 'r1-m2', completedAt: null, bestCorrect: 2, runs: 1, bestScore: null, bestStars: 0, lastScore: null });
+    // Grava e relê: os campos novos persistem.
+    await repo.commit({ ...loaded, campaign: { ...loaded.campaign, 'r1-m1': { ...loaded.campaign['r1-m1'], bestScore: 870, bestStars: 3, lastScore: 870 } } }, {
+      questionStates: [], attempts: [], ledger: [], inventory: [], campaign: ['r1-m1'], bosses: [], profile: false, session: false, battle: false, quests: false,
+    } as never);
+    const again = (await new SqlGameRepository(driver, () => LATER).load())!;
+    expect(again.campaign['r1-m1']).toMatchObject({ bestScore: 870, bestStars: 3, lastScore: 870, bestCorrect: 4, runs: 2 });
     driver.close();
   });
 });

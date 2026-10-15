@@ -3,12 +3,14 @@
  * nós como medalhões; regiões vencidas continuam abertas para revisão.
  */
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 import { REGIONS, findNode, type CampaignNode } from '../../content/regions';
 import { nodeStatus, regionCompletion, type NodeStatus } from '../../domain/campaign/campaign';
+import { missionPool } from '../../domain/game/game';
+import { unseenCount } from '../../domain/learning/missionPlan';
 import { useStarter } from '../../features/useStarter';
 import { startMission } from '../../state/actions';
 import { useGame } from '../../state/store';
@@ -17,6 +19,7 @@ import { Icon } from '../../ui/Icon';
 import { Panel } from '../../ui/Panel';
 import { ProgressBar } from '../../ui/ProgressBar';
 import { Screen } from '../../ui/Screen';
+import { Stars } from '../../ui/Stars';
 import { Text } from '../../ui/Text';
 import { TAB_BAR_SPACE, colors, space } from '../../ui/theme';
 
@@ -71,6 +74,12 @@ export default function Atlas() {
   const [width, setWidth] = useState(0);
   const { busy, start } = useStarter();
   const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
+  const questionStates = useGame((g) => g.questionStates);
+  const unseen = useMemo(() => {
+    const out: Record<string, number> = {};
+    for (const r of REGIONS) for (const n of r.nodes) if (n.kind === 'mission') out[n.id] = unseenCount(missionPool(n), questionStates);
+    return out;
+  }, [questionStates]);
 
   const open = (node: CampaignNode, status: NodeStatus) => {
     if (status === 'locked') {
@@ -134,9 +143,17 @@ export default function Atlas() {
                         <Text variant="caption" align={left ? 'left' : 'right'} color={colors.mist}>
                           {node.subtitle}
                         </Text>
-                        {progress ? (
-                          <Text variant="caption" color={progress.completedAt ? colors.brass : colors.mistDim}>
-                            melhor: {progress.bestCorrect}/{node.kind === 'mission' ? node.questionCount : 0}
+                        {progress && node.kind === 'mission' ? (
+                          <View style={[styles.record, { justifyContent: left ? 'flex-start' : 'flex-end' }]}>
+                            <Stars value={progress.bestStars} size={13} />
+                            <Text variant="caption" color={progress.completedAt ? colors.brass : colors.mistDim}>
+                              {progress.bestScore !== null ? `recorde ${progress.bestScore}` : `melhor: ${progress.bestCorrect}/${node.questionCount}`}
+                            </Text>
+                          </View>
+                        ) : null}
+                        {node.kind === 'mission' && status !== 'locked' && progress ? (
+                          <Text variant="caption" color={colors.verdigris} align={left ? 'left' : 'right'}>
+                            {unseen[node.id] > 0 ? `${unseen[node.id]} questões inéditas` : 'todas resolvidas · revisão'}
                           </Text>
                         ) : null}
                         {node.kind === 'boss' && bosses[node.bossId]?.wins ? (
@@ -189,4 +206,5 @@ const styles = StyleSheet.create({
   medalGlow: { shadowColor: colors.verdigris, shadowOpacity: 0.5, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 6 },
   nodeText: { flex: 1, gap: 2, paddingHorizontal: space.xs },
   connector: { marginVertical: -6 },
+  record: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

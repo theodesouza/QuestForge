@@ -3,7 +3,9 @@
  * estados sem campos que vieram depois; aqui eles recebem valores padrão seguros.
  * Nunca remove nem altera dados existentes.
  */
+import { findNode } from '../../content/regions';
 import type { BattleState } from '../boss/battle';
+import type { NodeProgress } from '../campaign/campaign';
 import type { QuestsState } from '../quests/quests';
 import { createInitialState } from './game';
 import type { GameState, Profile } from './types';
@@ -25,6 +27,28 @@ export function normalizeProfile(raw: unknown, now: number): Profile {
   };
 }
 
+/**
+ * Progresso de missão gravado antes da pontuação (v0.2.0): sem pontuação, e as
+ * estrelas são deduzidas do melhor número de acertos já registrado.
+ */
+export function normalizeNodeProgress(p: Loose<NodeProgress> & { nodeId: string }): NodeProgress {
+  const found = findNode(p.nodeId);
+  const total = found && found.node.kind === 'mission' ? found.node.questionCount : 0;
+  const pass = found && found.node.kind === 'mission' ? found.node.passCorrect : Infinity;
+  const bestCorrect = p.bestCorrect ?? 0;
+  let derived = p.completedAt != null ? 1 : 0;
+  if (derived && total > 0 && bestCorrect >= pass) derived = bestCorrect >= total ? 3 : bestCorrect >= total - 1 ? 2 : 1;
+  return {
+    nodeId: p.nodeId,
+    completedAt: p.completedAt ?? null,
+    bestCorrect,
+    runs: p.runs ?? 0,
+    bestScore: p.bestScore ?? null,
+    bestStars: Math.max(p.bestStars ?? 0, derived),
+    lastScore: p.lastScore ?? null,
+  };
+}
+
 function normalizeBattle(b: BattleState | null | undefined): BattleState | null {
   if (!b) return null;
   return { ...b, turns: (b.turns ?? []).map((t) => ({ ...t, healed: t.healed ?? 0 })) };
@@ -42,7 +66,9 @@ export function normalizeState(raw: Loose<GameState>, now: number): GameState {
     questionStates: raw.questionStates ?? {},
     inventory: raw.inventory ?? {},
     ledger: raw.ledger ?? {},
-    campaign: raw.campaign ?? {},
+    campaign: Object.fromEntries(
+      Object.entries(raw.campaign ?? {}).map(([id, p]) => [id, normalizeNodeProgress({ ...p, nodeId: p.nodeId ?? id })]),
+    ),
     bosses: raw.bosses ?? {},
     session: raw.session ?? null,
     battle: normalizeBattle(raw.battle),

@@ -16,14 +16,18 @@ import {
   type BattleState,
 } from '../boss/battle';
 import { nodeStatus, type BossProgress } from '../campaign/campaign';
+import { STAR_REWARDS, missionScore, missionStars, type ScoredAnswer } from '../campaign/score';
+import { planMissionRun, unseenCount } from '../learning/missionPlan';
 import { DEFAULT_TARGET, adjustTarget, selectQuestions } from '../learning/selection';
 import { dueQuestionIds, emptyQuestionState, schedule } from '../learning/srs';
 import { accrueRested } from '../progression/rested';
 import {
   MISSION_FIRST_INK,
   MISSION_FIRST_XP,
+  VALUABLE_KINDS,
   computeXp,
   sessionBonus,
+  type XpKind,
   type XpResult,
 } from '../progression/xp';
 import { hashString } from '../util/random';
@@ -174,16 +178,19 @@ export function planExpedition(state: GameState, minutes: number, now: number, s
   }).map((q) => q.id);
 }
 
+/** Tentativa de missão: inéditas primeiro, dificuldade do perfil da missão, sorteio por tentativa. */
 export function planMission(state: GameState, node: MissionNode, now: number, seed: number): string[] {
-  return selectQuestions({
-    pool: questionsFor({ topics: node.topics, subtopics: node.subtopics }),
+  return planMissionRun({
+    pool: missionPool(node),
     states: state.questionStates,
-    count: node.questionCount,
+    profile: node.difficulty,
     now,
     seed,
-    targets: state.profile.targets,
-    maxReviewShare: 0.2,
   }).map((q) => q.id);
+}
+
+export function missionPool(node: MissionNode) {
+  return questionsFor({ topics: node.topics, subtopics: node.subtopics });
 }
 
 /** Foco num subassunto (recomendação): completa com o assunto se faltar questão. */
@@ -475,24 +482,52 @@ export function finishSession(state: GameState, now: number): Result {
     (id) => !answered.some((a) => a.questionId === id),
   ).length;
 
-  const bonus = sessionBonus(answered.length, wrong);
+  const valuable = answered.filter((a) => VALUABLE_KINDS.includes(a.kind as XpKind)).length;
+  const bonus = sessionBonus(answered.length, wrong, valuable);
   const bonusXp = grantXp(tx, bonus.xp, 'session', now, false);
 
   let missionPassed: boolean | null = null;
   let missionFirstClear = false;
   let missionXp = 0;
   let missionInk = 0;
+  let missionScoreValue: number | null = null;
+  let missionStarsValue: number | null = null;
+  let previousBest: number | null = null;
+  let newRecord = false;
+  let starXp = 0;
+  let starInk = 0;
+  let unseenLeft: number | null = null;
   if (session.mode === 'mission' && session.nodeId) {
     const found = findNode(session.nodeId);
     if (found && found.node.kind === 'mission') {
       const node = found.node;
       missionPassed = correct >= node.passCorrect;
+      // Pontuação só das questões planejadas (o reforço do andaime ajuda, mas não pontua).
+      const planned = [...new Set(session.queue)].filter((id) => !session.scaffoldIds.includes(id));
+      const scored: ScoredAnswer[] = planned.map((id) => {
+        const last = [...answered].reverse().find((a) => a.questionId === id);
+        return {
+          questionId: id,
+          difficulty: getQuestion(id).difficulty,
+          correct: last ? last.correct : null,
+          guessed: last?.guessed ?? false,
+          hints: last?.hints ?? 0,
+        };
+      });
+      const plannedCorrect = scored.filter((a) => a.correct).length;
+      missionScoreValue = missionScore(scored);
+      missionStarsValue = missionStars(missionPassed, plannedCorrect, planned.length);
       const prev = tx.state.campaign[node.id];
+      previousBest = prev?.bestScore ?? null;
+      newRecord = previousBest !== null && missionScoreValue > previousBest;
       tx.setNodeProgress({
         nodeId: node.id,
         runs: (prev?.runs ?? 0) + 1,
         bestCorrect: Math.max(prev?.bestCorrect ?? 0, correct),
         completedAt: prev?.completedAt ?? (missionPassed ? now : null),
+        bestScore: Math.max(prev?.bestScore ?? 0, missionScoreValue),
+        bestStars: Math.max(prev?.bestStars ?? 0, missionStarsValue),
+        lastScore: missionScoreValue,
       });
       if (missionPassed) {
         missionFirstClear = once(tx, `mission:${node.id}:first`, now, () => {
@@ -500,8 +535,18 @@ export function finishSession(state: GameState, now: number): Result {
           missionInk = MISSION_FIRST_INK;
           grantInk(tx, MISSION_FIRST_INK);
         });
+        // Estrelas novas pagam uma única vez cada (melhorar compensa; repetir, não).
+        for (const star of [2, 3] as const) {
+          if (missionStarsValue < star) continue;
+          once(tx, `mission:${node.id}:star${star}`, now, () => {
+            starXp += grantXp(tx, STAR_REWARDS[star].xp, 'mission', now, false);
+            starInk += STAR_REWARDS[star].ink;
+            grantInk(tx, STAR_REWARDS[star].ink);
+          });
+        }
         tx.emit({ type: 'missionComplete', nodeId: node.id, first: missionFirstClear });
       }
+      unseenLeft = unseenCount(missionPool(node), tx.state.questionStates);
     }
   }
 
@@ -529,6 +574,13 @@ export function finishSession(state: GameState, now: number): Result {
     missionFirstClear,
     missionXp,
     missionInk,
+    missionScore: missionScoreValue,
+    missionStars: missionStarsValue,
+    previousBest,
+    newRecord,
+    starXp,
+    starInk,
+    unseenLeft,
     echoes: answered.filter((a) => !a.correct).map((a) => a.questionId),
     redemptions: answered.filter((a) => a.kind === 'redemption').map((a) => a.questionId),
     durationMs: Math.max(0, now - session.startedAt),

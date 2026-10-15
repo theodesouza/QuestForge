@@ -118,6 +118,7 @@ export default function SessionScreen() {
           <QuestionBody
             question={question}
             attempt={attempt}
+            attemptKey={session.id}
             onFeedbackLayout={(y) => scroll.current?.scrollTo({ y: Math.max(0, y + feedbackOffset.current - 140), animated: !reduce })}
           />
         ) : null}
