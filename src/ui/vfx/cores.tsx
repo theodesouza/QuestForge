@@ -12,6 +12,7 @@ import { Circle, Defs, Ellipse, G, Line, Path, Polygon, RadialGradient, Stop, Te
 import type { ItemVisual } from '../../content/items';
 import { Breathe, C, Glimmer, Layer, Particles, Spin, Wave } from './engine';
 import { lightning, ngon, polar, ray, star } from './geometry';
+import type { CoreFxId } from './rules';
 
 export interface CoreProps {
   v: ItemVisual;
@@ -449,7 +450,7 @@ function OrbitCoin({ angle }: { angle: number }) {
 
 // ——————————————————————————————————————————————— registro
 
-export const CORES: Record<string, (p: CoreProps) => ReactNode> = {
+export const CORES: Record<CoreFxId, (p: CoreProps) => ReactNode> = {
   prisma: Prisma,
   ambar: Ambar,
   rubi: Rubi,
@@ -462,6 +463,6 @@ export const CORES: Record<string, (p: CoreProps) => ReactNode> = {
 };
 
 export function CoreFx({ v, tint }: CoreProps) {
-  const Render = CORES[v.fx ?? 'prisma'] ?? Prisma;
+  const Render = CORES[(v.fx ?? 'prisma') as CoreFxId] ?? Prisma;
   return <Render v={v} tint={tint} />;
 }

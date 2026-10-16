@@ -9,7 +9,8 @@ import { ITEMS, RARITY_LABEL, SLOT_LABEL, getItem, type ItemSlot } from '../../c
 import { echoCount } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { rewardsForLevel } from '../../domain/progression/rewards';
-import { equip, unequip } from '../../state/actions';
+import { TryOnSheet } from '../../features/hero/TryOnSheet';
+import { unequip } from '../../state/actions';
 import { useGame } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
 import { Chip } from '../../ui/Chip';
@@ -19,7 +20,8 @@ import { ItemGlyph } from '../../ui/ItemGlyph';
 import { Panel } from '../../ui/Panel';
 import { Screen } from '../../ui/Screen';
 import { Text } from '../../ui/Text';
-import { TAB_BAR_SPACE, colors, radius, rarityColor, space } from '../../ui/theme';
+import { MYTHIC_COLOR, TAB_BAR_SPACE, colors, radius, rarityColor, space } from '../../ui/theme';
+import { resolveSynergy } from '../../ui/vfx/synergy';
 
 const SLOTS: ItemSlot[] = ['frame', 'core', 'aura', 'title'];
 const MIN_FOR_ACCURACY = 10;
@@ -53,6 +55,8 @@ export default function Hero() {
   const inventory = useGame((g) => g.inventory);
   const questionStates = useGame((g) => g.questionStates);
   const [slot, setSlot] = useState<ItemSlot>('frame');
+  const [trying, setTrying] = useState<string | null>(null);
+  const synergy = useMemo(() => resolveSynergy(profile.equipped), [profile.equipped]);
   const progress = levelProgress(profile.xp);
   const rank = rankFor(progress.level);
   const echoes = useMemo(() => echoCount(questionStates), [questionStates]);
@@ -96,6 +100,18 @@ export default function Hero() {
         <Text variant="caption" color={colors.mistDim} align="center" style={{ marginTop: space.xs }}>
           A estrela do astrolábio ganha uma ponta a cada patente; o anel ganha gravações a cada nível.
         </Text>
+        {synergy ? (
+          <View style={[styles.synergy, { borderColor: synergy.kind === 'mythic' ? MYTHIC_COLOR : colors.line }]}>
+            <Icon name="sparkle" size={16} color={synergy.kind === 'mythic' ? MYTHIC_COLOR : colors.brass} fill={synergy.kind === 'mythic' ? MYTHIC_COLOR : colors.brass} />
+            <Text variant="caption" color={colors.parchment}>
+              {synergy.label}
+            </Text>
+          </View>
+        ) : (
+          <Text variant="caption" color={colors.mistDim} align="center">
+            Dica: núcleo e aura do mesmo elemento entram em Ressonância.
+          </Text>
+        )}
       </View>
 
       <View style={styles.stats}>
@@ -168,13 +184,12 @@ export default function Hero() {
           return (
             <Pressable
               key={item.id}
-              disabled={!has || isEquipped}
               onPress={() => {
                 haptic('select');
-                equip(item.id);
+                setTrying(item.id);
               }}
               accessibilityRole="button"
-              accessibilityLabel={`${item.name}, ${RARITY_LABEL[item.rarity]}. ${has ? (isEquipped ? 'Equipado' : 'Toque para equipar') : `Bloqueado: ${item.howToGet}`}`}
+              accessibilityLabel={`${item.name}, ${RARITY_LABEL[item.rarity]}. ${has ? (isEquipped ? 'Equipado' : 'Toque para experimentar e equipar') : `Bloqueado: ${item.howToGet}. Toque para ver uma prévia`}`}
               style={[styles.item, isEquipped && { borderColor: colors.brass }, !has && styles.itemLocked]}
             >
               <ItemGlyph itemId={item.id} size={52} locked={!has} />
@@ -221,12 +236,30 @@ export default function Hero() {
           ))}
         </Panel>
       ) : null}
+      <TryOnSheet
+        itemId={trying}
+        owned={!!(trying && inventory[trying])}
+        level={progress.level}
+        equipped={profile.equipped}
+        onClose={() => setTrying(null)}
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: 2 },
+  synergy: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    marginTop: space.sm,
+    paddingHorizontal: space.md,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    backgroundColor: colors.ink800,
+  },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   stat: {
     flexBasis: '47%',

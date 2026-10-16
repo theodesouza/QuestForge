@@ -17,6 +17,14 @@ export interface Toast {
   tone: 'quest' | 'bonus' | 'purchase';
 }
 
+/** Item recém-conquistado, esperando a cerimônia de revelação. */
+export interface ItemReveal {
+  id: string;
+  itemId: string;
+  source: string;
+  autoEquipped: boolean;
+}
+
 export interface GameStore {
   status: 'loading' | 'ready' | 'error';
   error: string | null;
@@ -28,6 +36,7 @@ export interface GameStore {
   /** Momento da última publicação de estado (evita Date.now() durante a renderização). */
   now: number;
   toasts: Toast[];
+  reveals: ItemReveal[];
 }
 
 export const useGameStore = create<GameStore>(() => ({
@@ -39,6 +48,7 @@ export const useGameStore = create<GameStore>(() => ({
   restedNotice: null,
   now: 0,
   toasts: [],
+  reveals: [],
 }));
 
 let celebrationSeq = 0;
@@ -54,7 +64,9 @@ export function publish(state: GameState, events: GameEvent[]) {
     ];
   }
   const toasts: Toast[] = [];
+  const reveals: ItemReveal[] = [];
   for (const e of events) {
+    if (e.type === 'item') reveals.push({ id: `r${celebrationSeq++}`, itemId: e.itemId, source: e.source, autoEquipped: e.autoEquipped });
     if (e.type === 'sessionComplete') patch.lastSummary = e.summary;
     if (e.type === 'rested') patch.restedNotice = e.gained;
     if (e.type === 'questComplete') {
@@ -70,6 +82,7 @@ export function publish(state: GameState, events: GameEvent[]) {
     }
   }
   if (toasts.length) patch.toasts = [...useGameStore.getState().toasts, ...toasts];
+  if (reveals.length) patch.reveals = [...useGameStore.getState().reveals, ...reveals];
   useGameStore.setState(patch);
 }
 

@@ -9,40 +9,12 @@
  */
 import { useId } from 'react';
 import { Circle, Defs, G, LinearGradient, Path, Polygon, Rect, Stop } from 'react-native-svg';
-import { ELEMENT_LABEL, RARITY_TIER, getItem, type FxElement } from '../../content/items';
-import type { Equipped } from '../../domain/game/types';
-import { MYTHIC_COLOR } from '../theme';
 import { RuneRing } from './cores';
 import { Breathe, C, Glimmer, Particles, Spin, Wave } from './engine';
 import { flame, lightning, polar, ray, star } from './geometry';
+import type { Synergy } from './rules';
 
-export type Synergy =
-  | { kind: 'resonance'; element: FxElement; strength: number; color: string; color2: string; label: string }
-  | { kind: 'refraction'; strength: number; color: string; color2: string; label: string }
-  | { kind: 'mythic'; strength: number; color: string; color2: string; label: string };
-
-/** Qual sinergia (se houver) o equipamento atual desperta. Função pura. */
-export function resolveSynergy(equipped: Pick<Equipped, 'core' | 'aura'>): Synergy | null {
-  if (!equipped.aura) return null;
-  const core = getItem(equipped.core);
-  const aura = getItem(equipped.aura);
-  const ce = core.visual.element;
-  const ae = aura.visual.element;
-  if (!ce || !ae) return null;
-  const strength = (RARITY_TIER[core.rarity] + RARITY_TIER[aura.rarity]) / 8; // 0..1
-  const color = aura.visual.color;
-  const color2 = aura.visual.color2 ?? core.visual.color;
-  if (core.rarity === 'lendario' && aura.rarity === 'lendario') {
-    return { kind: 'mythic', strength: 1, color: core.visual.color, color2: MYTHIC_COLOR, label: 'Forma Mítica · Ascensão' };
-  }
-  if (ce === 'cristal') return { kind: 'refraction', strength: 0.4 + strength * 0.6, color, color2, label: `Refração · o Quartzo assume a ${aura.name}` };
-  if (ce === ae) return { kind: 'resonance', element: ce, strength: 0.45 + strength * 0.55, color, color2, label: `Ressonância ${resonanceName(ce)}` };
-  return null;
-}
-
-function resonanceName(e: FxElement): string {
-  return e === 'fogo' ? 'de Fogo' : e === 'mare' ? 'das Marés' : e === 'lunar' ? 'Lunar' : e === 'tempestade' ? 'da Tempestade' : e === 'astral' ? 'Astral' : e === 'aureo' ? 'Áurea' : ELEMENT_LABEL[e];
-}
+export { resolveSynergy, type Synergy } from './rules';
 
 /** Camada da sinergia que fica entre o disco e o núcleo. */
 export function SynergyFx({ s }: { s: Synergy }) {
@@ -57,10 +29,10 @@ function Resonance({ s }: { s: Extract<Synergy, { kind: 'resonance' }> }) {
     case 'fogo':
       return (
         <>
-          <Breathe period={1300} scale={[0.96, 1.05]} opacity={[0.5 * k, 0.95 * k]}>
-            <G fill={s.color} fillOpacity={0.8}>
-              {Array.from({ length: 10 }, (_, i) => (
-                <Path key={i} d={flame(i * 36, 30, 10 + (i % 2) * 5, 18, i % 2 ? 6 : -6)} />
+          <Breathe period={1300} scale={[0.97, 1.05]} opacity={[0.45 * k, 0.9 * k]}>
+            <G fill={s.color} fillOpacity={0.75}>
+              {Array.from({ length: 12 }, (_, i) => (
+                <Path key={i} d={flame(i * 30, 25, 6 + (i % 2) * 3, 12, i % 2 ? 4 : -4)} />
               ))}
             </G>
           </Breathe>

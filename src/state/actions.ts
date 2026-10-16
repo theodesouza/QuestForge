@@ -5,7 +5,9 @@
 import { createRepository } from '../data/createRepository';
 import { getQuestion } from '../content/bank';
 import { findNode } from '../content/regions';
-import type { TopicId } from '../content/types';
+import { getItem } from '../content/items';
+import type { AltKey, TopicId } from '../content/types';
+import { alternativeOrder, displayLetter } from '../domain/learning/alternatives';
 import * as game from '../domain/game/game';
 import type { AnswerInput, OnboardingInput } from '../domain/game/game';
 import type { GameEvent, Result, Settings } from '../domain/game/types';
@@ -32,7 +34,13 @@ function seed(): number {
 export async function boot(): Promise<void> {
   if (process.env.EXPO_PUBLIC_QA === '1') {
     // Gancho de QA para testes ponta a ponta no navegador (nunca ativo em builds normais).
-    (globalThis as unknown as { __qf: unknown }).__qf = { store: useGameStore, getQuestion };
+    // `shown` traduz a letra canônica para a letra exibida (as alternativas são embaralhadas).
+    (globalThis as unknown as { __qf: unknown }).__qf = {
+      store: useGameStore,
+      getQuestion,
+      getItem,
+      shown: (questionId: string, attemptKey: string, key: AltKey) => displayLetter(alternativeOrder(getQuestion(questionId), attemptKey), key),
+    };
   }
   try {
     if (!controller) {
@@ -133,7 +141,11 @@ export const updateProfile = (patch: Parameters<typeof game.updateProfileBasics>
 
 export async function resetProgress(): Promise<void> {
   await ctrl().reset();
-  useGameStore.setState({ celebrations: [], toasts: [], lastSummary: null, restedNotice: null });
+  useGameStore.setState({ celebrations: [], toasts: [], reveals: [], lastSummary: null, restedNotice: null });
+}
+
+export function dismissReveal(id: string) {
+  useGameStore.setState((s) => ({ reveals: s.reveals.filter((r) => r.id !== id) }));
 }
 
 export function dismissCelebration(id: string) {

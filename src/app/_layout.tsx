@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ItemRevealOverlay } from '../features/celebration/ItemRevealOverlay';
 import { LevelUpOverlay } from '../features/celebration/LevelUpOverlay';
 import { ToastHost } from '../features/toast/ToastHost';
 import { boot } from '../state/actions';
@@ -78,6 +79,7 @@ export default function RootLayout() {
             </Stack>
             <ToastHost />
             <LevelUpOverlay />
+            <ItemRevealOverlay />
           </>
         )}
       </View>

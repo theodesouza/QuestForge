@@ -43,7 +43,7 @@ function useScreenReader(): boolean {
 
 export function ToastHost() {
   const queued = useGameStore((s) => s.toasts[0]);
-  const celebrating = useGameStore((s) => s.celebrations.length > 0);
+  const celebrating = useGameStore((s) => s.celebrations.length > 0 || s.reveals.length > 0);
   const pathname = usePathname();
   const reduce = useReduceMotion();
   const insets = useSafeAreaInsets();

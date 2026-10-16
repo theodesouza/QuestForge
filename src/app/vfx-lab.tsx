@@ -4,8 +4,7 @@
  * /vfx-lab?core=…&aura=…&frame=…&level=…  → um astrolábio grande
  */
 import { Redirect, useGlobalSearchParams } from 'expo-router';
-import { Platform } from 'react-native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { ITEMS, RARITY_LABEL, getItem } from '../content/items';
 import type { EffectsLevel, Equipped } from '../domain/game/types';
 import { Astrolabe } from '../ui/Astrolabe';

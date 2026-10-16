@@ -29,10 +29,13 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   let n = 0;
   const shot = async (name) => { await wait(700); await page.screenshot({ path: `${OUT}/${String(++n).padStart(2, '0')}-${name}.png` }); };
   const click = async (name) => { await page.getByRole('button', { name, exact: false }).first().click(); };
+  // Alternativas embaralhadas: `answer` é a letra EXIBIDA da alternativa correta.
   const current = () => page.evaluate(() => {
     const g = globalThis.__qf.store.getState().game;
     const id = g.session ? g.session.queue[g.session.index] : g.battle ? g.battle.currentQuestionId : null;
-    return id ? { id, answer: globalThis.__qf.getQuestion(id).answer } : null;
+    if (!id) return null;
+    const key = g.session ? g.session.id : g.battle.id;
+    return { id, answer: globalThis.__qf.shown(id, key, globalThis.__qf.getQuestion(id).answer) };
   });
   const answerOne = async (correct, confirmLabel = 'Confirmar resposta') => {
     const q = await current();
@@ -43,6 +46,36 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await click(confirmLabel);
     await wait(500);
     return q;
+  };
+
+  // Cerimônia de revelação de item: espera a carga (raros+), fotografa a primeira de cada raridade.
+  const seenRarity = new Set();
+  const dismissReveals = async () => {
+    for (let i = 0; i < 6; i++) {
+      const r = await page.evaluate(() => {
+        const s = globalThis.__qf.store.getState();
+        const path = location.pathname;
+        return s.reveals.length && s.celebrations.length === 0 && path !== '/session' && path !== '/boss' ? s.reveals[0].itemId : null;
+      });
+      if (!r) break;
+      await wait(1700);
+      const rarity = await page.evaluate((id) => globalThis.__qf.getItem ? globalThis.__qf.getItem(id).rarity : 'x', r);
+      if (!seenRarity.has(rarity)) {
+        seenRarity.add(rarity);
+        await shot(`reveal-${rarity}-${r}`);
+      }
+      await page.getByRole('button', { name: 'Continuar', exact: false }).last().click();
+      await wait(500);
+    }
+  };
+
+  const dismissCelebrations = async (shotName) => {
+    for (let i = 0; i < 4; i++) {
+      const c = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
+      if (!c) break;
+      if (shotName) await shot(shotName);
+      await click('Continuar'); await wait(300);
+    }
   };
 
   await page.goto(URL);
@@ -65,20 +98,24 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.getByRole('radio', { name: new RegExp(`^Alternativa ${q.answer}:`) }).click();
   await shot('question-selected');
   await click('Confirmar resposta');
+  await dismissCelebrations('levelup');
   await shot('feedback-correct');
   await click('Próxima questão');
   await answerOne(false);
+  await dismissCelebrations('levelup');
   await shot('feedback-wrong');
   await click('Próxima questão');
   await click('Dica');
   await shot('hint');
   await answerOne(true);
+  await dismissCelebrations('levelup');
   await click('Concluir expedição');
   await wait(1200);
   if (await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length)) {
     await shot('levelup');
     await click('Continuar');
   }
+  await dismissReveals();
   await shot('summary');
   await click('Voltar ao acampamento');
   await wait(800);
@@ -93,14 +130,6 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await wait(500);
 
   // Três missões para desbloquear o chefão
-  const dismissCelebrations = async (shotName) => {
-    for (let i = 0; i < 4; i++) {
-      const c = await page.evaluate(() => globalThis.__qf.store.getState().celebrations.length);
-      if (!c) break;
-      if (shotName) await shot(shotName);
-      await click('Continuar'); await wait(300);
-    }
-  };
 
   const playMission = async (label) => {
     await click('Começar missão');
@@ -115,6 +144,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     }
     await wait(800);
     await dismissCelebrations(null);
+    await dismissReveals();
     if (label === 'r1-m1' || label === 'r2-m1') await shot(`${label}-summary`);
     await click('Voltar ao acampamento');
     await wait(800);
@@ -145,6 +175,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await shot(`${prefix}-result`);
     await click('Voltar ao Atlas');
     await wait(800);
+    await dismissReveals();
   };
 
   // Região 1: três missões e o Golem.
@@ -186,6 +217,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await shot('workshop-confirm');
   await page.getByRole('button', { name: /^Confirmar · / }).first().click();
   await wait(800);
+  await dismissReveals();
   await shot('workshop-bought');
   const after = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.ink);
   if (!(after < before)) throw new Error(`Compra não descontou Tinta: ${before} → ${after}`);
@@ -194,6 +226,14 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   await page.getByRole('tab', { name: 'Herói' }).click();
   await shot('hero-after');
+  // Experimentar um núcleo (prévia com transformação) — inclusive um bloqueado.
+  await page.getByRole('button', { name: /^Núcleo/ }).first().click();
+  await wait(500);
+  await page.getByRole('button', { name: /^Núcleo do Tesouro/ }).click();
+  await wait(1400);
+  await shot('hero-tryon-locked');
+  await page.getByRole('button', { name: 'Fechar', exact: false }).last().click();
+  await wait(500);
   await page.getByRole('tab', { name: 'Acampamento' }).click();
   await wait(500);
   await page.getByRole('button', { name: 'Ajustes' }).click();

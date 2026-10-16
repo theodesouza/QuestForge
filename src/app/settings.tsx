@@ -5,7 +5,7 @@ import { QUESTIONS } from '../content/bank';
 import { bankReport } from '../content/validation/validate';
 import { PendingUpdateButton } from '../features/updates/UpdateBanner';
 import { checkAndFetch, updatesEnabled, versionInfo } from '../features/updates/updates';
-import type { ReduceMotionPref } from '../domain/game/types';
+import type { EffectsLevel, ReduceMotionPref } from '../domain/game/types';
 import { resetProgress, updateProfile, updateSettings } from '../state/actions';
 import { useGame } from '../state/store';
 import { Button } from '../ui/Button';
@@ -15,6 +15,12 @@ import { Panel } from '../ui/Panel';
 import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
 import { colors, fonts, radius, space } from '../ui/theme';
+
+const EFFECTS: { id: EffectsLevel; label: string }[] = [
+  { id: 'alto', label: 'Alta' },
+  { id: 'medio', label: 'Média' },
+  { id: 'baixo', label: 'Baixa' },
+];
 
 const MOTION: { id: ReduceMotionPref; label: string }[] = [
   { id: 'system', label: 'Seguir o sistema' },
@@ -104,6 +110,18 @@ export default function Settings() {
             <Chip key={m.id} label={m.label} selected={profile.settings.reduceMotion === m.id} onPress={() => updateSettings({ reduceMotion: m.id })} />
           ))}
         </View>
+        <Text variant="bodyStrong" style={styles.gap}>
+          Intensidade dos efeitos
+        </Text>
+        <View style={styles.chips}>
+          {EFFECTS.map((m) => (
+            <Chip key={m.id} label={m.label} selected={profile.settings.effects === m.id} onPress={() => updateSettings({ effects: m.id })} />
+          ))}
+        </View>
+        <Text variant="caption" color={colors.mist} style={{ marginTop: space.xs }}>
+          Quantidade de partículas e camadas de energia de núcleos e auras. Se o celular esquentar ou travar, use Média ou Baixa. Com
+          animações reduzidas, os efeitos ficam parados.
+        </Text>
       </Panel>
 
       <Panel>

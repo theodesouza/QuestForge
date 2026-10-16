@@ -15,6 +15,7 @@ import { Circle, Defs, Ellipse, G, Path, Polygon, RadialGradient, Stop, Text as 
 import type { ItemVisual } from '../../content/items';
 import { Breathe, C, Glimmer, Layer, Particles, Spin, Sway, Wave } from './engine';
 import { crescent, curtain, flame, goldenSpiral, lightning, ngon, polar, ray, spiral, star, wavyCircle } from './geometry';
+import type { AuraFxId } from './rules';
 
 export interface AuraProps {
   v: ItemVisual;
@@ -422,7 +423,7 @@ function CometTail({ lag, plane, period, color, size, alpha, reverse }: { lag: n
   );
 }
 
-export const AURAS: Record<string, AuraFx> = {
+export const AURAS: Record<AuraFxId, AuraFx> = {
   brasa: Brasa,
   nevoa: Nevoa,
   mare: Mare,
@@ -434,11 +435,11 @@ export const AURAS: Record<string, AuraFx> = {
 };
 
 export function AuraBack({ v }: AuraProps) {
-  const fx = AURAS[v.fx ?? ''];
+  const fx = AURAS[v.fx as AuraFxId];
   return fx ? <fx.Back v={v} /> : null;
 }
 
 export function AuraFront({ v }: AuraProps) {
-  const fx = AURAS[v.fx ?? ''];
+  const fx = AURAS[v.fx as AuraFxId];
   return fx?.Front ? <fx.Front v={v} /> : null;
 }
