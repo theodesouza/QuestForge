@@ -62,7 +62,7 @@ UI (toque "Confirmar")
 - **Sessões retomáveis**: o estado da sessão ativa é gravado a cada resposta
   (`active_session`). Fechar o app no meio não perde nada; o Acampamento oferece "Retomar".
 
-## Banco local (esquema v2)
+## Banco local (esquema v3)
 
 | Tabela | Conteúdo |
 | --- | --- |
@@ -71,7 +71,7 @@ UI (toque "Confirmar")
 | `question_state` | repetição espaçada por questão: caixa Leitner, vencimento, contadores, último XP |
 | `reward_ledger` | recompensas concedidas (chave única) |
 | `inventory` | itens possuídos + origem |
-| `campaign_progress` | nós concluídos (missões) com melhor resultado |
+| `campaign_progress` | nós concluídos (missões) com melhor resultado; v3: `best_score`, `best_stars`, `last_score` |
 | `boss_progress` | tentativas, vitórias, melhor desempenho por chefão |
 | `active_run` | sessão e batalha em andamento serializadas (retomada) |
 | `quest_board` (v2) | quadros de encomendas do dia e da semana (metas, progresso, dias de estudo) |
@@ -82,6 +82,49 @@ incrementa `PRAGMA user_version`. Nunca editar uma migração publicada — semp
 **Preparação para nuvem**: todas as entidades usam IDs estáveis (texto) e carimbos de tempo
 em milissegundos desde a época (UTC); `attempts` é *append-only* (fácil de sincronizar por log). Um futuro `SyncService`
 pode enviar o log e reconciliar o perfil sem mudar o domínio.
+
+## Missões rejogáveis (`domain/learning/missionPlan.ts`, `domain/campaign/score.ts`)
+
+- **Pool por missão**: cada missão tem um perfil de dificuldade (`MissionNode.difficulty`, uma
+  dificuldade por vaga) e um pool próprio com pelo menos `questionCount + 20` questões
+  (`src/content/questions/missoes/`) — o teste do banco falha se alguma missão ficar abaixo disso.
+- **Seleção** (`planMissionRun`, pura e com semente): cada vaga só aceita questões a ±1 nível da
+  dificuldade-alvo. Inéditas primeiro — nenhuma questão se repete enquanto houver inédita compatível;
+  as vagas com menos inéditas compatíveis são preenchidas antes, para que inéditas raras não sejam
+  desperdiçadas. Esgotadas as inéditas, voltam Ecos vencidos → Ecos → revisões vencidas → erradas ou
+  chutadas → vistas há mais tempo. Subassuntos se alternam e a ordem segue a rampa de dificuldade.
+- **Alternativas embaralhadas** (`domain/learning/alternatives.ts`): permutação determinística por
+  `hash(tentativa|questão)` — a mesma tentativa sempre mostra a mesma ordem (retomar não embaralha de
+  novo), cada tentativa nova mostra outra. O domínio grava a letra **canônica**; só a interface usa a
+  letra exibida. Questões cuja ordem importa usam `fixedOrder`; o validador rejeita resoluções que
+  citam letras ("alternativa C") e alternativas que dependem de posição ("nenhuma das anteriores").
+- **Pontuação**: 0–1000 sobre as questões planejadas (andaimes não contam), peso por dificuldade,
+  dicas e chute reduzem. Estrelas: 1 = concluída, 2 = no máximo 1 erro, 3 = sem erros. Melhor
+  pontuação/estrelas nunca diminuem; recompensas de 2 e 3 estrelas são únicas (`mission:<id>:star2|3`).
+- **Anti-farm**: o bônus de sessão exige ≥3 respostas "valiosas" (primeira vez, redenção ou revisão
+  vencida); repetir questões já vistas rende só os 10% da repetição e respeita a janela de 20 h.
+
+## Efeitos visuais do herói (`src/ui/vfx/`)
+
+- **Motor** (`engine.tsx`): palco 240×240; cada camada é um `Animated.View` com SVG **estático**
+  animado só por `transform`/`opacity` na UI thread (`Spin`, `Sway`, `Breathe`, `Wave`, `Glimmer`).
+  Partículas são `View`s simples guiadas por **um** relógio compartilhado por sistema. Densidade
+  1 / 0,65 / 0,35 conforme "Intensidade dos efeitos" (Alta/Média/Baixa); com movimento reduzido
+  tudo vira um quadro estático. Nenhum efeito pisca mais de 3×/s.
+- **Núcleos** (`cores.tsx`) e **auras** (`auras.tsx`, camadas de fundo e de frente): cada um tem
+  forma e movimento próprios — não são recolorações. Elementos: cristal, fogo, maré, lunar,
+  tempestade, astral e áureo.
+- **Raridade** (`RARITY_TIER` 0–4: comum → incomum → raro → épico → lendário) aumenta camadas,
+  brilho, runas, órbitas e moldura (gemas, anéis armilares), e é reconhecível sem ler o rótulo
+  (borda dos ícones da coleção cresce por nível).
+- **Sinergias** (`rules.ts`, puro e testado; desenho em `synergy.tsx`): Ressonância (núcleo e aura
+  do mesmo elemento, um efeito por elemento), Refração (núcleo de cristal assume a cor da aura) e
+  **Forma Mítica** (núcleo lendário + aura lendária: coroa de runas, pilar de luz, levitação) — o
+  topo da hierarquia.
+- **Cerimônias**: `ItemRevealOverlay` (fila `reveals` no store) revela itens com carga e efeitos
+  proporcionais à raridade e oferece "Equipar agora"; espera celebrações de nível e não aparece em
+  `/session` nem `/boss`. No Herói, tocar um item abre a prévia "experimentar" (`TryOnSheet`).
+- **Laboratório de QA** (`/vfx-lab`, só com `EXPO_PUBLIC_QA=1`): grades de núcleos, auras e sinergias.
 
 ## Atualizações e preservação do progresso
 
@@ -105,7 +148,8 @@ O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualizaç
    recebem padrão e nada existente é alterado. Migrações nunca são editadas depois de publicadas.
 5. **Teste de atualização real**: `src/data/__tests__/fixtures/` guarda bancos SQLite gravados pelo
    código da v0.1.0; `upgrade.test.ts` abre-os com o código atual e exige que todo o progresso
-   continue idêntico, inclusive sessão e batalha em andamento.
+   continue idêntico, inclusive sessão e batalha em andamento. Também cobre um banco da v0.2.0
+   (esquema v2) subindo para o v3: missões concluídas ganham estrelas derivadas do melhor resultado.
 
 ## Conteúdo
 
@@ -150,7 +194,7 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
 
 - `npm run typecheck` — TypeScript estrito.
 - `npm test` — domínio (XP, níveis, recompensas, anti-exploração, revisão espaçada, batalha,
-  desbloqueios), validador de conteúdo e persistência real (migrações, commit, recarga,
+  desbloqueios, rejogabilidade, pontuação, sinergias), validador de conteúdo e persistência real (migrações, commit, recarga,
   idempotência) usando `node:sqlite`.
 - `npm run lint` — ESLint (config Expo).
 - `npx expo export --platform android` — garante que o bundle nativo compila.

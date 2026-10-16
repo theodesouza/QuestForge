@@ -3,7 +3,7 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (115 testes), `npm run typecheck`, `npm run lint`,
+Como verificar: `npm test` (148 testes), `npm run typecheck`, `npm run lint`,
 `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
@@ -76,6 +76,26 @@ Aparelho real:
 - [ ] Companheiros
 - [ ] Selos de domínio gravados no astrolábio
 
+## Expansão das missões e evolução visual do herói ✅
+Missões (testado em `src/domain/__tests__/replay.test.ts` e `src/content/validation/__tests__/bank.test.ts`):
+- [x] **126 questões novas** de missão (`src/content/questions/missoes/`, 12 lotes): cada uma das 6 missões tem pool de 31–33 questões — **≥ 20 extras** além das 5 de uma tentativa (o teste do banco exige)
+- [x] Cada lote resolvido às cegas (só enunciado e alternativas) e comparado ao gabarito: 0 divergências; o último lote (FIN-311–320) também por um revisor independente
+- [x] Auditoria das 116 questões antigas: 34 correções (dados impossíveis, contradições, dificuldade, dicas, nomes "A/B" que viravam ambíguos com alternativas embaralhadas)
+- [x] Rejogar traz questões **inéditas primeiro** e não repete enquanto houver inédita compatível; depois, reaproveita Ecos, revisões e erros antes das já dominadas (teste com o pool real: ≥ 5 tentativas totalmente novas por missão)
+- [x] Dificuldade coerente: perfil por missão, cada vaga aceita só ±1 nível; mesma quantidade de questões
+- [x] Seleção e **alternativas embaralhadas** a cada tentativa, gabarito preservado (letra canônica no domínio; feedback mostra a letra exibida); validador barra referências a letras e alternativas posicionais
+- [x] **Pontuação 0–1000 e 1–3 estrelas**, melhor resultado preservado (migração v3), "Novo recorde", botão "Repetir para melhorar a pontuação", estrelas e inéditas restantes no Atlas
+- [x] Sem exploração: recompensas de estrela únicas; bônus de sessão só com ≥ 3 respostas valiosas; repetição rende 10% e nada dentro de 20 h
+
+Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no roteiro ponta a ponta):
+- [x] Motor de efeitos na UI thread (camadas SVG estáticas + transform/opacity, partículas com relógio compartilhado)
+- [x] 9 núcleos e 8 auras com formas e movimentos próprios (chamas, marés, cortinas boreais, nebulosa, coroa solar, órbitas, runas…)
+- [x] Hierarquia Comum → Incomum → Raro → **Épico** (nova raridade) → Lendário, reconhecível só pela aparência; molduras evoluem (pinos que pulsam, anéis armilares)
+- [x] **Sinergias** reutilizáveis: Ressonância por elemento (fogo+fogo, tempestade+tempestade, …), Refração do cristal e **Forma Mítica** (lendário + lendário)
+- [x] Revelação de item proporcional à raridade (carga, raios, ondas) com "Equipar agora"; prévia "experimentar" no Herói (inclusive itens bloqueados); estouro de energia ao equipar
+- [x] "Intensidade dos efeitos" (Alta/Média/Baixa), movimento reduzido = quadros estáticos, nada pisca acima de 3×/s
+- [ ] Medir desempenho num Android intermediário físico (validado só na web e por estimativa de camadas)
+
 ## Etapa 5 — Aprendizado adaptativo (pendente)
 - [ ] Painel de evolução (semana, assuntos fortes/fracos, tempo de estudo, gráficos)
 - [ ] Histórico de erros navegável ("por que errei")
@@ -86,7 +106,7 @@ Aparelho real:
 - [ ] Pausa saudável após 25 min contínuos
 
 ## Etapa 6 — Conteúdo (pendente)
-- [~] Expandir para 500 questões validadas, em lotes por assunto — **116 hoje** (91 do MVP + 25 de financeira); combinatória, geometria espacial e equações têm poucos itens
+- [~] Expandir para 500 questões validadas, em lotes por assunto — **242 hoje** (91 do MVP + 25 de financeira + 126 de missões); combinatória, geometria espacial e equações têm poucos itens
 
 ## Etapa 7 — Polimento (pendente)
 - [ ] Sons (desativáveis)
