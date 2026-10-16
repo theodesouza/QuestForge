@@ -106,7 +106,7 @@ export default function Onboarding() {
 
       {step === 0 ? (
         <Animated.View entering={reduce ? undefined : FadeIn.duration(700)} style={styles.welcome}>
-          <Astrolabe level={1} equipped={equipped} size={230} animate={!reduce} />
+          <Astrolabe level={1} equipped={equipped} size={270} animate={!reduce} />
           <Text variant="label" color={colors.brass}>
             QuestForge
           </Text>

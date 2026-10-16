@@ -13,9 +13,13 @@ export type Goal = 'enem' | 'reforco' | 'curiosidade';
 export type SelfLevel = 'iniciante' | 'intermediario' | 'avancado';
 export type ReduceMotionPref = 'system' | 'always' | 'never';
 
+export type EffectsLevel = 'alto' | 'medio' | 'baixo';
+
 export interface Settings {
   haptics: boolean;
   reduceMotion: ReduceMotionPref;
+  /** Intensidade dos efeitos do astrolábio (partículas e camadas). */
+  effects: EffectsLevel;
 }
 
 export interface Equipped {

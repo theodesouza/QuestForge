@@ -47,7 +47,7 @@ export function LevelUpOverlay() {
       <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Fechar celebração" />
       <View style={[styles.content, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.xl }]} pointerEvents="box-none">
         <Animated.View entering={reduce ? undefined : ZoomIn.springify().damping(14)}>
-          <Astrolabe level={celebration.to} equipped={equipped} size={220} animate={!reduce} />
+          <Astrolabe level={celebration.to} equipped={equipped} size={264} animate={!reduce} />
         </Animated.View>
         <View style={styles.center} accessible accessibilityRole="header">
           <Text variant="label" color={colors.brass}>

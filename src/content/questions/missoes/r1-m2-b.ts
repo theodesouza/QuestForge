@@ -1,4 +1,400 @@
-import { batch } from '../_helpers';
+import { AUTORAL, alts, batch } from '../_helpers';
 
-/** Missão r1-m2 — questões extras para repetição (lote b). Questões autorais. */
-export const MISSAO_R1M2_B = batch([]);
+/** Missão r1-m2 — questões extras para repetição (lote b, RZP-212 a RZP-222). Questões autorais. */
+export const MISSAO_R1M2_B = batch([
+  {
+    id: 'RZP-212',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres',
+    difficulty: 1,
+    skills: ['H16'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'A bula de um vermífugo para cães, em suspensão oral, traz a seguinte orientação: “Administrar 2 mL para cada 8 kg de massa corporal do animal, em dose única”. Bruno vai dar esse vermífugo para sua cadela, Pipoca, que tem 30 kg, seguindo exatamente a orientação da bula.',
+      },
+    ],
+    ask: 'Quantos mililitros do vermífugo Pipoca deve receber?',
+    alternatives: alts('7,5 mL', '24 mL', '3,75 mL', '60 mL', '15 mL'),
+    answer: 'A',
+    hints: [
+      'A dose cresce na mesma proporção que a massa do animal: se a massa dobra, a dose também dobra.',
+      'Descubra quantos “grupos” de 8 kg cabem em 30 kg, dividindo 30 por 8.',
+    ],
+    solution: [
+      'Grupos de 8 kg em 30 kg: 30 ÷ 8 = 3,75.',
+      'Cada grupo de 8 kg corresponde a 2 mL: 3,75 × 2 = 7,5 mL.',
+      'Pela proporção: 2/8 = x/30, logo x = 2 × 30 ÷ 8 = 60 ÷ 8 = 7,5 mL.',
+      'Armadilha: somar a diferença de massa à dose (2 + 22 = 24 mL) não mantém a proporção; a dose deve ser multiplicada, e não somada.',
+      'Armadilha: parar em 30 ÷ 8 = 3,75 esquece que cada grupo de 8 kg corresponde a 2 mL, e não a 1 mL.',
+    ],
+    concept:
+      'Regra de três simples direta: a dose por quilograma (2 mL ÷ 8 kg = 0,25 mL/kg) é constante; basta multiplicá-la pela massa do animal.',
+    estimatedSeconds: 40,
+    source: AUTORAL,
+    verify: () => (2 * 30) / 8,
+  },
+  {
+    id: 'RZP-213',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-inversa',
+    difficulty: 1,
+    skills: ['H15', 'H16'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Lara faz caminhada todas as manhãs na orla de Maceió. No percurso de sempre, ela dá 4.800 passos, cada um com 75 cm de comprimento, em média. Para melhorar o condicionamento, ela vai passar a fazer o mesmo percurso em trote leve, com passos de 90 cm de comprimento, em média.',
+      },
+    ],
+    ask: 'Quantos passos Lara dará para fazer o mesmo percurso em trote?',
+    alternatives: alts('5.760 passos', '3.840 passos', '4.000 passos', '40 passos', '3.600 passos'),
+    answer: 'C',
+    hints: [
+      'O percurso tem sempre o mesmo comprimento: com passos maiores, são necessários menos passos.',
+      'Calcule o comprimento do percurso multiplicando o número de passos pelo comprimento de cada passo.',
+    ],
+    solution: [
+      'Comprimento do percurso: 4.800 × 75 cm = 360.000 cm, ou seja, 3.600 m.',
+      'Em trote: 360.000 ÷ 90 = 4.000 passos.',
+      'Pela regra de três inversa: x = 4.800 × 75 ÷ 90 = 4.000 passos.',
+      'Armadilha: montar a regra de três como direta (4.800 × 90 ÷ 75 = 5.760) faria o número de passos aumentar, embora cada passo tenha ficado maior.',
+      'Armadilha: dividir 3.600 (em metros) por 90 (em centímetros) mistura unidades e dá apenas 40 passos.',
+    ],
+    concept:
+      'Para um percurso fixo, comprimento do passo e número de passos são inversamente proporcionais: o produto (número de passos × comprimento do passo) é a distância, que não muda.',
+    estimatedSeconds: 50,
+    source: AUTORAL,
+    verify: () => (4800 * 75) / 90,
+  },
+  {
+    id: 'RZP-214',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres',
+    difficulty: 2,
+    skills: ['H10', 'H16'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Júlia tem um plano de celular com franquia mensal de internet. Faltando alguns dias para a renovação do plano, o aplicativo da operadora mostrou que ainda restavam 6 GB. Ela observou que, ao assistir a vídeos em alta definição, consome 450 MB de dados a cada 15 minutos de vídeo.',
+      },
+      {
+        kind: 'p',
+        text: 'Considere que 1 GB = 1.000 MB e que o consumo de dados é diretamente proporcional ao tempo de vídeo assistido.',
+      },
+    ],
+    ask: 'Se usar todo o restante da franquia apenas para assistir a vídeos nessa qualidade, por quanto tempo, no máximo, Júlia poderá assistir?',
+    alternatives: alts('3 h 33 min', '13 h 20 min', '2 h', '3 h 20 min', '20 min'),
+    answer: 'D',
+    hints: [
+      'O tempo de vídeo é diretamente proporcional ao consumo de dados, mas as unidades precisam ser compatíveis: converta gigabytes em megabytes.',
+      'Escreva 6 GB em MB e calcule quantos megabytes Júlia consome por minuto de vídeo.',
+    ],
+    solution: [
+      'Restante da franquia: 6 GB = 6 × 1.000 = 6.000 MB.',
+      'Consumo por minuto: 450 ÷ 15 = 30 MB por minuto.',
+      'Tempo de vídeo: 6.000 ÷ 30 = 200 min.',
+      'Conversão: 200 min = 3 × 60 + 20, ou seja, 3 h 20 min.',
+      'Pela proporção: 450/15 = 6.000/x, logo x = 6.000 × 15 ÷ 450 = 200 min.',
+      'Armadilha: 200 ÷ 60 ≈ 3,33 h, mas 0,33 h não é 33 min, e sim cerca de 0,33 × 60 = 20 min.',
+      'Armadilha: 6.000 ÷ 450 ≈ 13,33 não é o tempo em horas; é o número de blocos de 15 minutos.',
+    ],
+    concept:
+      'Em uma regra de três direta com unidades diferentes, primeiro deixe tudo na mesma unidade (GB → MB); depois use a taxa constante (MB por minuto). Ao converter minutos em horas, a parte decimal da hora deve ser multiplicada por 60.',
+    estimatedSeconds: 75,
+    source: AUTORAL,
+    verify: () => (6000 / (450 / 15)) / 60,
+    tolerance: 0.01,
+  },
+  {
+    id: 'RZP-215',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-inversa',
+    difficulty: 2,
+    skills: ['H3', 'H16'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Um lar de idosos de Curitiba reserva, todos os meses, a mesma verba para comprar fraldas geriátricas. Com essa verba, ele costuma comprar exatamente 24 pacotes, a R$ 45,00 cada. Neste mês, o fornecedor ofereceu 25% de desconto no preço de cada pacote, e o lar vai gastar a verba inteira com fraldas.',
+      },
+    ],
+    ask: 'Quantos pacotes de fraldas o lar de idosos poderá comprar neste mês?',
+    alternatives: alts('30 pacotes', '32 pacotes', '18 pacotes', '8 pacotes', '6 pacotes'),
+    answer: 'B',
+    hints: [
+      'Com a mesma verba, quanto menor o preço do pacote, mais pacotes podem ser comprados: preço e quantidade são inversamente proporcionais.',
+      'Calcule a verba mensal (24 × R$ 45,00) e o novo preço do pacote, com 25% de desconto.',
+    ],
+    solution: [
+      'Verba mensal: 24 × 45 = R$ 1.080,00.',
+      'Preço com desconto: 45 × (1 − 0,25) = 45 × 0,75 = R$ 33,75.',
+      'Pacotes neste mês: 1.080 ÷ 33,75 = 32 pacotes.',
+      'Outra forma: o preço foi multiplicado por 0,75 = 3/4; então a quantidade é multiplicada por 4/3: 24 × 4/3 = 32 pacotes.',
+      'Armadilha: um desconto de 25% no preço não aumenta a quantidade em apenas 25% (o que daria 30 pacotes); a quantidade aumenta 1/3, cerca de 33,3%.',
+      'Armadilha: 32 − 24 = 8 é só o número de pacotes a mais, e não o total comprado no mês.',
+    ],
+    concept:
+      'Com valor total fixo, preço unitário e quantidade são inversamente proporcionais: se o preço é multiplicado por k, a quantidade é multiplicada por 1/k. Um desconto de 25% (fator 0,75) multiplica a quantidade por 1 ÷ 0,75 ≈ 1,333, um aumento de cerca de 33,3%.',
+    estimatedSeconds: 75,
+    source: AUTORAL,
+    verify: () => (24 * 45) / (45 * 0.75),
+  },
+  {
+    id: 'RZP-216',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-inversa',
+    difficulty: 3,
+    skills: ['H16', 'H18'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Em Porto Alegre, uma linha circular de ônibus opera com 12 ônibus, que percorrem o mesmo trajeto, um atrás do outro, sempre igualmente espaçados. Assim, em cada ponto da linha passa um ônibus a cada 10 minutos. O tempo que um ônibus leva para completar uma volta é sempre o mesmo, qualquer que seja o número de ônibus em operação.',
+      },
+      {
+        kind: 'p',
+        text: 'Durante as férias escolares, a empresa quer retirar alguns ônibus dessa linha. Por exigência da prefeitura, porém, o intervalo entre dois ônibus consecutivos em um mesmo ponto não pode passar de 14 minutos. Os ônibus que continuarem na linha seguirão igualmente espaçados.',
+      },
+    ],
+    ask: 'Qual é o maior número de ônibus que a empresa pode retirar dessa linha?',
+    alternatives: alts('4 ônibus', '9 ônibus', '5 ônibus', '8 ônibus', '3 ônibus'),
+    answer: 'E',
+    hints: [
+      'O tempo de uma volta não muda: com menos ônibus na linha, o intervalo entre eles aumenta. Número de ônibus e intervalo são inversamente proporcionais.',
+      'Calcule o tempo de uma volta completa multiplicando o número de ônibus pelo intervalo atual.',
+    ],
+    solution: [
+      'Tempo de uma volta: 12 × 10 = 120 min (é o produto constante entre número de ônibus e intervalo).',
+      'Com n ônibus, o intervalo é 120 ÷ n. Para que ele não passe de 14 min: 120 ÷ n ≤ 14, ou seja, n ≥ 120 ÷ 14 ≈ 8,57.',
+      'Como n é inteiro, são necessários pelo menos 9 ônibus. Teste: com 9 ônibus, o intervalo é 120 ÷ 9 ≈ 13,3 min (permitido); com 8, seria 120 ÷ 8 = 15 min (acima do limite).',
+      'Ônibus que podem ser retirados: 12 − 9 = 3.',
+      'Armadilha: arredondar 8,57 para baixo (8 ônibus na linha, retirando 4) deixaria o intervalo em 15 minutos, desrespeitando a exigência da prefeitura.',
+      'Armadilha: o intervalo pode crescer 40% (de 10 para 14 min), mas isso não permite retirar 40% dos ônibus (cerca de 5): com 7 ônibus, o intervalo seria 120 ÷ 7 ≈ 17,1 min.',
+    ],
+    concept:
+      'Grandezas inversamente proporcionais têm produto constante (aqui, número de ônibus × intervalo = tempo de uma volta). Quando o resultado precisa ser inteiro e há um limite (“não pode passar de”), teste os inteiros vizinhos para decidir o arredondamento.',
+    estimatedSeconds: 150,
+    source: AUTORAL,
+    verify: () => 12 - Math.ceil((12 * 10) / 14),
+  },
+  {
+    id: 'RZP-217',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-composta',
+    difficulty: 2,
+    skills: ['H16', 'H17'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Na casa de Sandra, em Cuiabá, 3 ventiladores iguais, ligados 8 horas por dia, consumiram juntos 36 kWh de energia elétrica em um mês de 30 dias. No mês seguinte, também de 30 dias e mais quente, ela pretende deixar 5 ventiladores desse mesmo modelo ligados 10 horas por dia.',
+      },
+    ],
+    ask: 'Qual será o consumo de energia elétrica desses ventiladores no mês seguinte?',
+    alternatives: alts('60 kWh', '45 kWh', '75 kWh', '48 kWh', '27 kWh'),
+    answer: 'C',
+    hints: [
+      'O consumo aumenta tanto com o número de ventiladores quanto com as horas de uso por dia: as duas grandezas são diretamente proporcionais ao consumo.',
+      'Descubra quanto um único ventilador consome em uma hora: divida 36 kWh pelo total de horas de funcionamento do primeiro mês (3 × 8 × 30).',
+    ],
+    solution: [
+      'Horas de funcionamento no primeiro mês, somando os ventiladores: 3 × 8 × 30 = 720 h.',
+      'Consumo de um ventilador por hora: 36 ÷ 720 = 0,05 kWh (ou seja, 50 W).',
+      'No mês seguinte: 5 × 10 × 30 = 1.500 h de funcionamento.',
+      'Consumo: 1.500 × 0,05 = 75 kWh.',
+      'Pela regra de três composta: x = 36 × (5/3) × (10/8) = 75 kWh.',
+      'Armadilha: considerar apenas o aumento do número de ventiladores dá 36 × 5/3 = 60 kWh, esquecendo que eles também ficarão mais horas ligados.',
+    ],
+    concept:
+      'Na regra de três composta em que todas as grandezas são diretamente proporcionais à procurada, o valor conhecido é multiplicado pela razão (novo ÷ antigo) de cada uma delas. A energia consumida é proporcional ao número de aparelhos e ao tempo de uso.',
+    estimatedSeconds: 75,
+    source: AUTORAL,
+    verify: () => 36 * (5 / 3) * (10 / 8),
+  },
+  {
+    id: 'RZP-218',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-composta',
+    difficulty: 2,
+    skills: ['H15', 'H16'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Um grupo de escoteiros de Goiânia planeja seus acampamentos calculando a água potável usada para beber e cozinhar. No último acampamento, 24 escoteiros consumiram 360 litros de água potável em 5 dias. O próximo acampamento vai durar 6 dias, e o grupo conseguirá levar 900 litros de água potável.',
+      },
+      {
+        kind: 'p',
+        text: 'Considere que cada escoteiro consumirá, por dia, a mesma quantidade de água potável que no acampamento anterior.',
+      },
+    ],
+    ask: 'Qual é o número máximo de escoteiros que podem participar do próximo acampamento sem que falte água potável?',
+    alternatives: alts('50 escoteiros', '72 escoteiros', '60 escoteiros', '20 escoteiros', '150 escoteiros'),
+    answer: 'A',
+    hints: [
+      'Mais água permite levar mais escoteiros; um acampamento com mais dias, com a mesma quantidade de água, permite levar menos escoteiros.',
+      'Calcule quantos litros cada escoteiro consome por dia: divida 360 L pelo produto 24 × 5.',
+    ],
+    solution: [
+      'Consumo por escoteiro por dia: 360 ÷ (24 × 5) = 360 ÷ 120 = 3 L.',
+      'Nos 6 dias do próximo acampamento, cada escoteiro precisará de 3 × 6 = 18 L.',
+      'Número máximo de escoteiros: 900 ÷ 18 = 50.',
+      'Pela regra de três composta: x = 24 × (900/360) × (5/6) = 24 × 2,5 × 5/6 = 50.',
+      'Armadilha: multiplicar por 6/5 (o que dá 72 escoteiros) trata os dias como diretamente proporcionais ao número de escoteiros; com a mesma água, mais dias significam menos pessoas.',
+      'Armadilha: 900 ÷ 6 = 150 é a quantidade de água disponível por dia, em litros, e não o número de escoteiros, pois cada um consome 3 L por dia.',
+    ],
+    concept:
+      'Na regra de três composta, analise cada grandeza em relação à procurada, mantendo as outras fixas: o número de escoteiros é diretamente proporcional à água disponível e inversamente proporcional à duração do acampamento.',
+    estimatedSeconds: 90,
+    source: AUTORAL,
+    verify: () => (24 * (900 / 360) * 5) / 6,
+  },
+  {
+    id: 'RZP-219',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-composta',
+    difficulty: 3,
+    skills: ['H16', 'H17'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Um fórum está digitalizando processos antigos em papel. Os scanners usados são todos iguais, cada um operado por um funcionário, e cada scanner digitaliza sempre o mesmo número de páginas por hora.',
+      },
+      {
+        kind: 'p',
+        text: 'Na primeira semana, 2 scanners, funcionando ao mesmo tempo, digitalizaram 30 processos de 120 páginas cada em 5 horas. Agora, a equipe precisa digitalizar 60 processos de 180 páginas cada, usando 3 scanners funcionando ao mesmo tempo.',
+      },
+    ],
+    ask: 'Quanto tempo será necessário para digitalizar esses 60 processos?',
+    alternatives: alts('15 h', '6 h 40 min', '22 h 30 min', '5 h', '10 h'),
+    answer: 'E',
+    hints: [
+      'O tempo aumenta com o número de processos e com o número de páginas de cada processo, mas diminui quando há mais scanners trabalhando ao mesmo tempo.',
+      'Calcule o total de páginas do primeiro trabalho (30 × 120) e quantas páginas um único scanner digitaliza por hora.',
+    ],
+    solution: [
+      'Primeiro trabalho: 30 × 120 = 3.600 páginas, em 5 h, com 2 scanners.',
+      'Ritmo de um scanner: 3.600 ÷ (2 × 5) = 360 páginas por hora.',
+      'Novo trabalho: 60 × 180 = 10.800 páginas.',
+      'Os 3 scanners juntos digitalizam 3 × 360 = 1.080 páginas por hora: 10.800 ÷ 1.080 = 10 h.',
+      'Pela regra de três composta: x = 5 × (60/30) × (180/120) × (2/3) = 10 h.',
+      'Armadilha: 3.600 ÷ 5 = 720 páginas por hora é o ritmo dos dois scanners juntos, e não o de um só; usar 720 páginas por hora para cada scanner leva a 5 h.',
+      'Armadilha: considerar apenas o número de processos, sem levar em conta que cada um tem mais páginas, dá 6 h 40 min.',
+    ],
+    concept:
+      'Na regra de três composta, o tempo é diretamente proporcional à quantidade de trabalho (aqui, número de processos e páginas por processo) e inversamente proporcional ao número de máquinas que trabalham ao mesmo tempo.',
+    estimatedSeconds: 150,
+    source: AUTORAL,
+    verify: () => (5 * 60 * 180 * 2) / (30 * 120 * 3),
+  },
+  {
+    id: 'RZP-220',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-composta',
+    difficulty: 3,
+    skills: ['H10', 'H16'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Uma cooperativa agrícola de Rio Verde (GO) usa caminhões graneleiros iguais para levar soja das fazendas até o armazém. Na safra passada, 5 caminhões, cada um fazendo 2 viagens por dia, sempre com carga completa, transportaram 1.400 toneladas de soja em 4 dias.',
+      },
+      {
+        kind: 'p',
+        text: 'Nesta safra, a cooperativa precisa transportar 70.000 sacas de 60 kg de soja em 5 dias. Com uma nova estrada asfaltada, cada caminhão conseguirá fazer 3 viagens por dia, também com carga completa. Considere 1 tonelada = 1.000 kg.',
+      },
+    ],
+    ask: 'Quantos caminhões iguais aos da safra passada serão necessários nesta safra?',
+    alternatives: alts('12 caminhões', '15 caminhões', '10 caminhões', '8 caminhões', '18 caminhões'),
+    answer: 'D',
+    hints: [
+      'Antes de comparar as safras, coloque as cargas na mesma unidade. O número de caminhões aumenta com a carga, mas diminui quando há mais dias ou mais viagens por dia.',
+      'Converta as 70.000 sacas de 60 kg em toneladas e descubra quantas toneladas um caminhão leva por viagem: 1.400 ÷ (5 × 2 × 4).',
+    ],
+    solution: [
+      'Carga desta safra: 70.000 × 60 kg = 4.200.000 kg = 4.200 t.',
+      'Viagens na safra passada: 5 × 2 × 4 = 40; carga por viagem: 1.400 ÷ 40 = 35 t.',
+      'Nesta safra, cada caminhão fará 3 × 5 = 15 viagens, levando 15 × 35 = 525 t.',
+      'Caminhões necessários: 4.200 ÷ 525 = 8.',
+      'Pela regra de três composta: x = 5 × (4.200/1.400) × (4/5) × (2/3) = 8.',
+      'Armadilha: considerar só o aumento da carga (5 × 3 = 15 caminhões) ignora que agora há mais dias e mais viagens por dia, o que reduz o número de caminhões necessários.',
+      'Armadilha: tratar as viagens por dia como diretamente proporcionais ao número de caminhões (o que dá 18) faria a frota crescer justamente quando cada caminhão passa a viajar mais.',
+    ],
+    concept:
+      'Na regra de três composta, cada grandeza é comparada com a procurada, mantendo as outras fixas: o número de caminhões é diretamente proporcional à carga e inversamente proporcional ao número de dias e de viagens por dia. Medidas da mesma grandeza precisam estar na mesma unidade.',
+    estimatedSeconds: 180,
+    source: AUTORAL,
+    verify: () => (70000 * 60) / 1000 / ((1400 / (5 * 2 * 4)) * 3 * 5),
+  },
+  {
+    id: 'RZP-221',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-composta',
+    difficulty: 3,
+    skills: ['H12', 'H16'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'A prefeitura de Fortaleza está ampliando sua rede de ciclovias. Uma equipe de 10 operários, trabalhando 8 horas por dia, pavimentou em 6 dias um trecho de ciclovia com 600 m de comprimento e 2,5 m de largura.',
+      },
+      {
+        kind: 'p',
+        text: 'O próximo trecho terá 3 m de largura e será pavimentado por uma equipe de 16 operários, trabalhando 6 horas por dia, durante 10 dias. Considere que todos os operários trabalham no mesmo ritmo, de modo que a área pavimentada é proporcional ao total de horas trabalhadas.',
+      },
+    ],
+    ask: 'Qual será o comprimento do trecho de ciclovia pavimentado pela nova equipe?',
+    alternatives: alts('1.200 m', '1.000 m', '1.440 m', '3.000 m', '360 m'),
+    answer: 'B',
+    hints: [
+      'O trabalho realizado é medido pela área pavimentada (comprimento × largura), e não apenas pelo comprimento: uma ciclovia mais larga exige mais trabalho por metro.',
+      'Calcule a área pavimentada pela primeira equipe e o total de horas trabalhadas por ela (operários × horas por dia × dias).',
+    ],
+    solution: [
+      'Área do primeiro trecho: 600 × 2,5 = 1.500 m².',
+      'Horas trabalhadas pela primeira equipe: 10 × 8 × 6 = 480 horas.',
+      'Ritmo: 1.500 ÷ 480 = 3,125 m² por hora de trabalho de um operário.',
+      'Nova equipe: 16 × 6 × 10 = 960 horas trabalhadas, que pavimentam 960 × 3,125 = 3.000 m².',
+      'Comprimento do novo trecho: 3.000 ÷ 3 = 1.000 m.',
+      'Armadilha: ignorar a mudança de largura dá 1.200 m; como o novo trecho é mais largo, a mesma área corresponde a um comprimento menor.',
+      'Armadilha: 3.000 é a área pavimentada, em m²; para obter o comprimento, ainda é preciso dividir pela largura.',
+    ],
+    concept:
+      'Na regra de três composta, identifique a medida do trabalho (aqui, a área). A área é diretamente proporcional ao número de operários, às horas por dia e aos dias; para uma área fixa, o comprimento pavimentado é inversamente proporcional à largura da ciclovia.',
+    estimatedSeconds: 180,
+    source: AUTORAL,
+    verify: () => (((600 * 2.5) / (10 * 8 * 6)) * (16 * 6 * 10)) / 3,
+  },
+  {
+    id: 'RZP-222',
+    topic: 'razao-proporcao',
+    subtopic: 'regra-de-tres-composta',
+    difficulty: 4,
+    skills: ['H16', 'H17'],
+    stem: [
+      {
+        kind: 'p',
+        text: 'Em uma cooperativa de reciclagem de Belém, 6 catadores, trabalhando 8 horas por dia, separam 4,8 toneladas de material reciclável em 5 dias. Todos os catadores trabalham no mesmo ritmo.',
+      },
+      {
+        kind: 'p',
+        text: 'A cooperativa instalou uma esteira mecânica que aumenta em 25% a produtividade de cada catador, isto é, a quantidade de material que ele separa por hora. Com a esteira, uma equipe de 5 catadores, trabalhando 6 horas por dia, vai separar 6 toneladas de material.',
+      },
+    ],
+    ask: 'Em quantos dias essa equipe concluirá a separação das 6 toneladas?',
+    alternatives: alts('10 dias', '7,5 dias', '8 dias', '12,5 dias', '4,5 dias'),
+    answer: 'C',
+    hints: [
+      'A esteira muda a quantidade de material que cada catador separa por hora. Encontre essa produtividade antes e depois da esteira e só então calcule o prazo.',
+      'Divida 4.800 kg pelo total de horas trabalhadas na situação inicial (6 × 8 × 5) para obter quantos quilogramas um catador separa por hora.',
+    ],
+    solution: [
+      'Horas trabalhadas na situação inicial, somando os catadores: 6 × 8 × 5 = 240 horas.',
+      'Produtividade sem a esteira: 4.800 kg ÷ 240 = 20 kg por hora, por catador.',
+      'Com a esteira: 20 × 1,25 = 25 kg por hora, por catador.',
+      'Por dia, a nova equipe separa 5 × 6 × 25 = 750 kg.',
+      'Dias necessários: 6.000 ÷ 750 = 8 dias.',
+      'Armadilha: sem a esteira, seriam 6.000 ÷ (5 × 6 × 20) = 10 dias. Reduzir esse prazo em 25% (7,5 dias) está errado: o tempo é dividido por 1,25 (10 ÷ 1,25 = 8), o que equivale a uma redução de 20%.',
+      'Armadilha: multiplicar o prazo por 1,25 (12,5 dias) trata a produtividade como diretamente proporcional ao tempo, quando, na verdade, catadores mais produtivos terminam antes.',
+    ],
+    concept:
+      'Na regra de três composta, o tempo é inversamente proporcional à produtividade: se a produtividade é multiplicada por 1,25, o tempo é dividido por 1,25 (redução de 20%, e não de 25%). Reduza a situação conhecida a uma taxa unitária (kg por catador por hora) antes de aplicar as mudanças.',
+    estimatedSeconds: 240,
+    source: AUTORAL,
+    verify: () => 6000 / (5 * 6 * (4800 / (6 * 8 * 5)) * 1.25),
+  },
+]);

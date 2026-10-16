@@ -135,7 +135,7 @@ export default function Camp() {
       {/* Herói */}
       <Animated.View entering={enter(1)} style={styles.hero}>
         <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver herói">
-          <Astrolabe level={progress.level} equipped={profile.equipped} size={196} animate={!reduce} />
+          <Astrolabe level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} />
         </Pressable>
         <View style={styles.levelRow}>
           <Text variant="hero">Nível {progress.level}</Text>

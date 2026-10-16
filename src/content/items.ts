@@ -4,13 +4,31 @@
  */
 
 export type ItemSlot = 'frame' | 'core' | 'aura' | 'title';
-export type Rarity = 'comum' | 'incomum' | 'raro' | 'lendario';
+export type Rarity = 'comum' | 'incomum' | 'raro' | 'epico' | 'lendario';
+/** Hierarquia visual: quanto maior, mais camadas, movimento e presença o efeito tem. */
+export const RARITY_TIER: Record<Rarity, 0 | 1 | 2 | 3 | 4> = { comum: 0, incomum: 1, raro: 2, epico: 3, lendario: 4 };
 
 export const RARITY_LABEL: Record<Rarity, string> = {
   comum: 'Comum',
   incomum: 'Incomum',
   raro: 'Raro',
+  epico: 'Épico',
   lendario: 'Lendário',
+};
+
+/**
+ * Elemento de núcleos e auras. Núcleo e aura do mesmo elemento entram em
+ * Ressonância (efeito combinado); dois lendários juntos despertam a Forma Mítica.
+ */
+export type FxElement = 'cristal' | 'fogo' | 'mare' | 'lunar' | 'tempestade' | 'astral' | 'aureo';
+export const ELEMENT_LABEL: Record<FxElement, string> = {
+  cristal: 'Cristal',
+  fogo: 'Fogo',
+  mare: 'Maré',
+  lunar: 'Lunar',
+  tempestade: 'Tempestade',
+  astral: 'Astral',
+  aureo: 'Áureo',
 };
 
 export const SLOT_LABEL: Record<ItemSlot, string> = {
@@ -28,6 +46,10 @@ export interface ItemVisual {
   color2?: string;
   /** Estilo da moldura. */
   frameStyle?: 'plain' | 'double' | 'notched' | 'armillary';
+  /** Núcleos e auras: elemento (sinergias). */
+  element?: FxElement;
+  /** Núcleos e auras: qual efeito desenha o item (src/ui/vfx). */
+  fx?: string;
 }
 
 export interface ItemDef {
@@ -103,7 +125,7 @@ export const ITEMS: ItemDef[] = [
     id: 'frame-armilar',
     slot: 'frame',
     name: 'Esfera Armilar',
-    rarity: 'raro',
+    rarity: 'epico',
     description: 'Anéis dentro de anéis: o modelo completo do céu.',
     howToGet: 'Alcance o nível 40.',
     visual: { color: '#9B87FF', color2: '#F2B54A', frameStyle: 'armillary' },
@@ -116,7 +138,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'comum',
     description: 'Transparente, à espera de ser preenchido.',
     howToGet: 'Equipamento inicial.',
-    visual: { color: '#DCE3FF', color2: '#9AA3C7' },
+    visual: { color: '#DCE3FF', color2: '#9AA3C7', element: 'cristal', fx: 'prisma' },
   },
   {
     id: 'core-ambar',
@@ -125,7 +147,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'comum',
     description: 'Guarda o calor das primeiras sessões de estudo.',
     howToGet: 'Alcance o nível 4.',
-    visual: { color: '#FFB648', color2: '#FF6A55' },
+    visual: { color: '#FFB648', color2: '#FF6A55', element: 'fogo', fx: 'ambar' },
   },
   {
     id: 'core-verdete',
@@ -134,7 +156,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'incomum',
     description: 'O verde do bronze antigo: o tempo trabalhando a seu favor.',
     howToGet: 'Alcance o nível 10.',
-    visual: { color: '#38D6B0', color2: '#1E8C7A' },
+    visual: { color: '#38D6B0', color2: '#1E8C7A', element: 'mare', fx: 'verdete' },
   },
   {
     id: 'core-iris',
@@ -143,7 +165,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'incomum',
     description: 'Muda de tom conforme o ângulo, como um problema visto de outro jeito.',
     howToGet: 'Alcance o nível 18.',
-    visual: { color: '#9B87FF', color2: '#FF8FD1' },
+    visual: { color: '#9B87FF', color2: '#FF8FD1', element: 'astral', fx: 'iris' },
   },
   {
     id: 'core-solar',
@@ -152,16 +174,16 @@ export const ITEMS: ItemDef[] = [
     rarity: 'raro',
     description: 'Brilha com a constância de quem estuda dia após dia.',
     howToGet: 'Alcance o nível 30.',
-    visual: { color: '#FFE08A', color2: '#FF9F43' },
+    visual: { color: '#FFE08A', color2: '#FF9F43', element: 'fogo', fx: 'solar' },
   },
   {
     id: 'core-pulsar',
     slot: 'core',
     name: 'Núcleo Pulsar',
-    rarity: 'raro',
+    rarity: 'epico',
     description: 'Pulsa em intervalos exatos, como a repetição espaçada.',
     howToGet: 'Alcance o nível 45.',
-    visual: { color: '#7FF3FF', color2: '#9B87FF' },
+    visual: { color: '#7FF3FF', color2: '#9B87FF', element: 'tempestade', fx: 'pulsar' },
   },
   // ——— Auras ———
   {
@@ -171,7 +193,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'comum',
     description: 'Uma chama baixa e persistente.',
     howToGet: 'Alcance o nível 6.',
-    visual: { color: '#FF6A55', color2: '#F2B54A' },
+    visual: { color: '#FF6A55', color2: '#F2B54A', element: 'fogo', fx: 'brasa' },
   },
   {
     id: 'aura-mare',
@@ -180,7 +202,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'incomum',
     description: 'Vai e volta, como as revisões que fixam o que você aprendeu.',
     howToGet: 'Alcance o nível 14.',
-    visual: { color: '#38D6B0', color2: '#3D7BFF' },
+    visual: { color: '#38D6B0', color2: '#3D7BFF', element: 'mare', fx: 'mare' },
   },
   {
     id: 'aura-aurora',
@@ -189,16 +211,16 @@ export const ITEMS: ItemDef[] = [
     rarity: 'raro',
     description: 'Cortinas de luz que só aparecem para quem vai longe.',
     howToGet: 'Alcance o nível 20.',
-    visual: { color: '#38D6B0', color2: '#9B87FF' },
+    visual: { color: '#38D6B0', color2: '#9B87FF', element: 'tempestade', fx: 'boreal' },
   },
   {
     id: 'aura-nebulosa',
     slot: 'aura',
     name: 'Aura Nebulosa',
-    rarity: 'raro',
+    rarity: 'epico',
     description: 'Poeira de estrelas em formação.',
     howToGet: 'Alcance o nível 35.',
-    visual: { color: '#FF8FD1', color2: '#9B87FF' },
+    visual: { color: '#FF8FD1', color2: '#9B87FF', element: 'astral', fx: 'nebulosa' },
   },
   {
     id: 'aura-aurea',
@@ -207,7 +229,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'lendario',
     description: 'Concedida a quem derrota o Golem sem errar e sem dicas. Perfeição medida em φ.',
     howToGet: 'Derrote o Golem Proporcional sem erros e sem usar dicas.',
-    visual: { color: '#FFD36B', color2: '#FFF3C4' },
+    visual: { color: '#FFD36B', color2: '#FFF3C4', element: 'aureo', fx: 'aurea' },
   },
   {
     id: 'aura-zenite',
@@ -216,7 +238,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'lendario',
     description: 'O ponto mais alto do céu. Não há mapa acima deste.',
     howToGet: 'Alcance o nível 50.',
-    visual: { color: '#FFFFFF', color2: '#F2B54A' },
+    visual: { color: '#FFFFFF', color2: '#F2B54A', element: 'aureo', fx: 'zenite' },
   },
   // ——— Títulos ———
   {
@@ -290,7 +312,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'lendario',
     description: 'O coração do cofre do Mercador, entregue a quem não pagou um centavo de juros.',
     howToGet: 'Derrote o Mercador Composto sem erros e sem usar dicas.',
-    visual: { color: '#FFD36B', color2: '#FF9F43' },
+    visual: { color: '#FFD36B', color2: '#FF9F43', element: 'aureo', fx: 'tesouro' },
   },
   // ——— Encomendas ———
   {
@@ -330,7 +352,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'comum',
     description: 'Vermelho intenso, como a primeira resposta certa depois de um erro.',
     howToGet: 'Oficina: 60 de Tinta.',
-    visual: { color: '#FF5C7A', color2: '#B3243F' },
+    visual: { color: '#FF5C7A', color2: '#B3243F', element: 'fogo', fx: 'rubi' },
     price: 60,
   },
   {
@@ -340,7 +362,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'incomum',
     description: 'Azul profundo, calmo como uma prova bem preparada.',
     howToGet: 'Oficina: 140 de Tinta.',
-    visual: { color: '#5C8DFF', color2: '#2A3F9E' },
+    visual: { color: '#5C8DFF', color2: '#2A3F9E', element: 'lunar', fx: 'safira' },
     price: 140,
   },
   {
@@ -350,7 +372,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'comum',
     description: 'Um pouco da Névoa, agora a seu serviço.',
     howToGet: 'Oficina: 80 de Tinta.',
-    visual: { color: '#9AA3C7', color2: '#DCE3FF' },
+    visual: { color: '#9AA3C7', color2: '#DCE3FF', element: 'lunar', fx: 'nevoa' },
     price: 80,
   },
   {
@@ -360,7 +382,7 @@ export const ITEMS: ItemDef[] = [
     rarity: 'incomum',
     description: 'Um halo frio e prateado para as sessões noturnas.',
     howToGet: 'Oficina: 180 de Tinta.',
-    visual: { color: '#DCE3FF', color2: '#7FB6FF' },
+    visual: { color: '#DCE3FF', color2: '#7FB6FF', element: 'lunar', fx: 'lunar' },
     price: 180,
   },
   {

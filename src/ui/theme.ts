@@ -35,9 +35,12 @@ export const colors = {
 export const rarityColor = {
   comum: colors.mist,
   incomum: colors.verdigris,
-  raro: colors.iris,
+  raro: '#6FA8FF',
+  epico: colors.iris,
   lendario: colors.brass,
 } as const;
+/** Forma Mítica (núcleo + aura lendários): não é um item, é a combinação. */
+export const MYTHIC_COLOR = '#FF7AB8';
 
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32, huge: 44 } as const;
 export const radius = { sm: 10, md: 14, lg: 20, xl: 28, pill: 999 } as const;

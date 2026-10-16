@@ -83,7 +83,7 @@ export default function Hero() {
     <Screen bottomInset={TAB_BAR_SPACE}>
       <Text variant="title">Herói</Text>
       <View style={styles.hero}>
-        <Astrolabe level={progress.level} equipped={profile.equipped} size={250} animate={!reduce} />
+        <Astrolabe level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} />
         <Text variant="heading" align="center">
           {profile.name || 'Cartógrafo sem nome'}
         </Text>
