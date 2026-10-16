@@ -124,5 +124,6 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [x] **Progresso preservado em atualizações**: mesmo pacote, `versionCode` crescente e mesma chave de assinatura (`credentials/`, também usada pela EAS); migrações testadas contra bancos SQLite reais gravados pela v0.1.0
 - [x] APK v0.2.0 conferido com `apksigner`/`aapt2`: mesmo pacote, `versionCode` 2 > 1 e certificado idêntico ao da v0.1.0 (instala por cima)
 - [x] Primeira atualização publicada no canal `preview` (runtime 0.2.0); manifesto e bundle conferidos como o app os baixa
+- [x] Atualização da expansão (missões rejogáveis + efeitos do herói) publicada no canal `preview` (runtime 0.2.0, sem mudança nativa); manifesto, hash do bundle e textos novos conferidos
 - [x] Ícone do app (espada, livro e símbolos), splash e ícone monocromático do Android 13 gerados a partir da arte oficial (APK v0.2.0, versionCode 3)
 - [ ] Chave de assinatura própria para publicação na Play Store
