@@ -59,12 +59,13 @@ describe('banco de questões', () => {
     }
   });
 
-  it('cada missão tem questões suficientes, e o chefão tem pool amplo', () => {
+  it('cada missão tem pelo menos 20 questões extras além das de uma tentativa, e o chefão tem pool amplo', () => {
     for (const region of REGIONS) {
       for (const node of region.nodes) {
         if (node.kind === 'mission') {
           const pool = questionsFor({ topics: node.topics, subtopics: node.subtopics });
-          expect(pool.length).toBeGreaterThanOrEqual(node.questionCount + 2);
+          expect(pool.length).toBeGreaterThanOrEqual(node.questionCount + 20);
+          expect(node.difficulty).toHaveLength(node.questionCount);
         }
       }
     }

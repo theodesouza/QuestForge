@@ -51,16 +51,23 @@ export function planMissionRun(input: MissionPlanInput): Question[] {
   const rng = createRng(input.seed);
   // Ordem aleatória como último critério de desempate (muda a cada tentativa).
   const tiebreak = new Map(shuffle(pool, rng).map((q, i) => [q.id, i]));
-  // Vagas mais raras (dificuldades extremas) escolhem primeiro, para não ficarem sem questão.
   const slots = input.profile.map((d, i) => ({ d, i }));
-  const supply = (d: Difficulty) => pool.filter((q) => Math.abs(q.difficulty - d) <= 1).length;
-  const fillOrder = shuffle(slots, rng).sort((a, b) => supply(a.d) - supply(b.d));
-
   const picked = new Map<number, Question>();
   const used = new Set<string>();
   const perSubtopic = new Map<string, number>();
+  const inBand = (q: Question, d: Difficulty) => Math.abs(q.difficulty - d) <= 1;
+  // A cada passo, escolhe primeiro a vaga com MENOS inéditas compatíveis: assim as
+  // inéditas raras (ex.: só nível 4 sobrando) vão para a vaga que pode usá-las, e
+  // nenhuma vaga repete questão enquanto ainda houver inédita que caiba nela.
+  const openSlots = shuffle(slots, rng);
+  const freshOptions = (d: Difficulty) => pool.filter((q) => !used.has(q.id) && isUnseen(states[q.id]) && inBand(q, d)).length;
 
-  for (const slot of fillOrder) {
+  while (openSlots.length) {
+    let k = 0;
+    for (let j = 1; j < openSlots.length; j++) {
+      if (freshOptions(openSlots[j].d) < freshOptions(openSlots[k].d)) k = j;
+    }
+    const slot = openSlots.splice(k, 1)[0];
     let best: { q: Question; key: number[] } | null = null;
     for (const q of pool) {
       if (used.has(q.id)) continue;

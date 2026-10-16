@@ -1,5 +1,5 @@
 import { getQuestion } from '../../content/bank';
-import { findNode, type MissionNode } from '../../content/regions';
+import { REGIONS, findNode, type MissionNode } from '../../content/regions';
 import { ALT_KEYS, type AltKey, type Difficulty, type Question } from '../../content/types';
 import { missionScore, missionStars, STAR_REWARDS } from '../campaign/score';
 import {
@@ -262,5 +262,39 @@ describe('missões repetidas no jogo', () => {
     expect(sessionBonus(5, 0, 5)).toEqual({ xp: 40, perfect: true });
     expect(sessionBonus(5, 0, 2)).toEqual({ xp: 0, perfect: false });
     expect(sessionBonus(3, 0, 3)).toEqual({ xp: 20, perfect: false });
+  });
+});
+
+describe('missões reais: rejogabilidade com o banco de questões', () => {
+  const missions = REGIONS.flatMap((r) => r.nodes).filter((n): n is MissionNode => n.kind === 'mission');
+
+  it.each(missions.map((m) => [m.id, m]))('%s: ao menos 5 tentativas sem repetir; repetição só quando não sobra inédita compatível', (_id, n) => {
+    const node = n as MissionNode;
+    const pool = missionPool(node);
+    let states: Record<string, QuestionState> = {};
+    let freshRuns = 0;
+    let stillFresh = true;
+    for (let run = 0; run < 12 && unseenCount(pool, states) > 0; run++) {
+      const now = T0 + run * 60_000;
+      const picked = planMissionRun({ pool, states, profile: node.difficulty, now, seed: 500 + run });
+      expect(picked).toHaveLength(node.questionCount);
+      const ids = new Set(picked.map((q) => q.id));
+      let repeated = false;
+      picked.forEach((q, i) => {
+        const d = node.difficulty[i];
+        expect(Math.abs(q.difficulty - d)).toBeLessThanOrEqual(1);
+        if (states[q.id]?.seen) {
+          repeated = true;
+          // Repetiu: não podia haver inédita compatível com esta vaga sobrando fora da tentativa.
+          const spare = pool.filter((c) => !ids.has(c.id) && !states[c.id]?.seen && Math.abs(c.difficulty - d) <= 1);
+          expect(spare.map((c) => c.id)).toEqual([]);
+        }
+      });
+      if (repeated) stillFresh = false;
+      if (stillFresh) freshRuns++;
+      states = markSeen(states, picked.map((q) => q.id), now);
+    }
+    // 5 questões por tentativa + 20 extras ⇒ pelo menos 5 tentativas totalmente inéditas.
+    expect(freshRuns).toBeGreaterThanOrEqual(5);
   });
 });
