@@ -32,7 +32,7 @@ export const FUNCOES = batch([
     stem: [
       {
         kind: 'p',
-        text: 'Na mesma cidade, o táxi cobra R$ 5,00 de bandeirada mais R$ 2,50 por quilômetro rodado. Um passageiro pagou R$ 45,00 por uma corrida.',
+        text: 'Em uma cidade, o táxi cobra R$ 5,00 de bandeirada (valor fixo) mais R$ 2,50 por quilômetro rodado. Um passageiro pagou R$ 45,00 por uma corrida.',
       },
     ],
     ask: 'Quantos quilômetros ele percorreu?',
@@ -54,7 +54,7 @@ export const FUNCOES = batch([
     stem: [
       {
         kind: 'p',
-        text: 'O lucro mensal de uma pequena fábrica de bonés, em milhares de reais, é dado por L(x) = −x² + 40x − 300, em que x é a quantidade de bonés produzidos, em centenas.',
+        text: 'O lucro mensal de uma pequena fábrica de bonés, em milhares de reais, é dado pela função abaixo, em que x é a quantidade de bonés produzidos, em centenas.',
       },
       { kind: 'math', lines: ['L(x) = −x² + 40x − 300'] },
     ],
@@ -86,9 +86,9 @@ export const FUNCOES = batch([
     ask: 'Quantos segundos após o chute a bola volta ao chão?',
     alternatives: alts('4 s', '5 s', '10 s', '2 s', '20 s'),
     answer: 'A',
-    hints: ['A bola está no chão quando h(t) = 0.', 'Fatore: −5t² + 20t = −5t(t − 4).'],
+    hints: ['A bola está no chão quando h(t) = 0.', 'Coloque t em evidência: t(−5t + 20) = 0. Uma raiz é t = 0 (o instante do chute); encontre a outra.'],
     solution: ['−5t² + 20t = 0 ⇒ −5t(t − 4) = 0.', 't = 0 (instante do chute) ou t = 4.', 'A bola volta ao chão após 4 segundos. (Em t = 2 s ela atinge a altura máxima.)'],
-    concept: 'As raízes de uma função quadrática são os pontos em que o gráfico toca o eixo x — aqui, os instantes em que a altura é zero.',
+    concept: 'As raízes de uma função quadrática são os valores da variável que a anulam; no gráfico, correspondem aos pontos em que a parábola encontra o eixo horizontal — aqui, os instantes t em que a altura é zero.',
     estimatedSeconds: 60,
     source: AUTORAL,
     verify: () => 20 / 5,
@@ -97,7 +97,7 @@ export const FUNCOES = batch([
     id: 'FUN-005',
     topic: 'funcoes',
     subtopic: 'funcao-exponencial',
-    difficulty: 3,
+    difficulty: 2,
     skills: ['H19', 'H21'],
     stem: [
       {
@@ -119,7 +119,7 @@ export const FUNCOES = batch([
     id: 'FUN-006',
     topic: 'funcoes',
     subtopic: 'funcao-exponencial',
-    difficulty: 4,
+    difficulty: 3,
     skills: ['H21', 'H23'],
     stem: [
       {
@@ -127,7 +127,7 @@ export const FUNCOES = batch([
         text: 'Um medicamento tem meia-vida de 6 horas no organismo: a cada 6 horas, a quantidade dele no sangue cai pela metade. Um paciente recebeu uma dose de 800 mg, e o médico orientou que uma nova dose só pode ser tomada quando restarem 50 mg no organismo.',
       },
     ],
-    ask: 'Após quanto tempo da primeira dose o paciente poderá tomar a nova dose?',
+    ask: 'Quanto tempo após a primeira dose o paciente poderá tomar a nova dose?',
     alternatives: alts('12 h', '24 h', '30 h', '48 h', '18 h'),
     answer: 'B',
     hints: ['Divida 800 por 2 repetidas vezes até chegar a 50.', 'Conte quantas meias-vidas foram necessárias e multiplique por 6 h.'],

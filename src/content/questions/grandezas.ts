@@ -52,7 +52,7 @@ export const GRANDEZAS = batch([
     answer: 'D',
     hints: ['Calcule a área de 1 hectare: 100 m × 100 m.', '1 ha = 10.000 m². Multiplique por 2,4.'],
     solution: ['1 ha = 100 × 100 = 10.000 m².', '2,4 ha = 2,4 × 10.000 = 24.000 m².'],
-    concept: 'Unidades de área: 1 ha = 10.000 m² e 1 km² = 100 ha. Cada unidade de comprimento ao quadrado multiplica o fator de conversão por ele mesmo.',
+    concept: 'Unidades de área: 1 ha = 10.000 m² e 1 km² = 100 ha. Ao converter área, eleve ao quadrado o fator de comprimento: como 1 hm = 100 m, 1 hm² (= 1 ha) = 100² m² = 10.000 m².',
     estimatedSeconds: 45,
     source: AUTORAL,
     verify: () => 2.4 * 100 * 100,

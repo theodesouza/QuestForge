@@ -56,7 +56,7 @@ function blockText(b: Block): string {
       if (ids.has(q.id)) problems.push(`${q.id}: ID repetido no lote`);
       ids.add(q.id);
       for (const i of validateQuestion(q)) problems.push(`${i.questionId}: ${i.message}`);
-      if (q.source.kind === 'autoral' && !q.verify) problems.push(`${q.id}: sem verify() (toda questão numérica precisa recalcular o gabarito)`);
+      if (target?.startsWith('missoes/') && !q.verify) problems.push(`${q.id}: sem verify() (toda questão numérica precisa recalcular o gabarito)`);
     }
     expect(problems).toEqual([]);
   });

@@ -40,19 +40,19 @@ export const RAZAO_PROPORCAO = batch([
     stem: [
       {
         kind: 'p',
-        text: 'Em um mapa rodoviário com escala 1 : 500 000, a distância em linha reta entre duas cidades é de 6 cm.',
+        text: 'Em um mapa rodoviário com escala 1 : 500.000, a distância em linha reta entre duas cidades é de 6 cm.',
       },
     ],
     ask: 'A distância real, em linha reta, entre as duas cidades é de',
     alternatives: alts('3 km', '30 km', '300 km', '0,3 km', '3.000 km'),
     answer: 'B',
     hints: [
-      'A escala 1 : 500 000 significa que 1 cm no mapa corresponde a 500 000 cm na realidade.',
-      'Multiplique 6 por 500 000 e depois converta centímetros em quilômetros (1 km = 100 000 cm).',
+      'A escala 1 : 500.000 significa que 1 cm no mapa corresponde a 500.000 cm na realidade.',
+      'Multiplique 6 por 500.000 e depois converta centímetros em quilômetros (1 km = 100.000 cm).',
     ],
     solution: [
-      'Distância real = 6 × 500 000 = 3 000 000 cm.',
-      'Como 1 km = 100 000 cm, temos 3 000 000 ÷ 100 000 = 30 km.',
+      'Distância real = 6 × 500.000 = 3.000.000 cm.',
+      'Como 1 km = 100.000 cm, temos 3.000.000 ÷ 100.000 = 30 km.',
     ],
     concept:
       'Escala é a razão entre a medida no desenho e a medida real, na mesma unidade. Depois de aplicar a escala, converta a unidade com cuidado.',
@@ -201,7 +201,7 @@ export const RAZAO_PROPORCAO = batch([
     solution: [
       'Lados reais: 5 cm × 100 = 500 cm = 5 m e 4 cm × 100 = 400 cm = 4 m.',
       'Área real: 5 m × 4 m = 20 m².',
-      'Atenção: a razão entre áreas é o quadrado da escala (1 : 10 000), e não 1 : 100.',
+      'Atenção: a razão entre áreas é o quadrado da escala (1 : 10.000), e não 1 : 100.',
     ],
     concept:
       'A escala vale para comprimentos. Áreas são multiplicadas pelo quadrado do fator de escala — por isso é mais seguro converter os lados antes de calcular a área.',
@@ -224,21 +224,21 @@ export const RAZAO_PROPORCAO = batch([
         kind: 'table',
         header: ['Cidade', 'Habitantes', 'Área (km²)'],
         rows: [
-          ['A', '360.000', '120'],
-          ['B', '250.000', '50'],
+          ['X', '360.000', '120'],
+          ['Y', '250.000', '50'],
         ],
       },
     ],
-    ask: 'Em quantos habitantes por km² a densidade demográfica de B supera a de A?',
+    ask: 'Em quantos habitantes por km² a densidade demográfica da cidade Y supera a da cidade X?',
     alternatives: alts('1.000', '2.500', '3.000', '5.000', '2.000'),
     answer: 'E',
     hints: [
       'Calcule a densidade de cada cidade separadamente: habitantes ÷ área.',
-      'Depois, subtraia a densidade de A da densidade de B.',
+      'Depois, subtraia a densidade de X da densidade de Y.',
     ],
     solution: [
-      'Densidade de A: 360.000 ÷ 120 = 3.000 hab/km².',
-      'Densidade de B: 250.000 ÷ 50 = 5.000 hab/km².',
+      'Densidade de X: 360.000 ÷ 120 = 3.000 hab/km².',
+      'Densidade de Y: 250.000 ÷ 50 = 5.000 hab/km².',
       'Diferença: 5.000 − 3.000 = 2.000 hab/km².',
     ],
     concept:
@@ -395,7 +395,7 @@ export const RAZAO_PROPORCAO = batch([
     id: 'RZP-014',
     topic: 'razao-proporcao',
     subtopic: 'escala',
-    difficulty: 3,
+    difficulty: 2,
     skills: ['H11'],
     stem: [
       {
@@ -553,7 +553,7 @@ export const RAZAO_PROPORCAO = batch([
     ask: 'Qual será a altura da maquete?',
     alternatives: alts('36 cm', '9 cm', '18 cm', '90 cm', '360 cm'),
     answer: 'A',
-    hints: ['Na escala 1 : 50, a maquete é 50 vezes menor que o prédio.', 'Converta 18 m para centímetros antes de dividir.'],
+    hints: ['Na escala 1 : 50, cada comprimento da maquete é 1/50 do comprimento correspondente no prédio.', 'Converta 18 m para centímetros antes de dividir.'],
     solution: ['18 m = 1.800 cm.', 'Altura da maquete: 1.800 ÷ 50 = 36 cm.'],
     concept: 'Para obter a medida reduzida, divida a medida real pelo denominador da escala, na mesma unidade.',
     estimatedSeconds: 45,

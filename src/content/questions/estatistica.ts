@@ -58,7 +58,7 @@ export const ESTATISTICA = batch([
       },
     ],
     ask: 'Qual nota mínima ele precisa tirar na terceira avaliação para ter média final 7,5?',
-    alternatives: alts('7,8', '7,5', '8,0', '8,4', '7,0'),
+    alternatives: alts('7,8', '7,5', '8,0', '8,5', '7,0'),
     answer: 'A',
     hints: ['Média ponderada = (soma de nota × peso) ÷ (soma dos pesos).', 'Monte a equação (2 × 6 + 3 × 8 + 5x) ÷ 10 = 7,5.'],
     solution: ['(12 + 24 + 5x) ÷ 10 = 7,5.', '36 + 5x = 75 ⇒ 5x = 39 ⇒ x = 7,8.'],
@@ -76,11 +76,11 @@ export const ESTATISTICA = batch([
     stem: [
       {
         kind: 'p',
-        text: 'A média das notas dos 20 estudantes de uma turma em uma prova foi 6,5. Depois, descobriu-se que a prova de um estudante, que tirou 2,0, pertencia a outra turma, e ela foi retirada do cálculo.',
+        text: 'O professor de uma turma corrigiu 20 provas, e a média das notas foi 6,5. Depois, descobriu-se que uma dessas provas, com nota 2,0, era de um estudante de outra turma, e ela foi retirada do cálculo.',
       },
     ],
     ask: 'A nova média da turma, aproximadamente, é',
-    alternatives: alts('6,74', '6,50', '6,80', '6,25', '7,00'),
+    alternatives: alts('6,74', '6,50', '6,84', '6,40', '7,00'),
     answer: 'A',
     hints: ['Use a média para recuperar a SOMA das notas: soma = média × quantidade.', 'Retire a nota 2,0 da soma e divida pelos 19 estudantes restantes.'],
     solution: ['Soma original: 6,5 × 20 = 130.', 'Nova soma: 130 − 2 = 128.', 'Nova média: 128 ÷ 19 ≈ 6,74.'],

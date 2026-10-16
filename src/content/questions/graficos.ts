@@ -95,7 +95,7 @@ export const GRAFICOS = batch([
     id: 'GRF-004',
     topic: 'graficos',
     subtopic: 'leitura-graficos',
-    difficulty: 3,
+    difficulty: 2,
     skills: ['H24', 'H26'],
     stem: [
       { kind: 'p', text: 'O gráfico mostra a população de um município, em milhares de habitantes, em diferentes anos.' },
@@ -139,7 +139,7 @@ export const GRAFICOS = batch([
         ],
       },
     ],
-    ask: 'A partir de qual consumo mensal os dois planos passam a custar o mesmo?',
+    ask: 'Para qual consumo mensal os dois planos custam o mesmo valor?',
     alternatives: alts('20 GB', '25 GB', '35 GB', '40 GB', '30 GB'),
     answer: 'E',
     hints: ['O Plano B custa 40 + 2 × (consumo − 10) quando o consumo passa de 10 GB.', 'Iguale ao Plano A: 40 + 2(x − 10) = 80.'],

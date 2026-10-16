@@ -48,13 +48,13 @@ export const FIN_CUSTO_BENEFICIO = batch([
         kind: 'table',
         header: ['Mercado', 'Preço do pacote', 'Promoção'],
         rows: [
-          ['A', 'R$ 21,00', 'Leve 3, pague 2'],
-          ['B', 'R$ 19,00', '25% de desconto em cada pacote'],
+          ['Ipê', 'R$ 21,00', 'Leve 3, pague 2'],
+          ['Jatobá', 'R$ 19,00', '25% de desconto em cada pacote'],
         ],
       },
       {
         kind: 'p',
-        text: 'No Mercado A, a promoção vale para cada grupo de 3 pacotes levados. Kenji vai comprar todos os pacotes em um único mercado: aquele em que o gasto total for menor.',
+        text: 'No Mercado Ipê, a promoção vale para cada grupo de 3 pacotes levados. Kenji vai comprar todos os pacotes em um único mercado: aquele em que o gasto total for menor.',
       },
     ],
     ask: 'Quanto Kenji gastará na compra dos 6 pacotes?',
@@ -62,14 +62,14 @@ export const FIN_CUSTO_BENEFICIO = batch([
     answer: 'D',
     hints: [
       'Na promoção "leve 3, pague 2", a cada grupo de 3 pacotes levados, um deles sai de graça.',
-      'Descubra quantos pacotes Kenji realmente paga no Mercado A ao levar 6 e calcule o preço de um pacote com 25% de desconto no Mercado B.',
+      'Descubra quantos pacotes Kenji realmente paga no Mercado Ipê ao levar 6 e calcule o preço de um pacote com 25% de desconto no Mercado Jatobá.',
     ],
     solution: [
-      'Mercado A: 6 pacotes formam 2 grupos de 3; em cada grupo pagam-se 2 pacotes, logo Kenji paga 2 × 2 = 4 pacotes.',
-      'Gasto no Mercado A: 4 × 21,00 = R$ 84,00.',
-      'Mercado B: cada pacote sai por 19,00 × 0,75 = R$ 14,25.',
-      'Gasto no Mercado B: 6 × 14,25 = R$ 85,50.',
-      'O menor gasto é o do Mercado A: R$ 84,00.',
+      'Mercado Ipê: 6 pacotes formam 2 grupos de 3; em cada grupo pagam-se 2 pacotes, logo Kenji paga 2 × 2 = 4 pacotes.',
+      'Gasto no Mercado Ipê: 4 × 21,00 = R$ 84,00.',
+      'Mercado Jatobá: cada pacote sai por 19,00 × 0,75 = R$ 14,25.',
+      'Gasto no Mercado Jatobá: 6 × 14,25 = R$ 85,50.',
+      'O menor gasto é o do Mercado Ipê: R$ 84,00.',
       'Observação: "leve 3, pague 2" equivale a um desconto de 1/3 ≈ 33,3%, mas só quando a quantidade comprada é múltipla de 3.',
     ],
     concept:
