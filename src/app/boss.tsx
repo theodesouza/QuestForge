@@ -29,6 +29,7 @@ import { useAttempt } from '../features/question/useAttempt';
 import { battleAnswer, beginBattle, dismissBattle, retreat } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
+import { calm } from '../ui/calm';
 import { haptic, useReduceMotion } from '../ui/feedback';
 import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
@@ -162,7 +163,7 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
         </Text>
         <View style={styles.hpRow}>
           {hit && hit.damage > 0 ? (
-            <Animated.View key={hit.id} entering={reduce ? FadeIn : FadeInDown.springify()} accessibilityLiveRegion="polite">
+            <Animated.View key={hit.id} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
               <Text variant="number" color={hit.technique ? colors.brass : colors.parchment}>
                 −{hit.damage}
                 {hit.technique ? ` · ${boss.technique.name}!` : ''}
@@ -170,7 +171,7 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
             </Animated.View>
           ) : null}
           {hit && hit.healed > 0 ? (
-            <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : FadeInDown.springify()} accessibilityLiveRegion="polite">
+            <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
               <Text variant="number" color={colors.ember}>
                 +{hit.healed} juros
               </Text>

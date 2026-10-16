@@ -77,8 +77,8 @@ export const motion = {
   fast: 160,
   base: 260,
   slow: 420,
-  spring: { damping: 16, stiffness: 180, mass: 0.9 },
-  springSoft: { damping: 20, stiffness: 120, mass: 1 },
+  /** Toque nos botões: afunda e volta rápido, sem mola. */
+  press: 110,
 } as const;
 
 export const hitSlop = { top: 10, bottom: 10, left: 10, right: 10 } as const;

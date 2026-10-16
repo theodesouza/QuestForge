@@ -85,15 +85,16 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
   useEffect(() => {
     if (!bursting) return;
     burst.set(0);
-    burst.set(withTiming(1, { duration: 950, easing: Easing.out(Easing.cubic) }));
-    const t = setTimeout(() => setBursting(false), 1000);
+    burst.set(withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.quad) }));
+    const t = setTimeout(() => setBursting(false), 1250);
     return () => clearTimeout(t);
   }, [bursting, equipKey, burst]);
   const burstRing = useAnimatedStyle(() => ({
-    opacity: burst.value > 0 && burst.value < 1 ? (1 - burst.value) * 0.9 : 0,
-    transform: [{ scale: 0.25 + burst.value * 1.05 }],
+    opacity: burst.value > 0 && burst.value < 1 ? Math.sin(Math.PI * burst.value) * 0.55 : 0,
+    transform: [{ scale: 0.7 + burst.value * 0.45 }],
   }));
-  const corePop = useAnimatedStyle(() => ({ transform: [{ scale: CORE_SCALE * (1 + 0.28 * Math.sin(Math.PI * burst.value)) }] }));
+  // Brilho suave ao trocar de equipamento: o núcleo cresce um pouco e volta, sem mola.
+  const corePop = useAnimatedStyle(() => ({ transform: [{ scale: CORE_SCALE * (1 + 0.1 * Math.sin(Math.PI * burst.value)) }] }));
 
   // Forma Mítica: o astrolábio levita.
   const bob = useSharedValue(0);

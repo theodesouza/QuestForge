@@ -6,7 +6,8 @@
 import { usePathname } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Platform, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInUp, FadeOut, FadeOutUp } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, FadeOutUp } from 'react-native-reanimated';
+import { calm } from '../../ui/calm';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { dismissToast } from '../../state/actions';
 import { useGameStore } from '../../state/store';
@@ -69,7 +70,7 @@ export function ToastHost() {
     <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + space.sm }]}>
       <Animated.View
         key={toast.id}
-        entering={reduce ? FadeIn : FadeInUp.springify().damping(18)}
+        entering={reduce ? FadeIn : calm.toast()}
         exiting={reduce ? FadeOut : FadeOutUp.duration(200)}
       >
         <Pressable

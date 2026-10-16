@@ -1,6 +1,7 @@
 /** Estrelas de desempenho de uma missão (0–3). */
 import { StyleSheet, View } from 'react-native';
-import Animated, { ZoomIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { calm } from './calm';
 import { useReduceMotion } from './feedback';
 import { Icon } from './Icon';
 import { colors } from './theme';
@@ -15,7 +16,7 @@ export function Stars({ value, size = 16, animated = false, delay = 0 }: { value
           <Icon name="star" size={size} color={on ? colors.brass : colors.ink500} fill={on ? colors.brass : 'none'} strokeWidth={on ? 1 : 1.6} />
         );
         return animated && on && !reduce ? (
-          <Animated.View key={n} entering={ZoomIn.delay(delay + 160 * n).springify().damping(11)}>
+          <Animated.View key={n} entering={calm.appear(delay + 160 * n, 360)}>
             {star}
           </Animated.View>
         ) : (

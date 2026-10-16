@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { EASE_OUT } from './calm';
 import { haptic } from './feedback';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
@@ -57,10 +58,10 @@ export function Button({
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
       onPressIn={() => {
-        scale.set(withSpring(0.97, motion.spring));
+        scale.set(withTiming(0.97, { duration: motion.press, easing: EASE_OUT }));
       }}
       onPressOut={() => {
-        scale.set(withSpring(1, motion.spring));
+        scale.set(withTiming(1, { duration: motion.press * 1.6, easing: EASE_OUT }));
       }}
       onPress={() => {
         haptic('select');

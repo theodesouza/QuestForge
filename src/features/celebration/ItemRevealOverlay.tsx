@@ -14,7 +14,8 @@
 import { usePathname } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, Modal, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
+import { calm } from '../../ui/calm';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Circle, Polygon } from 'react-native-svg';
 import { RARITY_LABEL, RARITY_TIER, SLOT_LABEL, getItem } from '../../content/items';
@@ -148,7 +149,7 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
           </FxProvider>
 
           {phase === 'shown' ? (
-            <Animated.View entering={reduce ? FadeIn : ZoomIn.springify().damping(12 + (4 - tier))} style={StyleSheet.absoluteFill}>
+            <Animated.View entering={reduce ? FadeIn : calm.appear(0, 480 + tier * 60)} style={StyleSheet.absoluteFill}>
               <View style={styles.center}>
                 {preview ? (
                   <Astrolabe level={level} equipped={preview} size={stage * 0.82} animate={!reduce} />

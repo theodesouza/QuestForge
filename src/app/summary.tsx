@@ -5,7 +5,7 @@
 import { Redirect, router } from 'expo-router';
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { QUESTIONS, getQuestion } from '../content/bank';
 import { findNode } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
@@ -17,6 +17,7 @@ import { useStarter } from '../features/useStarter';
 import { startExpedition, startFocus, startMission } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
+import { calm } from '../ui/calm';
 import { useReduceMotion } from '../ui/feedback';
 import { Icon, type IconName } from '../ui/Icon';
 import { Panel } from '../ui/Panel';
@@ -125,7 +126,7 @@ export default function Summary() {
         </>
       }
     >
-      <Animated.View entering={reduce ? undefined : ZoomIn.duration(360)} style={styles.head}>
+      <Animated.View entering={reduce ? undefined : calm.appear(0, 360)} style={styles.head}>
         <View style={[styles.seal, { borderColor: summary.missionPassed === false ? colors.mist : colors.brass }]}>
           <Icon name={summary.missionPassed === false ? 'flag' : 'sparkle'} size={34} color={summary.missionPassed === false ? colors.mist : colors.brass} fill={summary.missionPassed === false ? 'none' : colors.brassGlow} />
         </View>

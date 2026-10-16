@@ -4,7 +4,8 @@
  */
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { calm } from '../../ui/calm';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getItem, RARITY_LABEL, SLOT_LABEL } from '../../content/items';
 import { rankFor } from '../../domain/progression/levels';
@@ -46,7 +47,7 @@ export function LevelUpOverlay() {
     >
       <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Fechar celebração" />
       <View style={[styles.content, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.xl }]} pointerEvents="box-none">
-        <Animated.View entering={reduce ? undefined : ZoomIn.springify().damping(14)}>
+        <Animated.View entering={reduce ? undefined : calm.appear(0, 480)}>
           <Astrolabe level={celebration.to} equipped={equipped} size={264} animate={!reduce} />
         </Animated.View>
         <View style={styles.center} accessible accessibilityRole="header">

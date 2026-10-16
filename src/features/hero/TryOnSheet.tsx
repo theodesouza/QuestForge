@@ -6,13 +6,14 @@
  */
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ELEMENT_LABEL, RARITY_LABEL, SLOT_LABEL, getItem } from '../../content/items';
 import type { Equipped } from '../../domain/game/types';
 import { equip } from '../../state/actions';
 import { Astrolabe } from '../../ui/Astrolabe';
 import { Button } from '../../ui/Button';
+import { calm } from '../../ui/calm';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
@@ -63,7 +64,7 @@ function Sheet({ itemId, owned, level, equipped, onClose }: Omit<Props, 'itemId'
     <View style={styles.backdrop}>
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Fechar prévia" />
       <Animated.View
-        entering={reduce ? FadeIn : SlideInDown.springify().damping(18)}
+        entering={reduce ? FadeIn : calm.sheet()}
         style={[styles.sheet, { paddingBottom: insets.bottom + space.lg }]}
         accessibilityViewIsModal
       >
