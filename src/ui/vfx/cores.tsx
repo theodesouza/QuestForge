@@ -8,9 +8,9 @@
  *   lendário → + runas, objetos flutuantes, clarão de ativação periódico
  */
 import { useId, type ReactNode } from 'react';
-import { Circle, Defs, Ellipse, G, Line, Path, Polygon, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
+import { Circle, Defs, Ellipse, G, Line, Path, Polygon, Polyline, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
 import type { ItemVisual } from '../../content/items';
-import { Breathe, C, Glimmer, Layer, Particles, Spin, Wave } from './engine';
+import { Breathe, C, Extra, FxExtent, Glimmer, Layer, Particles, Spin, Wave } from './engine';
 import { lightning, ngon, polar, ray, star } from './geometry';
 import type { CoreFxId } from './rules';
 
@@ -263,9 +263,11 @@ function Solar({ v }: CoreProps) {
       <Wave period={3000} from={16} to={44} drawnAt={30} peak={0.55}>
         <Circle cx={C} cy={C} r={30} stroke={v.color} strokeWidth={1.6} fill="none" />
       </Wave>
-      <Wave period={3000} phase={0.5} from={16} to={44} drawnAt={30} peak={0.4}>
-        <Circle cx={C} cy={C} r={30} stroke={v.color2 ?? v.color} strokeWidth={1.2} fill="none" />
-      </Wave>
+      <Extra>
+        <Wave period={3000} phase={0.5} from={16} to={44} drawnAt={30} peak={0.4}>
+          <Circle cx={C} cy={C} r={30} stroke={v.color2 ?? v.color} strokeWidth={1.2} fill="none" />
+        </Wave>
+      </Extra>
       <Spin period={20000}>
         <G fill={v.color} fillOpacity={0.9}>
           {Array.from({ length: 12 }, (_, i) => (
@@ -273,13 +275,15 @@ function Solar({ v }: CoreProps) {
           ))}
         </G>
       </Spin>
-      <Spin period={30000} reverse opacity={0.7}>
-        <G fill={v.color2 ?? v.color}>
-          {Array.from({ length: 12 }, (_, i) => (
-            <Polygon key={i} points={ray(i * 30 + 15, 16, 27, 4)} />
-          ))}
-        </G>
-      </Spin>
+      <Extra min={0.8}>
+        <Spin period={30000} reverse opacity={0.7}>
+          <G fill={v.color2 ?? v.color}>
+            {Array.from({ length: 12 }, (_, i) => (
+              <Polygon key={i} points={ray(i * 30 + 15, 16, 27, 4)} />
+            ))}
+          </G>
+        </Spin>
+      </Extra>
       <Breathe period={3200} scale={[0.97, 1.04]}>
         <Defs>
           <RadialGradient id={g} cx="45%" cy="42%" r="62%">
@@ -309,16 +313,20 @@ function Pulsar({ v }: CoreProps) {
         <Glow id={h} color={v.color} r={40} opacity={0.55} />
       </Breathe>
       {[0, 0.33, 0.66].map((ph, i) => (
-        <Wave key={i} period={2400} phase={ph} from={9} to={48} drawnAt={30} peak={0.6}>
-          <Circle cx={C} cy={C} r={30} stroke={i === 1 ? c2 : v.color} strokeWidth={1.4} fill="none" />
-        </Wave>
+        <Extra key={i} min={i ? 0.5 : 0}>
+          <Wave period={2400} phase={ph} from={9} to={48} drawnAt={30} peak={0.6}>
+            <Circle cx={C} cy={C} r={30} stroke={i === 1 ? c2 : v.color} strokeWidth={1.4} fill="none" />
+          </Wave>
+        </Extra>
       ))}
-      <Spin period={16000} reverse opacity={0.75}>
-        <G stroke={c2} strokeWidth={0.9} fill="none" strokeDasharray="3 3">
-          <Ellipse cx={C} cy={C} rx={32} ry={12} transform={`rotate(-30 ${C} ${C})`} />
-          <Ellipse cx={C} cy={C} rx={32} ry={12} transform={`rotate(30 ${C} ${C})`} />
-        </G>
-      </Spin>
+      <Extra>
+        <Spin period={16000} reverse opacity={0.75}>
+          <G stroke={c2} strokeWidth={0.9} fill="none" strokeDasharray="3 3">
+            <Ellipse cx={C} cy={C} rx={32} ry={12} transform={`rotate(-30 ${C} ${C})`} />
+            <Ellipse cx={C} cy={C} rx={32} ry={12} transform={`rotate(30 ${C} ${C})`} />
+          </G>
+        </Spin>
+      </Extra>
       <Spin period={3200}>
         <Defs>
           <RadialGradient id={b} cx="50%" cy="50%" r="50%">
@@ -333,16 +341,20 @@ function Pulsar({ v }: CoreProps) {
         <Polygon points={ray(180, 4, 40, 3)} fill="#FFFFFF" fillOpacity={0.8} />
       </Spin>
       {[0, 0.33, 0.66].map((ph, i) => (
-        <Glimmer key={i} period={2700} phase={ph} window={0.3} peak={0.9}>
-          <Polygon points={lightning(40 + i * 120, 11, 30, 5, 9, 17 + i * 7)} stroke="#E8FDFF" strokeWidth={1.1} fill="none" strokeLinejoin="round" />
-        </Glimmer>
+        <Extra key={i} min={i ? 0.5 : 0}>
+          <Glimmer period={2700} phase={ph} window={0.3} peak={0.9}>
+            <Polyline points={lightning(40 + i * 120, 11, 30, 5, 9, 17 + i * 7)} stroke="#E8FDFF" strokeWidth={1.1} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+          </Glimmer>
+        </Extra>
       ))}
       <Layer>
         <Circle cx={C} cy={C} r={8} fill="#FFFFFF" />
         <Circle cx={C} cy={C} r={11} stroke={v.color} strokeWidth={1.6} fill="none" />
       </Layer>
       <Particles mode="orbit" count={2} period={3800} colors={['#FFFFFF']} size={[3.5, 4]} radius={[32, 32]} tilt={0.37} plane={-30} glow seed={2} />
-      <Particles mode="orbit" count={2} period={5200} colors={[c2]} size={[3, 3.5]} radius={[32, 32]} tilt={0.37} plane={30} reverse glow seed={9} />
+      <Extra>
+        <Particles mode="orbit" count={2} period={5200} colors={[c2]} size={[3, 3.5]} radius={[32, 32]} tilt={0.37} plane={30} reverse glow seed={9} />
+      </Extra>
     </>
   );
 }
@@ -396,8 +408,13 @@ function Tesouro({ v }: CoreProps) {
   const c2 = v.color2 ?? v.color;
   return (
     <>
-      <Breathe period={3400} scale={[0.92, 1.08]} opacity={[0.6, 1]}>
+      <Breathe period={3400} scale={[0.93, 1.08]} opacity={[0.6, 1]}>
         <Glow id={h} color={v.color} r={50} opacity={0.55} />
+        <G fill={v.color} fillOpacity={0.85}>
+          {Array.from({ length: 8 }, (_, i) => (
+            <Polygon key={i} points={ray(i * 45 + 22.5, 18, 27, 6)} />
+          ))}
+        </G>
       </Breathe>
       <Wave period={6000} from={14} to={56} drawnAt={40} peak={0.85} hold={0.55}>
         <Circle cx={C} cy={C} r={40} stroke="#FFF3C4" strokeWidth={2.2} fill="none" />
@@ -406,13 +423,6 @@ function Tesouro({ v }: CoreProps) {
       <Spin period={26000} reverse>
         <RuneRing r={34} color="#FFE7A3" size={7} />
       </Spin>
-      <Breathe period={3400} scale={[0.94, 1.08]} opacity={[0.6, 1]}>
-        <G fill={v.color} fillOpacity={0.85}>
-          {Array.from({ length: 8 }, (_, i) => (
-            <Polygon key={i} points={ray(i * 45 + 22.5, 18, 27, 6)} />
-          ))}
-        </G>
-      </Breathe>
       <Spin period={18000}>
         <Defs>
           <GemGradient id={g} c1={v.color} c2={c2} />
@@ -420,32 +430,25 @@ function Tesouro({ v }: CoreProps) {
         <Polygon points={star(12, 19, 14)} fill={`url(#${g})`} stroke="#7A4308" strokeWidth={1} strokeLinejoin="round" />
         <Polygon points={ngon(12, 10)} fill="#FFF3C4" fillOpacity={0.4} stroke="#FFFFFF" strokeOpacity={0.6} strokeWidth={0.7} />
         <Facets n={12} r={14} color="#FFFFFF" opacity={0.3} />
-      </Spin>
-      <Layer>
+        {/* Ponto central: invariante ao giro, viaja na mesma camada. */}
         <Circle cx={C} cy={C} r={4.5} fill="#FFFFFF" />
-      </Layer>
+      </Spin>
       <OrbitingCoins />
       <Particles mode="rise" count={6} period={3600} colors={['#FFE7A3', '#FFFFFF']} size={[2.2, 3.4]} radius={[10, 30]} arc={[-120, 120]} travel={34} sparkle seed={31} />
     </>
   );
 }
 
-/** Três moedas em órbita inclinada (o giro da moeda é sugerido pela elipse). */
+/** Três moedas em órbita — uma camada só girando (mesmo período para as três). */
 function OrbitingCoins() {
   return (
-    <>
-      {[0, 120, 240].map((a, i) => (
-        <Spin key={i} period={9000}>
-          <OrbitCoin angle={a} />
-        </Spin>
-      ))}
-    </>
+    <Spin period={9000}>
+      {[0, 120, 240].map((a) => {
+        const p = polar(44, a);
+        return <Coin key={a} cx={p.x} cy={p.y} r={4.6} />;
+      })}
+    </Spin>
   );
-}
-
-function OrbitCoin({ angle }: { angle: number }) {
-  const p = polar(44, angle);
-  return <Coin cx={p.x} cy={p.y} r={4.6} />;
 }
 
 // ——————————————————————————————————————————————— registro
@@ -462,7 +465,14 @@ export const CORES: Record<CoreFxId, (p: CoreProps) => ReactNode> = {
   tesouro: Tesouro,
 };
 
+/** Raio máximo desenhado por qualquer núcleo (brilho do Tesouro respirando, feixes do Pulsar). */
+export const CORE_EXTENT = 60;
+
 export function CoreFx({ v, tint }: CoreProps) {
   const Render = CORES[(v.fx ?? 'prisma') as CoreFxId] ?? Prisma;
-  return <Render v={v} tint={tint} />;
+  return (
+    <FxExtent r={CORE_EXTENT}>
+      <Render v={v} tint={tint} />
+    </FxExtent>
+  );
 }

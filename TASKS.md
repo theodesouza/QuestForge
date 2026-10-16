@@ -3,7 +3,7 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (148 testes), `npm run typecheck`, `npm run lint`,
+Como verificar: `npm test` (154 testes), `npm run typecheck`, `npm run lint`,
 `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
@@ -85,7 +85,8 @@ Missões (testado em `src/domain/__tests__/replay.test.ts` e `src/content/valida
 - [x] Dificuldade coerente: perfil por missão, cada vaga aceita só ±1 nível; mesma quantidade de questões
 - [x] Seleção e **alternativas embaralhadas** a cada tentativa, gabarito preservado (letra canônica no domínio; feedback mostra a letra exibida); validador barra referências a letras e alternativas posicionais
 - [x] **Pontuação 0–1000 e 1–3 estrelas**, melhor resultado preservado (migração v3), "Novo recorde", botão "Repetir para melhorar a pontuação", estrelas e inéditas restantes no Atlas
-- [x] Sem exploração: recompensas de estrela únicas; bônus de sessão só com ≥ 3 respostas valiosas; repetição rende 10% e nada dentro de 20 h
+- [x] Sem exploração: recompensas de estrela únicas; bônus de sessão só com ≥ 3 respostas valiosas; repetição rende 10% e nada dentro de 20 h; Eco só é redimido quando volta no prazo (errar de propósito e acertar em seguida não rende)
+- [x] Revisão adversarial do código (lógica/persistência e efeitos/desempenho/acessibilidade): 4 + 7 achados confirmados, todos corrigidos com testes de regressão
 
 Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no roteiro ponta a ponta):
 - [x] Motor de efeitos na UI thread (camadas SVG estáticas + transform/opacity, partículas com relógio compartilhado)
@@ -93,8 +94,11 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [x] Hierarquia Comum → Incomum → Raro → **Épico** (nova raridade) → Lendário, reconhecível só pela aparência; molduras evoluem (pinos que pulsam, anéis armilares)
 - [x] **Sinergias** reutilizáveis: Ressonância por elemento (fogo+fogo, tempestade+tempestade, …), Refração do cristal e **Forma Mítica** (lendário + lendário)
 - [x] Revelação de item proporcional à raridade (carga, raios, ondas) com "Equipar agora"; prévia "experimentar" no Herói (inclusive itens bloqueados); estouro de energia ao equipar
-- [x] "Intensidade dos efeitos" (Alta/Média/Baixa), movimento reduzido = quadros estáticos, nada pisca acima de 3×/s
-- [ ] Medir desempenho num Android intermediário físico (validado só na web e por estimativa de camadas)
+- [x] "Intensidade dos efeitos" (Alta/Média/Baixa) remove partículas e camadas secundárias; movimento reduzido = um SVG estático; nada pisca acima de 3×/s
+- [x] Desempenho: bitmaps do tamanho do desenho (pior caso 13,5 palcos em vez de 26), miniaturas com um SVG cada, astrolábio pausado fora de foco/coberto
+- [x] Revelação é um `Modal` (TalkBack e botão Voltar do Android)
+- [ ] Medir desempenho num Android intermediário físico (validado na web e por contagem de camadas/bitmaps nos testes)
+- [ ] Ativar `ANDROID_SYNCHRONOUSLY_UPDATE_UI_PROPS` do Reanimated (transform/opacity sem commit da árvore) — exige APK novo
 
 ## Etapa 5 — Aprendizado adaptativo (pendente)
 - [ ] Painel de evolução (semana, assuntos fortes/fracos, tempo de estudo, gráficos)

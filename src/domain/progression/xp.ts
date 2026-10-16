@@ -17,7 +17,12 @@ export const MIN_HINT_MULT = 0.5;
 /** Uma questão já acertada só rende XP de repetição uma vez a cada 20 h. */
 export const REPEAT_COOLDOWN_MS = 20 * HOUR_MS;
 
-export type XpKind = 'first' | 'redemption' | 'review' | 'repeat' | 'cooldown' | 'wrong';
+/**
+ * - `practice`: acerto num Eco que ainda não voltou (antes do prazo). Conta como treino,
+ *   mas não redime: o Eco continua e vale 150% quando vencer. Sem isso, errar de propósito
+ *   e acertar na tentativa seguinte renderia XP de redenção sem fim.
+ */
+export type XpKind = 'first' | 'redemption' | 'review' | 'practice' | 'repeat' | 'cooldown' | 'wrong';
 
 export interface XpInput {
   difficulty: Difficulty;
@@ -44,10 +49,12 @@ export function classify(input: XpInput): XpKind {
   const { prior, correct, now, sessionId } = input;
   if (!correct) return 'wrong';
   if (!prior || prior.seen === 0) return 'first';
-  // Redenção exige acerto confiante: um "chute" não redime um Eco.
-  if (prior.echo && !input.guessed && prior.lastWrongSessionId !== sessionId) return 'redemption';
-  if (isDue(prior, now)) return 'review';
+  const due = isDue(prior, now);
+  // Redenção exige acerto confiante (um "chute" não redime) e o Eco já de volta (vencido).
+  if (prior.echo && due && !input.guessed && prior.lastWrongSessionId !== sessionId) return 'redemption';
+  if (due) return 'review';
   if (prior.lastXpAt !== null && now - prior.lastXpAt < REPEAT_COOLDOWN_MS) return 'cooldown';
+  if (prior.echo) return 'practice';
   return 'repeat';
 }
 
@@ -55,6 +62,7 @@ const KIND_MULT: Record<XpKind, number> = {
   first: 1,
   redemption: REDEMPTION_MULT,
   review: REVIEW_MULT,
+  practice: REPEAT_MULT,
   repeat: REPEAT_MULT,
   cooldown: 0,
   wrong: 0,
@@ -67,7 +75,7 @@ export function computeXp(input: XpInput): XpResult {
   let mult = KIND_MULT[kind] * hintMultiplier(input.hintsUsed);
   if (input.guessed) mult *= GUESS_MULT;
   const xp = Math.max(1, Math.round(base * mult));
-  const ink = kind === 'repeat' ? 0 : INK_PER_CORRECT[input.difficulty];
+  const ink = kind === 'repeat' || kind === 'practice' ? 0 : INK_PER_CORRECT[input.difficulty];
   return { kind, base, xp, ink };
 }
 

@@ -29,14 +29,17 @@ export function normalizeProfile(raw: unknown, now: number): Profile {
 
 /**
  * Progresso de missão gravado antes da pontuação (v0.2.0): sem pontuação, e as
- * estrelas são deduzidas do melhor número de acertos já registrado.
+ * estrelas são deduzidas do melhor número de acertos já registrado. Linhas que já têm
+ * pontuação guardam as estrelas de verdade (só das questões planejadas) — deduzir de novo
+ * a partir de `bestCorrect`, que conta o reforço do andaime, inflaria as estrelas.
  */
 export function normalizeNodeProgress(p: Loose<NodeProgress> & { nodeId: string }): NodeProgress {
   const found = findNode(p.nodeId);
   const total = found && found.node.kind === 'mission' ? found.node.questionCount : 0;
   const pass = found && found.node.kind === 'mission' ? found.node.passCorrect : Infinity;
   const bestCorrect = p.bestCorrect ?? 0;
-  let derived = p.completedAt != null ? 1 : 0;
+  const scored = p.bestScore != null;
+  let derived = !scored && p.completedAt != null ? 1 : 0;
   if (derived && total > 0 && bestCorrect >= pass) derived = bestCorrect >= total ? 3 : bestCorrect >= total - 1 ? 2 : 1;
   return {
     nodeId: p.nodeId,

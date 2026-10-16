@@ -15,9 +15,10 @@ import {
 } from '../game/game';
 import type { GameEvent, GameState, Result, SessionSummary } from '../game/types';
 import { alternativeOrder, displayLetter } from '../learning/alternatives';
-import { planMissionRun, reuseRank, unseenCount } from '../learning/missionPlan';
+import { maxUnseenMatching, planMissionRun, reuseRank, unseenCount } from '../learning/missionPlan';
+import { normalizeNodeProgress } from '../game/normalize';
 import { schedule, type QuestionState } from '../learning/srs';
-import { sessionBonus } from '../progression/xp';
+import { classify, sessionBonus } from '../progression/xp';
 
 const T0 = Date.UTC(2026, 9, 14, 15);
 const DAY = 24 * 60 * 60 * 1000;
@@ -117,6 +118,56 @@ describe('planejamento de tentativas de missão', () => {
     const run = planMissionRun({ pool: POOL.slice(0, 3), states: {}, profile: PROFILE, now: T0, seed: 1 });
     expect(run).toHaveLength(3);
     expect(new Set(run.map((q) => q.id)).size).toBe(3);
+  });
+});
+
+describe('planejamento: prioridades finas', () => {
+  it('usa o máximo de inéditas possível, mesmo quando a escolha gulosa as desperdiçaria', () => {
+    // Inéditas [1,1,2,3,4] para o perfil [1,2,2,3,3]: cabem todas (a de nível 4 numa vaga 3).
+    const fresh = [fakeQuestion('TST-901', 1, 'a'), fakeQuestion('TST-902', 1, 'b'), fakeQuestion('TST-903', 2, 'c'), fakeQuestion('TST-904', 3, 'a'), fakeQuestion('TST-905', 4, 'b')];
+    const pool = [...POOL, ...fresh];
+    const states = markSeen({}, POOL.map((q) => q.id), T0);
+    const profile: Difficulty[] = [1, 2, 2, 3, 3];
+    expect(maxUnseenMatching(profile, fresh)).toBe(5);
+    for (let seed = 0; seed < 200; seed++) {
+      const run = planMissionRun({ pool, states, profile, now: T0 + 60_000, seed });
+      expect(run.map((q) => q.id).sort()).toEqual(fresh.map((q) => q.id));
+    }
+  });
+
+  it('um Eco vencido volta antes de questões dominadas, mesmo a 1 nível da vaga', () => {
+    let states = markSeen({}, POOL.map((q) => q.id), T0);
+    states = markSeen(states, ['TST-301'], T0, 'wrong'); // nível 3, Eco
+    const profile: Difficulty[] = [1, 1, 2, 2, 2]; // nenhuma vaga de nível 3
+    const later = T0 + 2 * DAY;
+    expect(reuseRank(states['TST-301'], later)).toBe(0);
+    for (let seed = 0; seed < 50; seed++) {
+      const run = planMissionRun({ pool: POOL, states, profile, now: later, seed });
+      expect(run.map((q) => q.id)).toContain('TST-301');
+    }
+  });
+
+  it('entre as já vistas, a resolvida há mais tempo volta antes da tentativa anterior', () => {
+    let states = markSeen({}, POOL.map((q) => q.id), T0);
+    const last = planMissionRun({ pool: POOL, states, profile: PROFILE, now: T0 + 1000, seed: 3 }).map((q) => q.id);
+    states = markSeen(states, last, T0 + 1000);
+    for (let seed = 0; seed < 50; seed++) {
+      const run = planMissionRun({ pool: POOL, states, profile: PROFILE, now: T0 + 2000, seed });
+      expect(run.filter((q) => last.includes(q.id))).toEqual([]);
+    }
+  });
+});
+
+describe('Ecos: redenção só quando o Eco volta', () => {
+  it('acertar um Eco antes do prazo é treino: sem redenção, e o Eco continua', () => {
+    const prior = schedule(undefined, 'X', 'wrong', T0, 's1');
+    const base = { difficulty: 2 as Difficulty, correct: true, guessed: false, hintsUsed: 0, sessionId: 's2' };
+    expect(classify({ ...base, prior, now: T0 + 60_000 })).toBe('practice');
+    const after = schedule(prior, 'X', 'correct', T0 + 60_000, 's2');
+    expect(after.echo).toBe(true);
+    expect(after.dueAt).toBe(prior.dueAt);
+    expect(classify({ ...base, prior: after, now: T0 + 2 * DAY })).toBe('redemption');
+    expect(schedule(after, 'X', 'correct', T0 + 2 * DAY, 's3').echo).toBe(false);
   });
 });
 
@@ -256,6 +307,39 @@ describe('missões repetidas no jogo', () => {
     expect(bonusTotal).toBe(0);
     expect(answerXp).toBe(0);
     expect(ink).toBe(0);
+  });
+
+  it('anti-farm: errar de propósito e acertar na tentativa seguinte não vira redenção', () => {
+    let s = onboarded();
+    const runs = Math.ceil(missionPool(node).length / node.questionCount);
+    for (let i = 0; i < runs; i++) s = runMission(s, T0 + i * 60_000).state; // esgota as inéditas
+    let bonus = 0;
+    let ink = 0;
+    let redemptions = 0;
+    for (let i = 0; i < 5; i++) {
+      const t = T0 + DAY / 2 + i * 120_000;
+      const fail = runMission(s, t, { wrong: 99 });
+      const fix = runMission(fail.state, t + 60_000);
+      bonus += fail.summary.bonusXp + fix.summary.bonusXp;
+      ink += fix.summary.ink;
+      redemptions += fix.summary.redemptions.length;
+      s = fix.state;
+    }
+    expect(redemptions).toBe(0);
+    expect(bonus).toBe(0);
+    expect(ink).toBe(0);
+    // Os Ecos continuam vivos e valem a redenção quando voltam no prazo.
+    const later = runMission(s, T0 + 3 * DAY);
+    expect(later.summary.redemptions.length).toBeGreaterThan(0);
+  });
+
+  it('estrelas gravadas com pontuação não são recalculadas ao carregar', () => {
+    // 4 acertos contando o reforço do andaime, mas 1 estrela pelas questões planejadas.
+    const loaded = normalizeNodeProgress({ nodeId: node.id, completedAt: T0, bestCorrect: 4, runs: 1, bestScore: 450, bestStars: 1, lastScore: 450 });
+    expect(loaded.bestStars).toBe(1);
+    // Progresso antigo (sem pontuação) continua ganhando as estrelas deduzidas.
+    const legacy = normalizeNodeProgress({ nodeId: node.id, completedAt: T0, bestCorrect: 4, runs: 1 });
+    expect(legacy.bestStars).toBe(2);
   });
 
   it('bônus de sessão exige respostas que ensinam algo', () => {

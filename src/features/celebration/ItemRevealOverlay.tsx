@@ -7,11 +7,13 @@
  *   lendário  + escuridão maior, carga longa, coroa de raios dourada, várias ondas
  * Mostra o astrolábio já com o item (prévia de como fica) e oferece equipar na hora.
  * Espera a celebração de nível e não aparece no meio de uma questão ou batalha.
- * Com movimento reduzido: só um fade, sem carga nem partículas.
+ * Com movimento reduzido: só um fade, sem carga nem partículas. A quantidade de partículas
+ * segue a Intensidade dos efeitos. É um Modal de verdade: o leitor de tela não sai dele e o
+ * botão Voltar do Android fecha a revelação.
  */
 import { usePathname } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Modal, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Circle, Polygon } from 'react-native-svg';
@@ -19,7 +21,7 @@ import { RARITY_LABEL, RARITY_TIER, SLOT_LABEL, getItem } from '../../content/it
 import { BOSSES } from '../../content/bosses';
 import { dismissReveal, equip } from '../../state/actions';
 import { useGameStore } from '../../state/store';
-import { Astrolabe } from '../../ui/Astrolabe';
+import { Astrolabe, DENSITY } from '../../ui/Astrolabe';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Text } from '../../ui/Text';
@@ -51,7 +53,11 @@ export function ItemRevealOverlay() {
   const game = useGameStore((s) => s.game);
   const pathname = usePathname();
   if (!reveal || !game || celebrating || HOLD_ON.includes(pathname)) return null;
-  return <Reveal key={reveal.id} revealId={reveal.id} itemId={reveal.itemId} source={reveal.source} level={levelForXp(game.profile.xp)} />;
+  return (
+    <Modal visible transparent animationType="none" statusBarTranslucent navigationBarTranslucent onRequestClose={() => dismissReveal(reveal.id)}>
+      <Reveal key={reveal.id} revealId={reveal.id} itemId={reveal.itemId} source={reveal.source} level={levelForXp(game.profile.xp)} />
+    </Modal>
+  );
 }
 
 function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId: string; source: string; level: number }) {
@@ -61,6 +67,7 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
   const tier = RARITY_TIER[item.rarity];
   const color = rarityColor[item.rarity];
   const equipped = useGameStore((s) => s.game?.profile.equipped);
+  const density = DENSITY[useGameStore((s) => s.game?.profile.settings.effects ?? 'alto')];
   const [phase, setPhase] = useState<'charge' | 'shown'>(reduce || CHARGE_MS[tier] === 0 ? 'shown' : 'charge');
   const [busy, setBusy] = useState(false);
   const announced = useRef(false);
@@ -76,8 +83,10 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
     if (phase !== 'shown' || announced.current) return;
     announced.current = true;
     haptic(tier >= 3 ? 'heavy' : 'success');
-    if (tier >= 4) setTimeout(() => haptic('success'), 180);
     AccessibilityInfo.announceForAccessibility(`Novo item ${RARITY_LABEL[item.rarity]}: ${item.name}. ${SLOT_LABEL[item.slot]}.`);
+    if (tier < 4) return;
+    const t = setTimeout(() => haptic('success'), 180);
+    return () => clearTimeout(t);
   }, [phase, tier, item]);
 
   // Prévia: o astrolábio com o item novo (títulos não mudam o astrolábio).
@@ -100,7 +109,7 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
     >
       <View style={[styles.content, { paddingTop: insets.top + space.lg, paddingBottom: insets.bottom + space.lg }]}>
         <View style={{ width: stage, height: stage, alignItems: 'center', justifyContent: 'center' }}>
-          <FxProvider value={{ animate: !reduce, density: 1, px: stage }}>
+          <FxProvider value={{ animate: !reduce, density, px: stage }}>
             {phase === 'charge' ? (
               <>
                 <Particles mode="converge" count={6 + tier * 4} period={Math.max(700, CHARGE_MS[tier])} colors={[color, '#FFFFFF']} size={[3, 5]} radius={[20, 118]} glow={tier >= 3} seed={7} />

@@ -106,15 +106,16 @@ export function schedule(
     // Acertou de primeira: já sabia. Primeira revisão em 3 dias.
     next.box = 2;
     next.dueAt = now + intervalMs(2);
-  } else if (base.echo || wasDue) {
+  } else if (wasDue) {
     next.box = Math.min(MAX_BOX, Math.max(1, base.box) + 1);
     next.dueAt = now + intervalMs(next.box);
   } else {
-    // Acerto fora do prazo: evidência registrada, agenda inalterada.
+    // Acerto fora do prazo: evidência registrada, agenda inalterada. Um Eco acertado
+    // antes de voltar continua Eco — a redenção acontece quando ele vencer.
     next.box = Math.max(1, base.box);
     next.dueAt = base.dueAt ?? now + intervalMs(next.box);
   }
-  next.echo = false;
+  next.echo = base.echo && !wasDue;
   return next;
 }
 

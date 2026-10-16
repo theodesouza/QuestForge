@@ -18,6 +18,7 @@ import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { nextItemLevel } from '../../domain/progression/rewards';
 import { DailyQuestCard } from '../../features/quests/DailyQuestCard';
 import { UpdateBanner } from '../../features/updates/UpdateBanner';
+import { useStagePaused } from '../../features/useStagePaused';
 import { useStarter } from '../../features/useStarter';
 import { dismissRestedNotice, refreshQuests, startEchoHunt, startExpedition, startFocus, startMission } from '../../state/actions';
 import { useGame, useGameStore } from '../../state/store';
@@ -47,6 +48,7 @@ const DURATIONS = Object.keys(EXPEDITION_SIZES).map(Number);
 
 export default function Camp() {
   const reduce = useReduceMotion();
+  const stagePaused = useStagePaused();
   const profile = useGame((g) => g.profile);
   const questionStates = useGame((g) => g.questionStates);
   const campaign = useGame((g) => g.campaign);
@@ -135,7 +137,7 @@ export default function Camp() {
       {/* Herói */}
       <Animated.View entering={enter(1)} style={styles.hero}>
         <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver herói">
-          <Astrolabe level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} />
+          <Astrolabe level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} />
         </Pressable>
         <View style={styles.levelRow}>
           <Text variant="hero">Nível {progress.level}</Text>

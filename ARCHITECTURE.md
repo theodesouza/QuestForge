@@ -89,10 +89,11 @@ pode enviar o log e reconciliar o perfil sem mudar o domínio.
   dificuldade por vaga) e um pool próprio com pelo menos `questionCount + 20` questões
   (`src/content/questions/missoes/`) — o teste do banco falha se alguma missão ficar abaixo disso.
 - **Seleção** (`planMissionRun`, pura e com semente): cada vaga só aceita questões a ±1 nível da
-  dificuldade-alvo. Inéditas primeiro — nenhuma questão se repete enquanto houver inédita compatível;
-  as vagas com menos inéditas compatíveis são preenchidas antes, para que inéditas raras não sejam
-  desperdiçadas. Esgotadas as inéditas, voltam Ecos vencidos → Ecos → revisões vencidas → erradas ou
-  chutadas → vistas há mais tempo. Subassuntos se alternam e a ordem segue a rampa de dificuldade.
+  dificuldade-alvo. Inéditas primeiro — a tentativa usa o **máximo** de inéditas possível
+  (emparelhamento máximo vagas × inéditas, conferido a cada escolha), então nenhuma já vista ocupa um
+  lugar que uma inédita poderia ocupar. Esgotadas as inéditas, voltam Ecos vencidos → Ecos → revisões
+  vencidas → erradas ou chutadas → vistas há mais tempo (essa prioridade vem antes da distância de
+  dificuldade). Subassuntos se alternam e a ordem segue a rampa de dificuldade.
 - **Alternativas embaralhadas** (`domain/learning/alternatives.ts`): permutação determinística por
   `hash(tentativa|questão)` — a mesma tentativa sempre mostra a mesma ordem (retomar não embaralha de
   novo), cada tentativa nova mostra outra. O domínio grava a letra **canônica**; só a interface usa a
@@ -102,15 +103,27 @@ pode enviar o log e reconciliar o perfil sem mudar o domínio.
   dicas e chute reduzem. Estrelas: 1 = concluída, 2 = no máximo 1 erro, 3 = sem erros. Melhor
   pontuação/estrelas nunca diminuem; recompensas de 2 e 3 estrelas são únicas (`mission:<id>:star2|3`).
 - **Anti-farm**: o bônus de sessão exige ≥3 respostas "valiosas" (primeira vez, redenção ou revisão
-  vencida); repetir questões já vistas rende só os 10% da repetição e respeita a janela de 20 h.
+  vencida); repetir questões já vistas rende só os 10% da repetição e respeita a janela de 20 h. Um Eco
+  só é **redimido quando volta no prazo**: acertá-lo antes é "treino" (`practice`, 10%, sem Tinta) e
+  ele continua Eco — errar de propósito e acertar na tentativa seguinte não rende nada extra.
 
 ## Efeitos visuais do herói (`src/ui/vfx/`)
 
 - **Motor** (`engine.tsx`): palco 240×240; cada camada é um `Animated.View` com SVG **estático**
   animado só por `transform`/`opacity` na UI thread (`Spin`, `Sway`, `Breathe`, `Wave`, `Glimmer`).
-  Partículas são `View`s simples guiadas por **um** relógio compartilhado por sistema. Densidade
-  1 / 0,65 / 0,35 conforme "Intensidade dos efeitos" (Alta/Média/Baixa); com movimento reduzido
-  tudo vira um quadro estático. Nenhum efeito pisca mais de 3×/s.
+  Partículas são `View`s simples guiadas por **um** relógio compartilhado por sistema (caudas de
+  cometa incluídas). Nenhum efeito pisca mais de 3×/s.
+- **Custo sob controle** (Android: cada `<Svg>` é um bitmap):
+  - cada grupo de camadas declara o raio que desenha (`FxExtent`): núcleos usam bitmaps de ~1/4 do
+    palco, a sinergia interna ~1/2;
+  - "Intensidade dos efeitos" (Alta/Média/Baixa = densidade 1 / 0,65 / 0,35) reduz partículas e
+    **remove camadas secundárias** (`Extra`);
+  - **modo plano** (`flat`): com movimento reduzido e nas miniaturas, todas as camadas viram grupos de
+    **um único SVG** (partículas viram círculos) — a coleção inteira usa um SVG por item;
+  - **pausa** (`paused`): astrolábios de abas fora de foco, cobertos por celebração/revelação ou pela
+    prévia "experimentar" congelam os relógios; ao voltar, continuam de onde pararam;
+  - pior caso medido (núcleo e aura lendários + moldura épica): 21 camadas somando 13,5 palcos de
+    bitmap (antes 26), 25 relógios (antes 36).
 - **Núcleos** (`cores.tsx`) e **auras** (`auras.tsx`, camadas de fundo e de frente): cada um tem
   forma e movimento próprios — não são recolorações. Elementos: cristal, fogo, maré, lunar,
   tempestade, astral e áureo.
@@ -123,7 +136,7 @@ pode enviar o log e reconciliar o perfil sem mudar o domínio.
   topo da hierarquia.
 - **Cerimônias**: `ItemRevealOverlay` (fila `reveals` no store) revela itens com carga e efeitos
   proporcionais à raridade e oferece "Equipar agora"; espera celebrações de nível e não aparece em
-  `/session` nem `/boss`. No Herói, tocar um item abre a prévia "experimentar" (`TryOnSheet`).
+  `/session` nem `/boss`. É um `Modal` (TalkBack não sai dele; Voltar fecha). No Herói, tocar um item abre a prévia "experimentar" (`TryOnSheet`).
 - **Laboratório de QA** (`/vfx-lab`, só com `EXPO_PUBLIC_QA=1`): grades de núcleos, auras e sinergias.
 
 ## Atualizações e preservação do progresso

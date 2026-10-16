@@ -27,6 +27,7 @@ const KIND_NOTE: Record<string, string | null> = {
   first: null,
   redemption: 'Redenção! Um Eco derrotado vale 150% de XP.',
   review: 'Revisão no tempo certo: a memória fica mais firme.',
+  practice: 'Bom treino! Este Eco volta no prazo — derrotá-lo aí vale 150% de XP.',
   repeat: 'Questão já dominada — XP reduzido.',
   cooldown: 'Você acertou esta há pouco: sem XP agora, mas o treino conta.',
   wrong: null,

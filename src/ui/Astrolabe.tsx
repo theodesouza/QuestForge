@@ -7,8 +7,12 @@
  *   raridade (src/ui/vfx) e sinergias entre núcleo e aura.
  *
  * `size` é o lado do palco inteiro (o disco ocupa 70% dele; o resto é da aura).
+ *
+ * Desempenho: animado, cada efeito é uma camada própria (transform/opacity na UI thread),
+ * com o menor bitmap que contém o seu desenho; parado (movimento reduzido), tudo vira UM
+ * SVG. `paused` congela os relógios quando a tela sai de foco ou fica coberta.
  */
-import { memo, useEffect, useId, useMemo, useRef } from 'react';
+import { memo, useEffect, useId, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Defs, Ellipse, G, Line, Polygon, RadialGradient, Stop } from 'react-native-svg';
@@ -19,7 +23,7 @@ import { useGameStore } from '../state/store';
 import { colors } from './theme';
 import { AuraBack, AuraFront } from './vfx/auras';
 import { CoreFx } from './vfx/cores';
-import { Breathe, C, FxProvider, Layer, STAGE, Spin } from './vfx/engine';
+import { Breathe, C, FxExtent, FxProvider, Layer, STAGE, Spin } from './vfx/engine';
 import { ngon, polar, star } from './vfx/geometry';
 import { MythicBack, SynergyFx, resolveSynergy } from './vfx/synergy';
 
@@ -30,14 +34,16 @@ interface Props {
   animate?: boolean;
   /** Força uma intensidade (prévia); senão usa a dos Ajustes. */
   effects?: EffectsLevel;
+  /** Tela fora de foco ou coberta: congela as animações (sem desmontar). */
+  paused?: boolean;
 }
 
-const DENSITY: Record<EffectsLevel, number> = { alto: 1, medio: 0.65, baixo: 0.35 };
+export const DENSITY: Record<EffectsLevel, number> = { alto: 1, medio: 0.65, baixo: 0.35 };
 const DISC = 84;
 /** O núcleo é desenhado em escala própria: ele é o coração do avatar e precisa aparecer. */
 const CORE_SCALE = 1.35;
 
-export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, animate = true, effects }: Props) {
+export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, animate = true, effects, paused = false }: Props) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const setting = useGameStore((s) => s.game?.profile.settings.effects ?? 'alto');
   const level_ = effects ?? setting;
@@ -50,7 +56,8 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
   const rank = rankFor(level).index;
   const starTips = Math.min(12, 3 + rank);
   const tickCount = Math.min(120, 24 + level * 2);
-  const fx = useMemo(() => ({ animate, density: DENSITY[level_], px: size }), [animate, level_, size]);
+  const flat = !animate;
+  const fx = useMemo(() => ({ animate, density: DENSITY[level_], px: size, flat, paused }), [animate, level_, size, flat, paused]);
 
   const ticks = useMemo(() => {
     const list: { x1: number; y1: number; x2: number; y2: number; major: boolean }[] = [];
@@ -66,16 +73,22 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
   const orbitStars = useMemo(() => Array.from({ length: rank }, (_, i) => polar(92, (360 / Math.max(rank, 1)) * i + 15)), [rank]);
 
   // Troca de equipamento: clarão + o núcleo "acende" (não dispara na primeira montagem).
+  // O anel do clarão só existe durante o clarão (uma camada a menos no resto do tempo).
   const burst = useSharedValue(0);
   const equipKey = `${equipped.frame}|${equipped.core}|${equipped.aura ?? ''}`;
-  const lastKey = useRef(equipKey);
+  const [seenKey, setSeenKey] = useState(equipKey);
+  const [bursting, setBursting] = useState(false);
+  if (seenKey !== equipKey) {
+    setSeenKey(equipKey);
+    if (animate) setBursting(true);
+  }
   useEffect(() => {
-    if (lastKey.current === equipKey) return;
-    lastKey.current = equipKey;
-    if (!animate) return;
+    if (!bursting) return;
     burst.set(0);
     burst.set(withTiming(1, { duration: 950, easing: Easing.out(Easing.cubic) }));
-  }, [equipKey, animate, burst]);
+    const t = setTimeout(() => setBursting(false), 1000);
+    return () => clearTimeout(t);
+  }, [bursting, equipKey, burst]);
   const burstRing = useAnimatedStyle(() => ({
     opacity: burst.value > 0 && burst.value < 1 ? (1 - burst.value) * 0.9 : 0,
     transform: [{ scale: 0.25 + burst.value * 1.05 }],
@@ -91,13 +104,105 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
       bob.set(0);
       return;
     }
+    if (paused) {
+      cancelAnimation(bob);
+      return;
+    }
     bob.set(withRepeat(withSequence(withTiming(1, { duration: 2200, easing: Easing.inOut(Easing.sin) }), withTiming(0, { duration: 2200, easing: Easing.inOut(Easing.sin) })), -1, false));
     return () => cancelAnimation(bob);
-  }, [mythic, animate, bob]);
+  }, [mythic, animate, paused, bob]);
   const bobStyle = useAnimatedStyle(() => ({ transform: [{ translateY: (bob.value - 0.5) * size * 0.022 }] }));
 
   const tint = core.element === 'cristal' && auraItem ? auraItem.visual.color : null;
   const studColor = frame.color2 ?? frame.color;
+
+  const body = (
+    <>
+      {synergy ? <MythicBack s={synergy} /> : null}
+      {auraItem ? <AuraBack v={auraItem.visual} /> : <IdleHalo uid={uid} />}
+
+      {/* Disco, moldura e estrelas de patente (cada grupo com o menor bitmap que o contém) */}
+      <FxExtent r={100}>
+        <Layer>
+          <Defs>
+            <RadialGradient id={`disc${uid}`} cx="50%" cy="50%" r="50%">
+              <Stop offset="0" stopColor={colors.ink700} />
+              <Stop offset="1" stopColor={colors.ink850} />
+            </RadialGradient>
+          </Defs>
+          <Circle cx={C} cy={C} r={DISC} fill={`url(#disc${uid})`} />
+          <Circle cx={C} cy={C} r={DISC} stroke={frame.color} strokeWidth={3} fill="none" />
+          {frame.frameStyle === 'double' || frame.frameStyle === 'armillary' ? (
+            <Circle cx={C} cy={C} r={DISC - 5} stroke={frame.color} strokeOpacity={0.55} strokeWidth={1.2} fill="none" />
+          ) : null}
+          {frame.frameStyle === 'armillary' && frameTier < 3 ? <Armillary color={studColor} /> : null}
+          {orbitStars.map((p, i) => (
+            <G key={i}>
+              <Circle cx={p.x} cy={p.y} r={4.5} fill={colors.brass} fillOpacity={0.18} />
+              <Circle cx={p.x} cy={p.y} r={2.2} fill={colors.brass} />
+            </G>
+          ))}
+        </Layer>
+      </FxExtent>
+      <FxExtent r={94}>
+        {frame.frameStyle === 'notched' ? (
+          frameTier >= 2 ? (
+            <Breathe period={2800} opacity={[0.55, 1]}>
+              <Studs color={studColor} />
+            </Breathe>
+          ) : (
+            <Layer>
+              <Studs color={studColor} />
+            </Layer>
+          )
+        ) : null}
+        {frame.frameStyle === 'armillary' && frameTier >= 3 ? (
+          <>
+            <Spin period={30000}>
+              <Ellipse cx={C} cy={C} rx={90} ry={30} stroke={studColor} strokeOpacity={0.75} strokeWidth={1.3} fill="none" transform={`rotate(-24 ${C} ${C})`} />
+            </Spin>
+            <Spin period={44000} reverse>
+              <Ellipse cx={C} cy={C} rx={90} ry={30} stroke={frame.color} strokeOpacity={0.7} strokeWidth={1.3} fill="none" transform={`rotate(24 ${C} ${C})`} />
+            </Spin>
+          </>
+        ) : null}
+      </FxExtent>
+
+      {/* Anel de escala (gira devagar) */}
+      <FxExtent r={78}>
+        <Spin period={90000}>
+          <G stroke={frame.color} strokeLinecap="round">
+            {ticks.map((t, i) => (
+              <Line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} strokeWidth={t.major ? 1.6 : 0.8} strokeOpacity={t.major ? 0.95 : 0.55} />
+            ))}
+          </G>
+          <Line x1={C} y1={C - 62} x2={C} y2={C + 62} stroke={colors.parchment} strokeOpacity={0.35} strokeWidth={1} />
+        </Spin>
+      </FxExtent>
+
+      {/* Rete: estrela que evolui com as patentes (contra-rotação) */}
+      <FxExtent r={62}>
+        <Spin period={56000} reverse>
+          <Polygon points={star(starTips, 58, 30)} fill={colors.brass} fillOpacity={0.05} stroke={colors.brass} strokeOpacity={0.5} strokeWidth={1.1} strokeLinejoin="round" />
+          <Circle cx={C} cy={C} r={40} stroke={colors.parchment} strokeOpacity={0.18} strokeWidth={1} fill="none" strokeDasharray="2 4" />
+        </Spin>
+      </FxExtent>
+
+      {synergy ? <SynergyFx s={synergy} /> : null}
+
+      {flat ? (
+        <G transform={`translate(${C} ${C}) scale(${CORE_SCALE}) translate(${-C} ${-C})`}>
+          <CoreFx v={core} tint={tint} />
+        </G>
+      ) : (
+        <Animated.View style={[StyleSheet.absoluteFill, corePop]} pointerEvents="none">
+          <CoreFx v={core} tint={tint} />
+        </Animated.View>
+      )}
+
+      {auraItem ? <AuraFront v={auraItem.visual} /> : null}
+    </>
+  );
 
   return (
     <View
@@ -106,84 +211,24 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
       accessibilityLabel={`Astrolábio de nível ${level}${synergy ? `, ${synergy.label}` : ''}`}
     >
       <FxProvider value={fx}>
-        <Animated.View style={[StyleSheet.absoluteFill, bobStyle]}>
-          {synergy ? <MythicBack s={synergy} /> : null}
-          {auraItem ? <AuraBack v={auraItem.visual} /> : <IdleHalo uid={uid} />}
-
-          {/* Disco, moldura e estrelas de patente */}
-          <Layer>
-            <Defs>
-              <RadialGradient id={`disc${uid}`} cx="50%" cy="50%" r="50%">
-                <Stop offset="0" stopColor={colors.ink700} />
-                <Stop offset="1" stopColor={colors.ink850} />
-              </RadialGradient>
-            </Defs>
-            <Circle cx={C} cy={C} r={DISC} fill={`url(#disc${uid})`} />
-            <Circle cx={C} cy={C} r={DISC} stroke={frame.color} strokeWidth={3} fill="none" />
-            {frame.frameStyle === 'double' || frame.frameStyle === 'armillary' ? (
-              <Circle cx={C} cy={C} r={DISC - 5} stroke={frame.color} strokeOpacity={0.55} strokeWidth={1.2} fill="none" />
+        {flat ? (
+          // Parado: um único SVG com todas as camadas (um bitmap só no Android).
+          <Svg width={size} height={size} viewBox={`0 0 ${STAGE} ${STAGE}`} pointerEvents="none">
+            {body}
+          </Svg>
+        ) : (
+          <Animated.View style={[StyleSheet.absoluteFill, bobStyle]}>
+            {body}
+            {bursting ? (
+              <Animated.View style={[StyleSheet.absoluteFill, burstRing]} pointerEvents="none">
+                <Svg width={size} height={size} viewBox={`0 0 ${STAGE} ${STAGE}`}>
+                  <Circle cx={C} cy={C} r={100} stroke="#FFFFFF" strokeWidth={3} fill="none" />
+                  <Circle cx={C} cy={C} r={92} stroke={auraItem?.visual.color ?? core.color} strokeWidth={6} strokeOpacity={0.6} fill="none" />
+                </Svg>
+              </Animated.View>
             ) : null}
-            {frame.frameStyle === 'armillary' && frameTier < 3 ? <Armillary color={studColor} /> : null}
-            {orbitStars.map((p, i) => (
-              <G key={i}>
-                <Circle cx={p.x} cy={p.y} r={4.5} fill={colors.brass} fillOpacity={0.18} />
-                <Circle cx={p.x} cy={p.y} r={2.2} fill={colors.brass} />
-              </G>
-            ))}
-          </Layer>
-          {frame.frameStyle === 'notched' ? (
-            frameTier >= 2 ? (
-              <Breathe period={2800} opacity={[0.55, 1]}>
-                <Studs color={studColor} />
-              </Breathe>
-            ) : (
-              <Layer>
-                <Studs color={studColor} />
-              </Layer>
-            )
-          ) : null}
-          {frame.frameStyle === 'armillary' && frameTier >= 3 ? (
-            <>
-              <Spin period={30000}>
-                <Ellipse cx={C} cy={C} rx={90} ry={30} stroke={studColor} strokeOpacity={0.75} strokeWidth={1.3} fill="none" transform={`rotate(-24 ${C} ${C})`} />
-              </Spin>
-              <Spin period={44000} reverse>
-                <Ellipse cx={C} cy={C} rx={90} ry={30} stroke={frame.color} strokeOpacity={0.7} strokeWidth={1.3} fill="none" transform={`rotate(24 ${C} ${C})`} />
-              </Spin>
-            </>
-          ) : null}
-
-          {/* Anel de escala (gira devagar) */}
-          <Spin period={90000}>
-            <G stroke={frame.color} strokeLinecap="round">
-              {ticks.map((t, i) => (
-                <Line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} strokeWidth={t.major ? 1.6 : 0.8} strokeOpacity={t.major ? 0.95 : 0.55} />
-              ))}
-            </G>
-            <Line x1={C} y1={C - 62} x2={C} y2={C + 62} stroke={colors.parchment} strokeOpacity={0.35} strokeWidth={1} />
-          </Spin>
-
-          {/* Rete: estrela que evolui com as patentes (contra-rotação) */}
-          <Spin period={56000} reverse>
-            <Polygon points={star(starTips, 58, 30)} fill={colors.brass} fillOpacity={0.05} stroke={colors.brass} strokeOpacity={0.5} strokeWidth={1.1} strokeLinejoin="round" />
-            <Circle cx={C} cy={C} r={40} stroke={colors.parchment} strokeOpacity={0.18} strokeWidth={1} fill="none" strokeDasharray="2 4" />
-          </Spin>
-
-          {synergy ? <SynergyFx s={synergy} /> : null}
-
-          <Animated.View style={[StyleSheet.absoluteFill, corePop]} pointerEvents="none">
-            <CoreFx v={core} tint={tint} />
           </Animated.View>
-
-          {auraItem ? <AuraFront v={auraItem.visual} /> : null}
-
-          <Animated.View style={[StyleSheet.absoluteFill, burstRing]} pointerEvents="none">
-            <Svg width={size} height={size} viewBox={`0 0 ${STAGE} ${STAGE}`}>
-              <Circle cx={C} cy={C} r={100} stroke="#FFFFFF" strokeWidth={3} fill="none" />
-              <Circle cx={C} cy={C} r={92} stroke={auraItem?.visual.color ?? core.color} strokeWidth={6} strokeOpacity={0.6} fill="none" />
-            </Svg>
-          </Animated.View>
-        </Animated.View>
+        )}
       </FxProvider>
     </View>
   );

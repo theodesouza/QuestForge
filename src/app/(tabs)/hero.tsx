@@ -10,6 +10,7 @@ import { echoCount } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { rewardsForLevel } from '../../domain/progression/rewards';
 import { TryOnSheet } from '../../features/hero/TryOnSheet';
+import { useStagePaused } from '../../features/useStagePaused';
 import { unequip } from '../../state/actions';
 import { useGame } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
@@ -51,6 +52,7 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
 
 export default function Hero() {
   const reduce = useReduceMotion();
+  const stagePaused = useStagePaused();
   const profile = useGame((g) => g.profile);
   const inventory = useGame((g) => g.inventory);
   const questionStates = useGame((g) => g.questionStates);
@@ -87,7 +89,7 @@ export default function Hero() {
     <Screen bottomInset={TAB_BAR_SPACE}>
       <Text variant="title">Herói</Text>
       <View style={styles.hero}>
-        <Astrolabe level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} />
+        <Astrolabe level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} paused={stagePaused || !!trying} />
         <Text variant="heading" align="center">
           {profile.name || 'Cartógrafo sem nome'}
         </Text>

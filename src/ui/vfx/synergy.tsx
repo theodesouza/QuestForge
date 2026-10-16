@@ -8,9 +8,9 @@
  *   levitação. É o topo da hierarquia visual.
  */
 import { useId } from 'react';
-import { Circle, Defs, G, LinearGradient, Path, Polygon, Rect, Stop } from 'react-native-svg';
+import { Circle, Defs, G, LinearGradient, Path, Polygon, Polyline, Rect, Stop } from 'react-native-svg';
 import { RuneRing } from './cores';
-import { Breathe, C, Glimmer, Particles, Spin, Wave } from './engine';
+import { Breathe, C, Extra, FxExtent, Glimmer, Particles, Spin, Wave } from './engine';
 import { flame, lightning, polar, ray, star } from './geometry';
 import type { Synergy } from './rules';
 
@@ -18,9 +18,12 @@ export { resolveSynergy, type Synergy } from './rules';
 
 /** Camada da sinergia que fica entre o disco e o núcleo. */
 export function SynergyFx({ s }: { s: Synergy }) {
-  if (s.kind === 'mythic') return <MythicInner s={s} />;
-  if (s.kind === 'refraction') return <Refraction s={s} />;
-  return <Resonance s={s} />;
+  // Tudo da camada interna fica dentro do disco (raio ≤ 84; a onda mítica chega a 84).
+  return (
+    <FxExtent r={90}>
+      {s.kind === 'mythic' ? <MythicInner s={s} /> : s.kind === 'refraction' ? <Refraction s={s} /> : <Resonance s={s} />}
+    </FxExtent>
+  );
 }
 
 function Resonance({ s }: { s: Extract<Synergy, { kind: 'resonance' }> }) {
@@ -45,9 +48,11 @@ function Resonance({ s }: { s: Extract<Synergy, { kind: 'resonance' }> }) {
           <Wave period={3600} from={22} to={84} drawnAt={50} peak={0.5 * k}>
             <Circle cx={C} cy={C} r={50} stroke={s.color} strokeWidth={1.4} fill="none" />
           </Wave>
-          <Wave period={3600} phase={0.5} from={22} to={84} drawnAt={50} peak={0.4 * k}>
-            <Circle cx={C} cy={C} r={50} stroke={s.color2} strokeWidth={1.1} fill="none" />
-          </Wave>
+          <Extra>
+            <Wave period={3600} phase={0.5} from={22} to={84} drawnAt={50} peak={0.4 * k}>
+              <Circle cx={C} cy={C} r={50} stroke={s.color2} strokeWidth={1.1} fill="none" />
+            </Wave>
+          </Extra>
         </>
       );
     case 'lunar':
@@ -66,10 +71,12 @@ function Resonance({ s }: { s: Extract<Synergy, { kind: 'resonance' }> }) {
       return (
         <>
           {[0, 0.25, 0.5, 0.75].map((ph, i) => (
-            <Glimmer key={i} period={3200} phase={ph} window={0.22} peak={0.95 * k}>
-              <Polygon points={lightning(30 + i * 90, 20, 82, 7, 7, 300 + i * 13)} stroke="#E8FDFF" strokeWidth={1.3} fill="none" strokeLinejoin="round" />
-              <Polygon points={lightning(30 + i * 90, 20, 82, 7, 7, 300 + i * 13)} stroke={s.color} strokeOpacity={0.6} strokeWidth={3.5} fill="none" strokeLinejoin="round" />
-            </Glimmer>
+            <Extra key={i} min={i % 2 ? 0.5 : 0}>
+              <Glimmer period={3200} phase={ph} window={0.22} peak={0.95 * k}>
+                <Polyline points={lightning(30 + i * 90, 20, 82, 7, 7, 300 + i * 13)} stroke={s.color} strokeOpacity={0.6} strokeWidth={3.5} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+                <Polyline points={lightning(30 + i * 90, 20, 82, 7, 7, 300 + i * 13)} stroke="#E8FDFF" strokeWidth={1.3} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+              </Glimmer>
+            </Extra>
           ))}
         </>
       );
@@ -136,9 +143,11 @@ function MythicInner({ s }: { s: Extract<Synergy, { kind: 'mythic' }> }) {
       <Spin period={30000}>
         <RuneRing r={62} color="#FFE7F2" size={8} opacity={0.75} />
       </Spin>
-      <Spin period={42000} reverse opacity={0.6}>
-        <Polygon points={star(8, 76, 48)} stroke={s.color2} strokeWidth={1} fill="none" />
-      </Spin>
+      <Extra>
+        <Spin period={42000} reverse opacity={0.6}>
+          <Polygon points={star(8, 76, 48)} stroke={s.color2} strokeWidth={1} fill="none" />
+        </Spin>
+      </Extra>
       <Wave period={4800} from={20} to={84} drawnAt={50} peak={0.7} hold={0.3}>
         <Circle cx={C} cy={C} r={50} stroke="#FFFFFF" strokeWidth={1.6} fill="none" />
       </Wave>
