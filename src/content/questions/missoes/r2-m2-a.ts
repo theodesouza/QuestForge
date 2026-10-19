@@ -24,8 +24,8 @@ export const MISSAO_R2M2_A = batch([
     ],
     solution: [
       'Em juros compostos, M = C × (1 + i)ⁿ, com C = 5.000, i = 0,02 e n = 3 meses.',
-      'M = 5.000 × 1,02³ = 5.000 × 1,061208 = R$ 5.306,04.',
-      'Conferência mês a mês: 5.000,00 → 5.100,00 → 5.202,00 → 5.306,04.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['M = 5.000 × 1,02³', '= 5.000 × 1,061208', '= R$ 5.306,04'] },
+      { explanation: 'Conferência mês a mês.', calculation: ['5.000,00', '5.100,00', '5.202,00', '5.306,04'] },
       'Armadilhas: juros simples dariam 5.000 + 3 × 100 = R$ 5.300,00; R$ 306,04 são apenas os juros; somar outros R$ 5.000,00 ao montante conta o capital duas vezes; R$ 5.100,00 corresponde a só 1 mês de juros.',
     ],
     concept:
@@ -60,8 +60,8 @@ export const MISSAO_R2M2_A = batch([
     ],
     solution: [
       'Um semestre corresponde a 2 trimestres.',
-      'Fator de crescimento em um semestre: 1,03 × 1,03 = 1,03² = 1,0609.',
-      'Taxa semestral equivalente: 1,0609 − 1 = 0,0609 = 6,09%.',
+      { explanation: 'Fator de crescimento em um semestre.', calculation: ['1,03 × 1,03 = 1,03²', '= 1,0609'] },
+      { explanation: 'Taxa semestral equivalente.', calculation: ['1,0609 − 1 = 0,0609', '= 6,09%'] },
       'Armadilhas: 3% + 3% = 6% ignora o juro sobre juro; 9,27% corresponde a três trimestres (1,03³ ≈ 1,0927); 106,09% esquece de subtrair 1 do fator; 1,5% divide a taxa em vez de acumulá-la.',
     ],
     concept:
@@ -93,7 +93,7 @@ export const MISSAO_R2M2_A = batch([
     solution: [
       'Fim do 1º mês: 800 × 1,05 = R$ 840,00 (juros de R$ 40,00).',
       'Fim do 2º mês: 840 × 1,05 = R$ 882,00 (juros de R$ 42,00 nesse mês).',
-      'Juros totais: 882 − 800 = R$ 82,00.',
+      { explanation: 'Juros totais.', calculation: ['882 − 800 = R$ 82,00'] },
       'Armadilhas: R$ 80,00 seriam os juros simples (2 × 40); R$ 882,00 é o valor total pago, e não só os juros; R$ 40,00 e R$ 42,00 são os juros de apenas um dos meses.',
     ],
     concept:
@@ -127,9 +127,9 @@ export const MISSAO_R2M2_A = batch([
       'Calcule primeiro o rendimento total do CDB em 2 anos, em porcentagem do capital: 1,12² − 1.',
     ],
     solution: [
-      'CDB (compostos): fator em 2 anos = 1,12² = 1,2544, ou seja, rendimento de 25,44% no período.',
+      { explanation: 'Calcule o fator de crescimento composto nos dois anos.', calculation: ['1,12² = 1,12 × 1,12', '= 1,2544', '1,2544 − 1 = 0,2544 = 25,44%'] },
       'Cooperativa (simples): em 2 anos, o rendimento é 2 × i.',
-      '2 × i = 25,44%, logo i = 12,72% ao ano.',
+      { explanation: 'No regime simples, divida a taxa do período pelos dois anos.', calculation: ['2 × i = 25,44%', 'i = 25,44% ÷ 2', 'i = 12,72% ao ano'] },
       'Armadilhas: 12% ignora o juro sobre juro; 25,44% é a taxa dos 2 anos, e não a anual; 24% é o rendimento simples de 12% ao ano em 2 anos; 13,44% é o rendimento só do 2º ano em relação ao capital inicial (25,44% − 12%), e não a média anual.',
     ],
     concept:
@@ -165,8 +165,8 @@ export const MISSAO_R2M2_A = batch([
     ],
     solution: [
       'De 30 a 54 anos passam-se 24 anos, ou seja, 24 ÷ 8 = 3 intervalos de 8 anos.',
-      'A cada intervalo, o saldo dobra: 6.000 → 12.000 → 24.000 → 48.000.',
-      'Em uma só conta: 6.000 × 1,09²⁴ = 6.000 × (1,09⁸)³ ≈ 6.000 × 2³ = R$ 48.000,00.',
+      { explanation: 'A cada intervalo, o saldo dobra.', calculation: ['6.000', '12.000', '24.000', '48.000'] },
+      { explanation: 'Em uma só conta.', calculation: ['6.000 × 1,09²⁴ = 6.000 × (1,09⁸)³', '≈ 6.000 × 2³', '= R$ 48.000,00'] },
       'Armadilhas: somar R$ 6.000,00 a cada 8 anos dá R$ 24.000,00 (crescimento linear); multiplicar por 2 × 3 = 6 dá R$ 36.000,00; contar 4 duplicações (aos 30, 38, 46 e 54 anos) dá R$ 96.000,00; juros simples de 9% ao ano por 24 anos dariam 6.000 × 3,16 = R$ 18.960,00.',
     ],
     concept:
@@ -201,7 +201,7 @@ export const MISSAO_R2M2_A = batch([
     solution: [
       'Em 2 anos, a quantia aplicada é multiplicada por 1,08² = 1,1664.',
       'C × 1,1664 = 11.664, logo C = 11.664 ÷ 1,1664 = R$ 10.000,00.',
-      'Conferência: 10.000 → 10.800 → 11.664.',
+      { explanation: 'Conferência.', calculation: ['10.000', '10.800', '11.664'] },
       'Armadilhas: descontar 16,64% de R$ 11.664,00 dá R$ 9.723,11 e descontar 16% dá R$ 9.797,76, mas os juros incidem sobre o capital, e não sobre o valor final; dividir por 1,16 (juros simples) dá R$ 10.055,17; dividir só por 1,08 volta apenas 1 ano, dando R$ 10.800,00.',
     ],
     concept:
@@ -241,7 +241,7 @@ export const MISSAO_R2M2_A = batch([
     ],
     solution: [
       'Banco X: 20.000 × 1,015¹² ≈ 20.000 × 1,1956 = R$ 23.912,00 (taxa anual equivalente de cerca de 19,56%).',
-      'Banco Y: 20.000 × 1,19 = R$ 23.800,00.',
+      { explanation: 'Banco Y.', calculation: ['20.000 × 1,19 = R$ 23.800,00'] },
       'A proposta mais barata é a do banco Y, e a diferença é 23.912 − 23.800 = R$ 112,00.',
       'Armadilha: converter 1,5% ao mês em 12 × 1,5% = 18% ao ano faz o banco X parecer mais barato (R$ 23.600,00, com diferença de R$ 200,00 a favor dele), mas em juros compostos a taxa anual equivalente a 1,5% ao mês passa de 19%.',
       'R$ 312,00 é a diferença entre juros compostos e simples no próprio banco X; R$ 3.912,00 e R$ 3.800,00 são os juros de cada proposta, e não a economia.',
@@ -279,8 +279,8 @@ export const MISSAO_R2M2_A = batch([
       'Calcule o saldo ao final do 2º ano, antes da retirada: 30.000 × 1,07².',
     ],
     solution: [
-      'Saldo ao final do 2º ano: 30.000 × 1,1449 = R$ 34.347,00.',
-      'Após a retirada: 34.347 − 10.000 = R$ 24.347,00.',
+      { explanation: 'Saldo ao final do 2º ano.', calculation: ['30.000 × 1,1449 = R$ 34.347,00'] },
+      { explanation: 'Após a retirada.', calculation: ['34.347 − 10.000 = R$ 24.347,00'] },
       'Esse valor rende mais 2 anos: 24.347 × 1,1449 = 27.874,8803, ou seja, R$ 27.874,88.',
       'Armadilhas: descontar a retirada só no fim (30.000 × 1,07⁴ − 10.000) dá R$ 29.323,88, e descontá-la logo no início (20.000 × 1,07⁴) dá R$ 26.215,92, mas os R$ 10.000,00 renderam exatamente 2 anos; usar juros simples na 2ª fase (24.347 × 1,14) dá R$ 27.755,58, e usar juros simples nas duas fases dá R$ 27.588,00.',
     ],
@@ -316,9 +316,9 @@ export const MISSAO_R2M2_A = batch([
       'Aplique o logaritmo aos dois lados de 1,03ⁿ = 2, obtendo n × log 1,03 = log 2.',
     ],
     solution: [
-      'A dívida atinge o dobro quando 1.500 × 1,03ⁿ = 3.000, ou seja, quando 1,03ⁿ = 2.',
-      'Aplicando logaritmo: n × log 1,03 = log 2, logo n ≈ 0,301 ÷ 0,0128 ≈ 23,5 meses.',
-      'Assim, ao final do 23º mês a dívida ainda não dobrou (1,03²³ ≈ 1,97), mas ao final do 24º mês ela já passou do dobro (1,03²⁴ ≈ 2,03).',
+      { explanation: 'Para a dívida dobrar, o fator acumulado deve ser 2.', calculation: ['1.500 × 1,03ⁿ = 3.000', '1,03ⁿ = 3.000 ÷ 1.500', '1,03ⁿ = 2'] },
+      { explanation: 'Aplique os logaritmos aproximados fornecidos para isolar n.', calculation: ['n × log(1,03) = log(2)', 'n ≈ 0,301 ÷ 0,0128', 'n ≈ 23,5 meses'] },
+      { explanation: 'A dívida deve continuar menor que o dobro: teste os meses inteiros vizinhos.', calculation: ['1,03²³ ≈ 1,97 < 2', '1,03²⁴ ≈ 2,03 > 2'] },
       'Logo, Jorge pode esperar no máximo 23 meses. Responder 24 meses é tomar o primeiro mês em que a dívida já dobrou.',
       'Armadilhas: com juros simples, a dívida dobraria em 100 ÷ 3 ≈ 33,3 meses, o que leva a 33 ou 34 meses; dividir 0,301 por 0,03, usando a taxa no lugar de log 1,03, dá cerca de 10 meses.',
     ],
@@ -362,10 +362,10 @@ export const MISSAO_R2M2_A = batch([
       'Calcule os juros do 1º e do 2º ano e verifique que porcentagem do saldo anterior cada um representa.',
     ],
     solution: [
-      'Juros do 1º ano: 33.600 − 32.000 = R$ 1.600,00, que são 5% de R$ 32.000,00.',
-      'Juros do 2º ano: 35.280 − 33.600 = R$ 1.680,00, que são 5% de R$ 33.600,00.',
+      { explanation: 'Compare os juros do primeiro ano com o saldo inicial.', calculation: ['33.600 − 32.000 = R$ 1.600,00', '1.600 ÷ 32.000 = 0,05 = 5%'] },
+      { explanation: 'No segundo ano, os juros são 5% do saldo anterior.', calculation: ['35.280 − 33.600 = R$ 1.680,00', '1.680 ÷ 33.600 = 0,05 = 5%'] },
       'Os juros cresceram e correspondem sempre a 5% do saldo anterior: o regime é de juros compostos, com taxa de 5% ao ano.',
-      'Fim do 3º ano: 35.280 × 1,05 = R$ 37.044,00. Fim do 4º ano: 37.044 × 1,05 = R$ 38.896,20.',
+      { explanation: 'Continue multiplicando por 1,05 a cada ano.', calculation: ['35.280 × 1,05 = R$ 37.044,00', '37.044 × 1,05 = R$ 38.896,20'] },
       'Armadilhas: supor juros simples (R$ 1.600,00 por ano) dá R$ 38.400,00; repetir os juros do 2º ano dá 35.280 + 2 × 1.680 = R$ 38.640,00; supor que os juros aumentam R$ 80,00 por ano dá R$ 38.880,00; R$ 37.044,00 é o saldo do fim do 3º ano.',
     ],
     concept:
@@ -400,9 +400,9 @@ export const MISSAO_R2M2_A = batch([
       'Escreva a relação entre os fatores: (fator semestral)² = fator anual = 1,1236.',
     ],
     solution: [
-      'Em juros compostos, dois semestres seguidos equivalem a um ano: (1 + i_s)² = 1,1236.',
+      { explanation: 'Em juros compostos, dois semestres seguidos equivalem a um ano.', calculation: ['(1 + i_s)² = 1,1236'] },
       'Como 1,06² = 1,1236, o fator semestral é 1,06, isto é, a taxa semestral equivalente é 6%.',
-      'Valor a pagar: 80.000 × 1,06 = R$ 84.800,00.',
+      { explanation: 'Valor a pagar.', calculation: ['80.000 × 1,06 = R$ 84.800,00'] },
       'Armadilhas: usar a taxa proporcional (12,36% ÷ 2 = 6,18%), que é o cálculo de juros simples, dá R$ 84.944,00; aplicar a taxa anual inteira dá R$ 89.888,00; R$ 4.800,00 e R$ 4.944,00 são apenas os juros, sem o capital.',
       'Observe que, em prazos menores que o período da taxa, os juros compostos ficam abaixo dos juros simples de mesma taxa.',
     ],

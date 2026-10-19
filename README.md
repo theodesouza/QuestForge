@@ -21,6 +21,19 @@ e enfraquece os guardiões das regiões. Estudar é evoluir — e o app separa c
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — stack, camadas, banco local, conteúdo e qualidade.
 - [`TASKS.md`](TASKS.md) — o que está **implementado e testado** e o que está pendente.
 
+## Folha de resolução
+
+As 314 questões têm uma folha visual com raciocínio numerado, contas e resposta final,
+incluindo frações numéricas com traço. Ela abre após um erro e também está no histórico
+e nos exemplos do reforço guiado. As explicações existentes foram preservadas; mais de
+60 resoluções ganharam conversões, substituições ou operações intermediárias explícitas.
+
+A folha usa texto nativo, lê sem internet e acompanha o tamanho de fonte do aparelho.
+Não depende de IA nem de imagens baixadas. Consultá-la não altera XP, domínio ou o
+prazo dos Ecos. A validação do banco exige contas em cada questão; `--solutions-only`
+no roteiro web verifica todo o catálogo offline em 320 px. Android físico e TalkBack
+continuam pendentes; não há exportação de PNG no app.
+
 ## Rodar no Android
 
 Requisitos: Node.js 20+ (testado com 22) e npm.

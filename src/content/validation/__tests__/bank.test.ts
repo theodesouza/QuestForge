@@ -50,6 +50,10 @@ describe('banco de questões', () => {
     expect(issues).toEqual([]);
   });
 
+  it('toda questão tem contas explícitas na folha de resolução', () => {
+    expect(QUESTIONS.filter(q => !q.solution.some(step => typeof step !== 'string')).map(q => q.id)).toEqual([]);
+  });
+
   it('tem gabaritos equilibrados entre A–E (cada letra entre 15% e 25%)', () => {
     const { answerDistribution, total } = bankReport(QUESTIONS);
     for (const k of ['A', 'B', 'C', 'D', 'E']) {
@@ -94,6 +98,13 @@ describe('banco de questões', () => {
 
 describe('validador detecta erros', () => {
   const base = QUESTIONS.find((q) => q.id === 'RZP-004') as Question;
+
+  it('rejeita contas vazias e referências a letras dentro da resolução visual', () => {
+    const broken: Question = { ...base, solution: [{ explanation: 'Calcule a parte.', calculation: [''] }] };
+    expect(validateQuestion(broken).some(i => i.message.includes('conta vazia'))).toBe(true);
+    const letter: Question = { ...base, solution: [{ explanation: 'Confira.', calculation: ['Alternativa B = 5'] }] };
+    expect(validateQuestion(letter).some(i => i.message.includes('pela letra'))).toBe(true);
+  });
 
   it('gabarito inconsistente com verify()', () => {
     const broken: Question = { ...base, answer: 'A' };

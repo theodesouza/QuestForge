@@ -31,7 +31,7 @@ export const MISSAO_R3M2_B = batch([
     solution: [
       'Como cada equipe tem alunos de um único ano, o tamanho da equipe deve dividir 30 e também dividir 45: é um divisor comum de 30 e 45.',
       'Divisores de 30: 1, 2, 3, 5, 6, 10, 15, 30. Divisores de 45: 1, 3, 5, 9, 15, 45.',
-      'Divisores comuns: 1, 3, 5 e 15. O maior é 15, ou seja, MDC(30, 45) = 15.',
+      { explanation: 'Os divisores comuns listados são 1, 3, 5 e 15. Escolha o maior e confira a divisão das turmas.', calculation: ['MDC(30, 45) = 15 alunos por equipe', '30 ÷ 15 = 2 equipes', '45 ÷ 15 = 3 equipes'] },
       'Conferência: 30 ÷ 15 = 2 equipes do 6º ano e 45 ÷ 15 = 3 equipes do 7º ano, sem sobrar ninguém.',
       'Armadilhas: 5 também divide 30 e 45, mas não é o maior divisor comum; 90 é o MMC(30, 45), resultado de quem troca MDC por MMC; 75 é a soma 30 + 45, que não representa o tamanho de uma equipe; 30 divide o total do 6º ano, mas não divide 45 (sobrariam 15 alunos do 7º ano).',
     ],
@@ -62,7 +62,7 @@ export const MISSAO_R3M2_B = batch([
     ],
     solution: [
       'O comprimento de cada pedaço é o maior divisor comum de 150 e 210.',
-      '150 = 2 × 3 × 5² e 210 = 2 × 3 × 5 × 7.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['150 = 2 × 3 × 5²', '210 = 2 × 3 × 5 × 7'] },
       'MDC(150, 210) = 2 × 3 × 5 = 30 cm.',
       'Pedaços da primeira barra: 150 ÷ 30 = 5. Pedaços da segunda: 210 ÷ 30 = 7. Total: 5 + 7 = 12 pedaços.',
       'Armadilhas: 30 é o comprimento de cada pedaço, e não a quantidade; 35 vem de multiplicar 5 × 7 em vez de somar; 24 seria a quantidade de pedaços de 15 cm (10 + 14), que é um divisor comum, mas não o maior; 1.050 é o MMC(150, 210), de quem troca MDC por MMC.',
@@ -100,7 +100,7 @@ export const MISSAO_R3M2_B = batch([
       'O total de lápis é um múltiplo de 12 e o total de borrachas é um múltiplo de 8. Como os totais devem ser iguais, procuramos o menor múltiplo comum positivo: MMC(12, 8).',
       'Múltiplos de 12: 12, 24, 36… Múltiplos de 8: 8, 16, 24… Logo, MMC(12, 8) = 24.',
       'Com 24 itens de cada tipo: 24 ÷ 12 = 2 caixas de lápis e 24 ÷ 8 = 3 pacotes de borracha.',
-      'Total de embalagens: 2 + 3 = 5.',
+      { explanation: 'Total de embalagens.', calculation: ['2 + 3 = 5'] },
       'Armadilhas: 24 é a quantidade de lápis (e também de borrachas), e não de embalagens; 4 é o MDC(12, 8), de quem pensa em dividir em partes iguais em vez de igualar totais; 96 = 12 × 8 é um múltiplo comum, mas muito maior que o menor; 3 conta apenas os pacotes de borracha.',
     ],
     concept:
@@ -130,10 +130,10 @@ export const MISSAO_R3M2_B = batch([
     ],
     solution: [
       'O número de caixas é um divisor comum de 180, 252 e 108 e deve ser o maior possível: MDC(180, 252, 108).',
-      '180 = 2² × 3² × 5; 252 = 2² × 3² × 7; 108 = 2² × 3³.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['180 = 2² × 3² × 5', '252 = 2² × 3² × 7', '108 = 2² × 3³'] },
       'Fatores comuns, cada um com o menor expoente: 2² × 3² = 36. Logo, serão montadas 36 caixas.',
       'Em cada caixa: 180 ÷ 36 = 5 pacotes de arroz, 252 ÷ 36 = 7 de feijão e 108 ÷ 36 = 3 de macarrão.',
-      'Pacotes por caixa: 5 + 7 + 3 = 15.',
+      { explanation: 'Pacotes por caixa.', calculation: ['5 + 7 + 3 = 15'] },
       'Armadilhas: 36 é o número de caixas, e não o conteúdo de cada uma; 540 = 180 + 252 + 108 é o total de pacotes recebidos; 45 é o conteúdo de cada caixa se fossem montadas apenas 12 caixas (um divisor comum, mas não o maior); 12 é o número dessas caixas.',
     ],
     concept:
@@ -171,9 +171,9 @@ export const MISSAO_R3M2_B = batch([
     ],
     solution: [
       'Um número é divisível por 9 quando a soma dos seus algarismos é divisível por 9.',
-      'Soma dos algarismos conhecidos: 6 + 3 + 4 = 13.',
+      { explanation: 'Soma dos algarismos conhecidos.', calculation: ['6 + 3 + 4 = 13'] },
       'Com o algarismo ?, a soma fica 13 + ?, um valor entre 13 e 22. O único múltiplo de 9 nesse intervalo é 18.',
-      '13 + ? = 18, logo ? = 5. Conferência: 6.534 ÷ 9 = 726.',
+      { explanation: '13 + ? = 18, logo ? = 5. Conferência.', calculation: ['6.534 ÷ 9 = 726'] },
       'Armadilhas: 2 e 8 deixam a soma divisível por 3 (15 e 21), mas não por 9, pois o critério do 3 é menos exigente; 9 confunde o divisor com o algarismo procurado; 4 resulta de errar a soma conhecida (6 + 3 + 4 = 14) e completar 18.',
     ],
     concept:
@@ -212,7 +212,7 @@ export const MISSAO_R3M2_B = batch([
     ],
     solution: [
       'A quantidade por caixa deve ser um divisor comum de 360 e de 540. Os divisores comuns de dois números são exatamente os divisores do MDC deles.',
-      '360 = 2³ × 3² × 5 e 540 = 2² × 3³ × 5.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['360 = 2³ × 3² × 5', '540 = 2² × 3³ × 5'] },
       'MDC(360, 540) = 2² × 3² × 5 = 180.',
       'Quantidade de divisores de 180 = 2² × 3² × 5¹: soma-se 1 a cada expoente e multiplicam-se os resultados: (2 + 1) × (2 + 1) × (1 + 1) = 3 × 3 × 2 = 18.',
       'Armadilhas: 9 ignora o fator 5; 24 é a quantidade de divisores de 360 (e também de 540), mas nem todo divisor de 360 divide 540; 180 é o MDC, isto é, a maior quantidade por caixa, e não o número de possibilidades; 16 resulta de excluir 1 e 180, o que o enunciado não pede (a caixa com 1 fruta foi expressamente aceita).',
@@ -244,7 +244,7 @@ export const MISSAO_R3M2_B = batch([
     ],
     solution: [
       'A aresta é um múltiplo comum de 12, 18 e 30; a menor possível é o MMC(12, 18, 30).',
-      '12 = 2² × 3; 18 = 2 × 3²; 30 = 2 × 3 × 5.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['12 = 2² × 3', '18 = 2 × 3²', '30 = 2 × 3 × 5'] },
       'MMC: cada primo com o maior expoente que aparece: 2² × 3² × 5 = 4 × 9 × 5 = 180 cm.',
       'Conferência: 180 ÷ 12 = 15, 180 ÷ 18 = 10 e 180 ÷ 30 = 6, todos inteiros.',
       'Armadilhas: 36, 60 e 90 são os MMC de apenas dois dos números (12 e 18; 12 e 30; 18 e 30, respectivamente), e por isso uma das direções não fecha; 360 é múltiplo comum, mas não o menor.',
@@ -276,9 +276,9 @@ export const MISSAO_R3M2_B = batch([
     ],
     solution: [
       'Os lados a e b são inteiros maiores que 1 e a × b = 391. Procuramos a decomposição de 391 em fatores primos.',
-      '391 não é divisível por 2, por 3 (3 + 9 + 1 = 13), por 5, por 7 (7 × 55 = 385, resto 6), por 11 (11 × 35 = 385, resto 6) nem por 13 (13 × 30 = 390, resto 1). Com 17: 17 × 23 = 391.',
-      'Como 17 e 23 são primos, os únicos divisores de 391 são 1, 17, 23 e 391. Pelo fato de os lados serem maiores que 1, medem 17 m e 23 m. (Conferência: 391 = 400 − 9 = 20² − 3² = (20 − 3) × (20 + 3).)',
-      'Contorno: 2 × (17 + 23) = 2 × 40 = 80 m.',
+      { explanation: '391 não é divisível por 2, por 3 (3 + 9 + 1 = 13), por 5, por 7 (7 × 55 = 385, resto 6), por 11 (11 × 35 = 385, resto 6) nem por 13 (13 × 30 = 390, resto 1). Com 17.', calculation: ['17 × 23 = 391'] },
+      { explanation: 'Como 17 e 23 são primos, os únicos divisores de 391 são 1, 17, 23 e 391. Pelo fato de os lados serem maiores que 1, medem 17 m e 23 m. (Conferência.', calculation: ['391 = 400 − 9', '= 20² − 3²', '= (20 − 3) × (20 + 3).)'] },
+      { explanation: 'Contorno.', calculation: ['2 × (17 + 23) = 2 × 40', '= 80 m'] },
       'Armadilhas: 784 corresponde a lados de 1 m e 391 m, que o enunciado exclui; 40 é só a soma dos dois lados, sem dobrar; 76 supõe um terreno quase quadrado de lado 19 m (4 × 19); 782 vem de dobrar a própria área (2 × 391).',
     ],
     concept:
@@ -316,11 +316,11 @@ export const MISSAO_R3M2_B = batch([
       'Converta 4,2 m e 3 m para centímetros e calcule o MDC. Em seguida, represente a malha: com n azulejos em uma fila, há n + 1 pontos de encontro nessa fila.',
     ],
     solution: [
-      'Medidas em centímetros: 4,2 m = 420 cm e 3 m = 300 cm.',
+      { explanation: 'Medidas em centímetros.', calculation: ['4,2 m = 420 cm', '3 m = 300 cm'] },
       'O lado do azulejo é o MDC(420, 300). Como 420 = 2² × 3 × 5 × 7 e 300 = 2² × 3 × 5², o MDC é 2² × 3 × 5 = 60 cm.',
       'Azulejos em cada fila: 420 ÷ 60 = 7 na largura e 300 ÷ 60 = 5 na altura (ao todo, 35 azulejos).',
       'Os pontos de encontro formam uma malha: com 7 azulejos em uma fila há 7 + 1 = 8 pontos e, com 5 azulejos, há 5 + 1 = 6 pontos.',
-      'Total de espaçadores: 8 × 6 = 48.',
+      { explanation: 'Total de espaçadores.', calculation: ['8 × 6 = 48'] },
       'Armadilhas: 35 é a quantidade de azulejos, e não de pontos de encontro; 42 = 7 × 6 e 40 = 8 × 5 acrescentam 1 em apenas uma das direções; 60 é o lado do azulejo, em centímetros.',
     ],
     concept:
@@ -357,7 +357,7 @@ export const MISSAO_R3M2_B = batch([
       'De 21 a 30: 23 e 29 (2 primos), pois 21 = 3 × 7, 25 = 5² e 27 = 3³ são compostos.',
       'De 31 a 40: 31 e 37 (2 primos); 33, 35 e 39 são compostos.',
       'De 41 a 50: 41, 43 e 47 (3 primos); 45 e 49 (= 7²) são compostos.',
-      'Total: 4 + 4 + 2 + 2 + 3 = 15 poltronas.',
+      { explanation: 'Some as quantidades de primos encontradas em cada grupo de dez números.', calculation: ['4 + 4 + 2 + 2 + 3', '= 8 + 4 + 3', '= 15 poltronas'] },
       'Armadilhas: 16 aparece ao contar o 1 como primo; 14 aparece ao esquecer o 2, achando que todo primo é ímpar; 25 é a quantidade de números ímpares de 1 a 50; 10 resulta de contar só os primos até 29, parando no meio da lista.',
     ],
     concept:
@@ -388,8 +388,8 @@ export const MISSAO_R3M2_B = batch([
     solution: [
       'Quando N dentes passam pelo ponto de contato, a engrenagem menor dá N ÷ 24 voltas e a maior dá N ÷ 36 voltas.',
       'Os dentes pintados estão de novo em contato quando N ÷ 24 e N ÷ 36 são inteiros, isto é, quando N é múltiplo comum de 24 e 36. O primeiro reencontro ocorre com o menor deles: N = MMC(24, 36).',
-      '24 = 2³ × 3 e 36 = 2² × 3², então MMC(24, 36) = 2³ × 3² = 72 dentes.',
-      'Voltas da engrenagem menor: 72 ÷ 24 = 3. (A engrenagem maior terá dado 72 ÷ 36 = 2 voltas.)',
+      { explanation: 'O primeiro reencontro dos dentes pintados ocorre após o MMC dos números de dentes.', calculation: ['24 = 2³ × 3', '36 = 2² × 3²', 'MMC(24, 36) = 2³ × 3²', '= 8 × 9', '= 72 dentes'] },
+      { explanation: 'Divida pelos dentes da engrenagem menor para achar suas voltas. A maior completa duas voltas.', calculation: ['72 ÷ 24 = 3 voltas da menor', '72 ÷ 36 = 2 voltas da maior'] },
       'Armadilhas: 2 é o número de voltas da engrenagem maior, e a pergunta pede o da menor; 12 é o MDC(24, 36), de quem troca MMC por MDC; 72 é o número de dentes que passaram, e não de voltas; 5 soma as voltas das duas engrenagens (3 + 2).',
     ],
     concept:
@@ -425,7 +425,7 @@ export const MISSAO_R3M2_B = batch([
       'Lado do painel: deve conter um número inteiro de placas em cada direção, logo é um múltiplo comum de 36 e 60, e o menor possível. Como 36 = 2² × 3² e 60 = 2² × 3 × 5, MMC(36, 60) = 2² × 3² × 5 = 180 cm.',
       'Número de placas: (180 ÷ 36) × (180 ÷ 60) = 5 × 3 = 15 placas.',
       'Lado do ladrilho: deve caber um número exato de vezes em 36 e em 60 e ser o maior possível: MDC(36, 60) = 2² × 3 = 12 cm.',
-      'Ladrilhos por placa: (36 ÷ 12) × (60 ÷ 12) = 3 × 5 = 15.',
+      { explanation: 'Ladrilhos por placa.', calculation: ['(36 ÷ 12) × (60 ÷ 12) = 3 × 5', '= 15'] },
       'Total: 15 placas × 15 ladrilhos = 225 ladrilhos. Conferência pela área: 180² ÷ 12² = (180 ÷ 12)² = 15² = 225.',
       'Armadilhas: 15 é o número de placas (ou de ladrilhos por placa), de quem para no meio da conta; 45 e 75 contam ladrilhos considerando uma só dimensão da placa (15 × 3 e 15 × 5); 900 vem de um painel de 360 cm de lado, que é múltiplo comum, mas não o menor.',
     ],

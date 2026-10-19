@@ -100,6 +100,55 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await click('Primeira expedição');
   await wait(1500);
   await shot('question');
+  if (process.argv.includes('--solutions-only')) {
+    // Somente na prévia QA: reutiliza a etapa de leitura para testar todo o catálogo.
+    const fs = require('fs');
+    const contentDir = path.join(__dirname, '../src/content/questions');
+    const ids = fs.readdirSync(contentDir, { recursive: true }).filter(file => file.endsWith('.ts'))
+      .flatMap(file => [...fs.readFileSync(path.join(contentDir, file), 'utf8').matchAll(/id:\s*['"]([A-Z]{3}-\d{3})['"]/g)].map(match => match[1]));
+    if (ids.length === 0 || new Set(ids).size !== ids.length) throw new Error('Catálogo incompleto no teste visual');
+    const original = await page.evaluate(() => globalThis.__qf.store.getState().game);
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.context().setOffline(true);
+    for (const id of ids) {
+      await page.evaluate(id => {
+        const store = globalThis.__qf.store;
+        const g = store.getState().game;
+        const current = g.session.queue[g.session.index];
+        store.setState({ game: { ...g, session: { ...g.session, scaffoldLesson: { sourceQuestionId: current, practiceQuestionId: current, exampleQuestionId: id } } } });
+      }, id);
+      const sheet = page.getByTestId('solution-sheet');
+      await sheet.getByText(`QuestForge · ${id}`, { exact: true }).waitFor();
+      const answer = await page.evaluate(id => {
+        const q = globalThis.__qf.getQuestion(id);
+        return q.alternatives[q.answer];
+      }, id);
+      await sheet.getByText(answer, { exact: true }).last().waitFor();
+      const overflow = await sheet.evaluate(el => {
+        const sheet = el.getBoundingClientRect();
+        return [...el.querySelectorAll('[dir="auto"]')].filter(child => {
+          const rect = child.getBoundingClientRect();
+          return rect.width > 0 && (rect.left < sheet.left - 1 || rect.right > sheet.right + 1);
+        }).map(child => child.textContent);
+      });
+      if (overflow.length) throw new Error(`${id} ultrapassou a folha: ${JSON.stringify(overflow)}`);
+      if (['PCT-001', 'BAS-108', 'BAS-323', 'COM-004'].includes(id)) {
+        const result = sheet.getByText(answer, { exact: true }).last();
+        await result.scrollIntoViewIfNeeded();
+        const resultBox = await result.boundingBox();
+        const footerBox = await page.getByRole('button', { name: 'Agora vou tentar', exact: true }).boundingBox();
+        if (!resultBox || !footerBox || resultBox.y < 0 || resultBox.y + resultBox.height > footerBox.y) throw new Error(`${id}: não foi possível ler o resultado ao rolar a folha`);
+        await page.setViewportSize({ width: 390, height: 6000 });
+        await sheet.screenshot({ path: `${OUT}/solution-${id}.png` });
+        await page.setViewportSize({ width: 320, height: 844 });
+      }
+    }
+    await page.evaluate(game => globalThis.__qf.store.setState({ game }), original);
+    if (errors.length) throw new Error(JSON.stringify(errors));
+    console.log(`SOLUTIONS_OK: ${ids.length} folhas, respostas finais, sem corte lateral em 320px, leitura offline; sem erros de console`);
+    await browser.close();
+    return;
+  }
   // Seleciona e mostra o estado selecionado
   let q = await current();
   await page.getByRole('radio', { name: new RegExp(`^Alternativa ${q.answer}:`) }).click();
@@ -110,6 +159,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await click('Próxima questão');
   const wrongQuestion = await answerOne(false);
   await dismissCelebrations('levelup');
+  await page.getByTestId('solution-sheet').waitFor();
   await shot('feedback-wrong');
   await click('Próxima questão');
   await click('Dica');
@@ -139,6 +189,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await shot('learning-mistakes');
   await click(`Ver resolução · ${wrongQuestion.id}`);
   await page.getByText('Resolução passo a passo', { exact: true }).waitFor();
+  await page.getByTestId('solution-sheet').waitFor();
   const correctText = await page.evaluate((id) => {
     const q = globalThis.__qf.getQuestion(id);
     return q.alternatives[q.answer];

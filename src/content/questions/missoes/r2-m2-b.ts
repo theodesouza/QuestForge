@@ -24,7 +24,7 @@ export const MISSAO_R2M2_B = batch([
     ],
     solution: [
       'Em juros compostos, M = C × (1 + i)ⁿ, com C = 7.500, i = 0,08 e n = 5 anos.',
-      'M = 7.500 × 1,08⁵ ≈ 7.500 × 1,47 = R$ 11.025,00.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['M = 7.500 × 1,08⁵', '≈ 7.500 × 1,47', '= R$ 11.025,00'] },
       'Armadilhas: juros simples dariam 7.500 × (1 + 5 × 0,08) = 7.500 × 1,40 = R$ 10.500,00; R$ 3.525,00 são apenas os juros; R$ 8.100,00 corresponde a só 1 ano de aplicação; R$ 18.525,00 soma o capital ao montante, contando-o duas vezes.',
     ],
     concept:
@@ -57,7 +57,7 @@ export const MISSAO_R2M2_B = batch([
     ],
     solution: [
       'Em 12 meses, o saldo é multiplicado por 1,007¹² ≈ 1,0873.',
-      'Taxa anual equivalente: 1,0873 − 1 = 0,0873 = 8,73%.',
+      { explanation: 'Taxa anual equivalente.', calculation: ['1,0873 − 1 = 0,0873', '= 8,73%'] },
       'Armadilhas: 12 × 0,7% = 8,4% ignora o juro sobre juro; 4,27% corresponde a apenas 6 meses; 2 × 4,27% = 8,54% soma as taxas dos dois semestres em vez de multiplicar os fatores; 108,73% esquece de subtrair 1 do fator.',
     ],
     concept:
@@ -99,9 +99,9 @@ export const MISSAO_R2M2_B = batch([
       'Converta cada taxa para uma taxa anual, lembrando que um ano tem 12 meses, 4 trimestres ou 2 semestres.',
     ],
     solution: [
-      'Aplicação I: 1,01¹² ≈ 1,1268, ou seja, cerca de 12,68% ao ano.',
-      'Aplicação II: 1,03⁴ ≈ 1,1255, ou seja, cerca de 12,55% ao ano.',
-      'Aplicação III: 1,06² = 1,1236, ou seja, 12,36% ao ano.',
+      { explanation: 'Aplicação I: acumule doze taxas mensais de 1% e retire o fator do capital.', calculation: ['1,01¹² ≈ 1,1268', '(1,1268 − 1) × 100 ≈ 12,68% ao ano'] },
+      { explanation: 'Aplicação II: um ano tem quatro trimestres.', calculation: ['1,03⁴ ≈ 1,1255', '(1,1255 − 1) × 100 ≈ 12,55% ao ano'] },
+      { explanation: 'Aplicação III: um ano tem dois semestres.', calculation: ['1,06² = 1,1236', '(1,1236 − 1) × 100 = 12,36% ao ano'] },
       'Aplicação IV: 12,5% ao ano.',
       'A mais vantajosa é a aplicação I, com taxa anual equivalente de cerca de 12,68%.',
       'Armadilha: converter as taxas proporcionalmente (12 × 1%, 4 × 3% e 2 × 6%) dá 12% ao ano para as três primeiras e leva a escolher a aplicação IV, de 12,5%. Em juros compostos, com a mesma taxa proporcional, quanto menor o período de capitalização, maior a taxa anual equivalente.',
@@ -148,8 +148,8 @@ export const MISSAO_R2M2_B = batch([
       'No regime simples, descubra quantos anos de juros de 5% são necessários para acumular juros iguais a 100% do capital.',
     ],
     solution: [
-      'Juros simples: o montante dobra quando os juros chegam a 100% do capital; como 100% ÷ 5% = 20, o tempo de duplicação é de 20 anos.',
-      'Juros compostos: é preciso que 1,05ⁿ ≥ 2. Pela tabela, 1,05¹⁴ ≈ 1,980 < 2 e 1,05¹⁵ ≈ 2,079 ≥ 2; logo, o capital dobra em 15 anos.',
+      { explanation: 'Em juros simples, dobrar o capital exige juros iguais a 100% dele.', calculation: ['t = 100% ÷ 5%', 't = 20 anos'] },
+      { explanation: 'Em juros compostos, consulte a tabela para achar a primeira potência que alcança 2.', calculation: ['1,05¹⁴ ≈ 1,980 < 2', '1,05¹⁵ ≈ 2,079 ≥ 2', 't = 15 anos'] },
       'Diferença: 20 − 15 = 5 anos.',
       'Armadilhas: tomar 14 anos para os juros compostos (1,980 ainda não é o dobro) leva a 6 anos de diferença; tomar 16 anos conta um ano a mais e leva a 4 anos; 15 anos e 20 anos são os tempos de duplicação de cada regime, e não a diferença entre eles.',
     ],
@@ -195,7 +195,7 @@ export const MISSAO_R2M2_B = batch([
       'Divida o saldo atual pelo valor aplicado e procure o resultado na coluna x³ da tabela.',
     ],
     solution: [
-      'Fator de crescimento em 3 anos: 53.240 ÷ 40.000 = 1,331.',
+      { explanation: 'Fator de crescimento em 3 anos.', calculation: ['53.240 ÷ 40.000 = 1,331'] },
       'Em juros compostos, (1 + i)³ = 1,331. Pela tabela, 1,10³ = 1,331; logo, 1 + i = 1,10.',
       'Taxa anual: i = 0,10 = 10% ao ano.',
       'Armadilhas: dividir o rendimento total de 33,1% por 3 dá cerca de 11,03%, que seria a taxa em juros simples; 33,1% é a taxa dos 3 anos, e não a anual; 1,1% confunde o fator 1,10 com a taxa; calcular os juros sobre o saldo final (13.240 ÷ 53.240 ≈ 24,87%) e dividir por 3 dá cerca de 8,29%.',
@@ -228,8 +228,8 @@ export const MISSAO_R2M2_B = batch([
       'Para obter o depósito inicial, divida o saldo do fim do 3º ano por 1,12³.',
     ],
     solution: [
-      'Depósito inicial: 35.123,20 ÷ 1,404928 = R$ 25.000,00.',
-      'Saldo ao final do 1º ano: 25.000 × 1,12 = R$ 28.000,00.',
+      { explanation: 'Depósito inicial.', calculation: ['35.123,20 ÷ 1,404928 = R$ 25.000,00'] },
+      { explanation: 'Saldo ao final do 1º ano.', calculation: ['25.000 × 1,12 = R$ 28.000,00'] },
       'Juros do 2º ano: 12% de 28.000 = 0,12 × 28.000 = R$ 3.360,00 (o saldo passa a R$ 31.360,00).',
       'Armadilhas: R$ 3.000,00 são os juros do 1º ano e R$ 3.763,20, os do 3º ano; dividir os juros totais (R$ 10.123,20) por 3 dá R$ 3.374,40, como se os juros fossem iguais todo ano (juros simples); R$ 6.360,00 são os juros acumulados nos dois primeiros anos.',
     ],
@@ -270,7 +270,7 @@ export const MISSAO_R2M2_B = batch([
       'Divida os juros do 2º ano pelos juros do 1º ano para descobrir o fator anual e, com ele, a taxa.',
     ],
     solution: [
-      'Os juros de cada ano valem i vezes o saldo do início do ano, e o saldo cresce pelo fator (1 + i). Assim, 2.600 ÷ 2.500 = 1,04, e a taxa é de 4% ao ano (conferência: 2.704 ÷ 2.600 = 1,04).',
+      { explanation: 'Os juros de cada ano valem i vezes o saldo do início do ano, e o saldo cresce pelo fator (1 + i). Assim, 2.600 ÷ 2.500 = 1,04, e a taxa é de 4% ao ano (conferência.', calculation: ['2.704 ÷ 2.600 = 1,04)'] },
       'Os juros do 1º ano são 4% do valor aplicado: 0,04 × C = 2.500, logo C = 2.500 ÷ 0,04 = R$ 62.500,00.',
       'Conferência: 62.500 → 65.000 → 67.600 → 70.304, com juros de 2.500, 2.600 e 2.704.',
       'Armadilhas: R$ 65.000,00 e R$ 67.600,00 são os saldos no início do 2º e do 3º ano, obtidos ao dividir por 4% os juros desses anos; R$ 70.304,00 é o saldo ao final do 3º ano; R$ 7.804,00 é a soma dos juros dos três anos.',
@@ -311,7 +311,7 @@ export const MISSAO_R2M2_B = batch([
     solution: [
       'Em 2 anos, o fator de crescimento é 1 + 0,44 = 1,44. Como a taxa anual é fixa, (1 + i)² = 1,44, logo 1 + i = √1,44 = 1,2: a taxa é de 20% ao ano.',
       'Em 3 anos, o fator é 1,2³ = 1,44 × 1,2 = 1,728.',
-      'Montante: 5.000 × 1,728 = R$ 8.640,00.',
+      { explanation: 'Montante.', calculation: ['5.000 × 1,728 = R$ 8.640,00'] },
       'Armadilhas: dividir 44% por 2 dá 22% ao ano; com juros compostos, isso leva a 5.000 × 1,22³ ≈ R$ 9.079,24, e com juros simples (66% em 3 anos), a R$ 8.300,00; aplicar 44% nos 2 primeiros anos e 22% no 3º dá 5.000 × 1,44 × 1,22 = R$ 8.784,00; R$ 3.640,00 são apenas os juros.',
     ],
     concept:
@@ -346,9 +346,9 @@ export const MISSAO_R2M2_B = batch([
       'Use a regra para calcular o tempo de uma duplicação a 6% ao ano e, depois, conte quantas duplicações levam ao fator desejado.',
     ],
     solution: [
-      'Aumento de 300%: o saldo final é 100% + 300% = 400% do capital, ou seja, 4 vezes o valor aplicado.',
-      'Pela regra do 72, a 6% ao ano o capital dobra em cerca de 72 ÷ 6 = 12 anos.',
-      'Multiplicar por 4 = 2 × 2 exige 2 duplicações: 2 × 12 = 24 anos.',
+      { explanation: 'Aumentar 300% significa manter o capital e acrescentar três vezes o seu valor.', calculation: ['100% + 300% = 400%', '400/100 = 4 vezes o capital'] },
+      { explanation: 'Use a regra aproximada do 72 para o prazo de uma duplicação.', calculation: ['72 ÷ 6 = 12 anos'] },
+      { explanation: 'Quadruplicar exige duas duplicações, não quatro.', calculation: ['4 = 2 × 2', '2 × 12 = 24 anos'] },
       'Conferência: 1,06²⁴ ≈ 4,05, ou seja, cerca de 4 vezes o capital.',
       'Armadilhas: supor que o saldo cresce 100% a cada 12 anos (crescimento linear) leva a 3 × 12 = 36 anos; contar 4 duplicações, em vez de multiplicar o capital por 4, leva a 48 anos; interpretar a meta como triplicar o capital e estimar esse tempo como 1,5 duplicação leva a 18 anos; usar juros simples (300% ÷ 6% ao ano) leva a 50 anos.',
     ],
@@ -385,7 +385,7 @@ export const MISSAO_R2M2_B = batch([
     solution: [
       'Seu Raimundo: juros mensais de 0,009 × 80.000 = R$ 720,00; em 12 meses, ele saca 12 × 720 = R$ 8.640,00.',
       'Dona Cida: saldo final de 80.000 × 1,009¹² ≈ 80.000 × 1,1135 = R$ 89.080,00; juros acumulados de 89.080 − 80.000 = R$ 9.080,00.',
-      'Diferença: 9.080 − 8.640 = R$ 440,00.',
+      { explanation: 'Diferença.', calculation: ['9.080 − 8.640 = R$ 440,00'] },
       'Armadilhas: R$ 8.640,00 e R$ 9.080,00 são os juros de cada um, e não a diferença; R$ 720,00 são os juros de um só mês; comparar o saldo final de Dona Cida, sem subtrair o capital, com os juros de Seu Raimundo dá 89.080 − 8.640 = R$ 80.440,00.',
       'Observe que sacar os juros todo mês faz o dinheiro de Seu Raimundo render como em juros simples; os R$ 440,00 são o "juro sobre juro" que só Dona Cida recebeu.',
     ],
@@ -421,10 +421,10 @@ export const MISSAO_R2M2_B = batch([
       'Calcule primeiro quanto o depósito de hoje valerá daqui a 2 anos: 12.000 × 1,06².',
     ],
     solution: [
-      'Primeiro depósito, daqui a 2 anos: 12.000 × 1,06² = 12.000 × 1,1236 = R$ 13.483,20.',
+      { explanation: 'Primeiro depósito, daqui a 2 anos.', calculation: ['12.000 × 1,06² = 12.000 × 1,1236', '= R$ 13.483,20'] },
       'O segundo depósito precisa chegar, ao final, a 28.090 − 13.483,20 = R$ 14.606,80.',
       'Como ele rende só 1 ano: D × 1,06 = 14.606,80, logo D = 14.606,80 ÷ 1,06 = R$ 13.780,00.',
-      'Conferência: 13.483,20 + 13.780 × 1,06 = 13.483,20 + 14.606,80 = R$ 28.090,00.',
+      { explanation: 'Conferência.', calculation: ['13.483,20 + 13.780 × 1,06 = 13.483,20 + 14.606,80', '= R$ 28.090,00'] },
       'Armadilhas: R$ 14.606,80 esquece que o segundo depósito também rende juros por 1 ano; R$ 16.090,00 (28.090 − 12.000) ignora todos os juros; levar o preço para hoje (28.090 ÷ 1,1236 = 25.000) e subtrair 12.000 dá R$ 13.000,00, que seria o valor de um segundo depósito feito hoje, e não daqui a 1 ano; levar o preço para daqui a 1 ano (28.090 ÷ 1,06 = 26.500) e subtrair os R$ 12.000,00 sem os juros do 1º ano dá R$ 14.500,00.',
     ],
     concept:

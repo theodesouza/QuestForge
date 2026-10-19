@@ -22,8 +22,8 @@ export const MISSAO_R1M2_A = batch([
       'Descubra quantos quilogramas de composto vão em cada metro quadrado, dividindo 6 por 15.',
     ],
     solution: [
-      'Composto por metro quadrado: 6 ÷ 15 = 0,4 kg/m².',
-      'Novo canteiro: 0,4 × 40 = 16 kg.',
+      { explanation: 'Composto por metro quadrado.', calculation: ['6 ÷ 15 = 0,4 kg/m²'] },
+      { explanation: 'Novo canteiro.', calculation: ['0,4 × 40 = 16 kg'] },
       'Conferência pela proporção: 6/15 = x/40, logo x = 6 × 40 ÷ 15 = 16 kg.',
       'Armadilha: somar a diferença de área (6 + 25 = 31) não mantém a proporção; a quantidade de composto cresce multiplicando, e não somando.',
     ],
@@ -53,9 +53,9 @@ export const MISSAO_R1M2_A = batch([
       'Comece calculando o valor total da máquina, multiplicando o número de parcelas pelo valor de cada uma.',
     ],
     solution: [
-      'Valor total: 10 × 312 = R$ 3.120,00.',
-      'Em 12 parcelas: 3.120 ÷ 12 = R$ 260,00.',
-      'Conferência: 12 × 260 = 3.120.',
+      { explanation: 'Valor total.', calculation: ['10 × 312 = R$ 3.120,00'] },
+      { explanation: 'Em 12 parcelas.', calculation: ['3.120 ÷ 12 = R$ 260,00'] },
+      { explanation: 'Conferência.', calculation: ['12 × 260 = 3.120'] },
       'Armadilha: montar a regra de três como se fosse direta (312 × 12 ÷ 10 = R$ 374,40) faria a parcela aumentar, embora o mesmo total seja dividido em mais partes.',
     ],
     concept:
@@ -84,8 +84,8 @@ export const MISSAO_R1M2_A = batch([
       'Descubra o preço de 1 dólar dividindo R$ 840,00 por 150.',
     ],
     solution: [
-      'Preço de 1 dólar: 840 ÷ 150 = R$ 5,60.',
-      'Valor de 400 dólares: 400 × 5,60 = R$ 2.240,00.',
+      { explanation: 'Preço de 1 dólar.', calculation: ['840 ÷ 150 = R$ 5,60'] },
+      { explanation: 'Valor de 400 dólares.', calculation: ['400 × 5,60 = R$ 2.240,00'] },
       'Pela proporção: 840/150 = x/400, logo x = 840 × 400 ÷ 150 = 2.240.',
       'Armadilha: somar R$ 250,00 porque Rita compra 250 dólares a mais (840 + 250 = R$ 1.090,00) confunde dólares com reais e ignora a cotação.',
     ],
@@ -117,7 +117,7 @@ export const MISSAO_R1M2_A = batch([
     solution: [
       'Em 18 minutos, a carga subiu de 20% para 50%: ganho de 30 pontos percentuais.',
       'Ritmo: 18 ÷ 30 = 0,6 minuto por ponto percentual.',
-      'Faltam 100 − 50 = 50 pontos percentuais: 50 × 0,6 = 30 min.',
+      { explanation: 'Faltam 100 − 50 = 50 pontos percentuais.', calculation: ['50 × 0,6 = 30 min'] },
       'Armadilha: considerar que os 50% foram carregados em 18 minutos leva a um ritmo errado, pois a bateria já começou com 20%.',
     ],
     concept:
@@ -146,9 +146,9 @@ export const MISSAO_R1M2_A = batch([
       'Converta 2 h 40 min em minutos e calcule o total de gotas do frasco: gotas por minuto × minutos.',
     ],
     solution: [
-      'Tempo inicial: 2 h 40 min = 2 × 60 + 40 = 160 min.',
+      { explanation: 'Tempo inicial.', calculation: ['2 h 40 min = 2 × 60 + 40', '= 160 min'] },
       'Total de gotas do frasco: 45 × 160 = 7.200 gotas.',
-      'Novo tempo: 7.200 ÷ 36 = 200 min.',
+      { explanation: 'Novo tempo.', calculation: ['7.200 ÷ 36 = 200 min'] },
       '200 min = 3 × 60 + 20, ou seja, 3 h 20 min.',
       'Armadilha: o gotejamento caiu 20% (de 45 para 36), mas o tempo não aumenta 20%; ele é multiplicado por 45/36 = 1,25, isto é, aumenta 25%.',
       'Armadilha: tratar 2 h 40 min como 2,40 h está errado, pois 40 min = 40/60 h ≈ 0,67 h.',
@@ -179,10 +179,10 @@ export const MISSAO_R1M2_A = batch([
       'Comece calculando quantos mililitros são desperdiçados em 1 hora, lembrando que 1 hora tem quatro períodos de 15 minutos.',
     ],
     solution: [
-      'Em 1 hora: 4 × 40 = 160 mL.',
-      'Em 1 dia (24 h): 24 × 160 = 3.840 mL.',
-      'Em 30 dias: 30 × 3.840 = 115.200 mL.',
-      'Como 1 L = 1.000 mL: 115.200 ÷ 1.000 = 115,2 L.',
+      { explanation: 'Em 1 hora.', calculation: ['4 × 40 = 160 mL'] },
+      { explanation: 'Em 1 dia (24 h).', calculation: ['24 × 160 = 3.840 mL'] },
+      { explanation: 'Em 30 dias.', calculation: ['30 × 3.840 = 115.200 mL'] },
+      { explanation: 'Como 1 L = 1.000 mL.', calculation: ['115.200 ÷ 1.000 = 115,2 L'] },
       'Armadilha: esquecer de multiplicar pelas 24 horas do dia daria apenas 4,8 L, como se a torneira pingasse só 1 hora por dia.',
     ],
     concept:
@@ -215,8 +215,8 @@ export const MISSAO_R1M2_A = batch([
       'Calcule quantas voltas a catraca dá em 1 minuto: o produto "voltas × dentes" é o mesmo para as duas engrenagens.',
     ],
     solution: [
-      'Coroa: 75 voltas × 42 dentes = 3.150 dentes passam pela corrente em 1 minuto.',
-      'Catraca: 3.150 ÷ 14 = 225 voltas por minuto (cada volta dos pedais gera 42 ÷ 14 = 3 voltas da roda).',
+      { explanation: 'Conte os dentes da coroa que passam pela corrente em um minuto.', calculation: ['75 × 42 = 3.150 dentes'] },
+      { explanation: 'Cada volta da catraca usa 14 dentes. Divida para obter as voltas da roda.', calculation: ['3.150 ÷ 14 = 225 voltas por minuto', '42 ÷ 14 = 3 voltas da roda por pedalada'] },
       'Distância: 225 × 2 = 450 m em 1 minuto.',
       'Armadilha: montar a regra de três como direta (75 × 14 ÷ 42 = 25 voltas) faria a roda girar menos que os pedais, o que contraria o funcionamento da bicicleta.',
     ],
@@ -263,10 +263,10 @@ export const MISSAO_R1M2_A = batch([
       'Some os seis consumos do gráfico e divida o total por 6 para obter o consumo médio mensal.',
     ],
     solution: [
-      'Consumo total: 430 + 410 + 390 + 370 + 360 + 440 = 2.400 kWh.',
+      { explanation: 'Consumo total.', calculation: ['430 + 410 + 390 + 370 + 360 + 440 = 2.400 kWh'] },
       'Consumo médio: 2.400 ÷ 6 = 400 kWh por mês.',
       'Geração de 1 placa: 150 ÷ 4 = 37,5 kWh por mês.',
-      'Placas necessárias: 400 ÷ 37,5 ≈ 10,67.',
+      { explanation: 'Placas necessárias.', calculation: ['400 ÷ 37,5 ≈ 10,67'] },
       'Com 10 placas, a geração seria 10 × 37,5 = 375 kWh, menor que 400 kWh; por isso, são necessárias 11 placas (11 × 37,5 = 412,5 kWh).',
       'Armadilha: usar 150 kWh como a geração de uma única placa daria apenas 3 placas, mas esse valor corresponde às 4 placas do vizinho juntas.',
     ],
@@ -303,8 +303,8 @@ export const MISSAO_R1M2_A = batch([
       'Calcule a área de uma peça de cada tamanho, em cm², e compare as duas.',
     ],
     solution: [
-      'Área de uma peça de 30 cm: 30 × 30 = 900 cm². Área de uma peça de 45 cm: 45 × 45 = 2.025 cm².',
-      'Número de peças × área da peça é constante (é a área da varanda): 180 × 900 = 162.000 cm², ou seja, 16,2 m².',
+      { explanation: 'Calcule as áreas dos dois tamanhos de peça.', calculation: ['30 × 30 = 900 cm²', '45 × 45 = 2.025 cm²'] },
+      { explanation: 'A área da varanda permanece a mesma, independentemente da peça escolhida.', calculation: ['180 × 900 = 162.000 cm²', '162.000 ÷ 10.000 = 16,2 m²'] },
       'Peças de 45 cm, sem perdas: 162.000 ÷ 2.025 = 80 peças.',
       'Com 10% a mais: 80 × 1,1 = 88 peças.',
       'Armadilha: usar a razão entre os lados (180 × 30 ÷ 45 = 120 peças, ou 132 com os 10%) ignora que a área da peça cresce com o quadrado do lado: ela fica (45/30)² = 2,25 vezes maior.',
@@ -339,7 +339,7 @@ export const MISSAO_R1M2_A = batch([
       'Por quilômetro: 576 ÷ 30 = 19,2 gari-horas.',
       'Mutirão: 45 × 19,2 = 864 gari-horas.',
       'Cada gari trabalha 4 × 6 = 24 horas no mutirão: 864 ÷ 24 = 36 garis.',
-      'Pela regra de três composta: x = 12 × (45/30) × (6/4) × (8/6) = 36.',
+      { explanation: 'Pela regra de três composta.', calculation: ['x = 12 × (45/30) × (6/4) × (8/6)', '= 36'] },
       'Armadilha: tratar todas as grandezas como diretamente proporcionais (12 × 45/30 × 4/6 × 6/8 = 9) faria a equipe diminuir justamente quando há menos tempo disponível.',
     ],
     concept:
@@ -371,7 +371,7 @@ export const MISSAO_R1M2_A = batch([
       'Situação inicial: 5 × 6 × 3 = 90 horas de trabalho (cozinheira-horas) para 900 marmitas.',
       'Produtividade: 900 ÷ 90 = 10 marmitas por cozinheira por hora.',
       'Por dia, a encomenda exige 1.200 ÷ 2 = 600 marmitas; as 8 cozinheiras juntas fazem 8 × 10 = 80 marmitas por hora.',
-      'Jornada: 600 ÷ 80 = 7,5 h = 7 h 30 min.',
+      { explanation: 'Jornada.', calculation: ['600 ÷ 80 = 7,5 h', '= 7 h 30 min'] },
       'Armadilha: 7,5 h não é 7 h 50 min, pois 0,5 h corresponde a 30 min.',
     ],
     concept:
