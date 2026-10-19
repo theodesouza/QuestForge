@@ -104,6 +104,7 @@ export async function answer(input: Omit<AnswerInput, 'attemptId'>): Promise<Gam
 }
 
 export const skip = () => run((s) => game.skipCurrent(s));
+export const acknowledgeScaffold = (practiceQuestionId: string) => run(s => game.acknowledgeScaffold(s, practiceQuestionId));
 export const finish = () => run((s, now) => game.finishSession(s, now));
 export const abandon = () => run((s) => game.abandonSession(s));
 
