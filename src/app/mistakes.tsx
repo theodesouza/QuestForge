@@ -6,6 +6,7 @@ import { getTopic, subtopicLabel } from '../content/topics';
 import { ALT_KEYS } from '../content/types';
 import type { Attempt } from '../domain/game/types';
 import { StemBlocks } from '../features/question/StemBlocks';
+import { SolutionSheet } from '../features/question/SolutionSheet';
 import { loadMistakeHistory } from '../state/actions';
 import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
@@ -70,7 +71,7 @@ export default function Mistakes() {
             {selected.hints} dicas usadas{selected.guessed ? ' · marcou chute' : ''}
           </Text>
           <Text variant="heading">Resolução passo a passo</Text>
-          {question.solution.map((step, i) => <Text key={i}>{i + 1}. {step}</Text>)}
+          <SolutionSheet question={question} />
           <Panel><Text variant="label" color={colors.iris}>Conceito-chave</Text><Text>{question.concept}</Text></Panel>
           <Text variant="caption" color={colors.mist}>Consultar esta resolução não concede XP nem altera o prazo do Eco.</Text>
           <Button label="Voltar ao histórico" variant="secondary" onPress={() => setSelected(null)} />

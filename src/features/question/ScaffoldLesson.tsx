@@ -7,6 +7,7 @@ import { Panel } from '../../ui/Panel';
 import { Text } from '../../ui/Text';
 import { colors, space } from '../../ui/theme';
 import { StemBlocks } from './StemBlocks';
+import { SolutionSheet } from './SolutionSheet';
 
 export function ScaffoldLesson({ example, practice }: { example: Question; practice: Question }) {
   return (
@@ -23,17 +24,7 @@ export function ScaffoldLesson({ example, practice }: { example: Question; pract
       <Text variant="heading" accessibilityRole="header">Exemplo resolvido</Text>
       <StemBlocks blocks={example.stem} />
       <Text variant="ask">{example.ask}</Text>
-      <Panel accent={colors.verdigris}>
-        <View style={styles.wrap}>
-          {example.solution.map((step, i) => (
-            <View key={i} style={styles.step}>
-              <Text variant="number" color={colors.brass}>{i + 1}.</Text>
-              <Text style={styles.stepText}>{step}</Text>
-            </View>
-          ))}
-          <Text variant="bodyStrong" color={colors.verdigris}>Resposta: {example.alternatives[example.answer]}</Text>
-        </View>
-      </Panel>
+      <SolutionSheet question={example} />
       <Text variant="caption" color={colors.mist}>Este exemplo é só para leitura: não conta como resposta, domínio ou XP.</Text>
       <Panel>
         <Text variant="label" color={colors.brass}>Agora é sua vez</Text>
@@ -46,6 +37,4 @@ export function ScaffoldLesson({ example, practice }: { example: Question; pract
 const styles = StyleSheet.create({
   wrap: { gap: space.lg },
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm },
-  step: { flexDirection: 'row', gap: space.sm },
-  stepText: { flex: 1 },
 });
