@@ -166,6 +166,21 @@ O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualizaç
 
 ## Conteúdo
 
+### Reforço guiado
+
+Após o gatilho de andaime, `domain/learning/scaffold.ts` busca um exemplo do mesmo
+subassunto da prática de base, até a dificuldade da questão errada. Exclui a fila
+inteira e todos os exemplos já reservados na sessão. O exemplo não entra na fila,
+tentativas, domínio ou recompensas; seus IDs também ficam excluídos de reforços
+avaliados posteriores. Sem candidato, o andaime anterior permanece funcional.
+
+`ActiveSession.scaffoldLesson` guarda origem, exemplo e prática; `scaffoldExampleIds`
+registra os exemplos reservados. Campos opcionais no JSON já persistido em
+`active_run`, sem migração SQL ou mudança nativa. `acknowledgeScaffold` só limpa a
+etapa pendente após commit, é idempotente e ignora toques antigos. Sessões antigas
+continuam compatíveis. A tela mostra o exemplo antes da prática e só inicia o
+contador da tentativa ao sair da leitura; encerrar o app mantém a etapa pendente.
+
 ### Consultas de aprendizado
 
 `GameRepository.activitySince` lê a atividade desde o começo da semana local;

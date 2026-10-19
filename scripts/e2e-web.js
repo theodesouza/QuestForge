@@ -23,6 +23,13 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  if (process.argv.includes('--scaffold-only')) {
+    await page.clock.setFixedTime(new Date('2026-10-19T18:00:00Z'));
+    await page.addInitScript(() => {
+      let seed = 104;
+      Math.random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+    });
+  }
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push('PAGEERROR ' + e.message));
@@ -146,6 +153,45 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   if (process.argv.includes('--learning-only')) {
     if (errors.length) throw new Error(JSON.stringify(errors));
     console.log('LEARNING_OK: evolução, histórico, resolução e progresso preservado; sem erros de console');
+    await browser.close();
+    return;
+  }
+  if (process.argv.includes('--scaffold-only')) {
+    await click('Sua evolução');
+    await click('Treinar este assunto');
+    await answerOne(false);
+    await click('Próxima questão');
+    await answerOne(false);
+    const setup = await page.evaluate(() => {
+      const s = globalThis.__qf.store.getState().game.session;
+      return { answers: s.answers.map(a => ({ id: a.questionId, subtopic: globalThis.__qf.getQuestion(a.questionId).subtopic, correct: a.correct })), queue: s.queue, scaffold: s.scaffoldLesson };
+    });
+    if (!setup.scaffold) throw new Error(`O cenário de teste não encontrou um exemplo separado: ${JSON.stringify(setup)}`);
+    await page.getByRole('button', { name: 'Ver exemplo resolvido', exact: true }).waitFor();
+    const beforeLesson = await page.evaluate(() => JSON.parse(JSON.stringify(globalThis.__qf.store.getState().game)));
+    const lesson = beforeLesson.session.scaffoldLesson;
+    if (!lesson || beforeLesson.session.queue.includes(lesson.exampleQuestionId)) throw new Error('O exemplo revelou uma questão avaliada');
+    await click('Ver exemplo resolvido');
+    await page.getByText('Exemplo resolvido', { exact: true }).waitFor();
+    if (await page.getByRole('radio').count()) throw new Error('O exemplo está aceitando respostas');
+    await shot('scaffold-lesson');
+    // Sair da rota e retomá-la deve manter a leitura pendente.
+    await page.goBack();
+    await click('Retomar a sessão pausada');
+    await page.getByText('Exemplo resolvido', { exact: true }).waitFor();
+    await click('Agora vou tentar');
+    await page.getByRole('button', { name: 'Confirmar resposta', exact: true }).waitFor();
+    const afterLesson = await page.evaluate(() => JSON.parse(JSON.stringify(globalThis.__qf.store.getState().game)));
+    beforeLesson.session.scaffoldLesson = null;
+    if (JSON.stringify(beforeLesson) !== JSON.stringify(afterLesson)) throw new Error('Ler o exemplo alterou mais do que a etapa de leitura');
+    if (afterLesson.session.queue[afterLesson.session.index] !== lesson.practiceQuestionId) throw new Error('Não voltou para a prática certa');
+    await shot('scaffold-practice');
+    await answerOne(true);
+    await dismissCelebrations(null);
+    await click('Próxima questão');
+    if (await page.getByText('Exemplo resolvido', { exact: true }).count()) throw new Error('Não voltou ao treino normal');
+    if (errors.length) throw new Error(JSON.stringify(errors));
+    console.log('SCAFFOLD_OK: exemplo sem resposta/XP, retomada, prática e retorno ao treino; sem erros de console');
     await browser.close();
     return;
   }

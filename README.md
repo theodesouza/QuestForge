@@ -92,7 +92,7 @@ Essa reversão troca o código e mantém o banco do aparelho; não desfaz o estu
 ## Verificações
 
 ```bash
-npm test                 # 184 testes: domínio, evolução, rejogabilidade, conteúdo, efeitos, SQLite real e atualização a partir da v0.1.0/v0.2.0
+npm test                 # 194 testes: domínio, evolução, reforço guiado, conteúdo, efeitos, SQLite real e atualização
 npm run typecheck        # TypeScript estrito
 npm run lint             # ESLint (config Expo + regras de hooks do React)
 npm run validate:content # só o validador do banco de questões
@@ -114,6 +114,14 @@ Playwright, informe seu executável em `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`.
 No Acampamento, **Sua evolução** abre o gráfico da semana e o mapa de domínio por
 subassunto. **Histórico de erros** permite consultar as tentativas anteriores e suas
 resoluções, sem gastar ou ganhar recompensas. O painel também está no Herói.
+
+Nas expedições e missões, dois erros seguidos no mesmo subassunto podem oferecer
+**Ver exemplo resolvido** antes da prática mais acessível. O exemplo é outro item
+validado, separado da avaliação; sua leitura não dá XP nem conta como resposta.
+É possível pausar e retomar essa etapa. Sem exemplo adequado no banco, continua
+valendo o reforço com questão mais acessível e conceito. O roteiro
+`node scripts/e2e-web.js e2e-shots http://localhost:8090/ --scaffold-only`
+verifica leitura, retomada e retorno à prática.
 
 Com `EXPO_PUBLIC_QA=1` também existe o laboratório de efeitos `/vfx-lab` (grades de núcleos,
 auras e sinergias: `?grid=cores|auras|synergy`; combinação única: `?core=…&aura=…&fx=alto|medio|baixo`).

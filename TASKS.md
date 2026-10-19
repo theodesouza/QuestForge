@@ -3,7 +3,7 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (184 testes), `npm run typecheck`, `npm run lint`,
+Como verificar: `npm test` (194 testes), `npm run typecheck`, `npm run lint`,
 `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
@@ -113,7 +113,7 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [x] Histórico de erros navegável: 20 tentativas por página, data, assunto, enunciado, alternativas com resposta marcada, resolução e conceito. Consultar não altera XP nem o prazo do Eco; Voltar do Android retorna ao histórico.
 - [x] Consultas de aprendizado testadas em SQLite real e memória; calendário semanal/fuso e amostra mínima testados. Roteiro web verifica expedição → evolução → histórico → resolução e exige progresso inalterado e nenhum erro de console (`--learning-only`). Exportações web/Android, lint e tipos conferidos; aparelho físico ainda pendente.
 - [ ] Caça aos Ecos como modo dedicado com progressão própria
-- [ ] Andaime completo com exemplo resolvido dedicado
+- [~] Andaime com exemplo resolvido: dois erros seguidos podem abrir uma etapa de leitura (conceito, enunciado e resolução de outro item validado), depois uma questão de base mais acessível e retorno ao treino. Exemplo no mesmo subassunto do reforço, nunca acima do nível da questão errada; não revela itens planejados nem volta como reforço avaliado na mesma sessão. Leitura salva e retomável, sem tentativa/XP/domínio. Quando não há exemplo separado adequado, mantém o reforço anterior. Conteúdo didático autoral específico para todos os subassuntos ainda pendente.
 - [ ] Simulados (por assunto, dificuldade, personalizado, completo 45 q) + histórico + comparação
 - [ ] Lembretes opcionais com horário de silêncio
 - [ ] Pausa saudável após 25 min contínuos
