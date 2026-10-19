@@ -73,6 +73,22 @@ de plataforma)? Aí é preciso um APK novo: suba `version` e `android.versionCod
 `app.json` e gere o APK com a mesma chave. A `runtimeVersion` segue a `version`, então
 um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 
+## Publicação e reversão
+
+Última atualização publicada: **19/10/2026 — evolução semanal e histórico de erros**,
+código `391ad47`, grupo Expo `60495e32-9990-401e-839e-18976055c016`, Android,
+canal `preview`, runtime `0.2.0`. Manifesto e hash do bundle baixado foram conferidos.
+O APK versionCode 4 recebe essa atualização sem reinstalação.
+
+Se for necessário voltar à versão anterior com a Região 3, republicar o grupo
+anterior no mesmo canal (o comando abaixo é de reversão, não de publicação normal):
+
+```bash
+npx eas-cli@latest update:republish --group 21bf9c7d-cdf1-4aea-b9ac-0e12b62c11e0 --destination-channel preview --platform android --message "Reversão para a versão anterior com Região 3" --non-interactive
+```
+
+Essa reversão troca o código e mantém o banco do aparelho; não desfaz o estudo realizado.
+
 ## Verificações
 
 ```bash

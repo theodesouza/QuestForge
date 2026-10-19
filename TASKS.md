@@ -135,6 +135,7 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [x] Primeira atualização publicada no canal `preview` (runtime 0.2.0); manifesto e bundle conferidos como o app os baixa
 - [x] Atualização da expansão (missões rejogáveis + efeitos do herói) publicada no canal `preview` (runtime 0.2.0, sem mudança nativa); manifesto, hash do bundle e textos novos conferidos
 - [x] Atualização da Região 3 (Planícies Numéricas, Quimera Fracionária e itens) publicada no canal `preview` (runtime 0.2.0, sem mudança nativa — o APK versionCode 4 já a recebe); manifesto, hash do bundle e textos novos conferidos
+- [x] Atualização de evolução e histórico publicada em 19/10/2026 (`391ad47`, grupo `60495e32-9990-401e-839e-18976055c016`, Android, canal `preview`, runtime `0.2.0`): manifesto servido ao APK, download, hash e textos das telas conferidos; gancho de QA ausente. Reversão preparada para o grupo anterior da Região 3 (`21bf9c7d-cdf1-4aea-b9ac-0e12b62c11e0`), sem migração ou reinstalação.
 - [x] Ícone do app (espada, livro e símbolos), splash e ícone monocromático do Android 13 gerados a partir da arte oficial (APK v0.2.0, versionCode 3)
 - [x] APK com a expansão (EAS, perfil `preview`): versionCode 4, versão 0.2.0, mesmo certificado da v0.1.0 (instala por cima), canal `preview` e runtime 0.2.0 conferidos com `apksigner`/`aapt2`; bundle embutido já traz missões e efeitos novos
 - [ ] Chave de assinatura própria para publicação na Play Store
