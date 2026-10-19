@@ -21,3 +21,7 @@ Arquivo: 118.573.038 bytes. SHA-256 do APK: `FA10069787143B26DDC5FCCDAB9ACD333B2
 A tela nativa usa apenas o nome QuestForge em branco (`#F5F7FB`), com a fonte Bricolage Grotesque Bold já usada pelo app, sobre o fundo escuro `#0B1020`. `assets/splash-icon.png` agora contém somente esse texto centralizado em uma tela transparente de 1024 × 1024. O tamanho nativo continua em 200 dp, com o texto dentro da área circular segura do Android. Sem ilustração, animação adicional ou tempo mínimo artificial; a abertura termina quando fontes e progresso local estão prontos, mantendo o tratamento de erro existente.
 
 Essa alteração exige um novo APK: versão 0.2.2, versionCode 6 e runtime 0.2.2. O pacote e a chave de assinatura continuam os mesmos para instalar por cima, sem desinstalar. Ícones do app e dados de progresso não mudam.
+
+APK concluído em 19/10/2026 às 20h07 de Brasília: build EAS `cf33019c-173f-4686-ac4a-ff6521e807d3`, código `1ad811b1890abad7c8088bb901a2699b9d9250c6`, perfil e canal `preview`. Assinatura criptográfica validada com `apksig`, certificado idêntico ao anterior. Pacote, versionCode 6, versão/runtime 0.2.2 e fundo nativo `#0B1020` conferidos com `aapt2`; imagem de abertura extraída do APK conferida visualmente, contendo apenas o nome. Tipos, lint, configuração Expo e área segura da imagem passaram. Não foi instalado em aparelho físico.
+
+Arquivo: 116.928.318 bytes. SHA-256 do APK: `4F6A00CFD36C6E5D492C2AAE60520E1D759C69642C96884DBC96B99F7A9ACF48`.

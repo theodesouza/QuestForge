@@ -36,12 +36,12 @@ continuam pendentes; não há exportação de PNG no app.
 
 ## Rodar no Android
 
-**APK mais recente: 0.2.1, versionCode 5 (19/10/2026), com o novo ícone do livro e da estrela.**
-[Baixar o APK](https://expo.dev/artifacts/eas/Vf5_tJZFfgCDnPaqKmBeYucSX8-cbWoudxv1s2VgxhU.apk).
+**APK mais recente: 0.2.2, versionCode 6 (19/10/2026), com abertura simples: nome QuestForge sobre fundo escuro.**
+[Baixar o APK](https://expo.dev/artifacts/eas/d71nE-3SeNo8boEJvqkZxrpGoLaYUhSEmJYHx9DIpF4.apk).
 Instale por cima da versão atual, **sem desinstalar**, para manter o progresso.
-Pacote e assinatura foram conferidos como idênticos aos anteriores. O runtime é `0.2.1`;
+Pacote e assinatura foram conferidos como idênticos aos anteriores. O runtime é `0.2.2`;
 o APK já contém o painel de evolução, reforço guiado e as 314 folhas de resolução.
-A troca do ícone exige este APK; não chega por EAS Update. [Detalhes da arte](docs/app-icon.md).
+A abertura simples exige este APK; não chega por EAS Update. O ícone do livro e da estrela foi mantido. [Detalhes da arte e da abertura](docs/app-icon.md).
 
 Requisitos: Node.js 20+ (testado com 22) e npm.
 
