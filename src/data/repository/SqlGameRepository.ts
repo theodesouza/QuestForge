@@ -244,21 +244,37 @@ export class SqlGameRepository implements GameRepository {
   async recentAttempts(limit: number): Promise<Attempt[]> {
     await this.init();
     const rows = await this.db.all<AttemptRow>('SELECT * FROM attempts ORDER BY created_at DESC LIMIT ?', [limit]);
-    return rows.map((r) => ({
-      id: r.id,
-      questionId: r.question_id,
-      sessionId: r.session_id,
-      mode: r.mode,
-      chosen: r.chosen,
-      correct: r.correct === 1,
-      guessed: r.guessed === 1,
-      hints: r.hints,
-      timeMs: r.time_ms,
-      xp: r.xp,
-      kind: r.kind,
-      createdAt: r.created_at,
-    }));
+    return rows.map(rowToAttempt);
   }
+
+  async activitySince(since: number): Promise<Attempt[]> {
+    await this.init();
+    const rows = await this.db.all<AttemptRow>('SELECT * FROM attempts WHERE created_at >= ? ORDER BY created_at DESC, id DESC', [since]);
+    return rows.map(rowToAttempt);
+  }
+
+  async mistakeHistory(limit: number, offset: number): Promise<Attempt[]> {
+    await this.init();
+    const rows = await this.db.all<AttemptRow>('SELECT * FROM attempts WHERE correct = 0 ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?', [limit, offset]);
+    return rows.map(rowToAttempt);
+  }
+}
+
+function rowToAttempt(r: AttemptRow): Attempt {
+  return {
+    id: r.id,
+    questionId: r.question_id,
+    sessionId: r.session_id,
+    mode: r.mode,
+    chosen: r.chosen,
+    correct: r.correct === 1,
+    guessed: r.guessed === 1,
+    hints: r.hints,
+    timeMs: r.time_ms,
+    xp: r.xp,
+    kind: r.kind,
+    createdAt: r.created_at,
+  };
 }
 
 async function upsertQuestionState(tx: SqlExecutor, s: QuestionState) {

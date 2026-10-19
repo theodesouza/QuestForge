@@ -55,6 +55,9 @@ export async function boot(): Promise<void> {
 
 const run = (fn: (s: Parameters<typeof game.touch>[0], now: number) => Result) => ctrl().dispatch(fn);
 
+export const loadLearningActivity = (since: number) => ctrl().activitySince(since);
+export const loadMistakeHistory = (limit: number, offset: number) => ctrl().mistakeHistory(limit, offset);
+
 export function finishOnboarding(input: OnboardingInput) {
   return run((s, now) => game.completeOnboarding(s, input, now));
 }
