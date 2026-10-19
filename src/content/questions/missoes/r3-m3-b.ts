@@ -110,7 +110,7 @@ export const MISSAO_R3M3_B = batch([
     id: 'BAS-316',
     topic: 'basica',
     subtopic: 'potencias',
-    difficulty: 4,
+    difficulty: 3,
     skills: ['H1', 'H2', 'H3'],
     stem: [
       {
@@ -206,7 +206,7 @@ export const MISSAO_R3M3_B = batch([
     id: 'BAS-319',
     topic: 'basica',
     subtopic: 'notacao-cientifica',
-    difficulty: 4,
+    difficulty: 3,
     skills: ['H3', 'H4', 'H12'],
     stem: [
       {
@@ -240,7 +240,7 @@ export const MISSAO_R3M3_B = batch([
     id: 'BAS-320',
     topic: 'basica',
     subtopic: 'notacao-cientifica',
-    difficulty: 3,
+    difficulty: 2,
     skills: ['H1', 'H3', 'H12'],
     stem: [
       {

@@ -186,7 +186,7 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
             <Animated.View key={hit.id} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
               <Text variant="number" color={hit.technique ? colors.brass : colors.parchment}>
                 −{hit.damage}
-                {hit.technique ? ` · ${boss.technique.name}!` : ''}
+                {hit.technique ? ' · técnica!' : ''}
               </Text>
             </Animated.View>
           ) : null}

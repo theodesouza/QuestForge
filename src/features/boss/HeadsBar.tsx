@@ -53,6 +53,8 @@ export function HeadsBar({ boss, battle }: { boss: BossDef; battle: BattleState 
         {spans.map((s) => {
           const down = battle.hp <= s.floorHp;
           const isActive = s.index === active && !down;
+          // Segmentos estreitos (1/6) só cabem a fração; o nome está na legenda e na arte.
+          const narrow = s.head.share[0] / s.head.share[1] < 0.2;
           return (
             <View key={s.head.id} style={{ flex: s.head.share[0] / s.head.share[1], alignItems: 'center' }}>
               <Text
@@ -61,7 +63,8 @@ export function HeadsBar({ boss, battle }: { boss: BossDef; battle: BattleState 
                 numberOfLines={1}
                 style={[styles.label, down && styles.struck, isActive && styles.activeLabel]}
               >
-                {s.head.name} {s.head.share[0]}/{s.head.share[1]}
+                {narrow ? '' : `${s.head.name} `}
+                {s.head.share[0]}/{s.head.share[1]}
               </Text>
             </View>
           );

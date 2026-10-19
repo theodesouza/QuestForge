@@ -201,7 +201,7 @@ export const REGIONS: Region[] = [
         topics: ['basica'],
         subtopics: ['potencias', 'notacao-cientifica'],
         questionCount: 5,
-        difficulty: [1, 2, 3, 3, 4],
+        difficulty: [1, 2, 2, 3, 3],
         passCorrect: 3,
         requires: ['r3-m2'],
       },

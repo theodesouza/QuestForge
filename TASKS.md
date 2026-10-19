@@ -73,7 +73,7 @@ Aparelho real:
 - [x] Avisos curtos (encomenda cumprida, baú) que esperam o fim da questão/batalha e da celebração, anunciados ao leitor de tela
 - [x] **Região 3 — Planícies Numéricas** (frações, MMC/MDC, potências e notação científica): 3 missões + chefão, abre após vencer o Mercador
   - **72 questões autorais novas** (`BAS-101…324`, 6 lotes de 12), pools de 26–27 por missão (≥ 20 extras além das 5 de cada tentativa); novo subassunto `potencias`
-  - cada lote foi resolvido às cegas por um revisor independente (e por mim): **0 divergências de gabarito**; as correções vieram de dificuldade superestimada (4 → 3 em 7 questões), um contexto irreal (volta de 24 s numa pista de atletismo virou trilha de caminhada) e um enunciado ambíguo (horta × terreno)
+  - cada lote foi resolvido às cegas por um revisor independente (e por mim): **0 divergências de gabarito**; as correções vieram de dificuldade superestimada (4 → 3 em 7 questões e 3 → 2 em 2; a rampa da missão de potências passou a [1, 2, 2, 3, 3] para casar com o conteúdo calibrado), um contexto irreal (volta de 24 s numa pista de atletismo virou trilha de caminhada) e um enunciado ambíguo (horta × terreno)
   - o validador agora entende notação científica (`3,2 × 10⁵`, `10⁻³`), potências (`2⁵`), raízes (`√49`), frações mistas (`2 1/2`) e o sinal `−`; a tolerância padrão passou a ser relativa
   - gabaritos do banco equilibrados: 62–64 por letra em 314 questões
 - [x] **Quimera Fracionária** (`BossTrait` `heads`): a vida é a soma de três cabeças — Leão 1/2 (frações e contas), Cabra 1/3 (MMC e MDC), Serpente 1/6 (potências e notação) — e cada cabeça faz as perguntas da própria matéria; um erro faz a cabeça de pé se regenerar (6% da vida), mas nunca além do topo dela: cabeça derrubada não volta
