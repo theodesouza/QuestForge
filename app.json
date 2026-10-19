@@ -3,7 +3,7 @@
     "name": "QuestForge",
     "slug": "questforge",
     "scheme": "questforge",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -14,14 +14,14 @@
     },
     "android": {
       "package": "com.questforge.app",
+      "icon": "./assets/app-icon-cutout.png",
       "adaptiveIcon": {
-        "backgroundColor": "#0B1020",
+        "backgroundColor": "#071038",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "versionCode": 4
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/favicon.png",
