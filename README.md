@@ -36,6 +36,13 @@ continuam pendentes; não há exportação de PNG no app.
 
 ## Rodar no Android
 
+**APK mais recente: 0.2.1, versionCode 5 (19/10/2026), com o novo ícone do livro e da estrela.**
+[Baixar o APK](https://expo.dev/artifacts/eas/Vf5_tJZFfgCDnPaqKmBeYucSX8-cbWoudxv1s2VgxhU.apk).
+Instale por cima da versão atual, **sem desinstalar**, para manter o progresso.
+Pacote e assinatura foram conferidos como idênticos aos anteriores. O runtime é `0.2.1`;
+o APK já contém o painel de evolução, reforço guiado e as 314 folhas de resolução.
+A troca do ícone exige este APK; não chega por EAS Update. [Detalhes da arte](docs/app-icon.md).
+
 Requisitos: Node.js 20+ (testado com 22) e npm.
 
 ```bash
