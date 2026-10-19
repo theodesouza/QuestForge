@@ -10,7 +10,9 @@ import { TOPIC_IDS } from '../../content/topics';
 import { ALT_KEYS, type AltKey, type Question, type TopicId } from '../../content/types';
 import {
   applyBattleAnswer,
+  activeHeadIndex,
   battleTarget,
+  headSpans,
   createBattle,
   isFlawless,
   type BattleState,
@@ -615,12 +617,18 @@ function findBossNode(bossId: string): BossNode | null {
   return null;
 }
 
-function bossPool(boss: BossDef) {
+/** Questões do chefão; na Quimera, só as da matéria da cabeça que está de pé. */
+function bossPool(boss: BossDef, battle?: BattleState) {
+  if (boss.trait.kind === 'heads' && battle) {
+    const span = headSpans(boss)[activeHeadIndex(boss, battle.hp)];
+    const pool = questionsFor({ topics: boss.topics, subtopics: span.head.subtopics });
+    if (pool.length > 0) return pool;
+  }
   return questionsFor({ topics: boss.topics, subtopics: boss.subtopics });
 }
 
 function pickBossQuestion(state: GameState, boss: BossDef, battle: BattleState, now: number): string {
-  const pool = bossPool(boss);
+  const pool = bossPool(boss, battle);
   const pickWith = (exclude: Set<string>) =>
     selectQuestions({
       pool,

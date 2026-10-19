@@ -199,8 +199,16 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
   mantém o quadro e o progresso (um quadro muito "no futuro", de relógio errado, é trocado). O quadro é
   gerado antes de registrar a resposta, para que o Eco criado por ela não vire encomenda do mesmo dia;
   metas semanais criadas no meio da semana são proporcionais aos dias restantes.
-- **Mecânicas de chefão como dados** (`BossTrait`): couraça (Golem) e cofre de juros (Mercador)
-  compartilham a quebra na fase 2; a arte de cada chefão vem de um registro (`features/boss/BossArt`).
+- **Mecânicas de chefão como dados** (`BossTrait`): couraça (Golem), cofre de juros (Mercador) e
+  cabeças (Quimera) compartilham a quebra na fase 2; a arte de cada chefão vem de um registro
+  (`features/boss/BossArt`).
+- **Quimera Fracionária** (`domain/boss/battle.ts`): as cabeças são faixas da vida máxima (`headSpans`:
+  1/2, 1/3 e 1/6 de 240 ⇒ 240→120, 120→40, 40→0). A cabeça de pé (`activeHeadIndex`) decide de qual
+  matéria sai a próxima pergunta (`bossPool` em `game.ts`) e é a única que se regenera num erro
+  (`headRegen`, limitada ao topo dela — cabeça caída não volta). Cada golpe registra quantas cabeças
+  caíram (`BattleTurn.headsFelled`, opcional: batalhas antigas continuam válidas).
+- **Validador numérico**: `parseNumeric` lê o valor de cada alternativa (R$, %, frações e mistos, horas,
+  notação científica, potências, raízes) para exigir que `verify()` bata com exatamente uma delas.
 - **Fontes empacotadas por peso** (`@expo-google-fonts/<família>/<peso>`) para não embutir pesos não usados.
 
 ## Qualidade

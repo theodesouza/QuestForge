@@ -14,6 +14,7 @@ import { colors, rarityColor } from './theme';
 import { AuraBack, AuraFront } from './vfx/auras';
 import { CoreFx } from './vfx/cores';
 import { C, FxProvider, STAGE } from './vfx/engine';
+import { Segments } from './Astrolabe';
 import { star } from './vfx/geometry';
 
 /** Janela do palco (240 × 240) mostrada na miniatura: [x, y, lado]. */
@@ -52,7 +53,11 @@ export const ItemGlyph = memo(function ItemGlyph({ itemId, size = 44, locked = f
         <Circle cx={24} cy={24} r={22} fill={colors.ink850} />
         {item.slot === 'frame' ? (
           <>
-            <Circle cx={24} cy={24} r={14} stroke={c} strokeWidth={3} fill="none" />
+            {item.visual.frameStyle === 'segmented' ? (
+              <Segments color={c} color2={c2} r={14} width={3} cx={24} cy={24} />
+            ) : (
+              <Circle cx={24} cy={24} r={14} stroke={c} strokeWidth={3} fill="none" />
+            )}
             {item.visual.frameStyle !== 'plain' ? <Circle cx={24} cy={24} r={10} stroke={c} strokeOpacity={0.6} strokeWidth={1.2} fill="none" /> : null}
           </>
         ) : null}

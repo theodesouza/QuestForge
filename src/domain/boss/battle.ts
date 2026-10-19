@@ -1,9 +1,9 @@
 /**
  * Motor de batalha determinístico. Nenhum elemento de sorte: o dano depende
  * apenas da dificuldade, do combo, das dicas e da mecânica do chefão
- * (couraça do Golem, cofre de juros do Mercador).
+ * (couraça do Golem, cofre de juros do Mercador, cabeças da Quimera).
  */
-import type { BossDef } from '../../content/bosses';
+import type { BossDef, BossHead } from '../../content/bosses';
 import type { Difficulty } from '../../content/types';
 import { hintMultiplier, GUESS_MULT } from '../progression/xp';
 
@@ -18,8 +18,10 @@ export interface BattleTurn {
   technique: boolean;
   /** A mecânica do chefão quebrou neste turno (início da fase 2). */
   armorBroke: boolean;
-  /** Vida recuperada pelo chefão neste turno ("juros"). Ausente em batalhas da v0.1.0. */
+  /** Vida recuperada pelo chefão neste turno ("juros" ou regeneração). Ausente em batalhas da v0.1.0. */
   healed?: number;
+  /** Cabeças que caíram neste turno (Quimera). Ausente nos demais chefões. */
+  headsFelled?: number;
 }
 
 export interface BattleState {
@@ -131,11 +133,12 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
     const armorBroke = !battle.armorBroken && next.hp <= boss.maxHp * boss.trait.breaksAtHpRatio;
     if (armorBroke) next.armorBroken = true;
     turn = { ...pick(answer), damage, technique, armorBroke, healed: 0 };
+    if (boss.trait.kind === 'heads') turn.headsFelled = headsFelled(boss, next.hp) - headsFelled(boss, battle.hp);
     if (next.hp === 0) next.status = 'won';
   } else {
     next.combo = 0;
     next.resolve = battle.resolve - 1;
-    const healed = interestHeal(boss, battle);
+    const healed = missHeal(boss, battle);
     next.hp = Math.min(boss.maxHp, battle.hp + healed);
     turn = { ...pick(answer), damage: 0, technique: false, armorBroke: false, healed };
     if (next.resolve <= 0) next.status = 'retreated';
@@ -156,6 +159,57 @@ export function interestHeal(boss: BossDef, battle: BattleState): number {
   if (boss.trait.kind !== 'interest' || battle.armorBroken) return 0;
   const heal = Math.round(boss.maxHp * boss.trait.healRatio * missStreak(battle));
   return Math.max(0, Math.min(heal, boss.maxHp - battle.hp));
+}
+
+// ———————————————————————————————————————————————— Quimera: cabeças como frações da vida
+
+export interface HeadSpan {
+  index: number;
+  head: BossHead;
+  /** A cabeça cai quando a vida chega a este valor (ou menos). */
+  floorHp: number;
+  /** Topo da cabeça: o máximo que ela pode regenerar. */
+  ceilHp: number;
+}
+
+/** Faixas de vida de cada cabeça, de cima para baixo. Vazio para chefões sem cabeças. */
+export function headSpans(boss: BossDef): HeadSpan[] {
+  if (boss.trait.kind !== 'heads') return [];
+  const heads = boss.trait.heads;
+  let remaining = 1;
+  let ceil = boss.maxHp;
+  return heads.map((head, index) => {
+    remaining -= head.share[0] / head.share[1];
+    const floorHp = index === heads.length - 1 ? 0 : Math.max(0, Math.round(boss.maxHp * remaining));
+    const span = { index, head, floorHp, ceilHp: ceil };
+    ceil = floorHp;
+    return span;
+  });
+}
+
+/** Índice da cabeça de pé (a última, quando só resta ela). */
+export function activeHeadIndex(boss: BossDef, hp: number): number {
+  const spans = headSpans(boss);
+  const i = spans.findIndex((s) => hp > s.floorHp);
+  return i < 0 ? Math.max(0, spans.length - 1) : i;
+}
+
+/** Quantas cabeças já caíram para esta vida. */
+export function headsFelled(boss: BossDef, hp: number): number {
+  return headSpans(boss).filter((s) => hp <= s.floorHp).length;
+}
+
+/** Regeneração: a cabeça de pé recupera um pouco, nunca além do topo dela. */
+export function headRegen(boss: BossDef, battle: BattleState): number {
+  if (boss.trait.kind !== 'heads') return 0;
+  const span = headSpans(boss)[activeHeadIndex(boss, battle.hp)];
+  const heal = Math.round(boss.maxHp * boss.trait.healRatio);
+  return Math.max(0, Math.min(heal, span.ceilHp - battle.hp));
+}
+
+/** Vida que o chefão recupera a cada erro do jogador (juros do Mercador ou regeneração da Quimera). */
+export function missHeal(boss: BossDef, battle: BattleState): number {
+  return boss.trait.kind === 'heads' ? headRegen(boss, battle) : interestHeal(boss, battle);
 }
 
 function pick(a: BattleAnswer) {

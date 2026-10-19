@@ -11,7 +11,7 @@ import { useId, type ReactNode } from 'react';
 import { Circle, Defs, Ellipse, G, Line, Path, Polygon, Polyline, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
 import type { ItemVisual } from '../../content/items';
 import { Breathe, C, Extra, FxExtent, Glimmer, Layer, Particles, Spin, Wave } from './engine';
-import { lightning, ngon, polar, ray, star } from './geometry';
+import { arc, lightning, ngon, polar, ray, star } from './geometry';
 import type { CoreFxId } from './rules';
 
 export interface CoreProps {
@@ -451,6 +451,60 @@ function OrbitingCoins() {
   );
 }
 
+/** Trindade: as três cabeças da Quimera como frações exatas (1/2, 1/3, 1/6) de um mesmo anel. */
+const TRINDADE_HEADS = [
+  { from: 3, to: 177, color: '#F2B54A', label: '1/2' },
+  { from: 183, to: 297, color: '#C9D1F0', label: '1/3' },
+  { from: 303, to: 357, color: '#5FD38D', label: '1/6' },
+] as const;
+
+function Trindade({ v }: CoreProps) {
+  const h = useGid('xh');
+  const kite = (deg: number) => [polar(22, deg), polar(12, deg + 26), polar(4, deg), polar(12, deg - 26)].map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');
+  return (
+    <>
+      <Breathe period={3600} scale={[0.93, 1.08]} opacity={[0.55, 1]}>
+        <Glow id={h} color={v.color} r={52} opacity={0.5} />
+      </Breathe>
+      <Wave period={6400} from={14} to={56} drawnAt={40} peak={0.8} hold={0.5}>
+        <Circle cx={C} cy={C} r={40} stroke="#EFFFF4" strokeWidth={2.2} fill="none" />
+        <Circle cx={C} cy={C} r={36} stroke={v.color} strokeWidth={1} fill="none" />
+      </Wave>
+      {/* Roda das frações: parada e legível (os arcos medem 1/2, 1/3 e 1/6 da volta); só respira. */}
+      <Breathe period={4200} opacity={[0.78, 1]}>
+        <G fill="none" strokeLinecap="round" strokeWidth={3.4}>
+          {TRINDADE_HEADS.map((hd) => (
+            <Path key={hd.label} d={arc(36, hd.from, hd.to)} stroke={hd.color} />
+          ))}
+        </G>
+        {TRINDADE_HEADS.map((hd) => {
+          const p = polar(44.5, (hd.from + hd.to) / 2);
+          return (
+            <SvgText key={hd.label} x={p.x} y={p.y + 2.3} fontSize={6.6} fontWeight="700" fill={hd.color} textAnchor="middle">
+              {hd.label}
+            </SvgText>
+          );
+        })}
+      </Breathe>
+      <Spin period={16000}>
+        {TRINDADE_HEADS.map((hd, i) => (
+          <G key={hd.label}>
+            <Polygon points={kite(i * 120)} fill={hd.color} stroke="#0B1020" strokeWidth={0.9} strokeLinejoin="round" />
+            <Polygon points={kite(i * 120)} fill="#FFFFFF" fillOpacity={0.18} />
+            <Path d={`M${C} ${C} L${polar(22, i * 120).x.toFixed(2)} ${polar(22, i * 120).y.toFixed(2)}`} stroke="#FFFFFF" strokeOpacity={0.45} strokeWidth={0.7} />
+          </G>
+        ))}
+      </Spin>
+      <Breathe period={3600} scale={[0.88, 1.12]}>
+        <Circle cx={C} cy={C} r={5} fill="#FFFFFF" />
+        <Circle cx={C} cy={C} r={8} stroke={v.color} strokeWidth={1.4} fill="none" />
+      </Breathe>
+      <Particles mode="orbit" count={3} period={9000} colors={['#F2B54A', '#C9D1F0', '#5FD38D']} size={[3, 4]} radius={[50, 50]} tilt={0.5} plane={20} glow seed={61} />
+      <Particles mode="rise" count={5} period={3800} colors={['#EFFFF4', '#FFE7A3']} size={[2.2, 3.4]} radius={[8, 28]} arc={[-120, 120]} travel={30} sparkle seed={62} />
+    </>
+  );
+}
+
 // ——————————————————————————————————————————————— registro
 
 export const CORES: Record<CoreFxId, (p: CoreProps) => ReactNode> = {
@@ -463,6 +517,7 @@ export const CORES: Record<CoreFxId, (p: CoreProps) => ReactNode> = {
   solar: Solar,
   pulsar: Pulsar,
   tesouro: Tesouro,
+  trindade: Trindade,
 };
 
 /** Raio máximo desenhado por qualquer núcleo (brilho do Tesouro respirando, feixes do Pulsar). */

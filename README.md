@@ -76,7 +76,7 @@ um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 ## Verificações
 
 ```bash
-npm test                 # 154 testes: domínio, rejogabilidade, conteúdo, efeitos, SQLite real e atualização a partir da v0.1.0/v0.2.0
+npm test                 # 179 testes: domínio, rejogabilidade, conteúdo, efeitos, SQLite real e atualização a partir da v0.1.0/v0.2.0
 npm run typecheck        # TypeScript estrito
 npm run lint             # ESLint (config Expo + regras de hooks do React)
 npm run validate:content # só o validador do banco de questões

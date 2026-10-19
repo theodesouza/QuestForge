@@ -15,7 +15,7 @@
 import { memo, useEffect, useId, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
-import Svg, { Circle, Defs, Ellipse, G, Line, Polygon, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Ellipse, G, Line, Path, Polygon, RadialGradient, Stop } from 'react-native-svg';
 import { RARITY_TIER, getItem } from '../content/items';
 import type { EffectsLevel, Equipped } from '../domain/game/types';
 import { rankFor } from '../domain/progression/levels';
@@ -24,7 +24,7 @@ import { colors } from './theme';
 import { AuraBack, AuraFront } from './vfx/auras';
 import { CoreFx } from './vfx/cores';
 import { Breathe, C, FxExtent, FxProvider, Layer, STAGE, Spin } from './vfx/engine';
-import { ngon, polar, star } from './vfx/geometry';
+import { arc, ngon, polar, star } from './vfx/geometry';
 import { MythicBack, SynergyFx, resolveSynergy } from './vfx/synergy';
 
 interface Props {
@@ -132,7 +132,11 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
             </RadialGradient>
           </Defs>
           <Circle cx={C} cy={C} r={DISC} fill={`url(#disc${uid})`} />
-          <Circle cx={C} cy={C} r={DISC} stroke={frame.color} strokeWidth={3} fill="none" />
+          {frame.frameStyle === 'segmented' ? (
+            <Segments color={frame.color} color2={frame.color2 ?? frame.color} r={DISC} width={3.4} />
+          ) : (
+            <Circle cx={C} cy={C} r={DISC} stroke={frame.color} strokeWidth={3} fill="none" />
+          )}
           {frame.frameStyle === 'double' || frame.frameStyle === 'armillary' ? (
             <Circle cx={C} cy={C} r={DISC - 5} stroke={frame.color} strokeOpacity={0.55} strokeWidth={1.2} fill="none" />
           ) : null}
@@ -156,6 +160,16 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
               <Studs color={studColor} />
             </Layer>
           )
+        ) : null}
+        {frame.frameStyle === 'segmented' ? (
+          <Breathe period={3200} opacity={[0.55, 1]}>
+            <G fill="#FFFFFF">
+              {[0, 180, 300].map((deg) => {
+                const p = polar(DISC, deg);
+                return <Polygon key={deg} points={`${p.x},${p.y - 4.4} ${p.x + 3},${p.y} ${p.x},${p.y + 4.4} ${p.x - 3},${p.y}`} />;
+              })}
+            </G>
+          </Breathe>
         ) : null}
         {frame.frameStyle === 'armillary' && frameTier >= 3 ? (
           <>
@@ -248,6 +262,25 @@ function IdleHalo({ uid }: { uid: string }) {
       </Defs>
       <Circle cx={C} cy={C} r={108} fill={`url(#idle${uid})`} />
     </Layer>
+  );
+}
+
+/** Anel em três arcos de 1/2, 1/3 e 1/6 da volta (com pequenas folgas): Leão, Cabra e Serpente. */
+export const SEGMENT_SILVER = '#C9D1F0';
+export const SEGMENTS = [
+  { from: 3, to: 177 },
+  { from: 183, to: 297 },
+  { from: 303, to: 357 },
+] as const;
+
+export function Segments({ color, color2, r, width, cx = C, cy = C }: { color: string; color2: string; r: number; width: number; cx?: number; cy?: number }) {
+  const tints = [color2, SEGMENT_SILVER, color];
+  return (
+    <G fill="none" strokeLinecap="round" strokeWidth={width}>
+      {SEGMENTS.map((s, i) => (
+        <Path key={i} d={arc(r, s.from, s.to, cx, cy)} stroke={tints[i]} />
+      ))}
+    </G>
   );
 }
 

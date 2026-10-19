@@ -145,7 +145,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await wait(800);
     await dismissCelebrations(null);
     await dismissReveals();
-    if (label === 'r1-m1' || label === 'r2-m1') await shot(`${label}-summary`);
+    if (label === 'r1-m1' || label === 'r2-m1' || label === 'r3-m1') await shot(`${label}-summary`);
     await click('Voltar ao acampamento');
     await wait(800);
   };
@@ -159,6 +159,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await wait(1200);
     await shot(`${prefix}-battle`);
     let turns = 0;
+    const headShots = new Set();
     while (turns++ < 40) {
       const b = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
       if (!b || b.status !== 'active') break;
@@ -167,6 +168,13 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
       if (turns === 2) await shot(`${prefix}-miss`);
       await dismissCelebrations(null);
       const after = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
+      // Quimera: uma foto quando cada cabeça cai (vida ≤ 1/2 e ≤ 1/6 da máxima).
+      for (const [n, ratio] of [[1, 0.5], [2, 1 / 6]]) {
+        if (prefix === 'quimera' && after.hp <= after.maxHp * ratio && !headShots.has(n)) {
+          headShots.add(n);
+          await shot(`${prefix}-head${n}-down`);
+        }
+      }
       if (after.status !== 'active') await shot(`${prefix}-final-blow`);
       await click(after.status === 'active' ? 'Próximo golpe' : 'Ver resultado');
       await wait(400);
@@ -191,6 +199,15 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.mouse.move(195, 500);
   await page.mouse.wheel(0, 900);
   await shot('atlas-after-mercador');
+
+  // Região 3: Planícies Numéricas e a Quimera Fracionária.
+  await page.getByRole('tab', { name: 'Acampamento' }).click();
+  await wait(800);
+  for (const m of ['r3-m1', 'r3-m2', 'r3-m3']) await playMission(m);
+  await fightBoss('quimera', 'Quimera Fracionária');
+  await page.mouse.move(195, 500);
+  await page.mouse.wheel(0, 1400);
+  await shot('atlas-after-quimera');
 
   // Encomendas.
   await page.getByRole('tab', { name: 'Acampamento' }).click();

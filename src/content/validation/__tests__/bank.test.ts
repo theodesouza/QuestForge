@@ -18,8 +18,25 @@ describe('parseNumeric', () => {
     ['36 cm', 36],
     ['2.000', 2000],
     ['0,2 m²', 0.2],
+    ['2 1/2', 2.5],
+    ['−3/4', -0.75],
+    ['3/8 da pizza', 0.375],
+    ['3,2 × 10⁵', 320000],
+    ['1,5 · 10^8 km', 150000000],
+    ['10⁻³', 0.001],
+    ['−2 × 10⁻²', -0.02],
+    ['2⁵', 32],
+    ['3⁻²', 1 / 9],
+    ['√49', 7],
+    ['3√4', 6],
+    ['−5', -5],
+    ['≈ 17,6%', 17.6],
   ])('%s → %d', (text, value) => {
     expect(parseNumeric(text)).toBeCloseTo(value, 9);
+  });
+
+  it('compara números muito grandes de forma relativa', () => {
+    expect((parseNumeric('6,02 × 10²³') as number) / 6.02e23).toBeCloseTo(1, 12);
   });
 
   it('retorna null sem número', () => {

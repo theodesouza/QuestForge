@@ -1,11 +1,30 @@
 import type { Difficulty, TopicId } from './types';
 
 /**
- * Mecânica própria de cada chefão. Ambas "quebram" quando a vida cai abaixo de
+ * Uma cabeça da Quimera: ocupa uma fração da vida máxima e cobra uma matéria. A soma das
+ * frações é sempre 1 (1/2 + 1/3 + 1/6). As cabeças caem de cima para baixo.
+ */
+export interface BossHead {
+  id: string;
+  name: string;
+  /** Fração da vida máxima: [numerador, denominador]. */
+  share: [number, number];
+  /** Subassuntos das perguntas feitas enquanto esta cabeça está de pé. */
+  subtopics: string[];
+  color: string;
+  /** Fala quando esta cabeça cai. */
+  fall: string;
+}
+
+/**
+ * Mecânica própria de cada chefão. Todas "quebram" quando a vida cai abaixo de
  * `breaksAtHpRatio` (fase 2), recompensando quem mantém a pressão.
  * - armor: enquanto inteira, questões fáceis causam dano reduzido.
  * - interest: enquanto o cofre estiver cheio, cada erro devolve vida ao chefão
  *   ("cobra juros"), e a cobrança cresce a cada erro seguido.
+ * - heads: a vida é a soma de cabeças, cada uma com a sua matéria. Um erro faz a
+ *   cabeça que está de pé se regenerar um pouco — nunca além do topo dela: uma cabeça
+ *   derrubada não volta.
  */
 export type BossTrait =
   | {
@@ -22,10 +41,19 @@ export type BossTrait =
       breaksAtHpRatio: number;
       /** Fração da vida máxima recuperada por erro (multiplicada pelos erros seguidos). */
       healRatio: number;
+    }
+  | {
+      kind: 'heads';
+      name: string;
+      description: string;
+      breaksAtHpRatio: number;
+      /** Fração da vida máxima que a cabeça de pé recupera por erro (limitada ao topo dela). */
+      healRatio: number;
+      heads: BossHead[];
     };
 
 /** Arte vetorial registrada na UI (src/features/boss/art). */
-export type BossArt = 'golem' | 'mercador';
+export type BossArt = 'golem' | 'mercador' | 'quimera';
 
 export interface BossDef {
   id: string;
@@ -177,6 +205,68 @@ export const BOSSES: BossDef[] = [
       firstItems: ['frame-ambar-cunhado', 'title-amortizador'],
       flawlessItem: 'core-tesouro',
       repeatXp: 40,
+    },
+  },
+  {
+    id: 'quimera-fracionaria',
+    name: 'Quimera Fracionária',
+    epithet: 'Guardiã das Planícies Numéricas',
+    regionId: 'planicies-numericas',
+    art: 'quimera',
+    accent: '#5FD38D',
+    topics: ['basica'],
+    subtopics: [],
+    maxHp: 240,
+    resolve: 3,
+    damage: { 1: 20, 2: 28, 3: 38, 4: 50 },
+    startTarget: 2,
+    targetStep: 0.25,
+    trait: {
+      kind: 'heads',
+      name: 'Três Cabeças',
+      description:
+        'A vida da Quimera é a soma de três cabeças: Leão (1/2 da vida, frações e contas), Cabra (1/3, MMC e MDC) e Serpente (1/6, potências e notação científica) — 1/2 + 1/3 + 1/6 = 1. Cada cabeça faz as perguntas da sua matéria. Um erro faz a cabeça de pé se regenerar um pouco, mas uma cabeça derrubada nunca volta.',
+      breaksAtHpRatio: 0.5,
+      healRatio: 0.06,
+      heads: [
+        { id: 'leao', name: 'Leão', share: [1, 2], subtopics: ['fracoes', 'operacoes'], color: '#F2B54A', fall: 'O Leão caiu?! Mas a Cabra e a Serpente ainda têm fome… e dentes.' },
+        { id: 'cabra', name: 'Cabra', share: [1, 3], subtopics: ['mmc-mdc'], color: '#C9D1F0', fall: 'A Cabra tomba e o balido vira silêncio. Só resta a Serpente.' },
+        { id: 'serpente', name: 'Serpente', share: [1, 6], subtopics: ['potencias', 'notacao-cientifica'], color: '#5FD38D', fall: 'A Serpente se desenrola, sem forças. As três cabeças caíram.' },
+      ],
+    },
+    technique: {
+      name: 'Denominador Comum',
+      every: 3,
+      bonus: 24,
+      line: 'Três acertos seguidos! O Denominador Comum une as três cabeças num só golpe.',
+    },
+    lines: {
+      intro: [
+        'Três cabeças, uma só fome: a de contas que não fecham.',
+        'O Leão rói as frações, a Cabra mastiga os múltiplos e a Serpente enrola as potências.',
+        'Derrube as três — e que a soma dê exatamente 1.',
+      ],
+      phase2: 'O Leão caiu?! Mas a Cabra e a Serpente ainda têm fome… e dentes.',
+      playerHit: [
+        'O golpe acerta em cheio — a conta fechou.',
+        'A cabeça recua, cuspindo números soltos.',
+        'Mais uma fração do monstro se vai.',
+        'Os expoentes da Quimera tremem.',
+      ],
+      bossHit: [
+        'A cabeça de pé se regenera, mordendo o ar.',
+        'A Quimera ruge: um pedaço da vida volta a crescer.',
+        'Um erro de conta alimenta a fera. Revise a resolução e siga.',
+      ],
+      defeat: 'A soma fechou: 1/2 + 1/3 + 1/6 = 1. As Planícies são suas, Cartógrafo.',
+      retreat: 'Volte quando seus denominadores estiverem em ordem. Eu espero.',
+    },
+    rewards: {
+      firstXp: 250,
+      firstInk: 100,
+      firstItems: ['frame-tres-arcos', 'title-soma-inteira'],
+      flawlessItem: 'core-trindade',
+      repeatXp: 50,
     },
   },
 ];

@@ -45,7 +45,7 @@ export interface ItemVisual {
   /** Segunda cor (aura em gradiente, brilho do núcleo). */
   color2?: string;
   /** Estilo da moldura. */
-  frameStyle?: 'plain' | 'double' | 'notched' | 'armillary';
+  frameStyle?: 'plain' | 'double' | 'notched' | 'armillary' | 'segmented';
   /** Núcleos e auras: elemento (sinergias). */
   element?: FxElement;
   /** Núcleos e auras: qual efeito desenha o item (src/ui/vfx). */
@@ -313,6 +313,34 @@ export const ITEMS: ItemDef[] = [
     description: 'O coração do cofre do Mercador, entregue a quem não pagou um centavo de juros.',
     howToGet: 'Derrote o Mercador Composto sem erros e sem usar dicas.',
     visual: { color: '#FFD36B', color2: '#FF9F43', element: 'aureo', fx: 'tesouro' },
+  },
+  // ——— Região 3: Planícies Numéricas ———
+  {
+    id: 'frame-tres-arcos',
+    slot: 'frame',
+    name: 'Moldura dos Três Arcos',
+    rarity: 'raro',
+    description: 'Um anel em três arcos — 1/2, 1/3 e 1/6 — que juntos fecham o círculo inteiro.',
+    howToGet: 'Derrote a Quimera Fracionária.',
+    visual: { color: '#5FD38D', color2: '#F2B54A', frameStyle: 'segmented' },
+  },
+  {
+    id: 'title-soma-inteira',
+    slot: 'title',
+    name: 'Soma Inteira',
+    rarity: 'raro',
+    description: '1/2 + 1/3 + 1/6 = 1. Nenhuma cabeça sobrou.',
+    howToGet: 'Derrote a Quimera Fracionária.',
+    visual: { color: '#5FD38D' },
+  },
+  {
+    id: 'core-trindade',
+    slot: 'core',
+    name: 'Núcleo da Trindade',
+    rarity: 'lendario',
+    description: 'O coração da Quimera: três gemas — leão, cabra e serpente — que só brilham juntas, em frações exatas.',
+    howToGet: 'Derrote a Quimera Fracionária sem erros e sem usar dicas.',
+    visual: { color: '#5FD38D', color2: '#F2B54A', element: 'astral', fx: 'trindade' },
   },
   // ——— Encomendas ———
   {

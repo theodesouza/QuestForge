@@ -24,7 +24,6 @@ import { Text } from '../../ui/Text';
 import { TAB_BAR_SPACE, colors, space } from '../../ui/theme';
 
 const UPCOMING = [
-  'Planícies Numéricas',
   'Torres Euclidianas',
   'Cavernas Volumétricas',
   'Observatório dos Dados',

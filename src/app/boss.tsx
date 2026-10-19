@@ -9,7 +9,7 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
-    useAnimatedStyle,
+  useAnimatedStyle,
   useSharedValue,
   withSequence,
   withTiming,
@@ -18,11 +18,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { findQuestion } from '../content/bank';
 import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
+import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
-import type { BattleState } from '../domain/boss/battle';
+import { activeHeadIndex, headSpans, headsFelled, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import type { GameEvent } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
+import { HeadsBar } from '../features/boss/HeadsBar';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { useAttempt } from '../features/question/useAttempt';
@@ -40,6 +42,10 @@ import { ProgressBar } from '../ui/ProgressBar';
 import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
 import { colors, radius, rarityColor, space } from '../ui/theme';
+
+function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' {
+  return boss.trait.kind === 'armor' ? 'shield' : boss.trait.kind === 'heads' ? 'target' : 'lock';
+}
 
 function pickLine(lines: string[], n: number) {
   return lines[n % lines.length];
@@ -113,7 +119,7 @@ function Intro({ boss }: { boss: BossDef }) {
       </View>
       <Panel accent={boss.accent}>
         <View style={styles.rule}>
-          <Icon name={boss.trait.kind === 'armor' ? 'shield' : 'lock'} size={20} color={colors.mist} />
+          <Icon name={traitIcon(boss)} size={20} color={colors.mist} />
           <View style={{ flex: 1 }}>
             <Text variant="subheading">{boss.trait.name}</Text>
             <Text variant="caption" color={colors.parchmentDim}>
@@ -121,6 +127,20 @@ function Intro({ boss }: { boss: BossDef }) {
             </Text>
           </View>
         </View>
+        {boss.trait.kind === 'heads'
+          ? boss.trait.heads.map((h) => (
+              <View key={h.id} style={styles.headRow} accessible accessibilityLabel={`${h.name}: ${h.share[0]}/${h.share[1]} da vida. ${h.subtopics.map((s) => subtopicLabel(boss.topics[0], s)).join(', ')}.`}>
+                <View style={[styles.headDot, { backgroundColor: h.color }]} />
+                <Text variant="caption" color={colors.parchment} style={{ flex: 1 }}>
+                  <Text variant="caption" color={h.color}>
+                    {h.name} · {h.share[0]}/{h.share[1]}
+                  </Text>
+                  {'  '}
+                  {h.subtopics.map((s) => subtopicLabel(boss.topics[0], s)).join(' · ')}
+                </Text>
+              </View>
+            ))
+          : null}
         <View style={styles.rule}>
           <Icon name="sparkle" size={20} color={colors.brass} fill={colors.brassGlow} />
           <View style={{ flex: 1 }}>
@@ -173,7 +193,7 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
           {hit && hit.healed > 0 ? (
             <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
               <Text variant="number" color={colors.ember}>
-                +{hit.healed} juros
+                +{hit.healed} {boss.trait.kind === 'heads' ? 'regenera' : 'juros'}
               </Text>
             </Animated.View>
           ) : null}
@@ -182,7 +202,11 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
           </Text>
         </View>
       </View>
-      <ProgressBar value={battle.hp / battle.maxHp} color={colors.ember} height={10} accessibilityLabel={`Vida de ${boss.name}: ${battle.hp} de ${battle.maxHp}`} />
+      {boss.trait.kind === 'heads' ? (
+        <HeadsBar boss={boss} battle={battle} />
+      ) : (
+        <ProgressBar value={battle.hp / battle.maxHp} color={colors.ember} height={10} accessibilityLabel={`Vida de ${boss.name}: ${battle.hp} de ${battle.maxHp}`} />
+      )}
       <View style={styles.hudRow}>
         <View style={styles.resolve} accessible accessibilityLabel={`Determinação: ${battle.resolve} de ${battle.maxResolve}`}>
           {Array.from({ length: battle.maxResolve }, (_, i) => (
@@ -190,9 +214,16 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
           ))}
         </View>
         <View style={styles.hudTags}>
-          {!battle.armorBroken ? (
+          {boss.trait.kind === 'heads' ? (
+            <View style={styles.tag} accessible accessibilityLabel={`Cabeça de pé: ${headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.name}`}>
+              <View style={[styles.headDot, { backgroundColor: headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.color }]} />
+              <Text variant="caption" color={colors.mist}>
+                {headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.name}
+              </Text>
+            </View>
+          ) : !battle.armorBroken ? (
             <View style={styles.tag} accessible accessibilityLabel={`${boss.trait.name} ativa`}>
-              <Icon name={boss.trait.kind === 'armor' ? 'shield' : 'lock'} size={13} color={colors.mist} />
+              <Icon name={traitIcon(boss)} size={13} color={colors.mist} />
               <Text variant="caption" color={colors.mist}>
                 {boss.trait.kind === 'armor' ? 'couraça' : 'cofre'}
               </Text>
@@ -246,8 +277,11 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
           shake.set(withSequence(withTiming(10, { duration: 60 }), withTiming(-8, { duration: 70 }), withTiming(0, { duration: 80 })));
           flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
         }
+        const felled = boss.trait.kind === 'heads' && (turn.headsFelled ?? 0) > 0 ? boss.trait.heads[headsFelled(boss, after.hp) - 1] : null;
         setLine(
-          turn.armorBroke
+          felled && after.status !== 'won'
+            ? felled.fall
+            : turn.armorBroke
             ? boss.lines.phase2
             : turn.technique
               ? boss.technique.line
@@ -299,7 +333,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
       <ScrollView ref={scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.arena} onLayout={(e) => (feedbackOffset.current = e.nativeEvent.layout.height + space.lg)}>
           <Animated.View style={artStyle}>
-            <BossArt art={boss.art} size={150} cracked={battle.armorBroken} defeated={battle.status === 'won'} />
+            <BossArt art={boss.art} size={150} cracked={battle.armorBroken} defeated={battle.status === 'won'} headsFelled={headsFelled(boss, battle.hp)} />
           </Animated.View>
         </View>
         {question ? (
@@ -365,7 +399,7 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
       }
     >
       <Animated.View entering={reduce ? undefined : FadeIn.duration(500)} style={styles.introArt}>
-        <BossArt art={boss.art} size={190} defeated={won} cracked />
+        <BossArt art={boss.art} size={190} defeated={won} cracked headsFelled={headsFelled(boss, battle.hp)} />
       </Animated.View>
       <View style={styles.center}>
         <Text variant="label" color={won ? colors.brass : colors.mist}>
@@ -474,6 +508,8 @@ export default function BossScreen() {
 }
 
 const styles = StyleSheet.create({
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingLeft: space.xxxl - 4 },
+  headDot: { width: 9, height: 9, borderRadius: 5 },
   root: { flex: 1, backgroundColor: colors.ink900 },
   introArt: { alignItems: 'center', paddingTop: space.lg },
   center: { alignItems: 'center', gap: space.xs },

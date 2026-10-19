@@ -14,14 +14,25 @@ export interface Issue {
 const ID_PATTERN = /^[A-Z]{3}-\d{3}$/;
 const SKILL_PATTERN = /^H([1-9]|[12]\d|30)$/;
 
+const SUPERSCRIPT: Record<string, string> = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+const SUP = '[⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+';
+
+/** Converte "⁻³" (ou "^-3") em número. */
+function parseExponent(raw: string): number {
+  const neg = raw.startsWith('⁻') || raw.startsWith('-');
+  const digits = raw.replace(/[⁻⁺^+-]/g, '').split('').map((c) => SUPERSCRIPT[c] ?? c).join('');
+  return (neg ? -1 : 1) * Number(digits);
+}
+
 /**
  * Extrai o valor numérico de uma alternativa em português.
- * Suporta: "R$ 1.250,00", "12,5%", "≈ 15%", "3/8", "1 : 400.000" (→ 400000),
- * "4 h 48 min" (→ 4,8 h), "2 h" (→ 2), números com unidade ("36 cm").
- * Retorna null quando não há número reconhecível.
+ * Suporta: "R$ 1.250,00", "12,5%", "≈ 15%", "3/8" e "2 1/2" (fração mista), "1 : 400.000"
+ * (→ 400000), "4 h 48 min" (→ 4,8 h), "2 h" (→ 2), números com unidade ("36 cm"),
+ * notação científica ("3,2 × 10⁵", "10⁻³", "1,5 · 10^8 km"), potências ("2⁵", "3⁻²") e
+ * raízes ("√49", "3√2"). O sinal pode ser "-" ou "−". Retorna null sem número reconhecível.
  */
 export function parseNumeric(text: string): number | null {
-  const t = text.replace(/\s+/g, ' ').trim();
+  const t = text.replace(/\s+/g, ' ').replace(/−/g, '-').replace(/^≈ ?/, '').trim();
 
   const hm = t.match(/^(\d+) h(?: (\d+) min)?$/);
   if (hm) return Number(hm[1]) + (hm[2] ? Number(hm[2]) / 60 : 0);
@@ -29,7 +40,26 @@ export function parseNumeric(text: string): number | null {
   const scale = t.match(/^1 ?: ?([\d.]+)$/);
   if (scale) return parsePtNumber(scale[1]);
 
-  const frac = t.match(/^(-?\d+)\/(\d+)$/);
+  // Notação científica / potência de 10, com ou sem mantissa e com unidade opcional ao final.
+  const sci = t.match(new RegExp(`^(-?\\d{1,3}(?:\\.\\d{3})+(?:,\\d+)?|-?\\d+(?:,\\d+)?)? ?(?:[×x·*] ?)?10(?:\\^(-?\\d+)|(${SUP}))(?: .+)?$`));
+  if (sci && (sci[1] !== undefined || /10[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹^]/.test(t))) {
+    const mantissa = sci[1] !== undefined ? parsePtNumber(sci[1]) : 1;
+    return mantissa * Math.pow(10, sci[2] !== undefined ? Number(sci[2]) : parseExponent(sci[3]));
+  }
+
+  // Potência de base qualquer: "2⁵", "3⁻²", "1,5²".
+  const pow = t.match(new RegExp(`^(-?\\d+(?:,\\d+)?)(${SUP})(?: .+)?$`));
+  if (pow) return Math.pow(parsePtNumber(pow[1]), parseExponent(pow[2]));
+
+  // Raiz: "√49", "3√2".
+  const root = t.match(/^(\d+(?:,\d+)?)?√(\d+(?:,\d+)?)(?: .+)?$/);
+  if (root) return (root[1] ? parsePtNumber(root[1]) : 1) * Math.sqrt(parsePtNumber(root[2]));
+
+  // Fração mista: "2 1/2" (o sinal vale para o número todo).
+  const mixed = t.match(/^(-?)(\d+) (\d+)\/(\d+)(?: .+)?$/);
+  if (mixed) return (mixed[1] ? -1 : 1) * (Number(mixed[2]) + Number(mixed[3]) / Number(mixed[4]));
+
+  const frac = t.match(/^(-?\d+)\/(\d+)(?: .+)?$/);
   if (frac) return Number(frac[1]) / Number(frac[2]);
 
   const num = t.match(/-?\d{1,3}(?:\.\d{3})+(?:,\d+)?|-?\d+(?:,\d+)?/);
@@ -101,7 +131,8 @@ export function validateQuestion(q: Question): Issue[] {
       return issues;
     }
     if (!Number.isFinite(expected)) add('verify() não retornou número finito');
-    const tol = q.tolerance ?? 1e-9;
+    // Padrão: ruído de ponto flutuante, proporcional ao valor (números pequenos, como 10⁻⁷, não colapsam).
+    const tol = q.tolerance ?? Math.min(1e-9, Math.abs(expected) * 1e-9);
     const values = ALT_KEYS.map((k) => parseNumeric(q.alternatives[k] ?? ''));
     const matches = ALT_KEYS.filter((_, i) => values[i] !== null && Math.abs((values[i] as number) - expected) <= tol);
     if (values[ALT_KEYS.indexOf(q.answer)] === null) add('alternativa correta não é numérica, mas há verify()');

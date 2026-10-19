@@ -3,7 +3,7 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (154 testes), `npm run typecheck`, `npm run lint`,
+Como verificar: `npm test` (179 testes), `npm run typecheck`, `npm run lint`,
 `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
@@ -71,7 +71,15 @@ Aparelho real:
 - [x] **Chama da Constância**: dias de estudo da semana, sem sequência que zera
 - [x] **Oficina**: gastar Tinta em cosméticos comuns/incomuns (compra em dois toques); raros e lendários só por feitos
 - [x] Avisos curtos (encomenda cumprida, baú) que esperam o fim da questão/batalha e da celebração, anunciados ao leitor de tela
-- [ ] Regiões 3–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
+- [x] **Região 3 — Planícies Numéricas** (frações, MMC/MDC, potências e notação científica): 3 missões + chefão, abre após vencer o Mercador
+  - **72 questões autorais novas** (`BAS-101…324`, 6 lotes de 12), pools de 26–27 por missão (≥ 20 extras além das 5 de cada tentativa); novo subassunto `potencias`
+  - cada lote foi resolvido às cegas por um revisor independente (e por mim): **0 divergências de gabarito**; as correções vieram de dificuldade superestimada (4 → 3 em 7 questões), um contexto irreal (volta de 24 s numa pista de atletismo virou trilha de caminhada) e um enunciado ambíguo (horta × terreno)
+  - o validador agora entende notação científica (`3,2 × 10⁵`, `10⁻³`), potências (`2⁵`), raízes (`√49`), frações mistas (`2 1/2`) e o sinal `−`; a tolerância padrão passou a ser relativa
+  - gabaritos do banco equilibrados: 62–64 por letra em 314 questões
+- [x] **Quimera Fracionária** (`BossTrait` `heads`): a vida é a soma de três cabeças — Leão 1/2 (frações e contas), Cabra 1/3 (MMC e MDC), Serpente 1/6 (potências e notação) — e cada cabeça faz as perguntas da própria matéria; um erro faz a cabeça de pé se regenerar (6% da vida), mas nunca além do topo dela: cabeça derrubada não volta
+  - barra de vida segmentada nas frações exatas (`HeadsBar`), arte vetorial com as cabeças que caem (`QuimeraArt`), fala própria a cada cabeça derrubada, lista das cabeças na introdução
+  - recompensas: Moldura dos Três Arcos (raro, anel em arcos de 1/2, 1/3 e 1/6) e título Soma Inteira; sem erros nem dicas: **Núcleo da Trindade** (lendário, roda das frações + três gemas), que também desperta a Forma Mítica com qualquer aura lendária
+- [ ] Regiões 4–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
 - [ ] Conquistas e coleções
 - [ ] Companheiros
 - [ ] Selos de domínio gravados no astrolábio
@@ -110,7 +118,7 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Pausa saudável após 25 min contínuos
 
 ## Etapa 6 — Conteúdo (pendente)
-- [~] Expandir para 500 questões validadas, em lotes por assunto — **242 hoje** (91 do MVP + 25 de financeira + 126 de missões); combinatória, geometria espacial e equações têm poucos itens
+- [~] Expandir para 500 questões validadas, em lotes por assunto — **314 hoje** (91 do MVP + 25 de financeira + 126 de missões das regiões 1–2 + 72 da Região 3); combinatória, geometria espacial e equações têm poucos itens
 
 ## Etapa 7 — Polimento (pendente)
 - [ ] Sons (desativáveis)

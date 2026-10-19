@@ -47,7 +47,8 @@ export const TOPICS: Topic[] = [
       { id: 'fracoes', label: 'Frações' },
       { id: 'operacoes', label: 'Operações e expressões' },
       { id: 'mmc-mdc', label: 'MMC e MDC' },
-      { id: 'notacao-cientifica', label: 'Potências e notação científica' },
+      { id: 'potencias', label: 'Potências e raízes' },
+      { id: 'notacao-cientifica', label: 'Notação científica' },
     ],
   },
   {

@@ -7,6 +7,7 @@ import { Redirect, useGlobalSearchParams } from 'expo-router';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { ITEMS, RARITY_LABEL, getItem } from '../content/items';
 import type { EffectsLevel, Equipped } from '../domain/game/types';
+import { BossArt } from '../features/boss/BossArt';
 import { Astrolabe } from '../ui/Astrolabe';
 import { ItemGlyph } from '../ui/ItemGlyph';
 import { Text } from '../ui/Text';
@@ -30,7 +31,7 @@ function Cell({ equipped, label, sub, size, level, effects }: { equipped: Equipp
 }
 
 export default function VfxLab() {
-  const routed = useGlobalSearchParams<{ grid?: string; core?: string; aura?: string; frame?: string; level?: string; fx?: string; glyphs?: string }>();
+  const routed = useGlobalSearchParams<{ boss?: string; felled?: string; grid?: string; core?: string; aura?: string; frame?: string; level?: string; fx?: string; glyphs?: string }>();
   // Na exportação web estática os parâmetros às vezes chegam vazios: lê direto da URL.
   const p =
     Platform.OS === 'web' && typeof window !== 'undefined' && Object.keys(routed).length === 0
@@ -40,6 +41,19 @@ export default function VfxLab() {
   const level = Number(p.level ?? 20);
   const effects = (p.fx as EffectsLevel) ?? undefined;
   const base: Equipped = { frame: p.frame ?? 'frame-bronze', core: p.core ?? 'core-quartzo', aura: p.aura ?? null, title: null };
+
+  if (p.boss) {
+    return (
+      <ScrollView style={styles.root} contentContainerStyle={styles.grid}>
+        {[0, 1, 2, 3].map((n) => (
+          <View key={n} style={styles.cell}>
+            <BossArt art={p.boss as 'golem' | 'mercador' | 'quimera'} size={170} headsFelled={n} cracked={n >= 1} defeated={n >= 3} />
+            <Text variant="caption" color={colors.mist}>{`${n} cabeça(s) caída(s)`}</Text>
+          </View>
+        ))}
+      </ScrollView>
+    );
+  }
 
   if (p.glyphs) {
     return (

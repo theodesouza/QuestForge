@@ -123,3 +123,10 @@ export function curtain(deg: number, r0: number, r1: number, widthDeg: number): 
   const m2 = polar((r0 + r1) / 2, deg - widthDeg * 0.9);
   return `M${f(a.x)} ${f(a.y)} L${f(b.x)} ${f(b.y)} Q${f(m1.x)} ${f(m1.y)} ${f(t1.x)} ${f(t1.y)} L${f(t2.x)} ${f(t2.y)} Q${f(m2.x)} ${f(m2.y)} ${f(a.x)} ${f(a.y)} Z`;
 }
+
+/** Arco de círculo de `from` a `to` graus (0 = topo, horário), como `d` de um path. */
+export function arc(r: number, from: number, to: number, cx = C, cy = C): string {
+  const a = polar(r, from, cx, cy);
+  const b = polar(r, to, cx, cy);
+  return `M${f(a.x)} ${f(a.y)} A${r} ${r} 0 ${to - from > 180 ? 1 : 0} 1 ${f(b.x)} ${f(b.y)}`;
+}

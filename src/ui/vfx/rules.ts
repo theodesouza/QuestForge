@@ -8,7 +8,7 @@ import { ELEMENT_LABEL, RARITY_TIER, getItem, type FxElement } from '../../conte
 import type { Equipped } from '../../domain/game/types';
 import { MYTHIC_COLOR } from '../theme';
 
-export const CORE_FX = ['prisma', 'ambar', 'rubi', 'verdete', 'iris', 'safira', 'solar', 'pulsar', 'tesouro'] as const;
+export const CORE_FX = ['prisma', 'ambar', 'rubi', 'verdete', 'iris', 'safira', 'solar', 'pulsar', 'tesouro', 'trindade'] as const;
 export const AURA_FX = ['brasa', 'nevoa', 'mare', 'lunar', 'boreal', 'nebulosa', 'aurea', 'zenite'] as const;
 export type CoreFxId = (typeof CORE_FX)[number];
 export type AuraFxId = (typeof AURA_FX)[number];
