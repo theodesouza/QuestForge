@@ -166,6 +166,19 @@ O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualizaç
 
 ## Conteúdo
 
+### Consultas de aprendizado
+
+`GameRepository.activitySince` lê a atividade desde o começo da semana local;
+`mistakeHistory` pagina só tentativas incorretas por data e ID decrescentes. Ambas
+passam pela fila do controlador para respeitar gravações pendentes, sem alterar o
+estado do jogo ou exigir migração. `domain/learning/progress.ts` aplica o calendário
+local, descarta registros futuros e só mostra precisão com pelo menos 10 respostas.
+O domínio por subassunto usa o motor de domínio existente e o histórico completo.
+O histórico identifica a resposta pelo texto da alternativa canônica, sem atribuir
+letras que podem ter mudado entre versões antigas e o embaralhamento atual.
+Enunciados e resoluções são os do banco atual (não há cópia versionada por tentativa).
+Tempo de estudo não entra neste painel enquanto o contador não descontar pausas.
+
 - Questões em TypeScript tipado (`src/content/questions/<assunto>.ts`), uma constante por
   lote. IDs estáveis no formato `<ASSUNTO>-<NNN>` (ex.: `PCT-004`). Nunca reutilizar IDs.
 - Cada questão traz: enunciado em blocos (parágrafo, tabela, gráfico de barras, fórmula,

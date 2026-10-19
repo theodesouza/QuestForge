@@ -95,6 +95,8 @@ export default function Camp() {
 
       <UpdateBanner />
 
+      <Button label="Sua evolução" icon="book" variant="secondary" size="md" onPress={() => router.push('/progress')} />
+
       {restedNotice ? (
         <Animated.View entering={enter(0)}>
           <Pressable onPress={dismissRestedNotice} accessibilityRole="button" accessibilityHint="Toque para dispensar">

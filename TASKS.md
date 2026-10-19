@@ -3,7 +3,7 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (179 testes), `npm run typecheck`, `npm run lint`,
+Como verificar: `npm test` (184 testes), `npm run typecheck`, `npm run lint`,
 `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
@@ -109,8 +109,9 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Ativar `ANDROID_SYNCHRONOUSLY_UPDATE_UI_PROPS` do Reanimated (transform/opacity sem commit da árvore) — exige APK novo
 
 ## Etapa 5 — Aprendizado adaptativo (pendente)
-- [ ] Painel de evolução (semana, assuntos fortes/fracos, tempo de estudo, gráficos)
-- [ ] Histórico de erros navegável ("por que errei")
+- [~] Painel de evolução: atividade semanal com gráfico por dia, acertos (percentual só após 10 respostas), acertos sem chute, dias de prática, domínio por subassunto e próximo treino; acesso no Acampamento e no Herói. Tempo de estudo e comparação entre semanas continuam pendentes.
+- [x] Histórico de erros navegável: 20 tentativas por página, data, assunto, enunciado, alternativas com resposta marcada, resolução e conceito. Consultar não altera XP nem o prazo do Eco; Voltar do Android retorna ao histórico.
+- [x] Consultas de aprendizado testadas em SQLite real e memória; calendário semanal/fuso e amostra mínima testados. Roteiro web verifica expedição → evolução → histórico → resolução e exige progresso inalterado e nenhum erro de console (`--learning-only`). Exportações web/Android, lint e tipos conferidos; aparelho físico ainda pendente.
 - [ ] Caça aos Ecos como modo dedicado com progressão própria
 - [ ] Andaime completo com exemplo resolvido dedicado
 - [ ] Simulados (por assunto, dificuldade, personalizado, completo 45 q) + histórico + comparação

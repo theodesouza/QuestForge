@@ -21,7 +21,7 @@ const URL = process.argv[3] || 'http://localhost:8090/';
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
@@ -101,7 +101,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await dismissCelebrations('levelup');
   await shot('feedback-correct');
   await click('Próxima questão');
-  await answerOne(false);
+  const wrongQuestion = await answerOne(false);
   await dismissCelebrations('levelup');
   await shot('feedback-wrong');
   await click('Próxima questão');
@@ -120,6 +120,35 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await click('Voltar ao acampamento');
   await wait(800);
   await shot('camp');
+
+  // Evolução e consulta do erro: os dados reais da expedição aparecem sem conceder recompensas.
+  const beforeReview = await page.evaluate(() => JSON.stringify(globalThis.__qf.store.getState().game));
+  await click('Sua evolução');
+  await page.getByText('Mapa do conhecimento', { exact: true }).waitFor();
+  await page.getByText('2 acertos, sendo 2 sem marcar chute.', { exact: false }).waitFor();
+  await shot('learning-progress');
+  await click('Histórico de erros');
+  await page.getByRole('button', { name: `Ver resolução · ${wrongQuestion.id}`, exact: true }).waitFor();
+  await shot('learning-mistakes');
+  await click(`Ver resolução · ${wrongQuestion.id}`);
+  await page.getByText('Resolução passo a passo', { exact: true }).waitFor();
+  const correctText = await page.evaluate((id) => {
+    const q = globalThis.__qf.getQuestion(id);
+    return q.alternatives[q.answer];
+  }, wrongQuestion.id);
+  await page.getByText(`${correctText} · correta`, { exact: false }).waitFor();
+  await shot('learning-review');
+  const afterReview = await page.evaluate(() => JSON.stringify(globalThis.__qf.store.getState().game));
+  if (beforeReview !== afterReview) throw new Error('Consultar o histórico alterou o progresso');
+  await click('Voltar ao histórico');
+  await page.getByRole('button', { name: 'Voltar', exact: true }).click();
+  await page.getByRole('button', { name: 'Voltar', exact: true }).click();
+  if (process.argv.includes('--learning-only')) {
+    if (errors.length) throw new Error(JSON.stringify(errors));
+    console.log('LEARNING_OK: evolução, histórico, resolução e progresso preservado; sem erros de console');
+    await browser.close();
+    return;
+  }
   await page.mouse.wheel(0, 700);
   await shot('camp-scrolled');
   await page.getByRole('tab', { name: 'Atlas' }).click();

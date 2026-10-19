@@ -76,7 +76,7 @@ um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 ## Verificações
 
 ```bash
-npm test                 # 179 testes: domínio, rejogabilidade, conteúdo, efeitos, SQLite real e atualização a partir da v0.1.0/v0.2.0
+npm test                 # 184 testes: domínio, evolução, rejogabilidade, conteúdo, efeitos, SQLite real e atualização a partir da v0.1.0/v0.2.0
 npm run typecheck        # TypeScript estrito
 npm run lint             # ESLint (config Expo + regras de hooks do React)
 npm run validate:content # só o validador do banco de questões
@@ -90,6 +90,14 @@ EXPO_PUBLIC_QA=1 npx expo export --platform web --output-dir dist-web
 python3 -m http.server 8090 --directory dist-web &
 node scripts/e2e-web.js e2e-shots http://localhost:8090/
 ```
+
+Para verificar só a primeira expedição e as telas de evolução/histórico, acrescente
+`--learning-only` ao comando do roteiro. Se o Chromium estiver instalado fora do
+Playwright, informe seu executável em `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`.
+
+No Acampamento, **Sua evolução** abre o gráfico da semana e o mapa de domínio por
+subassunto. **Histórico de erros** permite consultar as tentativas anteriores e suas
+resoluções, sem gastar ou ganhar recompensas. O painel também está no Herói.
 
 Com `EXPO_PUBLIC_QA=1` também existe o laboratório de efeitos `/vfx-lab` (grades de núcleos,
 auras e sinergias: `?grid=cores|auras|synergy`; combinação única: `?core=…&aura=…&fx=alto|medio|baixo`).
