@@ -201,6 +201,12 @@ Tempo de estudo não entra neste painel enquanto o contador não descontar pausa
   assunto/subassunto, dificuldade 1–4, habilidades da Matriz de Referência do ENEM (H1–H30),
   tempo estimado, fonte (`autoral` ou `enem` com ano) e — quando numérica — uma função
   `verify()` que **recalcula a resposta** a partir dos dados do enunciado.
+- Cada passo da resolução pode ser texto explicativo ou `{ explanation, calculation: string[] }`.
+  As linhas matemáticas são escritas pelo autor; a UI não resolve nem infere contas.
+  `SolutionSheet` é compartilhada pelo feedback, pelo histórico e pelo reforço guiado.
+  Frações numéricas explícitas são diagramadas com traço; unidades, potências e frações
+  algébricas preservam a notação original. Texto nativo mantém leitura offline e escala
+  da fonte. A validação exige passos preenchidos e contas em todas as questões do banco.
 - O validador (`src/content/validation`) garante: IDs únicos e bem formados, 5 alternativas
   distintas, gabarito válido, campos obrigatórios, habilidades válidas, e que o valor de
   `verify()` coincide com a alternativa correta **e com nenhuma outra**.
@@ -211,7 +217,7 @@ Tempo de estudo não entra neste painel enquanto o contador não descontar pausa
 
 A build web existe só para pré-visualização e capturas de tela de design. Nela, o
 repositório é o `MemoryGameRepository` (arquivo `.web.ts`), porque o foco do produto é nativo.
-Com `EXPO_PUBLIC_QA=1`, o app expõe `globalThis.__qf` (somente leitura do estado) para o teste
+Com `EXPO_PUBLIC_QA=1`, o app expõe `globalThis.__qf` para inspecionar e simular cenários no teste
 ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativo.
 
 ## Decisões registradas

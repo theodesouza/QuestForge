@@ -88,16 +88,16 @@ um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 
 ## Publicação e reversão
 
-Última atualização publicada: **19/10/2026 — reforço guiado após erros**,
-código `0bec7e1`, grupo Expo `a2b4a350-6a36-4267-a788-33cfa74660d1`, Android,
+Última atualização publicada: **19/10/2026 — folhas de resolução nas 314 questões**,
+código `4efea8a`, grupo Expo `7c181e15-f117-4da2-b32e-ec12992a7e93`, Android,
 canal `preview`, runtime `0.2.0`. Manifesto e hash do bundle baixado foram conferidos.
 O APK versionCode 4 recebe essa atualização sem reinstalação.
 
-Se for necessário voltar à versão anterior com evolução, histórico e Região 3, republicar o grupo
+Se for necessário voltar à versão anterior com reforço guiado, evolução, histórico e Região 3, republicar o grupo
 anterior no mesmo canal (o comando abaixo é de reversão, não de publicação normal):
 
 ```bash
-npx eas-cli@latest update:republish --group 60495e32-9990-401e-839e-18976055c016 --destination-channel preview --platform android --message "Reversão para evolução e histórico" --non-interactive
+npx eas-cli@latest update:republish --group a2b4a350-6a36-4267-a788-33cfa74660d1 --destination-channel preview --platform android --message "Reversão para reforço guiado" --non-interactive
 ```
 
 Essa reversão troca o código e mantém o banco do aparelho; não desfaz o estudo realizado.
