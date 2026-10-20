@@ -70,9 +70,9 @@ export interface EngineDeps {
   appVersion?: string;
   /** Tempo máximo de cada chamada à nuvem. */
   timeoutMs?: number;
-  /** Espera depois da última alteração antes de enviar. */
+  /** Espera depois da última alteração antes de enviar (junta uma sessão inteira num único envio). */
   debounceMs?: number;
-  /** Teto de espera sob alterações contínuas. */
+  /** Teto de espera sob alterações contínuas. Marcos (fim de sessão, chefão…) pedem envio imediato. */
   maxWaitMs?: number;
   /** Quantas tentativas novas acumulam antes de virarem um lote (sem `force`). */
   attemptBatch?: number;
@@ -91,7 +91,8 @@ const defaultId = (prefix: string) => `${prefix}_${Date.now().toString(36)}${Mat
 export function toSyncError(e: unknown): SyncError {
   if (e instanceof SyncError) return e;
   if (e instanceof SnapshotError) {
-    return new SyncError(e.code === 'too-new' ? 'needs-update' : 'corrupt-remote', e.message, e);
+    // 'too-large' é do estado LOCAL (não cabe no documento); os outros vêm do que está na nuvem.
+    return new SyncError(e.code === 'too-new' ? 'needs-update' : e.code === 'too-large' ? 'integrity' : 'corrupt-remote', e.message, e);
   }
   return new SyncError('unknown', e instanceof Error ? e.message : String(e), e);
 }
@@ -141,8 +142,8 @@ export class SyncEngine {
     this.newId = deps.newId ?? defaultId;
     this.scheduler = deps.scheduler ?? defaultScheduler;
     this.timeoutMs = deps.timeoutMs ?? 20_000;
-    this.debounceMs = deps.debounceMs ?? 15_000;
-    this.maxWaitMs = deps.maxWaitMs ?? 60_000;
+    this.debounceMs = deps.debounceMs ?? 90_000;
+    this.maxWaitMs = deps.maxWaitMs ?? 5 * 60_000;
     this.attemptBatch = deps.attemptBatch ?? 40;
   }
 
@@ -551,7 +552,7 @@ export class SyncEngine {
         const hadWork = !isPristine(curSync) && meaningfulKey(curSync) !== meaningfulKey(plan.merged);
         kv.push({ key: KV.discarded, value: hadWork ? encodeSyncState(curSync) : null });
         await repo.replaceAll(next, { kv, wipeAttempts: true });
-        controller.adopt(next);
+        if (!this.disposed) controller.adopt(next);
         outcome = { kind: 'reset-adopted', rev: headRev };
         return;
       }
@@ -559,7 +560,7 @@ export class SyncEngine {
       const delta = diffDelta(cur, next);
       await repo.commit(next, delta, kv);
       const changed = delta.profile || delta.quests || delta.questionStates.length || delta.ledger.length || delta.inventory.length || delta.campaign.length || delta.bosses.length;
-      if (changed) controller.adopt(next);
+      if (changed && !this.disposed) controller.adopt(next); // depois de encerrada, só o banco é atualizado
 
       outcome = plan.confirmedEmpty
         ? { kind: 'confirmed-empty' }

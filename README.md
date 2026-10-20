@@ -29,22 +29,19 @@ Requisitos: Node.js 20+ (testado com 22) e npm.
 npm install
 ```
 
-**Opção 1 — Expo Go (mais rápida).** Instale o Expo Go compatível com o SDK 57 no celular e rode:
+> **Desde a v0.3.0 o app não roda mais no Expo Go**: o login Google usa um módulo nativo próprio
+> (`react-native-nitro-google-signin`). Use um build nativo (APK ou `expo run:android`). Antes, configure o Firebase
+> ([`docs/CLOUD_SETUP.md`](docs/CLOUD_SETUP.md)) e copie `.env.example` para `.env`. Para depurar o login, gere o APK
+> `preview` (opções abaixo); um *development build* exigiria acrescentar `expo-dev-client`.
+> A pré-visualização web (`npx expo start --web`) continua funcionando sem login real e sem nuvem.
 
-```bash
-npx expo start
-```
-
-Escaneie o QR code com o Expo Go. Todas as bibliotecas nativas usadas (SQLite, Reanimated,
-SVG, Haptics) fazem parte do Expo Go.
-
-**Opção 2 — build local** (precisa do Android Studio/SDK e de um emulador ou aparelho com depuração USB):
+**Opção 1 — build local** (precisa do Android Studio/SDK e de um emulador ou aparelho com depuração USB):
 
 ```bash
 npx expo run:android
 ```
 
-**Opção 3 — APK instalável pela nuvem (EAS)**, sem Android Studio:
+**Opção 2 — APK instalável pela nuvem (EAS)**, sem Android Studio:
 
 ```bash
 npx eas-cli@latest build -p android --profile preview
@@ -102,7 +99,20 @@ src/
   app/       telas (Expo Router)          domain/   regras puras: XP, níveis, revisão, batalha
   features/  composição de telas          content/  questões, assuntos, regiões, chefões, itens
   ui/        design system                data/     SQLite: migrações e repositório atômico
-  state/     store + ações (domínio → persistência → tela)
+  state/     store + ações (domínio → persistência → tela) e sessão (conta → banco → nuvem)
+  auth/      login Google (Credential Manager) + Firebase Auth + sessão no cofre do sistema
+  sync/      snapshot, merge de 3 vias e motor de sincronização (puros, testados em Node)
+  platform/  Android (SQLite por conta + Firebase) × pré-visualização web (memória)
+  legacy/    migração única do progresso antigo (só builds de desenvolvimento)
 ```
 
-Privacidade: sem conta, sem anúncios e sem telemetria. Todo o progresso fica no aparelho.
+Privacidade: entrada com conta Google (única forma de conta), sem anúncios e sem telemetria. O progresso fica no
+aparelho e é sincronizado com a conta (Firebase). Detalhes em [docs/PRIVACY.md](docs/PRIVACY.md).
+
+## Contas e nuvem
+
+- Arquitetura e decisões: [docs/CLOUD_SYNC.md](docs/CLOUD_SYNC.md)
+- Configurar o Firebase e o login Google (o que depende de você): [docs/CLOUD_SETUP.md](docs/CLOUD_SETUP.md)
+- Preservar o progresso anterior às contas (procedimento único): [docs/LEGACY_MIGRATION.md](docs/LEGACY_MIGRATION.md)
+- `npm run test:rules` — regras de segurança e sincronização contra os emuladores do Firebase (exige Java)
+- `npm run verify:no-legacy` — confere que a ferramenta de migração única não está no bundle de produção

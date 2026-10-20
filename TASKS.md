@@ -3,8 +3,8 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (179 testes), `npm run typecheck`, `npm run lint`,
-`npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
+Como verificar: `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:rules` (emuladores Firebase),
+`npm run verify:no-legacy`, `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
 - [x] `PROJECT_PLAN.md` (visão, mecânicas, direção de arte, roteiro)
@@ -124,6 +124,21 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Sons (desativáveis)
 - [ ] Testes de componentes e testes em aparelho intermediário (performance)
 - [ ] Revisão de acessibilidade com leitor de tela real
+
+## Etapa 7.5 — Contas Google e progresso na nuvem (v0.3.0)
+Implementado e testado em Node/emuladores (detalhes em `docs/CLOUD_SYNC.md`):
+- [x] Login **apenas com Google** (Credential Manager) → Firebase Auth; sessão no cofre do sistema; restauração ao reabrir (inclusive offline); sair; erros claros; exclusão de conta (reconfirma com o Google)
+- [x] **Banco local por conta** (`questforge-<uid>.db`, esquema v4): sair/trocar de conta nunca apaga nada; Backup Automático do Android desligado
+- [x] **Nuvem**: um documento-snapshot versionado por conta + lotes de tentativas; regras de segurança (dono + Google, `rev = anterior + 1`, geração e schema nunca regridem)
+- [x] **Sincronização em lote** (90 s de debounce, teto de 5 min, marcos imediatos), pendências duráveis, envio idempotente (`nonce` + linhagem), prazo/cancelamento, espera crescente
+- [x] **Merge de 3 vias** sem perder nem duplicar (contadores, união, recordes, estorno de recompensa única paga em dois aparelhos, liquidação de encomendas)
+- [x] Reinício do progresso por geração (`epoch`); exportação de dados (LGPD); painel *Conta e nuvem*; avisos de sincronização
+- [x] **Migração única do progresso legado** (somente leitura, backup verificável, idempotente, conferida por releitura) — **preparada, NÃO executada**; fora do bundle de produção (`npm run verify:no-legacy`)
+- [x] 120+ testes novos (sessão, motor, merge, migração, regras e motor no Firestore real via emulador)
+- [ ] Teste do login Google e da sincronização em **aparelho real** com o projeto Firebase (depende da configuração em `docs/CLOUD_SETUP.md`)
+- [ ] Executar a migração única no celular (`docs/LEGACY_MIGRATION.md`) e confirmar
+- [ ] Publicar política de privacidade e página de exclusão de conta (`docs/PRIVACY.md`); App Check e alertas de orçamento antes de crescer
+- [ ] Compactar lotes de tentativas se um usuário acumular milhares (restauração lê ~1 documento por lote)
 
 ## Etapa 8 — Entrega (parcial)
 - [x] Instruções para Android no `README.md` (Expo Go, build local e APK via EAS) e `eas.json`

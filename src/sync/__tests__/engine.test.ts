@@ -3,9 +3,10 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { QUESTIONS } from '../../content/bank';
 import { createInitialState } from '../../domain/game/game';
+import { toSyncError } from '../engine';
 import { KV, SyncError, type RemoteSave } from '../types';
 import { findRegressions } from '../merge';
-import { SNAPSHOT_SCHEMA, decodeSyncState, encodeSyncState, hashText, isPristine, meaningfulKey, toSyncState } from '../snapshot';
+import { SnapshotError, SNAPSHOT_SCHEMA, decodeSyncState, encodeSyncState, hashText, isPristine, meaningfulKey, toSyncState } from '../snapshot';
 import { Clock, clearRegion1, makeDevice, type Device } from '../testing/device';
 import { FakeCloud } from '../testing/fakeCloud';
 import { DAY, HOUR } from '../testing/gameplay';
@@ -340,6 +341,36 @@ describe('offline e falhas', () => {
     await d.engine.syncNow({ force: true });
     expect(cloud.attemptIds(UID)).toHaveLength(12);
     d.close();
+  });
+});
+
+describe('encerrar a conta no meio de uma sincronização', () => {
+  it('o ciclo atrasado ainda grava no banco da conta, mas não publica o jogo na tela', async () => {
+    const cloud = new FakeCloud();
+    const a = await signedUp(cloud);
+    const b = await makeDevice({ uid: UID, name: 'B', cloud });
+    await b.engine.syncNow();
+    await b.expedition(ids(5), true);
+    await b.engine.syncNow(); // a nuvem avança
+
+    await a.expedition(ids(3, 40), true);
+    cloud.afterDecide = async () => {
+      a.engine.dispose(); // a pessoa saiu da conta enquanto a nuvem processava
+      a.controller.close();
+    };
+    const publishedBefore = a.published.length;
+    await a.engine.syncNow().catch(() => undefined);
+    expect(a.published.length).toBe(publishedBefore); // nada novo na tela
+    const onDisk = (await a.repo.load())!;
+    expect(onDisk.profile.totals.answered).toBe(8); // mas o banco da conta tem tudo (5 do B + 3 do A)
+    a.close();
+    b.close();
+  });
+
+  it('um estado local grande demais é tratado como problema local, não como "nuvem corrompida"', async () => {
+    expect(toSyncError(new SnapshotError('too-large', 'x')).code).toBe('integrity');
+    expect(toSyncError(new SnapshotError('too-new', 'x')).code).toBe('needs-update');
+    expect(toSyncError(new SnapshotError('corrupt', 'x')).code).toBe('corrupt-remote');
   });
 });
 
@@ -731,10 +762,38 @@ describe('agendamento', () => {
     for (let i = 0; i < 20; i++) a.engine.requestSync('change');
     expect(s.pending()).toHaveLength(1);
     expect(a.engine.getStatus().pendingChanges).toBe(true);
-    await s.advance(14_999);
+    await s.advance(89_999);
     expect(cloud.counts.writes).toBe(before);
     await s.advance(2);
     expect(cloud.counts.writes).toBe(before + 1);
+    a.close();
+  });
+
+  it('uso contínuo: as alterações não adiam o envio para sempre (teto de 5 min); um marco envia já', async () => {
+    const cloud = new FakeCloud();
+    const s = manualScheduler();
+    const clock = new Clock();
+    const a = await makeDevice({ uid: UID, name: 'A', cloud, clock, engine: { scheduler: s.scheduler, timeoutMs: 5_000_000 } });
+    await a.engine.syncNow();
+    await a.onboard();
+    const before = cloud.counts.writes;
+    // Uma resposta a cada 40 s: o contador de 90 s nunca estoura sozinho…
+    for (let t = 0; t < 280_000; t += 40_000) {
+      clock.advance(40_000);
+      a.engine.requestSync('change');
+      await s.advance(40_000);
+    }
+    expect(cloud.counts.writes).toBe(before);
+    // …mas o teto de 5 min força o envio.
+    clock.advance(40_000);
+    a.engine.requestSync('change');
+    await s.advance(40_000);
+    expect(cloud.counts.writes).toBe(before + 1);
+    // Um marco (fim de sessão) não espera nada.
+    await a.expedition(ids(3), true);
+    a.engine.requestSync('now');
+    await s.advance(1);
+    expect(cloud.counts.writes).toBe(before + 2);
     a.close();
   });
 

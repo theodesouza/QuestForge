@@ -25,6 +25,7 @@ export interface ControllerDeps {
 export class GameController {
   private state: GameState | null = null;
   private queue: Promise<unknown> = Promise.resolve();
+  private closed = false;
   private readonly clock: () => number;
   private readonly tzOffset: () => number;
 
@@ -49,8 +50,8 @@ export class GameController {
       const touched = touch(state, now, this.tzOffset());
       await this.deps.repo.commit(touched.state, touched.delta);
       this.state = touched.state;
-      this.deps.onState(touched.state, touched.events);
-      this.deps.onChange?.();
+      this.publish(touched.state, touched.events);
+      this.changed();
       return touched.events;
     });
   }
@@ -61,8 +62,8 @@ export class GameController {
       const result = reducer(this.state, this.clock());
       await this.deps.repo.commit(result.state, result.delta);
       this.state = result.state;
-      this.deps.onState(result.state, result.events);
-      this.deps.onChange?.();
+      this.publish(result.state, result.events);
+      this.changed();
       return result;
     });
   }
@@ -78,7 +79,23 @@ export class GameController {
   /** Publica um estado que o chamador JÁ gravou (dentro de `exclusive`). Não agenda sincronização. */
   adopt(state: GameState): void {
     this.state = state;
-    this.deps.onState(state, []);
+    this.publish(state, []);
+  }
+
+  /**
+   * Encerra o controlador (saída da conta): nada mais é publicado na tela nem agenda sincronização.
+   * Uma operação que ainda esteja em andamento termina e grava no banco normalmente — só não aparece.
+   */
+  close(): void {
+    this.closed = true;
+  }
+
+  private publish(state: GameState, events: GameEvent[]) {
+    if (!this.closed) this.deps.onState(state, events);
+  }
+
+  private changed() {
+    if (!this.closed) this.deps.onChange?.();
   }
 
   reset(): Promise<void> {
@@ -87,8 +104,8 @@ export class GameController {
       const state = createInitialState(this.clock());
       await this.deps.repo.commit(state, fullDelta(state));
       this.state = state;
-      this.deps.onState(state, []);
-      this.deps.onChange?.();
+      this.publish(state, []);
+      this.changed();
     });
   }
 

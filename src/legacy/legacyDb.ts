@@ -8,6 +8,8 @@ import { SqlGameRepository } from '../data/repository/SqlGameRepository';
 import type { SqlDriver, SqlExecutor, SqlValue } from '../data/sql/driver';
 
 export const LEGACY_DB_NAME = 'questforge.db';
+/** Menor esquema que o leitor entende sem migrar (o do APK 0.2.0 versionCode 4: tabelas de encomendas e estrelas). */
+export const LEGACY_MIN_SCHEMA = 3;
 
 function wrap(db: SQLiteDatabase): SqlExecutor {
   return {
@@ -25,7 +27,7 @@ export interface OpenedLegacy {
   close(): Promise<void>;
 }
 
-/** null = não há banco antigo com progresso neste aparelho. */
+/** null = não há banco antigo neste aparelho. Lança se existir mas não puder ser lido com segurança. */
 export async function openLegacyRepository(): Promise<OpenedLegacy | null> {
   const db = await openDatabaseAsync(LEGACY_DB_NAME);
   await db.execAsync('PRAGMA query_only = ON');
@@ -33,6 +35,13 @@ export async function openLegacyRepository(): Promise<OpenedLegacy | null> {
   if (!hasProfile) {
     await db.closeAsync();
     return null;
+  }
+  const version = (await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version'))?.user_version ?? 0;
+  if (version < LEGACY_MIN_SCHEMA) {
+    await db.closeAsync();
+    throw new Error(
+      `O banco antigo está no esquema v${version} (anterior ao v${LEGACY_MIN_SCHEMA}). Abra uma vez a versão 0.2.x do app para atualizá-lo (isso não apaga nada) e tente de novo.`,
+    );
   }
   const driver: SqlDriver = {
     ...wrap(db),

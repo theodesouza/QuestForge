@@ -81,6 +81,7 @@ function closeAccount() {
   cleanups = [];
   engine?.dispose();
   engine = null;
+  controller?.close(); // um ciclo atrasado não pode publicar o jogo desta conta depois da saída
   controller = null;
   repo = null;
 }

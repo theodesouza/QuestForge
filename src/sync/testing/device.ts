@@ -38,6 +38,8 @@ export class Clock {
 }
 
 export interface Device {
+  /** Estados publicados para a tela (o que a interface veria). */
+  published: GameState[];
   uid: string;
   name: string;
   clock: Clock;
@@ -77,7 +79,8 @@ export async function makeDevice(opts: DeviceOptions): Promise<Device> {
   const repo: GameRepository = driver
     ? new SqlGameRepository(driver, clock.now, opts.schemaVersion !== undefined ? { migrate: false } : {})
     : new MemoryGameRepository();
-  const controller = new GameController({ repo, clock: clock.now, tzOffset: () => BRT, onState: () => undefined });
+  const published: GameState[] = [];
+  const controller = new GameController({ repo, clock: clock.now, tzOffset: () => BRT, onState: (st) => published.push(st) });
   const engine = new SyncEngine({
     uid: opts.uid,
     controller,
@@ -95,6 +98,7 @@ export async function makeDevice(opts: DeviceOptions): Promise<Device> {
   const attemptId = () => `${opts.name}-a${seq++}`;
 
   const device: Device = {
+    published,
     uid: opts.uid,
     name: opts.name,
     clock,

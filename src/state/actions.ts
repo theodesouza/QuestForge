@@ -9,7 +9,7 @@ import type { AnswerInput, OnboardingInput } from '../domain/game/game';
 import type { GameEvent, Result, Settings } from '../domain/game/types';
 import { dayKey, weekKey } from '../domain/quests/quests';
 import { hashString } from '../domain/util/random';
-import { requireController } from './session';
+import { getSyncEngine, requireController } from './session';
 import { useGameStore } from './store';
 
 const ctrl = requireController;
@@ -24,8 +24,13 @@ function seed(): number {
 
 const run = (fn: (s: Parameters<typeof game.touch>[0], now: number) => Result) => ctrl().dispatch(fn);
 
-export function finishOnboarding(input: OnboardingInput) {
-  return run((s, now) => game.completeOnboarding(s, input, now));
+/** Marcos do jogo (fim de sessão, chefão, onboarding): pedem envio já, em vez de esperar o lote. */
+const syncSoon = () => getSyncEngine()?.requestSync('now');
+
+export async function finishOnboarding(input: OnboardingInput) {
+  const r = await run((s, now) => game.completeOnboarding(s, input, now));
+  syncSoon();
+  return r;
 }
 
 /** Retorna o id da sessão criada. */
@@ -70,7 +75,11 @@ export async function answer(input: Omit<AnswerInput, 'attemptId'>): Promise<Gam
 }
 
 export const skip = () => run((s) => game.skipCurrent(s));
-export const finish = () => run((s, now) => game.finishSession(s, now));
+export async function finish() {
+  const r = await run((s, now) => game.finishSession(s, now));
+  syncSoon();
+  return r;
+}
 export const abandon = () => run((s) => game.abandonSession(s));
 
 export async function beginBattle(bossId: string): Promise<void> {
@@ -79,10 +88,15 @@ export async function beginBattle(bossId: string): Promise<void> {
 
 export async function battleAnswer(input: Omit<AnswerInput, 'attemptId'>): Promise<GameEvent[]> {
   const r = await run((s, now) => game.battleAnswer(s, { ...input, attemptId: newId('att') }, now));
+  if (r.state.battle && r.state.battle.status !== 'active') syncSoon(); // vitória ou retirada encerram a batalha
   return r.events;
 }
 
-export const retreat = () => run((s) => game.retreatBattle(s));
+export async function retreat() {
+  const r = await run((s) => game.retreatBattle(s));
+  syncSoon();
+  return r;
+}
 export const dismissBattle = () => run((s) => game.dismissBattle(s));
 
 export const equip = (itemId: string) => run((s) => game.equipItem(s, itemId));
