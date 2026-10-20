@@ -2,26 +2,17 @@
  * Ações de alto nível usadas pelas telas. Cada uma delega ao reducer puro via
  * GameController (grava antes de publicar).
  */
-import { createRepository } from '../data/createRepository';
-import { getQuestion } from '../content/bank';
 import { findNode } from '../content/regions';
-import { getItem } from '../content/items';
-import type { AltKey, TopicId } from '../content/types';
-import { alternativeOrder, displayLetter } from '../domain/learning/alternatives';
+import type { TopicId } from '../content/types';
 import * as game from '../domain/game/game';
 import type { AnswerInput, OnboardingInput } from '../domain/game/game';
 import type { GameEvent, Result, Settings } from '../domain/game/types';
 import { dayKey, weekKey } from '../domain/quests/quests';
 import { hashString } from '../domain/util/random';
-import { GameController } from './controller';
-import { publish, useGameStore } from './store';
+import { requireController } from './session';
+import { useGameStore } from './store';
 
-let controller: GameController | null = null;
-
-function ctrl(): GameController {
-  if (!controller) throw new Error('Jogo não inicializado');
-  return controller;
-}
+const ctrl = requireController;
 
 export function newId(prefix: string): string {
   return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
@@ -29,28 +20,6 @@ export function newId(prefix: string): string {
 
 function seed(): number {
   return hashString(newId('seed'));
-}
-
-export async function boot(): Promise<void> {
-  if (process.env.EXPO_PUBLIC_QA === '1') {
-    // Gancho de QA para testes ponta a ponta no navegador (nunca ativo em builds normais).
-    // `shown` traduz a letra canônica para a letra exibida (as alternativas são embaralhadas).
-    (globalThis as unknown as { __qf: unknown }).__qf = {
-      store: useGameStore,
-      getQuestion,
-      getItem,
-      shown: (questionId: string, attemptKey: string, key: AltKey) => displayLetter(alternativeOrder(getQuestion(questionId), attemptKey), key),
-    };
-  }
-  try {
-    if (!controller) {
-      const repo = await createRepository();
-      controller = new GameController({ repo, onState: publish });
-    }
-    await controller.init();
-  } catch (e) {
-    useGameStore.setState({ status: 'error', error: e instanceof Error ? e.message : String(e) });
-  }
 }
 
 const run = (fn: (s: Parameters<typeof game.touch>[0], now: number) => Result) => ctrl().dispatch(fn);
@@ -139,10 +108,7 @@ export const updateSettings = (patch: Partial<Settings>) => run((s) => game.upda
 export const updateProfile = (patch: Parameters<typeof game.updateProfileBasics>[1]) =>
   run((s) => game.updateProfileBasics(s, patch));
 
-export async function resetProgress(): Promise<void> {
-  await ctrl().reset();
-  useGameStore.setState({ celebrations: [], toasts: [], reveals: [], lastSummary: null, restedNotice: null });
-}
+export { resetProgress } from './session';
 
 export function dismissReveal(id: string) {
   useGameStore.setState((s) => ({ reveals: s.reveals.filter((r) => r.id !== id) }));

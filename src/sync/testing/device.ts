@@ -6,6 +6,7 @@ import { getQuestion } from '../../content/bank';
 import { getRegion } from '../../content/regions';
 import { openNodeDriver } from '../../data/testing/nodeDriver';
 import { SqlGameRepository } from '../../data/repository/SqlGameRepository';
+import { MIGRATIONS, migrate } from '../../data/migrations';
 import { MemoryGameRepository } from '../../data/repository/MemoryGameRepository';
 import type { GameRepository } from '../../data/repository/GameRepository';
 import {
@@ -63,6 +64,8 @@ export interface DeviceOptions {
   engine?: Partial<EngineDeps>;
   /** Não inicia o controlador (para testes que montam o aparelho por etapas). */
   skipInit?: boolean;
+  /** Cria o banco só até esta versão do esquema (simula um aparelho com o app antigo). */
+  schemaVersion?: number;
 }
 
 let seq = 0;
@@ -70,7 +73,10 @@ let seq = 0;
 export async function makeDevice(opts: DeviceOptions): Promise<Device> {
   const clock = opts.clock ?? new Clock();
   const driver = opts.memory ? null : openNodeDriver(opts.driverPath);
-  const repo: GameRepository = driver ? new SqlGameRepository(driver, clock.now) : new MemoryGameRepository();
+  if (driver && opts.schemaVersion !== undefined) await migrate(driver, MIGRATIONS.filter((m) => m.version <= opts.schemaVersion!));
+  const repo: GameRepository = driver
+    ? new SqlGameRepository(driver, clock.now, opts.schemaVersion !== undefined ? { migrate: false } : {})
+    : new MemoryGameRepository();
   const controller = new GameController({ repo, clock: clock.now, tzOffset: () => BRT, onState: () => undefined });
   const engine = new SyncEngine({
     uid: opts.uid,

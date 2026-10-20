@@ -15,7 +15,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ItemRevealOverlay } from '../features/celebration/ItemRevealOverlay';
 import { LevelUpOverlay } from '../features/celebration/LevelUpOverlay';
 import { ToastHost } from '../features/toast/ToastHost';
-import { boot } from '../state/actions';
+import { LoginScreen } from '../features/auth/LoginScreen';
+import { RestoreScreen } from '../features/auth/RestoreScreen';
+import { boot } from '../state/session';
 import { useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
 import { Text } from '../ui/Text';
@@ -51,7 +53,13 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StatusBar style="light" />
       <View style={styles.root}>
-        {status === 'error' ? (
+        {status === 'signed-out' ? (
+          <LoginScreen />
+        ) : status === 'restoring' ? (
+          <RestoreScreen />
+        ) : status === 'legacy' ? (
+          <LegacyScreen />
+        ) : status === 'error' ? (
           <View style={styles.error}>
             <Text variant="title" align="center">
               Não foi possível abrir seu mapa
@@ -85,6 +93,16 @@ export default function RootLayout() {
       </View>
     </SafeAreaProvider>
   );
+}
+
+/** Migração única do progresso antigo: existe só em builds de desenvolvimento (no bundle de produção o `require` é removido). */
+function LegacyScreen() {
+  if (process.env.EXPO_PUBLIC_LEGACY_MIGRATION === '1') {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- require condicional: o Metro remove este ramo (e o módulo) do bundle de produção
+    const { LegacyMigrationScreen } = require('../legacy/LegacyMigrationScreen') as typeof import('../legacy/LegacyMigrationScreen');
+    return <LegacyMigrationScreen />;
+  }
+  return null;
 }
 
 const styles = StyleSheet.create({

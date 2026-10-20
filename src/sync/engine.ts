@@ -51,6 +51,8 @@ import {
 const ANCESTRY_LIMIT = 32;
 const PENDING_LIMIT = 4;
 const ATTEMPT_CHUNK_MAX = 400;
+/** Tentativas paradas há mais que isto são enviadas mesmo sem completar um lote. */
+const ATTEMPT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const BACKOFF_MS = [5_000, 15_000, 60_000, 5 * 60_000, 15 * 60_000];
 
 export interface Scheduler {
@@ -75,6 +77,8 @@ export interface EngineDeps {
   /** Quantas tentativas novas acumulam antes de virarem um lote (sem `force`). */
   attemptBatch?: number;
   scheduler?: Scheduler;
+  /** Marca o documento CRIADO por este motor como nascido da migração única do progresso legado. */
+  legacyImport?: { fingerprint: string; at: number };
 }
 
 const defaultScheduler: Scheduler = {
@@ -493,6 +497,7 @@ export class SyncEngine {
       data,
       hash: hashText(data),
       stats: statsOf(state),
+      ...(rev === 1 && this.deps.legacyImport ? { legacyImport: this.deps.legacyImport } : {}),
     };
   }
 
@@ -580,7 +585,10 @@ export class SyncEngine {
     for (;;) {
       const rows = await repo.attemptsAfter(meta.attemptsCursor, ATTEMPT_CHUNK_MAX);
       if (rows.length === 0) return;
-      if (!force && rows.length < this.attemptBatch) return;
+      // O estado derivado (XP, missões, revisões…) já viaja no snapshot a cada ciclo; o log bruto pode
+      // esperar um lote cheio — ou 24 h — em vez de gerar uma gravação minúscula por ida ao segundo plano.
+      const stale = this.clock() - rows[0].attempt.createdAt >= ATTEMPT_MAX_AGE_MS;
+      if (!force && rows.length < this.attemptBatch && !stale) return;
       const from = rows[0].rowid;
       const to = rows[rows.length - 1].rowid;
       await this.net(cloud.putAttempts(uid, { id: `${meta.deviceId}-${String(from).padStart(10, '0')}`, deviceId: meta.deviceId, from, to, attempts: rows.map((r) => r.attempt) }));

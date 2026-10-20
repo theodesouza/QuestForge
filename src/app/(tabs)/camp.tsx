@@ -30,6 +30,7 @@ import { Icon } from '../../ui/Icon';
 import { IconButton } from '../../ui/IconButton';
 import { ItemGlyph } from '../../ui/ItemGlyph';
 import { Panel } from '../../ui/Panel';
+import { SyncBanner } from '../../features/auth/SyncBanner';
 import { Pill } from '../../ui/Pill';
 import { ProgressBar } from '../../ui/ProgressBar';
 import { Screen } from '../../ui/Screen';
@@ -94,6 +95,7 @@ export default function Camp() {
       </View>
 
       <UpdateBanner />
+      <SyncBanner />
 
       {restedNotice ? (
         <Animated.View entering={enter(0)}>

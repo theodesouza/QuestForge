@@ -44,3 +44,17 @@ yarn-error.*
 dist-web/
 e2e-shots/
 *.apk
+
+# Firebase / nuvem
+# (identificadores públicos do projeto, mas específicos de cada ambiente: ficam fora do git — ver docs/CLOUD_SETUP.md)
+.env
+google-services.json
+GoogleService-Info.plist
+.firebaserc
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Backups do progresso gerados pela migração/exportação (dados pessoais)
+questforge-backup-*.json
+questforge-meus-dados-*.json

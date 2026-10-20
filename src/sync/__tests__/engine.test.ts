@@ -343,6 +343,27 @@ describe('offline e falhas', () => {
   });
 });
 
+describe('tentativas: lote cheio ou 24 h', () => {
+  it('um punhado de tentativas não gera gravação a cada ciclo, mas nunca fica parado mais de 24 h', async () => {
+    const cloud = new FakeCloud();
+    const a = await makeDevice({ uid: UID, name: 'A', cloud });
+    await a.engine.syncNow();
+    await a.onboard();
+    await a.engine.syncNow();
+    await a.expedition(ids(3), true);
+    await a.engine.syncNow();
+    expect(cloud.counts.attemptWrites).toBe(0);
+    a.clock.advance(23 * HOUR);
+    await a.engine.syncNow();
+    expect(cloud.counts.attemptWrites).toBe(0);
+    a.clock.advance(2 * HOUR);
+    await a.engine.syncNow();
+    expect(cloud.counts.attemptWrites).toBe(1);
+    expect(cloud.attemptIds(UID)).toHaveLength(3);
+    a.close();
+  });
+});
+
 describe('envios duplicados', () => {
   it('várias chamadas ao mesmo tempo viram um único envio', async () => {
     const cloud = new FakeCloud();

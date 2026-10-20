@@ -1,0 +1,7 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    { "collectionGroup": "save", "fieldPath": "data", "indexes": [] },
+    { "collectionGroup": "attempts", "fieldPath": "data", "indexes": [] }
+  ]
+}

@@ -1,0 +1,67 @@
+rules_version = '2';
+
+// QuestForge — regras de segurança do Cloud Firestore.
+// Cada conta só enxerga e altera o que está sob users/{o próprio uid}, e só se entrou pelo Google.
+// Tudo o que não está listado aqui é NEGADO (inclusive o documento users/{uid} e qualquer outra coleção).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedInWithGoogle() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+
+    function isOwner(uid) {
+      return signedInWithGoogle() && request.auth.uid == uid;
+    }
+
+    // Documento-snapshot do progresso (ver src/sync/types.ts → RemoteSave).
+    function validSave(d) {
+      return d.keys().hasOnly(['schema', 'rev', 'epoch', 'nonce', 'ancestry', 'deviceId', 'updatedAt', 'appVersion', 'data', 'hash', 'stats', 'legacyImport'])
+        && d.keys().hasAll(['schema', 'rev', 'epoch', 'nonce', 'ancestry', 'deviceId', 'updatedAt', 'appVersion', 'data', 'hash', 'stats'])
+        && d.schema is int && d.schema >= 1 && d.schema <= 100
+        && d.rev is int && d.rev >= 1
+        && d.epoch is int && d.epoch >= 0
+        && d.nonce is string && d.nonce.size() > 0 && d.nonce.size() <= 64
+        && d.ancestry is list && d.ancestry.size() <= 32
+        && d.deviceId is string && d.deviceId.size() > 0 && d.deviceId.size() <= 64
+        && d.updatedAt is number
+        && d.appVersion is string && d.appVersion.size() <= 32
+        && d.data is string && d.data.size() > 0 && d.data.size() <= 900000
+        && d.hash is string && d.hash.size() > 0 && d.hash.size() <= 32
+        && d.stats is map
+        && (!('legacyImport' in d.keys()) || d.legacyImport is map);
+    }
+
+    // Lote do log de tentativas (append-only; o id do lote é derivado do aparelho e da posição).
+    function validChunk(d) {
+      return d.keys().hasOnly(['deviceId', 'from', 'to', 'count', 'data'])
+        && d.deviceId is string && d.deviceId.size() <= 64
+        && d.from is int && d.to is int && d.to >= d.from
+        && d.count is int && d.count >= 0 && d.count <= 1000
+        && d.data is string && d.data.size() <= 900000;
+    }
+
+    match /users/{uid}/save/state {
+      allow read: if isOwner(uid);
+
+      allow create: if isOwner(uid)
+        && validSave(request.resource.data)
+        && request.resource.data.rev == 1;
+
+      // Concorrência otimista imposta pelo servidor: só se grava sobre a versão que se leu
+      // (rev = anterior + 1), a geração do progresso e o schema nunca regridem.
+      allow update: if isOwner(uid)
+        && validSave(request.resource.data)
+        && request.resource.data.rev == resource.data.rev + 1
+        && request.resource.data.epoch >= resource.data.epoch
+        && request.resource.data.schema >= resource.data.schema;
+
+      allow delete: if isOwner(uid);
+    }
+
+    match /users/{uid}/attempts/{chunk} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validChunk(request.resource.data);
+    }
+  }
+}
