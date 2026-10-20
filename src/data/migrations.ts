@@ -105,6 +105,16 @@ export const MIGRATIONS: Migration[] = [
       ALTER TABLE campaign_progress ADD COLUMN last_score INTEGER;
     `,
   },
+  {
+    version: 4,
+    description: 'Sincronização em nuvem: metadados duráveis (base, pendências, cursor de tentativas)',
+    sql: `
+      CREATE TABLE sync_kv (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    `,
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

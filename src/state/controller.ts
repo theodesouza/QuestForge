@@ -18,6 +18,8 @@ export interface ControllerDeps {
   /** Fuso do aparelho em minutos (Date#getTimezoneOffset). */
   tzOffset?: () => number;
   onState: (state: GameState, events: GameEvent[]) => void;
+  /** Chamado depois de cada gravação de progresso feita pelo jogo (agenda a sincronização). */
+  onChange?: () => void;
 }
 
 export class GameController {
@@ -48,6 +50,7 @@ export class GameController {
       await this.deps.repo.commit(touched.state, touched.delta);
       this.state = touched.state;
       this.deps.onState(touched.state, touched.events);
+      this.deps.onChange?.();
       return touched.events;
     });
   }
@@ -59,8 +62,23 @@ export class GameController {
       await this.deps.repo.commit(result.state, result.delta);
       this.state = result.state;
       this.deps.onState(result.state, result.events);
+      this.deps.onChange?.();
       return result;
     });
+  }
+
+  /**
+   * Executa `job` na mesma fila das ações do jogo: nenhuma resposta é gravada enquanto ele roda.
+   * A sincronização usa isto para ler o estado e aplicar o resultado sem corridas.
+   */
+  exclusive<T>(job: () => Promise<T>): Promise<T> {
+    return this.enqueue(job);
+  }
+
+  /** Publica um estado que o chamador JÁ gravou (dentro de `exclusive`). Não agenda sincronização. */
+  adopt(state: GameState): void {
+    this.state = state;
+    this.deps.onState(state, []);
   }
 
   reset(): Promise<void> {
@@ -70,6 +88,7 @@ export class GameController {
       await this.deps.repo.commit(state, fullDelta(state));
       this.state = state;
       this.deps.onState(state, []);
+      this.deps.onChange?.();
     });
   }
 

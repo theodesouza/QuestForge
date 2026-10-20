@@ -57,7 +57,7 @@ function normalizeBattle(b: BattleState | null | undefined): BattleState | null 
   return { ...b, turns: (b.turns ?? []).map((t) => ({ ...t, healed: t.healed ?? 0 })) };
 }
 
-function normalizeQuests(q: Partial<QuestsState> | null | undefined): QuestsState {
+export function normalizeQuests(q: Partial<QuestsState> | null | undefined): QuestsState {
   const board = (x: QuestsState['daily'] | undefined) =>
     x ? { ...x, progress: x.progress ?? {}, days: x.days ?? [], studyMs: x.studyMs ?? 0 } : null;
   return { daily: board(q?.daily), weekly: board(q?.weekly) };
