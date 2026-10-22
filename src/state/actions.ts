@@ -27,6 +27,9 @@ const run = (fn: (s: Parameters<typeof game.touch>[0], now: number) => Result) =
 /** Marcos do jogo (fim de sessão, chefão, onboarding): pedem envio já, em vez de esperar o lote. */
 const syncSoon = () => getSyncEngine()?.requestSync('now');
 
+export const loadLearningActivity = (since: number) => ctrl().activitySince(since);
+export const loadMistakeHistory = (limit: number, offset: number) => ctrl().mistakeHistory(limit, offset);
+
 export async function finishOnboarding(input: OnboardingInput) {
   const r = await run((s, now) => game.completeOnboarding(s, input, now));
   syncSoon();
@@ -75,6 +78,7 @@ export async function answer(input: Omit<AnswerInput, 'attemptId'>): Promise<Gam
 }
 
 export const skip = () => run((s) => game.skipCurrent(s));
+export const acknowledgeScaffold = (practiceQuestionId: string) => run((s) => game.acknowledgeScaffold(s, practiceQuestionId));
 export async function finish() {
   const r = await run((s, now) => game.finishSession(s, now));
   syncSoon();

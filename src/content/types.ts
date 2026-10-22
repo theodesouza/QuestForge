@@ -61,6 +61,9 @@ export type QuestionSource =
   | { kind: 'autoral' }
   | { kind: 'enem'; year: number; edition: string; item: number; license: string };
 
+/** Texto explica o motivo; as linhas de conta preservam a notação escrita pelo autor. */
+export type SolutionStep = string | { explanation: string; calculation: string[] };
+
 export interface Question {
   /** Estável e único: `<PREFIXO>-<NNN>`. Nunca reutilizar. */
   id: string;
@@ -76,7 +79,7 @@ export interface Question {
   /** Dicas graduais: a primeira orienta o raciocínio, a segunda indica o primeiro passo. */
   hints: [string, string];
   /** Resolução passo a passo. */
-  solution: string[];
+  solution: SolutionStep[];
   /** Conceito envolvido, em linguagem direta. */
   concept: string;
   estimatedSeconds: number;

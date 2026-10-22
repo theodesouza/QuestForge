@@ -28,7 +28,7 @@ export const MISSAO_R3M3_A = batch([
     solution: [
       'A cada dobra, o número de camadas dobra: 1 dobra → 2 camadas; 2 dobras → 4; 3 dobras → 8; 4 dobras → 16; 5 dobras → 32 camadas, ou seja, 2⁵.',
       'Espessura da pilha = 32 × 0,1 mm = 3,2 mm.',
-      'Conferência dobra a dobra: 0,1 → 0,2 → 0,4 → 0,8 → 1,6 → 3,2 mm.',
+      { explanation: 'Conferência dobra a dobra.', calculation: ['0,1', '0,2', '0,4', '0,8', '1,6', '3,2 mm'] },
       'Armadilhas: 0,5 mm soma 0,1 mm por dobra (5 × 0,1), um crescimento linear; 1 mm usa 2 × 5 = 10 camadas no lugar de 2⁵; 2,5 mm troca a base pelo expoente (5² = 25 camadas); 6,4 mm conta uma dobra a mais (2⁶ = 64 camadas).',
     ],
     concept:
@@ -61,7 +61,7 @@ export const MISSAO_R3M3_A = batch([
       'Produto de potências de mesma base: mantém-se a base e somam-se os expoentes. Então 3⁷ × 3² = 3⁹ (7 + 2 = 9).',
       'Potência de potência: multiplicam-se os expoentes. Então (3³)² = 3⁶ (3 × 2 = 6).',
       'Quociente de potências de mesma base: subtraem-se os expoentes. Então 3⁹ ÷ 3⁶ = 3³ (9 − 6 = 3).',
-      'Conferência: 3⁷ × 3² = 2.187 × 9 = 19.683; (3³)² = 27² = 729; 19.683 ÷ 729 = 27 = 3³.',
+      { explanation: 'Conferência.', calculation: ['3⁷ × 3² = 2.187 × 9', '= 19.683', '(3³)² = 27²', '= 729', '19.683 ÷ 729 = 27', '= 3³'] },
       'Armadilhas: 3⁴ soma os expoentes em (3³)², obtendo 3⁵, e faz 9 − 5; 3⁶ ignora o expoente 2 de fora e divide por 3³; 3⁸ multiplica os expoentes do produto (7 × 2 = 14) e depois subtrai 6; 3¹⁵ soma os expoentes na divisão (9 + 6) em vez de subtraí-los.',
     ],
     concept:
@@ -96,7 +96,7 @@ export const MISSAO_R3M3_A = batch([
     ],
     solution: [
       'Um expoente −1 indica o inverso: a⁻¹ = 1/a. Então 3⁻¹ = 1/3 e 6⁻¹ = 1/6.',
-      'Soma dentro dos parênteses: 1/3 + 1/6 = 2/6 + 1/6 = 3/6 = 1/2.',
+      { explanation: 'Soma dentro dos parênteses.', calculation: ['1/3 + 1/6 = 2/6 + 1/6', '= 3/6', '= 1/2'] },
       'O expoente −1 de fora inverte esse resultado: (1/2)⁻¹ = 2. Logo, R = 2 Ω.',
       'Conferência: o produto dividido pela soma dá 3 × 6 ÷ (3 + 6) = 18 ÷ 9 = 2 Ω; e, como esperado em paralelo, o valor é menor que cada uma das resistências.',
       'Armadilhas: 9 Ω ignora os expoentes negativos e apenas soma 3 + 6; 1/2 Ω para na soma e esquece o expoente −1 de fora; 18 Ω multiplica as resistências; 1/9 Ω calcula (3 + 6)⁻¹, sem aplicar o expoente a cada parcela.',
@@ -129,7 +129,7 @@ export const MISSAO_R3M3_A = batch([
     solution: [
       'Para obter um número entre 1 e 10, a vírgula de 4.800.000 deve ficar logo depois do 4: 4,8.',
       'Ela anda 6 casas para a esquerda, então 4.800.000 = 4,8 × 1.000.000 = 4,8 × 10⁶.',
-      'Conferência: 4,8 × 10⁶ = 4,8 × 1.000.000 = 4.800.000.',
+      { explanation: 'Conferência.', calculation: ['4,8 × 10⁶ = 4,8 × 1.000.000', '= 4.800.000'] },
       'Armadilhas: 10⁵ conta apenas os zeros do número (são 5), e não as casas que a vírgula anda; 10⁷ conta todos os algarismos; 10⁻⁶ erra o sinal, pois o número é maior que 1; 10³ confunde "milhões" com "milhares".',
     ],
     concept:
@@ -163,10 +163,10 @@ export const MISSAO_R3M3_A = batch([
       'Converta 64.000 litros em m³ e procure o número que, multiplicado por si mesmo três vezes, resulta nesse volume.',
     ],
     solution: [
-      'Volume em m³: 64.000 L ÷ 1.000 = 64 m³.',
+      { explanation: 'Volume em m³.', calculation: ['64.000 L ÷ 1.000 = 64 m³'] },
       'Em um cubo, V = a³. Então a³ = 64, e a aresta é a raiz cúbica de 64: a = 4 m, pois 4 × 4 × 4 = 64.',
       'Cada face é um quadrado de lado 4 m, com área 4² = 16 m².',
-      'A manta cobre as 4 paredes e o fundo, ou seja, 5 faces: 5 × 16 = 80 m².',
+      { explanation: 'A manta cobre as 4 paredes e o fundo, ou seja, 5 faces.', calculation: ['5 × 16 = 80 m²'] },
       'Armadilhas: 96 m² considera as 6 faces, esquecendo que o reservatório não tem tampa; 64 m² cobre só as 4 paredes e esquece o fundo; 16 m² é a área de uma única face; 320 m² multiplica 5 pelo volume (64), confundindo volume com área da face.',
     ],
     concept:
@@ -200,7 +200,7 @@ export const MISSAO_R3M3_A = batch([
     ],
     solution: [
       'Como 1 nm = 10⁻⁹ m, temos 90 nm = 90 × 10⁻⁹ m.',
-      'Mas 90 não está entre 1 e 10: 90 = 9 × 10.',
+      { explanation: 'Mas 90 não está entre 1 e 10.', calculation: ['90 = 9 × 10'] },
       'Então 90 × 10⁻⁹ = 9 × 10 × 10⁻⁹ = 9 × 10⁻⁸ m (1 + (−9) = −8).',
       'Conferência: 9 × 10⁻⁸ m = 0,00000009 m, que são 90 bilionésimos de metro.',
       'Armadilhas: 9 × 10⁻⁹ troca 90 por 9 sem compensar o expoente; 9 × 10⁻¹⁰ ajusta o expoente no sentido errado; 9 × 10⁻⁷ conta os zeros depois da vírgula (são 7) em vez das casas decimais até o 9 (são 8); 9 × 10¹⁰ multiplica por 10⁹ em vez de dividir.',
@@ -237,8 +237,8 @@ export const MISSAO_R3M3_A = batch([
     solution: [
       'Das 8 h às 12 h passam-se 4 horas. A cada hora, o número de pessoas novas é multiplicado por 3.',
       'Pessoas novas: 1ª hora, 3¹ = 3; 2ª hora, 3² = 9; 3ª hora, 3³ = 27; 4ª hora, 3⁴ = 81.',
-      'Total que conhece o boato às 12 h = Joana + todas as pessoas novas: 1 + 3 + 9 + 27 + 81 = 121.',
-      'Conferência: 3⁰ + 3¹ + 3² + 3³ + 3⁴ = (3⁵ − 1) ÷ (3 − 1) = 242 ÷ 2 = 121.',
+      { explanation: 'Total que conhece o boato às 12 h = Joana + todas as pessoas novas.', calculation: ['1 + 3 + 9 + 27 + 81 = 121'] },
+      { explanation: 'Conferência.', calculation: ['3⁰ + 3¹ + 3² + 3³ + 3⁴ = (3⁵ − 1) ÷ (3 − 1)', '= 242 ÷ 2', '= 121'] },
       'Armadilhas: 81 conta só as pessoas que souberam na última hora; 120 esquece a própria Joana; 40 para na 3ª hora (1 + 3 + 9 + 27); 364 inclui uma 5ª hora (1 + 3 + 9 + 27 + 81 + 243).',
     ],
     concept:
@@ -271,7 +271,7 @@ export const MISSAO_R3M3_A = batch([
       'Converta 5 litros em mm³ e, depois, multiplique os coeficientes e some os expoentes das potências de 10.',
     ],
     solution: [
-      'Volume de sangue em mm³: 5 L = 5 × 10⁶ mm³.',
+      { explanation: 'Volume de sangue em mm³.', calculation: ['5 L = 5 × 10⁶ mm³'] },
       'Total de hemácias = (5 × 10⁶) × (5 × 10⁶): multiplicam-se os coeficientes (5 × 5 = 25) e somam-se os expoentes (6 + 6 = 12), o que dá 25 × 10¹².',
       'Como 25 não está entre 1 e 10, escreve-se 25 = 2,5 × 10. Então 25 × 10¹² = 2,5 × 10 × 10¹² = 2,5 × 10¹³ hemácias.',
       'Armadilhas: 2,5 × 10¹² deixa o expoente sem ajuste depois de escrever 25 como 2,5; 2,5 × 10¹¹ ajusta o expoente no sentido errado; 2,5 × 10⁷ esquece de converter litros em mm³ (5 × 5 × 10⁶); 1 × 10¹³ soma os coeficientes (5 + 5 = 10) em vez de multiplicá-los.',
@@ -303,7 +303,7 @@ export const MISSAO_R3M3_A = batch([
     ],
     solution: [
       'Se o lado mede x metros, a área é x² m², e é preciso que x² ≥ 200, com x inteiro.',
-      'Testando: 13² = 169; 14² = 196; 15² = 225; 16² = 256.',
+      { explanation: 'Testando.', calculation: ['13² = 169', '14² = 196', '15² = 225', '16² = 256'] },
       '14² = 196 é menor que 200, então não atende; 15² = 225 é maior que 200, então atende. Logo, a raiz quadrada de 200 está entre 14 e 15 (vale cerca de 14,1).',
       'Como a área não pode ficar abaixo de 200 m² e o lado deve ser inteiro, é preciso arredondar para cima: o menor lado possível é 15 m.',
       'Armadilhas: 14 m arredonda a raiz para o inteiro mais próximo, mas gera apenas 196 m²; 16 m atende, porém não é o menor valor possível; 50 m confunde área com perímetro (200 ÷ 4); 100 m divide a área por 2 em vez de extrair a raiz.',
@@ -342,9 +342,9 @@ export const MISSAO_R3M3_A = batch([
       'Em notação científica, divida os coeficientes entre si e subtraia os expoentes das potências de 10; depois ajuste o coeficiente para ficar entre 1 e 10.',
     ],
     solution: [
-      'A razão é (6 × 10²⁴) ÷ (7,5 × 10²²).',
-      'Coeficientes: 6 ÷ 7,5 = 0,8. Potências de 10: 10²⁴ ÷ 10²² = 10². Então a razão vale 0,8 × 10².',
-      'Como 0,8 não está entre 1 e 10, escreve-se 0,8 = 8 × 10⁻¹. Logo, 0,8 × 10² = 8 × 10⁻¹ × 10² = 8 × 10¹ (que é 80).',
+      { explanation: 'Compare as massas na ordem pedida: Terra dividida pela Lua.', calculation: ['(6 × 10²⁴) ÷ (7,5 × 10²²)'] },
+      { explanation: 'Divida os coeficientes e subtraia os expoentes das potências de 10.', calculation: ['6 ÷ 7,5 = 0,8', '24 − 22 = 2', 'Razão = 0,8 × 10²'] },
+      { explanation: 'Normalize a mantissa. Ao multiplicá-la por 10, reduza o expoente em 1.', calculation: ['0,8 × 10² = 8 × 10⁻¹ × 10²', '= 8 × 10¹', '= 80'] },
       'Conferência: 80 × 7,5 × 10²² = 600 × 10²² = 6 × 10²⁴, a massa da Terra.',
       'Armadilhas: 8 × 10² transforma 0,8 em 8 sem compensar o expoente; 8 × 10⁻¹ (= 0,8) esquece a potência de 10 e divide só os coeficientes; 1,25 × 10² inverte a divisão dos coeficientes (7,5 ÷ 6); 1,25 × 10⁻² é a razão inversa, massa da Lua dividida pela da Terra.',
     ],
@@ -379,10 +379,10 @@ export const MISSAO_R3M3_A = batch([
       'Converta o espaço livre de GB para MB multiplicando por 2¹⁰ e, em seguida, divida pelo tamanho de um vídeo (256 MB = 2⁸ MB).',
     ],
     solution: [
-      'Espaço livre: 16 − 2 = 14 GB.',
+      { explanation: 'Espaço livre.', calculation: ['16 − 2 = 14 GB'] },
       'Em MB: 14 GB = 14 × 2¹⁰ MB, pois 1 GB = 2¹⁰ MB.',
       'Cada vídeo ocupa 256 MB = 2⁸ MB.',
-      'Número de vídeos: (14 × 2¹⁰) ÷ 2⁸ = 14 × 2¹⁰⁻⁸ = 14 × 2² = 14 × 4 = 56.',
+      { explanation: 'Número de vídeos.', calculation: ['(14 × 2¹⁰) ÷ 2⁸ = 14 × 2¹⁰⁻⁸', '= 14 × 2²', '= 14 × 4', '= 56'] },
       'Conferência: 1 GB = 1.024 MB e 1.024 ÷ 256 = 4, então cabem 4 vídeos em cada GB livre: 14 × 4 = 56.',
       'Armadilhas: 64 ignora os 2 GB já ocupados (16 × 4); 62 desconta 2 vídeos em vez de 2 GB; 54 usa 1 GB = 1.000 MB (14.000 ÷ 256 ≈ 54,7); 28 confunde o tamanho do vídeo com 512 MB.',
     ],
@@ -416,9 +416,9 @@ export const MISSAO_R3M3_A = batch([
       'Comece calculando (3,6 × 10¹⁵) ÷ (2 × 10⁹): divida os coeficientes e subtraia os expoentes.',
     ],
     solution: [
-      'Tempo em segundos = total de operações ÷ operações por segundo = (3,6 × 10¹⁵) ÷ (2 × 10⁹).',
-      'Coeficientes: 3,6 ÷ 2 = 1,8. Potências de 10: 10¹⁵ ÷ 10⁹ = 10⁶. Logo, o tempo é 1,8 × 10⁶ s.',
-      'Conversão para horas: 1 h = 3.600 s = 3,6 × 10³ s, então (1,8 × 10⁶) ÷ (3,6 × 10³) = 0,5 × 10³ = 500 h.',
+      { explanation: 'Tempo é o total de operações dividido pelas operações realizadas a cada segundo.', calculation: ['t = (3,6 × 10¹⁵) ÷ (2 × 10⁹)'] },
+      { explanation: 'Divida os coeficientes e subtraia os expoentes.', calculation: ['3,6 ÷ 2 = 1,8', '15 − 9 = 6', 't = 1,8 × 10⁶ s'] },
+      { explanation: 'Uma hora tem 3.600 segundos. Divida para obter o tempo em horas.', calculation: ['1 h = 3,6 × 10³ s', 't = (1,8 × 10⁶) ÷ (3,6 × 10³)', 't = 0,5 × 10³ h', 't = 500 h'] },
       'Em notação científica: 500 = 5 × 10² h (cerca de 21 dias).',
       'Armadilhas: 1,8 × 10⁶ h esquece de converter segundos em horas; 3 × 10⁴ h divide só por 60, obtendo minutos; 5 × 10³ h e 5 × 10¹ h erram uma potência de 10 na divisão por 3.600 (como se 1 h tivesse 360 s ou 36.000 s).',
     ],

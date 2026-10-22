@@ -24,7 +24,7 @@ export const MISSAO_R3M3_B = batch([
     solution: [
       'O fator de crescimento anual é 1,2. Em 2 anos, o saldo fica multiplicado por 1,2² = 1,2 × 1,2 = 1,44.',
       'Saldo final: 2.500 × 1,44 = 3.600 (pois 2.500 × 1 = 2.500 e 2.500 × 0,44 = 1.100).',
-      'Conferência ano a ano: 2.500 → 2.500 × 1,2 = 3.000 → 3.000 × 1,2 = 3.600.',
+      { explanation: 'Conferência ano a ano.', calculation: ['2.500', '2.500 × 1,2 = 3.000', '3.000 × 1,2 = 3.600'] },
       'Armadilhas: R$ 3.000,00 é o saldo após apenas 1 ano; R$ 3.100,00 vem de achar que 1,2² = 1,24 (elevando só o 2 ao quadrado); R$ 3.500,00 corresponde a juros simples (2 × 20% sobre os R$ 2.500,00); R$ 6.000,00 vem de multiplicar por 1,2 × 2 = 2,4 em vez de 1,2².',
     ],
     concept:
@@ -54,7 +54,7 @@ export const MISSAO_R3M3_B = batch([
       'Escreva 550 como 5,5 × 10² e depois multiplique as potências de 10, conservando a base e somando os expoentes.',
     ],
     solution: [
-      '550 nm = 550 × 10⁻⁹ m.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['550 nm = 550 × 10⁻⁹ m'] },
       'Em notação científica, 550 = 5,5 × 10².',
       'Então 550 × 10⁻⁹ = 5,5 × 10² × 10⁻⁹. Somando os expoentes: 2 + (−9) = −7, ou seja, 5,5 × 10⁻⁷ m.',
       'Armadilhas: 5,5 × 10⁻⁹ esquece o 10² que vem de 550; 5,5 × 10⁻¹¹ subtrai 2 em vez de somar; 5,5 × 10⁻⁴ confunde nano (10⁻⁹) com micro (10⁻⁶), calculando 550 × 10⁻⁶; 5,5 × 10⁷ erra o sinal do expoente.',
@@ -89,7 +89,7 @@ export const MISSAO_R3M3_B = batch([
       'Multiplique os números decimais (2,5 e 3) entre si e as potências de 10 entre si, somando os expoentes.',
     ],
     solution: [
-      'Total = 2,5 × 10⁷ × 3 × 10¹ = (2,5 × 3) × (10⁷ × 10¹) = 7,5 × 10⁸ mensagens por dia (750 milhões).',
+      { explanation: 'Multiplique usuários por mensagens por usuário. Multiplique as mantissas e some os expoentes.', calculation: ['(2,5 × 10⁷) × (3 × 10¹)', '= (2,5 × 3) × 10⁷⁺¹', '= 7,5 × 10⁸ mensagens por dia'] },
       'O número 7,5 × 10⁸ está entre 10⁸ e 10⁹. A distância até 10⁸ é 7,5 × 10⁸ − 1 × 10⁸ = 6,5 × 10⁸; a distância até 10⁹ é 10 × 10⁸ − 7,5 × 10⁸ = 2,5 × 10⁸.',
       'Como 2,5 × 10⁸ é menor que 6,5 × 10⁸, a potência de 10 mais próxima é 10⁹.',
       'Armadilhas: 10⁸ apenas copia o expoente de 7,5 × 10⁸, sem perceber que 7,5 está mais perto de 10 do que de 1; 10¹⁰ arredonda cada fator para cima antes de multiplicar; 10⁷ esquece o fator 10¹ das mensagens por usuário; 10⁶ divide, em vez de multiplicar, usuários por mensagens.',
@@ -127,9 +127,9 @@ export const MISSAO_R3M3_B = batch([
       'Escreva 8 como potência de 2 e 25 como potência de 5, e aplique (aᵐ)ⁿ = aᵐⁿ para descobrir os expoentes.',
     ],
     solution: [
-      'Reescrevemos as bases: 8 = 2³ e 25 = 5².',
+      { explanation: 'Reescrevemos as bases.', calculation: ['8 = 2³', '25 = 5²'] },
       '8⁵ = (2³)⁵ = 2¹⁵ e 25⁶ = (5²)⁶ = 5¹². Logo, N = 2¹⁵ × 5¹².',
-      'Separando 2¹⁵ = 2³ × 2¹²: N = 2³ × (2¹² × 5¹²) = 8 × (2 × 5)¹² = 8 × 10¹².',
+      { explanation: 'Separando 2¹⁵ = 2³ × 2¹².', calculation: ['N = 2³ × (2¹² × 5¹²)', '= 8 × (2 × 5)¹²', '= 8 × 10¹²'] },
       'Isso é o algarismo 8 seguido de 12 zeros (8.000.000.000.000), ou seja, 13 algarismos.',
       'Armadilhas: 12 conta só os zeros e esquece o algarismo 8; 14 conta os 13 algarismos de 10¹² e ainda soma 1 pelo fator 8; 15 confunde o número de algarismos com o expoente de 2; 27 soma os expoentes 15 + 12.',
     ],
@@ -159,9 +159,9 @@ export const MISSAO_R3M3_B = batch([
       'O tempo é a distância dividida pela velocidade. Divida as mantissas (1,5 e 3) entre si e as potências de 10 entre si, subtraindo os expoentes.',
     ],
     solution: [
-      'Tempo = distância ÷ velocidade = (1,5 × 10⁸) ÷ (3 × 10⁵).',
-      'Mantissas: 1,5 ÷ 3 = 0,5. Potências: 10⁸ ÷ 10⁵ = 10⁸⁻⁵ = 10³.',
-      'Logo, t = 0,5 × 10³ s = 5 × 10² s, isto é, 500 s (cerca de 8 min 20 s).',
+      { explanation: 'Divida a distância pela velocidade para obter o tempo em segundos.', calculation: ['t = (1,5 × 10⁸) ÷ (3 × 10⁵)'] },
+      { explanation: 'Divida as mantissas e subtraia os expoentes.', calculation: ['1,5 ÷ 3 = 0,5', '8 − 5 = 3', 't = 0,5 × 10³ s'] },
+      { explanation: 'Normalize a mantissa e confira o tempo em minutos.', calculation: ['t = 5 × 10² s = 500 s', '500 = 8 × 60 + 20', 't = 8 min 20 s'] },
       'Armadilhas: 5 × 10³ não normaliza 0,5 × 10³ (a vírgula foi deslocada sem compensar o expoente); 2 × 10³ divide 3 por 1,5, invertendo as mantissas; 2 × 10⁻³ inverte a divisão inteira (velocidade ÷ distância); 4,5 × 10¹³ multiplica distância por velocidade.',
     ],
     concept:
@@ -192,7 +192,7 @@ export const MISSAO_R3M3_B = batch([
     ],
     solution: [
       'Área atual: 4² = 16 m². Área nova: 12² = 144 m².',
-      'Razão entre as áreas: 144 ÷ 16 = 9.',
+      { explanation: 'Razão entre as áreas.', calculation: ['144 ÷ 16 = 9'] },
       'Outro caminho: o lado ficou 12 ÷ 4 = 3 vezes maior, então a área ficou 3² = 9 vezes maior.',
       'Armadilhas: 3 é a razão entre os lados, e não entre as áreas; 6 vem de somar 3 + 3 em vez de elevar ao quadrado; 27 eleva ao cubo, o que valeria para um volume; 144 é a área nova em m², sem compará-la com a área atual.',
     ],
@@ -226,7 +226,7 @@ export const MISSAO_R3M3_B = batch([
       'Em Wh: 1,2 GWh = 1,2 × 10⁹; 850 MWh = 850 × 10⁶ = 8,5 × 10⁸; 45.000 kWh = 4,5 × 10⁴ × 10³ = 4,5 × 10⁷.',
       'Igualando os expoentes em 10⁹: 1,2 × 10⁹ + 0,85 × 10⁹ + 0,045 × 10⁹ = 2,095 × 10⁹ Wh de geração.',
       'Energia comprada = consumo − geração = 2,3 × 10⁹ − 2,095 × 10⁹ = 0,205 × 10⁹ Wh.',
-      'Normalizando a mantissa: 0,205 × 10⁹ = 2,05 × 10⁸ Wh.',
+      { explanation: 'Normalizando a mantissa.', calculation: ['0,205 × 10⁹ = 2,05 × 10⁸ Wh'] },
       'Armadilhas: 2,5 × 10⁸ ignora a terceira usina (2,3 − 1,2 − 0,85 = 0,25); 2,05 × 10⁹ acerta os algarismos, mas não compensa o expoente depois de 0,205; 2,095 × 10⁹ para na soma e informa só a geração; 4,395 × 10⁹ soma consumo e geração em vez de subtrair.',
     ],
     concept:
@@ -256,7 +256,7 @@ export const MISSAO_R3M3_B = batch([
       'Converta 4 ng para gramas (4 × 10⁻⁹ g). Em seguida, divida as mantissas e subtraia os expoentes de 10.',
     ],
     solution: [
-      'Massa da célula em gramas: 4 ng = 4 × 10⁻⁹ g.',
+      { explanation: 'Massa da célula em gramas.', calculation: ['4 ng = 4 × 10⁻⁹ g'] },
       'Razão = (4 × 10⁻⁹) ÷ (2 × 10⁻¹²).',
       'Mantissas: 4 ÷ 2 = 2. Potências: 10⁻⁹ ÷ 10⁻¹² = 10³, pois o novo expoente é −9 − (−12) = 3.',
       'Logo, a célula do fígado tem 2 × 10³ = 2.000 vezes a massa da bactéria.',
@@ -291,7 +291,7 @@ export const MISSAO_R3M3_B = batch([
     solution: [
       'Pessoas avisadas em cada rodada: rodada 0: 1 = 3⁰; rodada 1: 3 = 3¹; rodada 2: 9 = 3²; rodada 3: 27 = 3³; rodada 4: 81 = 3⁴; rodada 5: 243 = 3⁵.',
       'Total ao final da rodada 5: 1 + 3 + 9 + 27 + 81 + 243 = 364 pessoas.',
-      'Conferência acumulando: 1 + 3 = 4; 4 + 9 = 13; 13 + 27 = 40; 40 + 81 = 121; 121 + 243 = 364.',
+      { explanation: 'Conferência acumulando.', calculation: ['1 + 3 = 4', '4 + 9 = 13', '13 + 27 = 40', '40 + 81 = 121', '121 + 243 = 364'] },
       'Armadilhas: 243 é apenas quem foi avisado na 5ª rodada; 363 esquece a presidente; 729 = 3⁶ corresponde a uma rodada a mais, e não ao total; 1.093 soma também a rodada 6 (364 + 729).',
     ],
     concept:
@@ -324,7 +324,7 @@ export const MISSAO_R3M3_B = batch([
       'Como 1 m³ = 10³ L, cada litro corresponde a 10⁻³ m³: o volume em m³ é o volume em litros dividido por 10³.',
     ],
     solution: [
-      'Consumo diário em litros: 3 × 10⁶ × 1,5 × 10² = (3 × 1,5) × (10⁶ × 10²) = 4,5 × 10⁸ L.',
+      { explanation: 'Consumo diário em litros.', calculation: ['3 × 10⁶ × 1,5 × 10² = (3 × 1,5) × (10⁶ × 10²)', '= 4,5 × 10⁸ L'] },
       'Conversão: 1 m³ = 10³ L, então dividimos por 10³: 4,5 × 10⁸ ÷ 10³ = 4,5 × 10⁵ m³.',
       'Armadilhas: 4,5 × 10⁸ esquece de converter litros em m³; 4,5 × 10¹¹ multiplica por 10³ em vez de dividir; 4,5 × 10⁹ multiplica os expoentes (6 × 2 = 12) e depois divide por 10³; 2 × 10⁴ divide habitantes por consumo, em vez de multiplicar.',
     ],
@@ -367,8 +367,8 @@ export const MISSAO_R3M3_B = batch([
     ],
     solution: [
       'Normalizando cada medida (mantissa entre 1 e 10) e compensando o expoente:',
-      'Amostra I: 0,9 × 10⁻⁵ = 9 × 10⁻¹ × 10⁻⁵ = 9 × 10⁻⁶. Amostra II: 7,8 × 10⁻⁶ já está na forma padrão.',
-      'Amostra III: 85 × 10⁻⁷ = 8,5 × 10⁻⁶. Amostra IV: 0,0006 × 10⁻² = 6 × 10⁻⁴ × 10⁻² = 6 × 10⁻⁶. Amostra V: 640 × 10⁻⁸ = 6,4 × 10² × 10⁻⁸ = 6,4 × 10⁻⁶.',
+      { explanation: 'Normalize a amostra I. A II já tem mantissa entre 1 e 10.', calculation: ['I: 0,9 × 10⁻⁵ = 9 × 10⁻¹ × 10⁻⁵', '= 9 × 10⁻⁶ m', 'II: 7,8 × 10⁻⁶ m'] },
+      { explanation: 'Normalize também as outras três medidas, compensando cada mudança da mantissa.', calculation: ['III: 85 × 10⁻⁷ = 8,5 × 10⁻⁶ m', 'IV: 0,0006 × 10⁻² = 6 × 10⁻⁴ × 10⁻²', '= 6 × 10⁻⁶ m', 'V: 640 × 10⁻⁸ = 6,4 × 10² × 10⁻⁸', '= 6,4 × 10⁻⁶ m'] },
       'Todas ficam com 10⁻⁶; comparando as mantissas: 9 > 8,5 > 7,8 > 6,4 > 6. A maior medida é a da amostra I: 9 × 10⁻⁶ m.',
       'Armadilhas: 7,8 × 10⁻⁶ escolhe a maior mantissa entre os valores que já estavam na forma padrão; 8,5 × 10⁻⁶ vem de olhar o maior número que aparece antes do 10 (o 85); 9 × 10⁻⁵ normaliza 0,9 sem compensar o expoente; 9 × 10⁻⁷ compensa o expoente no sentido errado.',
     ],
@@ -399,7 +399,7 @@ export const MISSAO_R3M3_B = batch([
     ],
     solution: [
       'Aresta da maquete: ℓ² = 36, logo ℓ = 6 cm.',
-      'Aresta real: 6 × 50 = 300 cm = 3 m.',
+      { explanation: 'Aresta real.', calculation: ['6 × 50 = 300 cm', '= 3 m'] },
       'Volume real: 3³ = 27 m³. Em litros: 27 × 1.000 = 27.000 L.',
       'Conferência: o volume da maquete é 6³ = 216 cm³ e a escala 1 : 50 multiplica o volume por 50³ = 125.000; então 216 × 125.000 = 27.000.000 cm³ = 27 m³ = 27.000 L.',
       'Armadilhas: 9.000 L usa 3² em vez de 3³; 54.000 L toma a área total das 6 faces (6 × 9 = 54) como se fosse o volume; 540 L eleva a escala só ao quadrado (216 × 50² = 540.000 cm³); 27.000.000 L confunde 27.000.000 cm³ com litros, esquecendo a conversão.',

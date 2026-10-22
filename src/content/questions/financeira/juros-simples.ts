@@ -22,9 +22,9 @@ export const FIN_JUROS_SIMPLES = batch([
       'Comece calculando 0,8% de R$ 3.000,00, que são os juros de um mês.',
     ],
     solution: [
-      'Juros de um mês: 0,008 × 3.000 = R$ 24,00.',
-      'Juros de 6 meses: 24 × 6 = R$ 144,00.',
-      'Valor a pagar (montante): 3.000 + 144 = R$ 3.144,00.',
+      { explanation: 'Juros de um mês.', calculation: ['0,008 × 3.000 = R$ 24,00'] },
+      { explanation: 'Juros de 6 meses.', calculation: ['24 × 6 = R$ 144,00'] },
+      { explanation: 'Valor a pagar (montante).', calculation: ['3.000 + 144 = R$ 3.144,00'] },
     ],
     concept: 'Juros simples: J = C × i × t. O valor total devolvido é o montante M = C + J.',
     estimatedSeconds: 45,
@@ -55,9 +55,9 @@ export const FIN_JUROS_SIMPLES = batch([
       'Comece pela multa, que é 2% de R$ 240,00. Depois, observe que 15 dias correspondem à metade de um mês comercial.',
     ],
     solution: [
-      'Multa: 0,02 × 240 = R$ 4,80.',
-      'Juros de mora por 15 dias: 0,01 × 240 × 15/30 = R$ 1,20.',
-      'Total pago: 240 + 4,80 + 1,20 = R$ 246,00.',
+      { explanation: 'Multa.', calculation: ['0,02 × 240 = R$ 4,80'] },
+      { explanation: 'Juros de mora por 15 dias.', calculation: ['0,01 × 240 × 15/30 = R$ 1,20'] },
+      { explanation: 'Total pago.', calculation: ['240 + 4,80 + 1,20 = R$ 246,00'] },
       'Armadilha: aplicar 1% por dia daria 0,01 × 240 × 15 = R$ 36,00 de juros, mas a taxa é mensal e cobrada proporcionalmente aos dias.',
     ],
     concept:
@@ -99,7 +99,7 @@ export const FIN_JUROS_SIMPLES = batch([
       'Geladeira: juros de 2.616 − 2.400 = R$ 216,00 em 3 meses.',
       'Taxa no período: 216 ÷ 2.400 = 0,09 = 9% em 3 meses.',
       'Taxa mensal em juros simples: 9% ÷ 3 = 3% ao mês.',
-      'Conferência com o ventilador: 180 × 0,03 × 3 = 16,20 e 180 + 16,20 = R$ 196,20.',
+      { explanation: 'Conferência com o ventilador.', calculation: ['180 × 0,03 × 3 = 16,20', '180 + 16,20 = R$ 196,20'] },
       'Armadilha: dividir os juros pelo valor a prazo (216 ÷ 2.616 ÷ 3 ≈ 2,75% ao mês) subestima a taxa, pois o valor financiado é o preço à vista.',
       'Armadilha: cerca de 2,9% ao mês seria a taxa em juros compostos, em que (1 + i)³ = 1,09; em juros simples, basta dividir a taxa do período pelo número de meses.',
     ],
@@ -133,8 +133,8 @@ export const FIN_JUROS_SIMPLES = batch([
       'Calcule a taxa acumulada em 8 meses e escreva o montante como capital × (1 + taxa acumulada).',
     ],
     solution: [
-      'Taxa acumulada em 8 meses: 8 × 1,5% = 12%.',
-      'Montante: M = C × (1 + 0,12) = 1,12 × C.',
+      { explanation: 'Taxa acumulada em 8 meses.', calculation: ['8 × 1,5% = 12%'] },
+      { explanation: 'Montante.', calculation: ['M = C × (1 + 0,12)', '= 1,12 × C'] },
       '1,12 × C = 5.600, logo C = 5.600 ÷ 1,12 = R$ 5.000,00.',
       'Conferência: 5.000 × 0,015 × 8 = R$ 600,00 de juros e 5.000 + 600 = R$ 5.600,00.',
       'Armadilha: tirar 12% de R$ 5.600,00 dá R$ 4.928,00, mas os juros incidem sobre o capital, e não sobre o montante.',
@@ -170,9 +170,9 @@ export const FIN_JUROS_SIMPLES = batch([
     solution: [
       'Em 10 meses, P rende 0,8% × 10 = 8% e Q rende 1,2% × 10 = 12% do valor aplicado.',
       'Se x foi aplicado em Q, então 20.000 − x foi aplicado em P.',
-      'Juros totais: 0,12x + 0,08 × (20.000 − x) = 2.080.',
+      { explanation: 'Juros totais.', calculation: ['0,12x + 0,08 × (20.000 − x) = 2.080'] },
       '0,12x + 1.600 − 0,08x = 2.080, logo 0,04x = 480 e x = R$ 12.000,00.',
-      'Conferência: 12.000 × 0,12 + 8.000 × 0,08 = 1.440 + 640 = R$ 2.080,00.',
+      { explanation: 'Conferência.', calculation: ['12.000 × 0,12 + 8.000 × 0,08 = 1.440 + 640', '= R$ 2.080,00'] },
     ],
     concept:
       'Quando um capital é dividido entre aplicações, os juros totais são a soma dos juros de cada parte; isso gera uma equação do 1º grau cuja incógnita é uma das partes.',
@@ -218,8 +218,8 @@ export const FIN_JUROS_SIMPLES = batch([
       'Calcule os juros de um mês de cada aplicação sobre R$ 6.000,00 e compare R com P e R com Q separadamente.',
     ],
     solution: [
-      'Juros mensais: P = 0,009 × 6.000 = R$ 54,00; Q = 0,012 × 6.000 = R$ 72,00; R = 0,015 × 6.000 = R$ 90,00.',
-      'Rendimentos líquidos após t meses: P = 54t; Q = 72t − 90; R = 90t − 270.',
+      { explanation: 'Juros mensais.', calculation: ['P = 0,009 × 6.000', '= R$ 54,00', 'Q = 0,012 × 6.000', '= R$ 72,00', 'R = 0,015 × 6.000', '= R$ 90,00'] },
+      { explanation: 'Rendimentos líquidos após t meses.', calculation: ['P = 54t', 'Q = 72t − 90', 'R = 90t − 270'] },
       'R supera P: 90t − 270 > 54t, logo 36t > 270 e t > 7,5.',
       'R supera Q: 90t − 270 > 72t − 90, logo 18t > 180 e t > 10.',
       'As duas condições valem juntas para t > 10; o menor prazo inteiro é 11 meses.',

@@ -26,8 +26,8 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Primeiro passo: confirme o total parcelado (10 × R$ 240,00) e escreva 8% na forma decimal.',
     ],
     solution: [
-      'Total no parcelamento: 10 × 240 = R$ 2.400,00.',
-      'Desconto à vista: 0,08 × 2.400 = R$ 192,00.',
+      { explanation: 'Total no parcelamento.', calculation: ['10 × 240 = R$ 2.400,00'] },
+      { explanation: 'Desconto à vista.', calculation: ['0,08 × 2.400 = R$ 192,00'] },
       'Preço à vista: 2.400 − 192 = R$ 2.208,00; a economia é a diferença entre os dois valores, R$ 192,00.',
       'Armadilha: 0,8 × 2.400 = R$ 1.920,00 corresponde a 80%, e não a 8%.',
     ],
@@ -61,10 +61,10 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Primeiro passo: calcule o total das parcelas, 8 × R$ 345,00, e some a entrada de R$ 600,00.',
     ],
     solution: [
-      'Total das parcelas: 8 × 345 = R$ 2.760,00.',
-      'Total no crediário: 600 + 2.760 = R$ 3.360,00.',
-      'Acréscimo em reais: 3.360 − 3.000 = R$ 360,00.',
-      'Acréscimo percentual sobre o preço à vista: 360 ÷ 3.000 = 0,12 = 12%.',
+      { explanation: 'Total das parcelas.', calculation: ['8 × 345 = R$ 2.760,00'] },
+      { explanation: 'Total no crediário.', calculation: ['600 + 2.760 = R$ 3.360,00'] },
+      { explanation: 'Acréscimo em reais.', calculation: ['3.360 − 3.000 = R$ 360,00'] },
+      { explanation: 'Acréscimo percentual sobre o preço à vista.', calculation: ['360 ÷ 3.000 = 0,12', '= 12%'] },
       'Armadilhas: 360 ÷ 3.360 ≈ 10,7% usa o valor final como referência, e não o preço à vista; 360 ÷ 2.400 = 15% usa como base o valor financiado (3.000 − 600), mas a pergunta compara o total pago no crediário com o preço à vista.',
     ],
     concept:
@@ -101,7 +101,7 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Primeiro passo: calcule o preço à vista. Depois, pense em quanto Thiago ainda deve logo após pagar a 1ª parcela.',
     ],
     solution: [
-      'Preço à vista: 400 − 0,10 × 400 = R$ 360,00.',
+      { explanation: 'Preço à vista.', calculation: ['400 − 0,10 × 400 = R$ 360,00'] },
       'Após pagar a 1ª parcela no ato, o saldo devedor é 360 − 200 = R$ 160,00.',
       'Esse saldo é quitado com R$ 200,00 um mês depois: juros de 200 − 160 = R$ 40,00.',
       'Taxa mensal: 40 ÷ 160 = 0,25 = 25% ao mês.',
@@ -150,8 +150,8 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Primeiro passo: na loja Alfa, o saldo financiado é 2.500 − 1.500; compare esse saldo com o pagamento de R$ 1.060,00 feito 30 dias depois.',
     ],
     solution: [
-      'Loja Alfa — saldo financiado: 2.500 − 1.500 = R$ 1.000,00; juros: 1.060 − 1.000 = R$ 60,00; taxa: 60 ÷ 1.000 = 6% ao mês.',
-      'Loja Beta — saldo financiado: 2.500 − 500 = R$ 2.000,00; juros: 2.080 − 2.000 = R$ 80,00; taxa: 80 ÷ 2.000 = 4% ao mês.',
+      { explanation: 'Na loja Alfa, calcule os juros sobre o saldo depois da entrada.', calculation: ['2.500 − 1.500 = R$ 1.000,00 financiados', '1.060 − 1.000 = R$ 60,00 de juros', '60 ÷ 1.000 = 0,06 = 6% ao mês'] },
+      { explanation: 'Faça a mesma comparação para a loja Beta.', calculation: ['2.500 − 500 = R$ 2.000,00 financiados', '2.080 − 2.000 = R$ 80,00 de juros', '80 ÷ 2.000 = 0,04 = 4% ao mês'] },
       'A menor taxa é a da loja Beta: 4% ao mês.',
       'Armadilha: a loja Alfa cobra menos juros em reais (R$ 60,00 contra R$ 80,00) apenas porque financia um valor menor; dividir os juros pelo preço à vista (2,4% e 3,2%) também leva ao erro.',
     ],
@@ -190,10 +190,10 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Primeiro passo: calcule a entrada (20% de R$ 1.500,00) e o saldo devedor que sobra depois dela.',
     ],
     solution: [
-      'Entrada: 0,20 × 1.500 = R$ 300,00.',
-      'Saldo devedor: 1.500 − 300 = R$ 1.200,00.',
+      { explanation: 'Entrada.', calculation: ['0,20 × 1.500 = R$ 300,00'] },
+      { explanation: 'Saldo devedor.', calculation: ['1.500 − 300 = R$ 1.200,00'] },
       'Após 1 mês: 1.200 × 1,05 = R$ 1.260,00; após 2 meses: 1.260 × 1,05 = R$ 1.323,00.',
-      'Total pago: 300 + 1.323 = R$ 1.623,00.',
+      { explanation: 'Total pago.', calculation: ['300 + 1.323 = R$ 1.623,00'] },
       'Armadilhas: R$ 1.323,00 é apenas o pagamento feito após 2 meses, sem somar a entrada; com juros simples, o saldo viraria R$ 1.320,00 (total de R$ 1.620,00); aplicar os juros compostos ao preço inteiro, ignorando a entrada, leva a R$ 1.653,75; e juros simples sobre o preço inteiro dão 1.500 × 1,10 = R$ 1.650,00.',
     ],
     concept:
@@ -239,9 +239,9 @@ export const FIN_COMPRAS_A_PRAZO = batch([
       'Primeiro passo: calcule o saldo financiado (2.550 − 500). Depois, acompanhe a dívida mês a mês: ela cresce com os juros e cai com cada parcela, até zerar após a 2ª.',
     ],
     solution: [
-      'Saldo financiado: 2.550 − 500 = R$ 2.050,00.',
+      { explanation: 'Saldo financiado.', calculation: ['2.550 − 500 = R$ 2.050,00'] },
       'A taxa i deve satisfazer 1.102,50 ÷ (1 + i) + 1.102,50 ÷ (1 + i)² = 2.050.',
-      'Testando i = 5%: 1.102,50 ÷ 1,05 = R$ 1.050,00 e 1.102,50 ÷ 1,05² = 1.102,50 ÷ 1,1025 = R$ 1.000,00.',
+      { explanation: 'Testando i = 5%.', calculation: ['1.102,50 ÷ 1,05 = R$ 1.050,00', '1.102,50 ÷ 1,05² = 1.102,50 ÷ 1,1025', '= R$ 1.000,00'] },
       'Soma: 1.050 + 1.000 = R$ 2.050,00, exatamente o saldo financiado; logo, a taxa é de 5% ao mês.',
       'Conferindo mês a mês: 2.050 × 1,05 − 1.102,50 = R$ 1.050,00 de dívida após a 1ª parcela; 1.050 × 1,05 − 1.102,50 = 0, ou seja, a 2ª parcela zera a dívida.',
       'Armadilhas: o acréscimo total (500 + 2 × 1.102,50 − 2.550 = R$ 155,00) dividido pelo saldo dá ≈ 7,6% e, dividido pelo preço à vista, ≈ 6,1%. Nenhum deles é taxa mensal, e dividi-los por 2 meses (≈ 3,8% e ≈ 3,0%) ignora que os juros são compostos e que a 1ª parcela já reduz a dívida.',

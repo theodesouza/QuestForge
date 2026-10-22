@@ -305,6 +305,18 @@ export class SqlGameRepository implements GameRepository {
     const rows = await this.db.all<AttemptRow>('SELECT * FROM attempts ORDER BY created_at DESC LIMIT ?', [limit]);
     return rows.map(rowToAttempt);
   }
+
+  async activitySince(since: number): Promise<Attempt[]> {
+    await this.init();
+    const rows = await this.db.all<AttemptRow>('SELECT * FROM attempts WHERE created_at >= ? ORDER BY created_at DESC, id DESC', [since]);
+    return rows.map(rowToAttempt);
+  }
+
+  async mistakeHistory(limit: number, offset: number): Promise<Attempt[]> {
+    await this.init();
+    const rows = await this.db.all<AttemptRow>('SELECT * FROM attempts WHERE correct = 0 ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?', [limit, offset]);
+    return rows.map(rowToAttempt);
+  }
 }
 
 function rowToAttempt(r: AttemptRow): Attempt {

@@ -9,6 +9,7 @@ import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
 import { colors, radius, space } from '../../ui/theme';
 import type { AttemptOutcome } from './useAttempt';
+import { SolutionSheet } from './SolutionSheet';
 
 const CORRECT_TITLES = ['Certeiro!', 'Traçado perfeito.', 'Conta fechada.', 'Na medida exata.', 'Rota confirmada.'];
 
@@ -118,22 +119,7 @@ export function Feedback({
         </View>
       </Pressable>
 
-      {open ? (
-        <View style={styles.solution}>
-          {question.solution.map((step, i) => (
-            <View key={i} style={styles.step}>
-              <View style={styles.stepNum}>
-                <Text variant="caption" color={colors.brass}>
-                  {i + 1}
-                </Text>
-              </View>
-              <Text variant="body" style={styles.stepText}>
-                {step}
-              </Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
+      {open ? <SolutionSheet question={question} /> : null}
 
       <View style={styles.concept}>
         <Text variant="label" color={colors.iris}>
@@ -196,19 +182,6 @@ const styles = StyleSheet.create({
     borderColor: colors.lineSoft,
   },
   toggleText: { flex: 1 },
-  solution: { gap: space.md, paddingHorizontal: space.xs },
-  step: { flexDirection: 'row', gap: space.md, alignItems: 'flex-start' },
-  stepNum: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  stepText: { flex: 1 },
   concept: { gap: space.xs, padding: space.md, borderRadius: radius.md, backgroundColor: colors.irisGlow, borderLeftWidth: 3, borderLeftColor: colors.iris },
   scaffold: {
     flexDirection: 'row',

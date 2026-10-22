@@ -90,4 +90,16 @@ export class MemoryGameRepository implements GameRepository {
       else this.kv.set(w.key, w.value);
     }
   }
+
+  async activitySince(since: number): Promise<Attempt[]> {
+    return this.orderedAttempts().filter(a => a.createdAt >= since).map(a => ({ ...a }));
+  }
+
+  async mistakeHistory(limit: number, offset: number): Promise<Attempt[]> {
+    return this.orderedAttempts().filter(a => !a.correct).slice(offset, offset + limit).map(a => ({ ...a }));
+  }
+
+  private orderedAttempts(): Attempt[] {
+    return this.attempts.map((s) => s.attempt).sort((a, b) => b.createdAt - a.createdAt || (a.id < b.id ? 1 : a.id > b.id ? -1 : 0));
+  }
 }

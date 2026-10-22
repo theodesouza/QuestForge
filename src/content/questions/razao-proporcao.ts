@@ -21,9 +21,9 @@ export const RAZAO_PROPORCAO = batch([
       'Calcule primeiro o total de estudantes: 12 + 18.',
     ],
     solution: [
-      'Total de estudantes: 12 + 18 = 30.',
+      { explanation: 'Total de estudantes.', calculation: ['12 + 18 = 30'] },
       'Razão meninas/total = 12/30.',
-      'Simplificando por 6: 12/30 = 2/5.',
+      { explanation: 'Simplificando por 6.', calculation: ['12/30 = 2/5'] },
     ],
     concept:
       'Razão é a comparação entre duas grandezas por divisão. Leia com atenção o que está sendo comparado: "meninas para meninos" (12/18) é diferente de "meninas para o total" (12/30).',
@@ -51,8 +51,8 @@ export const RAZAO_PROPORCAO = batch([
       'Multiplique 6 por 500.000 e depois converta centímetros em quilômetros (1 km = 100.000 cm).',
     ],
     solution: [
-      'Distância real = 6 × 500.000 = 3.000.000 cm.',
-      'Como 1 km = 100.000 cm, temos 3.000.000 ÷ 100.000 = 30 km.',
+      { explanation: 'A escala multiplica a medida do mapa para obter a medida real em centímetros.', calculation: ['d = 6 × 500.000', 'd = 3.000.000 cm'] },
+      { explanation: 'Converta centímetros para quilômetros: cada quilômetro tem 100.000 cm.', calculation: ['d = 3.000.000 ÷ 100.000', 'd = 30 km'] },
     ],
     concept:
       'Escala é a razão entre a medida no desenho e a medida real, na mesma unidade. Depois de aplicar a escala, converta a unidade com cuidado.',
@@ -80,9 +80,9 @@ export const RAZAO_PROPORCAO = batch([
       'O investimento total é R$ 100.000,00; Bia tem 30.000/100.000 dele.',
     ],
     solution: [
-      'Investimento total: 20.000 + 30.000 + 50.000 = 100.000.',
+      { explanation: 'Investimento total.', calculation: ['20.000 + 30.000 + 50.000 = 100.000'] },
       'Parte de Bia: 30.000/100.000 = 0,3 do total.',
-      'Lucro de Bia: 0,3 × 18.000 = R$ 5.400,00.',
+      { explanation: 'Lucro de Bia.', calculation: ['0,3 × 18.000 = R$ 5.400,00'] },
     ],
     concept:
       'Na divisão diretamente proporcional, cada parte é o total multiplicado pela fração que o "peso" de cada pessoa representa da soma dos pesos.',
@@ -110,7 +110,7 @@ export const RAZAO_PROPORCAO = batch([
       'Monte a proporção 3/24 = x/40.',
     ],
     solution: [
-      'Farinha e biscoitos são diretamente proporcionais: 3/24 = x/40.',
+      { explanation: 'Farinha e biscoitos são diretamente proporcionais.', calculation: ['3/24 = x/40'] },
       'x = 3 × 40 ÷ 24 = 120 ÷ 24 = 5 xícaras.',
     ],
     concept:
@@ -139,8 +139,8 @@ export const RAZAO_PROPORCAO = batch([
       'O total de "pedreiro-dias" do muro é sempre o mesmo: 6 × 10.',
     ],
     solution: [
-      'O trabalho total equivale a 6 × 10 = 60 pedreiro-dias.',
-      'Com 4 pedreiros: 60 ÷ 4 = 15 dias.',
+      { explanation: 'O mesmo muro exige o mesmo total de pedreiro-dias.', calculation: ['T = 6 × 10', 'T = 60 pedreiro-dias'] },
+      { explanation: 'Divida o trabalho total entre os quatro pedreiros.', calculation: ['d = 60 ÷ 4', 'd = 15 dias'] },
     ],
     concept:
       'Em grandezas inversamente proporcionais, o produto entre elas é constante. Antes de montar a regra de três, pergunte: "se uma aumenta, a outra aumenta ou diminui?"',
@@ -170,7 +170,7 @@ export const RAZAO_PROPORCAO = batch([
     solution: [
       'Horas-máquina iniciais: 8 × 6 × 5 = 240, produzindo 1.200 peças.',
       'Produtividade: 1.200 ÷ 240 = 5 peças por hora-máquina.',
-      'Novas horas-máquina: 10 × 8 × 4 = 320.',
+      { explanation: 'Novas horas-máquina.', calculation: ['10 × 8 × 4 = 320'] },
       'Produção: 320 × 5 = 1.600 peças.',
     ],
     concept:
@@ -199,8 +199,8 @@ export const RAZAO_PROPORCAO = batch([
       'Na escala 1 : 100, 1 cm na planta equivale a 100 cm = 1 m na realidade.',
     ],
     solution: [
-      'Lados reais: 5 cm × 100 = 500 cm = 5 m e 4 cm × 100 = 400 cm = 4 m.',
-      'Área real: 5 m × 4 m = 20 m².',
+      { explanation: 'Lados reais.', calculation: ['5 cm × 100 = 500 cm', '= 5 m', '4 cm × 100 = 400 cm', '= 4 m'] },
+      { explanation: 'Área real.', calculation: ['5 m × 4 m = 20 m²'] },
       'Atenção: a razão entre áreas é o quadrado da escala (1 : 10.000), e não 1 : 100.',
     ],
     concept:
@@ -237,8 +237,8 @@ export const RAZAO_PROPORCAO = batch([
       'Depois, subtraia a densidade de X da densidade de Y.',
     ],
     solution: [
-      'Densidade de X: 360.000 ÷ 120 = 3.000 hab/km².',
-      'Densidade de Y: 250.000 ÷ 50 = 5.000 hab/km².',
+      { explanation: 'Densidade é a população dividida pela área. Calcule para X.', calculation: ['dX = 360.000 ÷ 120', 'dX = 3.000 hab/km²'] },
+      { explanation: 'Repita para Y.', calculation: ['dY = 250.000 ÷ 50', 'dY = 5.000 hab/km²'] },
       'Diferença: 5.000 − 3.000 = 2.000 hab/km².',
     ],
     concept:
@@ -267,7 +267,7 @@ export const RAZAO_PROPORCAO = batch([
       'Cada parte vale 15 ÷ 5 litros.',
     ],
     solution: [
-      'Total de partes: 2 + 3 = 5.',
+      { explanation: 'Total de partes.', calculation: ['2 + 3 = 5'] },
       'Cada parte: 15 ÷ 5 = 3 litros.',
       'Tinta azul: 2 partes × 3 L = 6 L.',
     ],
@@ -297,8 +297,8 @@ export const RAZAO_PROPORCAO = batch([
       'Litros = 420 ÷ 12. Depois multiplique pelo preço do litro.',
     ],
     solution: [
-      'Consumo: 420 km ÷ 12 km/L = 35 L.',
-      'Custo: 35 × R$ 6,00 = R$ 210,00.',
+      { explanation: 'Consumo.', calculation: ['420 km ÷ 12 km/L = 35 L'] },
+      { explanation: 'Custo.', calculation: ['35 × R$ 6,00 = R$ 210,00'] },
     ],
     concept:
       'Problemas com duas etapas de proporcionalidade: encadeie as razões (km → litros → reais), sempre conferindo as unidades.',
@@ -326,8 +326,8 @@ export const RAZAO_PROPORCAO = batch([
       'A distância do percurso é 80 × 3 km.',
     ],
     solution: [
-      'Distância: 80 km/h × 3 h = 240 km.',
-      'Tempo a 60 km/h: 240 ÷ 60 = 4 h.',
+      { explanation: 'Distância.', calculation: ['80 km/h × 3 h = 240 km'] },
+      { explanation: 'Tempo a 60 km/h.', calculation: ['240 ÷ 60 = 4 h'] },
     ],
     concept:
       'Para a mesma distância, velocidade e tempo são inversamente proporcionais: o produto velocidade × tempo é constante.',
@@ -355,9 +355,9 @@ export const RAZAO_PROPORCAO = batch([
       'Cinco torneiras em 6 h somam 30 "torneira-horas" para 30.000 L.',
     ],
     solution: [
-      'Vazão de uma torneira: 30.000 ÷ (5 × 6) = 1.000 L/h.',
+      { explanation: 'Vazão de uma torneira.', calculation: ['30.000 ÷ (5 × 6) = 1.000 L/h'] },
       'Vazão de 3 torneiras: 3.000 L/h.',
-      'Tempo: 24.000 ÷ 3.000 = 8 h.',
+      { explanation: 'Tempo.', calculation: ['24.000 ÷ 3.000 = 8 h'] },
     ],
     concept:
       'Na regra de três composta, identifique cada relação separadamente: o tempo é diretamente proporcional ao volume e inversamente proporcional ao número de torneiras.',
@@ -384,7 +384,10 @@ export const RAZAO_PROPORCAO = batch([
       'Monte a proporção largura/altura = 16/9.',
       '112/h = 16/9 ⇒ h = 112 × 9 ÷ 16.',
     ],
-    solution: ['112/h = 16/9.', 'h = 112 × 9 ÷ 16 = 1.008 ÷ 16 = 63 cm.'],
+    solution: [
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['112/h = 16/9'] },
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['h = 112 × 9 ÷ 16', '= 1.008 ÷ 16', '= 63 cm'] },
+    ],
     concept:
       'Uma proporção é uma igualdade entre razões. Mantenha a ordem (largura com largura, altura com altura) dos dois lados da igualdade.',
     estimatedSeconds: 50,
@@ -411,7 +414,7 @@ export const RAZAO_PROPORCAO = batch([
       'Converta 30 km para centímetros: 1 km = 100.000 cm.',
     ],
     solution: [
-      '30 km = 30 × 100.000 cm = 3.000.000 cm.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['30 km = 30 × 100.000 cm', '= 3.000.000 cm'] },
       'Escala = 7,5 : 3.000.000.',
       'Dividindo ambos por 7,5: 1 : 400.000.',
     ],
@@ -441,9 +444,9 @@ export const RAZAO_PROPORCAO = batch([
       'Essa sobra equivale a 20 × 10 "porções-dia". Divida pelo novo número de cavalos.',
     ],
     solution: [
-      'Após 5 dias, restam 15 − 5 = 10 dias de ração para 20 cavalos.',
-      'Ração restante: 20 × 10 = 200 porções diárias.',
-      'Com 25 cavalos: 200 ÷ 25 = 8 dias.',
+      { explanation: 'Desconte os cinco dias que já passaram.', calculation: ['15 − 5 = 10 dias'] },
+      { explanation: 'Transforme a ração restante em porções de um cavalo por dia.', calculation: ['20 × 10 = 200 porções diárias'] },
+      { explanation: 'Distribua as porções entre os 25 cavalos.', calculation: ['200 ÷ 25 = 8 dias'] },
     ],
     concept:
       'Em problemas com mudança no meio do caminho, separe em etapas: calcule o que sobrou e só então aplique a nova condição.',
@@ -472,7 +475,7 @@ export const RAZAO_PROPORCAO = batch([
     ],
     solution: [
       'Pesos: 1/2, 1/3 e 1/6. Soma: 3/6 + 2/6 + 1/6 = 1.',
-      'Neto de 2 anos: (1/2) ÷ 1 × 36.000 = R$ 18.000,00.',
+      { explanation: 'Neto de 2 anos.', calculation: ['(1/2) ÷ 1 × 36.000 = R$ 18.000,00'] },
       'Conferência: os outros recebem 12.000 e 6.000; total 36.000.',
     ],
     concept:
@@ -501,10 +504,10 @@ export const RAZAO_PROPORCAO = batch([
       'Veja quanto foi impresso no 1º dia, quanto falta, e quanto as 3 impressoras fazem por dia. Dias parciais contam como um dia de trabalho.',
     ],
     solution: [
-      'Produtividade: 9.000 ÷ (4 × 5 × 3) = 9.000 ÷ 60 = 150 folhetos por impressora-hora.',
-      '1º dia: 4 × 5 × 150 = 3.000 folhetos. Faltam 12.000 − 3.000 = 9.000.',
+      { explanation: 'Divida os folhetos pelo total de impressora-horas.', calculation: ['4 × 5 × 3 = 60 impressora-horas', '9.000 ÷ 60 = 150 folhetos por impressora-hora'] },
+      { explanation: 'Calcule a produção do primeiro dia e o que ainda falta.', calculation: ['4 × 5 × 150 = 3.000 folhetos', '12.000 − 3.000 = 9.000 folhetos'] },
       'Novo ritmo: 3 × 6 × 150 = 2.700 folhetos por dia.',
-      '9.000 ÷ 2.700 ≈ 3,33 — três dias não bastam (8.100 folhetos), então são necessários 4 dias.',
+      { explanation: 'São necessários dias inteiros: confira que três dias não bastam.', calculation: ['9.000 ÷ 2.700 ≈ 3,33 dias', '3 × 2.700 = 8.100 < 9.000', '4 × 2.700 = 10.800 ≥ 9.000'] },
     ],
     concept:
       'Quando o resultado de uma divisão representa dias de trabalho, uma fração de dia exige um dia a mais: arredonde para cima e interprete o contexto.',
@@ -532,7 +535,9 @@ export const RAZAO_PROPORCAO = batch([
     alternatives: alts('4', '25', '48', '40', '400'),
     answer: 'D',
     hints: ['Relação candidato/vaga = candidatos ÷ vagas.', 'Calcule 4.800 ÷ 120.'],
-    solution: ['4.800 ÷ 120 = 40 candidatos por vaga.'],
+    solution: [
+      { explanation: 'Divida o total de candidatos pelo total de vagas.', calculation: ['4.800 ÷ 120 = 40 candidatos por vaga'] },
+    ],
     concept: 'Uma razão "A por B" se calcula dividindo A por B — e responde "quantos A existem para cada B".',
     estimatedSeconds: 30,
     source: AUTORAL,
@@ -554,7 +559,10 @@ export const RAZAO_PROPORCAO = batch([
     alternatives: alts('36 cm', '9 cm', '18 cm', '90 cm', '360 cm'),
     answer: 'A',
     hints: ['Na escala 1 : 50, cada comprimento da maquete é 1/50 do comprimento correspondente no prédio.', 'Converta 18 m para centímetros antes de dividir.'],
-    solution: ['18 m = 1.800 cm.', 'Altura da maquete: 1.800 ÷ 50 = 36 cm.'],
+    solution: [
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['18 m = 1.800 cm'] },
+      { explanation: 'Altura da maquete.', calculation: ['1.800 ÷ 50 = 36 cm'] },
+    ],
     concept: 'Para obter a medida reduzida, divida a medida real pelo denominador da escala, na mesma unidade.',
     estimatedSeconds: 45,
     source: AUTORAL,
@@ -576,7 +584,10 @@ export const RAZAO_PROPORCAO = batch([
     alternatives: alts('1.500 g', '1.600 g', '2.000 g', '2.400 g', '1.875 g'),
     answer: 'E',
     hints: ['Descubra quanto açúcar corresponde a 1 pessoa.', '300 ÷ 8 = 37,5 g por pessoa.'],
-    solution: ['Por pessoa: 300 ÷ 8 = 37,5 g.', 'Para 50 pessoas: 37,5 × 50 = 1.875 g.'],
+    solution: [
+      { explanation: 'Por pessoa.', calculation: ['300 ÷ 8 = 37,5 g'] },
+      { explanation: 'Para 50 pessoas.', calculation: ['37,5 × 50 = 1.875 g'] },
+    ],
     concept: 'Reduzir à unidade ("quanto para 1?") é uma forma segura de resolver qualquer regra de três direta.',
     estimatedSeconds: 50,
     source: AUTORAL,

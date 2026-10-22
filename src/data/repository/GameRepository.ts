@@ -31,6 +31,10 @@ export interface GameRepository {
   maxAttemptRowid(): Promise<number>;
   /** Insere tentativas vindas da nuvem; IDs repetidos são ignorados. Devolve a nova maior posição. */
   importAttempts(attempts: Attempt[]): Promise<number>;
+  /** Todas as tentativas desde o instante UTC, inclusive, mais recentes primeiro. */
+  activitySince(since: number): Promise<Attempt[]>;
+  /** Só erros; desempate por ID decrescente mantém a paginação estável. */
+  mistakeHistory(limit: number, offset: number): Promise<Attempt[]>;
 }
 
 /** Mantido por compatibilidade: a normalização vive no domínio (normalizeState). */

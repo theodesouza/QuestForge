@@ -109,6 +109,14 @@ export class GameController {
     });
   }
 
+  activitySince(since: number) {
+    return this.enqueue(() => this.deps.repo.activitySince(since));
+  }
+
+  mistakeHistory(limit: number, offset: number) {
+    return this.enqueue(() => this.deps.repo.mistakeHistory(limit, offset));
+  }
+
   private enqueue<T>(job: () => Promise<T>): Promise<T> {
     const run = this.queue.then(job, job);
     this.queue = run.catch(() => undefined);

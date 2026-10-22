@@ -22,6 +22,7 @@ import { STAR_REWARDS, missionScore, missionStars, type ScoredAnswer } from '../
 import { planMissionRun, unseenCount } from '../learning/missionPlan';
 import { DEFAULT_TARGET, adjustTarget, selectQuestions } from '../learning/selection';
 import { dueQuestionIds, emptyQuestionState, schedule } from '../learning/srs';
+import { scaffoldExample } from '../learning/scaffold';
 import { accrueRested } from '../progression/rested';
 import {
   MISSION_FIRST_INK,
@@ -391,6 +392,7 @@ export function answerCurrent(state: GameState, input: AnswerInput, now: number)
 
   const next: ActiveSession = {
     ...session,
+    ...(session.scaffoldLesson ? { scaffoldLesson: null } : {}),
     queue: session.queue.slice(),
     answers: [
       ...session.answers,
@@ -417,16 +419,32 @@ export function answerCurrent(state: GameState, input: AnswerInput, now: number)
     const prev = [...session.answers].reverse().find((a) => a.kind !== 'skipped');
     const prevQ = prev ? findQuestion(prev.questionId) : undefined;
     if (prev && !prev.correct && prevQ && prevQ.subtopic === q.subtopic) {
-      const easier = findEasier(q, next.queue, tx.state);
+      const exposed = next.scaffoldExampleIds ?? [];
+      const easier = findEasier(q, [...next.queue, ...exposed], tx.state);
       if (easier) {
         next.queue.splice(next.index, 0, easier.id);
         next.scaffoldIds = [...next.scaffoldIds, easier.id];
+        const example = scaffoldExample(easier, [...next.queue, ...exposed], q.difficulty);
+        if (example) {
+          next.scaffoldExampleIds = [...exposed, example.id];
+          next.scaffoldLesson = { sourceQuestionId: q.id, practiceQuestionId: easier.id, exampleQuestionId: example.id };
+        }
         tx.emit({ type: 'scaffold', questionId: easier.id, subtopic: q.subtopic, conceptFrom: q.id });
       }
     }
   }
 
   tx.setSession(next);
+  return tx.done();
+}
+
+/** Confirma somente a leitura; a fila e todas as evidências de aprendizado ficam intactas. */
+export function acknowledgeScaffold(state: GameState, practiceQuestionId: string): Result {
+  const tx = new Tx(state);
+  const session = state.session;
+  if (session?.scaffoldLesson?.practiceQuestionId === practiceQuestionId && currentQuestionId(session) === practiceQuestionId) {
+    tx.setSession({ ...session, scaffoldLesson: null });
+  }
   return tx.done();
 }
 
@@ -451,6 +469,7 @@ export function skipCurrent(state: GameState): Result {
   const firstSkip = !session.skippedOnce.includes(qid);
   tx.setSession({
     ...session,
+    ...(session.scaffoldLesson ? { scaffoldLesson: null } : {}),
     queue: firstSkip ? [...session.queue, qid] : session.queue,
     skippedOnce: firstSkip ? [...session.skippedOnce, qid] : session.skippedOnce,
     answers: [

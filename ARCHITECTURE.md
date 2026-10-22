@@ -179,6 +179,34 @@ O progresso vive no SQLite da conta (e é sincronizado com a nuvem) e **nunca** 
 
 ## Conteúdo
 
+### Reforço guiado
+
+Após o gatilho de andaime, `domain/learning/scaffold.ts` busca um exemplo do mesmo
+subassunto da prática de base, até a dificuldade da questão errada. Exclui a fila
+inteira e todos os exemplos já reservados na sessão. O exemplo não entra na fila,
+tentativas, domínio ou recompensas; seus IDs também ficam excluídos de reforços
+avaliados posteriores. Sem candidato, o andaime anterior permanece funcional.
+
+`ActiveSession.scaffoldLesson` guarda origem, exemplo e prática; `scaffoldExampleIds`
+registra os exemplos reservados. Campos opcionais no JSON já persistido em
+`active_run`, sem migração SQL ou mudança nativa. `acknowledgeScaffold` só limpa a
+etapa pendente após commit, é idempotente e ignora toques antigos. Sessões antigas
+continuam compatíveis. A tela mostra o exemplo antes da prática e só inicia o
+contador da tentativa ao sair da leitura; encerrar o app mantém a etapa pendente.
+
+### Consultas de aprendizado
+
+`GameRepository.activitySince` lê a atividade desde o começo da semana local;
+`mistakeHistory` pagina só tentativas incorretas por data e ID decrescentes. Ambas
+passam pela fila do controlador para respeitar gravações pendentes, sem alterar o
+estado do jogo ou exigir migração. `domain/learning/progress.ts` aplica o calendário
+local, descarta registros futuros e só mostra precisão com pelo menos 10 respostas.
+O domínio por subassunto usa o motor de domínio existente e o histórico completo.
+O histórico identifica a resposta pelo texto da alternativa canônica, sem atribuir
+letras que podem ter mudado entre versões antigas e o embaralhamento atual.
+Enunciados e resoluções são os do banco atual (não há cópia versionada por tentativa).
+Tempo de estudo não entra neste painel enquanto o contador não descontar pausas.
+
 - Questões em TypeScript tipado (`src/content/questions/<assunto>.ts`), uma constante por
   lote. IDs estáveis no formato `<ASSUNTO>-<NNN>` (ex.: `PCT-004`). Nunca reutilizar IDs.
 - Cada questão traz: enunciado em blocos (parágrafo, tabela, gráfico de barras, fórmula,
@@ -186,6 +214,12 @@ O progresso vive no SQLite da conta (e é sincronizado com a nuvem) e **nunca** 
   assunto/subassunto, dificuldade 1–4, habilidades da Matriz de Referência do ENEM (H1–H30),
   tempo estimado, fonte (`autoral` ou `enem` com ano) e — quando numérica — uma função
   `verify()` que **recalcula a resposta** a partir dos dados do enunciado.
+- Cada passo da resolução pode ser texto explicativo ou `{ explanation, calculation: string[] }`.
+  As linhas matemáticas são escritas pelo autor; a UI não resolve nem infere contas.
+  `SolutionSheet` é compartilhada pelo feedback, pelo histórico e pelo reforço guiado.
+  Frações numéricas explícitas são diagramadas com traço; unidades, potências e frações
+  algébricas preservam a notação original. Texto nativo mantém leitura offline e escala
+  da fonte. A validação exige passos preenchidos e contas em todas as questões do banco.
 - O validador (`src/content/validation`) garante: IDs únicos e bem formados, 5 alternativas
   distintas, gabarito válido, campos obrigatórios, habilidades válidas, e que o valor de
   `verify()` coincide com a alternativa correta **e com nenhuma outra**.
@@ -197,7 +231,7 @@ O progresso vive no SQLite da conta (e é sincronizado com a nuvem) e **nunca** 
 A build web existe só para pré-visualização e capturas de tela de design. Nela, a plataforma
 (`platform/index.web.ts`) usa o `MemoryGameRepository`, um "usuário de pré-visualização" e nenhuma nuvem, porque o
 foco do produto é nativo.
-Com `EXPO_PUBLIC_QA=1`, o app expõe `globalThis.__qf` (somente leitura do estado) para o teste
+Com `EXPO_PUBLIC_QA=1`, o app expõe `globalThis.__qf` para inspecionar e simular cenários no teste
 ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativo.
 
 ## Decisões registradas
