@@ -26,6 +26,7 @@ import { MISSAO_R3M2_B } from './questions/missoes/r3-m2-b';
 import { MISSAO_R3M3_A } from './questions/missoes/r3-m3-a';
 import { MISSAO_R3M3_B } from './questions/missoes/r3-m3-b';
 import { ESTATISTICA } from './questions/estatistica';
+import { EXPANSION_QUESTIONS } from './questions/expansion';
 import { FUNCOES } from './questions/funcoes';
 import { GEOMETRIA } from './questions/geometria';
 import { GRAFICOS } from './questions/graficos';
@@ -67,6 +68,7 @@ export const QUESTIONS: readonly Question[] = [
   ...MISSAO_R3M2_B,
   ...MISSAO_R3M3_A,
   ...MISSAO_R3M3_B,
+  ...EXPANSION_QUESTIONS,
 ];
 
 const BY_ID = new Map(QUESTIONS.map((q) => [q.id, q]));
