@@ -28,10 +28,25 @@ Na revisão foram reescritas situações próximas de questões antigas, esclare
 
 ## Verificação e reprodução
 
-Executados: 27 suítes, **566 testes aprovados**, nenhum reprovado e um teste de autoria já condicionalmente ignorado sem `QF_BATCH`. Após as três últimas reescritas, passaram novamente os **272 testes de conteúdo e 133 testes de domínio**. TypeScript e lint sem cache passaram. Exportação web de QA e exportação Android com bytecode Hermes passaram; não foi gerado APK nem publicada atualização.
+### Publicação de 22/10/2026
+
+Código `b1777c0756dfb6d7d11fdba77275e96290998bc7`, enviado à branch `codex/questoes-chefes-2026-10-22` e integrado por fast-forward em `claude/questforge-google-auth-persistence-y2en2n`. O conector do GitHub recusou criar PR (403); a integração pelo Git preservou todos os commits.
+
+Atualização Android publicada na EAS, runtime **0.3.0**, versionCode **7**, sem novo APK. Builds atuais de preview e produção foram conferidos na EAS: ambos partem de `aae38b1`, a mesma base desta implementação. QA e migração de legado ficaram desativados; cada publicação usou o ambiente correspondente, com as cinco variáveis obrigatórias de autenticação configuradas e iguais nos dois ambientes.
+
+| Canal | Grupo publicado | Horário de Brasília |
+| --- | --- | --- |
+| preview | `3de15c8f-626e-43ec-a87a-385756ca0441` | 22/10/2026 20:39 |
+| production | `1e8a3a63-9125-46e7-aa10-201dcf3f49da` | 22/10/2026 20:43 |
+
+O endpoint de atualização confirmou os IDs publicados, versão e runtime nos dois canais. O bundle foi baixado seguindo o protocolo Expo Updates, incluindo os cabeçalhos de acesso aos assets: **6.402.508 bytes**, SHA-256 base64url **`onRBxndtBUfnuve6EAcojHusyS2SNm3zkXMz3gprjwQ`**, idêntico ao hash declarado em ambos os manifestos. Os IDs das 330 questões novas também foram confirmados nesse bundle. Nenhum teste em aparelho físico foi realizado. Apps de runtime 0.2.x não recebem esta publicação.
+
+Reversão: priorizar uma correção ou uma publicação que preserve as 644 questões e seus IDs, mesmo ao restaurar o combate antigo. Sessões em andamento podem referenciar questões novas; não voltar diretamente ao banco de 314 itens sem tratar essas referências. Não há migração de schema a desfazer.
+
+Executados: 27 suítes, **566 testes aprovados**, nenhum reprovado e um teste de autoria já condicionalmente ignorado sem `QF_BATCH`. Após as três últimas reescritas, passaram novamente os **272 testes de conteúdo e 133 testes de domínio**. TypeScript e lint sem cache passaram. Exportação web de QA e exportação Android com bytecode Hermes passaram; a publicação posterior está registrada acima.
 
 Comandos: `npm test -- --runInBand --cacheDirectory ../jest-cache`, `npm run typecheck`, `npm run lint -- --no-cache`, `EXPO_PUBLIC_QA=1 npx expo export --platform web --output-dir dist-web`. No PowerShell, definir variáveis por `$env:NOME='valor'`. A exportação Android precisou de `TEMP`/`TMP` dentro de `work/` para o compilador Hermes gravar o bytecode no ambiente isolado.
 
 O relatório JSON de Jest registra sucesso, mas o processo global permanece aberto com atividade assíncrona após terminar. Não foi usado `--forceExit`; execuções focadas encerraram normalmente. A prévia no navegador verificou as três batalhas reais, dano, combo, Convergência, mudança de fase, console e ausência de estouro horizontal em 320 px. `/vfx-lab?grid=bosses`, somente com `EXPO_PUBLIC_QA=1`, permite repetir a inspeção; a preparação de combate dessa tela é restrita ao preview web em memória.
 
-Limites: sem teste em aparelho físico, sem benchmark de FPS nativo, sem login Google/Firestore reais nem emuladores de regras. A exportação informa ausência do `google-services.json` local; a configuração de nuvem existente não foi alterada. A revisão adicional por Claude, autorizada somente para questões, **ainda não produziu parecer**: primeiro a aprovação automática falhou por limite de uso; após esse horário, a nova execução foi autorizada, mas o CLI falhou com sessão OAuth expirada e sem conseguir renová-la. É necessário renovar o login do Claude para retomar. O pacote cego contém apenas enunciados e alternativas, sem código, gabaritos ou dados de conta.
+Limites: sem teste em aparelho físico, sem benchmark de FPS nativo, sem login Google/Firestore reais nem emuladores de regras. A exportação informa ausência do `google-services.json` local; os builds nativos existentes e os ambientes da EAS foram conferidos para a publicação, e a configuração de nuvem não foi alterada. A revisão adicional por Claude, autorizada somente para questões, está em andamento após a renovação do login pelo usuário. O pacote cego contém apenas enunciados e alternativas, sem código, gabaritos ou dados de conta.

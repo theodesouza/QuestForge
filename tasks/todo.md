@@ -8,4 +8,5 @@
 - [x] Executar suíte, lint, tipos, exportação e fluxo móvel no navegador.
 - [x] Revisão independente, documentação e entrega de código e evidências.
 - [x] Reconfirmar a base atual no GitHub (app 0.3.0 / Android 7), testar sincronização e retomada com questão nova e exportar novamente para web e Android/Hermes.
-- [ ] Revisão adicional por Claude, apenas questões, autorizada pelo usuário: nova execução aprovada, mas a sessão OAuth do CLI expirou e não foi renovada; aguardando login. Pacote cego preparado, sem código ou gabaritos.
+- [x] Enviar e integrar os commits no GitHub; publicar Android 0.3.0 em preview e production; conferir manifestos e SHA-256 dos bundles baixados.
+- [ ] Revisão adicional por Claude, apenas questões: login renovado pelo usuário, execução retomada; pacote cego confirmado idêntico às 330 questões publicadas, sem código ou gabaritos.

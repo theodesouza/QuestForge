@@ -92,19 +92,19 @@ um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 
 ## Publicação e reversão
 
-Última atualização publicada: **19/10/2026 — folhas de resolução nas 314 questões**,
-código `4efea8a`, grupo Expo `7c181e15-f117-4da2-b32e-ec12992a7e93`, Android,
-canal `preview`, runtime `0.2.0`. Manifesto e hash do bundle baixado foram conferidos.
-O APK versionCode 4 recebe essa atualização sem reinstalação.
+Última atualização publicada: **22/10/2026 — 330 questões novas, chefes animados e Convergência**,
+código `b1777c0`, Android, runtime `0.3.0` (APK versionCode 7):
 
-Se for necessário voltar à versão anterior com reforço guiado, evolução, histórico e Região 3, republicar o grupo
-anterior no mesmo canal (o comando abaixo é de reversão, não de publicação normal):
+- `preview`: grupo `3de15c8f-626e-43ec-a87a-385756ca0441`;
+- `production`: grupo `1e8a3a63-9125-46e7-aa10-201dcf3f49da`.
 
-```bash
-npx eas-cli@latest update:republish --group a2b4a350-6a36-4267-a788-33cfa74660d1 --destination-channel preview --platform android --message "Reversão para reforço guiado" --non-interactive
-```
+Manifestos e SHA-256 dos bundles baixados foram conferidos. QA e migração de legado ficaram desativados.
+O banco tem 644 questões, com os IDs antigos preservados. Apps 0.2.x não recebem esta atualização.
+Detalhes de validação em [docs/QUESTOES_E_CHEFES.md](docs/QUESTOES_E_CHEFES.md).
 
-Essa reversão troca o código e mantém o banco do aparelho; não desfaz o estudo realizado.
+Se for preciso reverter uma funcionalidade, preserve as 644 questões e seus IDs na publicação corretiva:
+sessões em andamento podem referenciar itens novos. Não restaure diretamente o banco antigo de 314 itens
+sem tratar essas referências; o progresso deve permanecer no banco do aparelho e na nuvem.
 
 ## Verificações
 
