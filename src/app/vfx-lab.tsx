@@ -8,6 +8,7 @@ import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { ITEMS, RARITY_LABEL, getItem } from '../content/items';
 import type { EffectsLevel, Equipped } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
+import { BossLab } from '../features/boss/BossLab';
 import { Astrolabe } from '../ui/Astrolabe';
 import { ItemGlyph } from '../ui/ItemGlyph';
 import { Text } from '../ui/Text';
@@ -38,6 +39,7 @@ export default function VfxLab() {
       ? (Object.fromEntries(new URLSearchParams(window.location.search)) as typeof routed)
       : routed;
   if (!QA) return <Redirect href="/" />;
+  if (p.grid === 'bosses') return <BossLab />;
   const level = Number(p.level ?? 20);
   const effects = (p.fx as EffectsLevel) ?? undefined;
   const base: Equipped = { frame: p.frame ?? 'frame-bronze', core: p.core ?? 'core-quartzo', aura: p.aura ?? null, title: null };

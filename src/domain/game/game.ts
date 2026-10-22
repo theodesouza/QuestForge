@@ -20,7 +20,7 @@ import {
 import { nodeStatus, type BossProgress } from '../campaign/campaign';
 import { STAR_REWARDS, missionScore, missionStars, type ScoredAnswer } from '../campaign/score';
 import { planMissionRun, unseenCount } from '../learning/missionPlan';
-import { DEFAULT_TARGET, adjustTarget, selectQuestions } from '../learning/selection';
+import { DEFAULT_TARGET, adjustTarget, selectBossQuestion, selectQuestions } from '../learning/selection';
 import { dueQuestionIds, emptyQuestionState, schedule } from '../learning/srs';
 import { scaffoldExample } from '../learning/scaffold';
 import { accrueRested } from '../progression/rested';
@@ -649,16 +649,15 @@ function bossPool(boss: BossDef, battle?: BattleState) {
 function pickBossQuestion(state: GameState, boss: BossDef, battle: BattleState, now: number): string {
   const pool = bossPool(boss, battle);
   const pickWith = (exclude: Set<string>) =>
-    selectQuestions({
+    selectBossQuestion({
       pool,
       states: state.questionStates,
-      count: 1,
       now,
       seed: hashString(`${battle.id}:${battle.turns.length}`),
       fixedTarget: battleTarget(boss, battle),
       exclude,
       maxReviewShare: 0,
-    })[0];
+    });
   const q =
     pickWith(new Set(battle.usedQuestionIds)) ??
     pickWith(new Set(battle.usedQuestionIds.slice(-3)));
@@ -705,6 +704,7 @@ export function battleAnswer(state: GameState, input: AnswerInput, now: number):
     correct,
     guessed: correct && input.guessed,
     hints: input.hints,
+    knowledgeKey: `${q.topic}:${q.subtopic}`,
   });
   const next: BattleState = { ...after, xpEarned: battle.xpEarned + granted };
 

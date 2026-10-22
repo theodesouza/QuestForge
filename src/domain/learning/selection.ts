@@ -5,7 +5,7 @@
  * Evita dois itens seguidos do mesmo subassunto quando possível.
  */
 import type { Difficulty, Question, TopicId } from '../../content/types';
-import { createRng, type Rng } from '../util/random';
+import { createRng, shuffle, type Rng } from '../util/random';
 import { MASTERY_PRIORITY, masteryBySubtopic, subtopicKey } from './mastery';
 import { isDue, type QuestionState } from './srs';
 
@@ -29,6 +29,18 @@ export interface SelectionInput {
 export function difficultyFit(d: Difficulty, target: number): number {
   const diff = d - target;
   return Math.exp(-(diff * diff) / 0.8);
+}
+
+/** Nos chefes, revisões ficam nas atividades próprias; a revanche privilegia novidade. */
+export function selectBossQuestion(input: Omit<SelectionInput, 'count'>): Question | undefined {
+  const candidates = input.pool.filter(q => !input.exclude?.has(q.id));
+  const fresh = candidates.filter(q => !input.states[q.id] || input.states[q.id].seen === 0);
+  if (fresh.length) return selectQuestions({ ...input, pool: fresh, count: 1, maxReviewShare: 0 })[0];
+  const target = input.fixedTarget ?? DEFAULT_TARGET;
+  return shuffle(candidates, createRng(input.seed)).sort((a, b) =>
+    (input.states[a.id]?.lastAnsweredAt ?? 0) - (input.states[b.id]?.lastAnsweredAt ?? 0) ||
+    difficultyFit(b.difficulty, target) - difficultyFit(a.difficulty, target),
+  )[0];
 }
 
 function weightedPick<T>(items: { item: T; w: number }[], rng: Rng): number {
@@ -65,11 +77,14 @@ export function selectQuestions(input: SelectionInput): Question[] {
   const reviewQuota = Math.ceil(count * (input.maxReviewShare ?? 0.4));
   picked.push(...reviews.slice(0, Math.min(reviewQuota, count)));
 
+  // Um assunto com mais conteúdo não deve abafar os demais nas expedições.
+  const topicCounts = new Map<TopicId, number>();
+  for (const q of fresh) topicCounts.set(q.topic, (topicCounts.get(q.topic) ?? 0) + 1);
   const weighted = fresh.map((q) => {
     const m = mastery.get(subtopicKey(q.topic, q.subtopic));
     const priority = m ? MASTERY_PRIORITY[m.level] : 1;
     // Jitter evita sequências previsíveis sem abandonar a adaptação.
-    return { item: q, w: difficultyFit(q.difficulty, targetFor(q)) * priority * (0.75 + rng() * 0.5) };
+    return { item: q, w: difficultyFit(q.difficulty, targetFor(q)) * priority * (0.75 + rng() * 0.5) / topicCounts.get(q.topic)! };
   });
   while (picked.length < count && weighted.length > 0) {
     const i = weightedPick(weighted, rng);

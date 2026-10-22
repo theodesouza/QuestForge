@@ -45,6 +45,9 @@ dist-web/
 e2e-shots/
 *.apk
 
+# Rascunhos e caches de validação local
+/work/
+
 # Firebase / nuvem
 # (identificadores públicos do projeto, mas específicos de cada ambiente: ficam fora do git — ver docs/CLOUD_SETUP.md)
 .env

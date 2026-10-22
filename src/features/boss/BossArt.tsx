@@ -1,4 +1,5 @@
 import type { BossArt as BossArtId } from '../../content/bosses';
+import type { SharedValue } from 'react-native-reanimated';
 import { GolemArt } from './GolemArt';
 import { MercadorArt } from './MercadorArt';
 import { QuimeraArt } from './QuimeraArt';
@@ -10,6 +11,8 @@ interface Props {
   defeated?: boolean;
   /** Quimera: cabeças que já caíram. */
   headsFelled?: number;
+  attacking?: boolean;
+  pulse?: SharedValue<number>;
 }
 
 /** Registro das artes de chefão: cada BossDef aponta para uma delas. */

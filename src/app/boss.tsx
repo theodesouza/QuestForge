@@ -9,10 +9,6 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { findQuestion } from '../content/bank';
@@ -20,10 +16,11 @@ import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
-import { activeHeadIndex, headSpans, headsFelled, type BattleState } from '../domain/boss/battle';
+import { activeHeadIndex, CONVERGENCE_BONUS, headSpans, headsFelled, knowledgeSeals, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import type { GameEvent } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
+import { BossStage } from '../features/boss/BossStage';
 import { HeadsBar } from '../features/boss/HeadsBar';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
@@ -31,7 +28,6 @@ import { useAttempt } from '../features/question/useAttempt';
 import { battleAnswer, beginBattle, dismissBattle, retreat } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
-import { calm } from '../ui/calm';
 import { haptic, useReduceMotion } from '../ui/feedback';
 import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
@@ -159,6 +155,15 @@ function Intro({ boss }: { boss: BossDef }) {
             </Text>
           </View>
         </View>
+        <View style={styles.rule}>
+          <Icon name="sparkle" size={20} color={colors.verdigris} />
+          <View style={{ flex: 1 }}>
+            <Text variant="subheading">Selos de Conhecimento</Text>
+            <Text variant="caption" color={colors.parchmentDim}>
+              Acerte sem dicas nem chute em três subassuntos diferentes para formar uma constelação e liberar a Convergência: +{CONVERGENCE_BONUS} de dano. Os erros não apagam seus selos.
+            </Text>
+          </View>
+        </View>
       </Panel>
       {progress && (progress.wins > 0 || knowledge > 0) ? (
         <Text variant="caption" color={colors.mist} align="center">
@@ -171,7 +176,7 @@ function Intro({ boss }: { boss: BossDef }) {
 
 // ——————————————————————————————————————————————— batalha
 
-type Hit = { id: number; damage: number; technique: boolean; healed: number };
+type Hit = { id: number; damage: number; technique: boolean; healed: number; convergence?: boolean };
 
 function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; hit: Hit | null; line: string }) {
   const reduce = useReduceMotion();
@@ -183,15 +188,15 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
         </Text>
         <View style={styles.hpRow}>
           {hit && hit.damage > 0 ? (
-            <Animated.View key={hit.id} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
+            <Animated.View key={hit.id} entering={reduce ? FadeIn : FadeInDown.duration(320)} style={styles.hit} accessibilityLiveRegion="polite">
               <Text variant="number" color={hit.technique ? colors.brass : colors.parchment}>
                 −{hit.damage}
-                {hit.technique ? ' · técnica!' : ''}
+                {hit.convergence ? ' · convergência!' : hit.technique ? ' · técnica!' : ''}
               </Text>
             </Animated.View>
           ) : null}
           {hit && hit.healed > 0 ? (
-            <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
+            <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : FadeInDown.duration(320)} style={styles.hit} accessibilityLiveRegion="polite">
               <Text variant="number" color={colors.ember}>
                 +{hit.healed} {boss.trait.kind === 'heads' ? 'regenera' : 'juros'}
               </Text>
@@ -237,7 +242,7 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
           ) : null}
         </View>
       </View>
-      <Text variant="caption" color={colors.parchmentDim} numberOfLines={2} style={styles.narration}>
+      <Text variant="caption" color={colors.parchmentDim} style={styles.narration} accessibilityLiveRegion="polite">
         {line}
       </Text>
     </View>
@@ -251,8 +256,6 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
   const attempt = useAttempt(shownId);
   const scroll = useRef<ScrollView>(null);
   const feedbackOffset = useRef(0);
-  const shake = useSharedValue(0);
-  const flash = useSharedValue(0);
   const [hit, setHit] = useState<Hit | null>(null);
   const [line, setLine] = useState<string>(boss.lines.intro[2]);
   const finalEvents = useRef<GameEvent[]>([]);
@@ -260,8 +263,6 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
   useEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
   }, [shownId]);
-
-  const artStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shake.value }], opacity: 1 - flash.value * 0.45 }));
 
   const question = shownId ? findQuestion(shownId) : undefined;
 
@@ -271,23 +272,21 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
     const turn = after?.turns[after.turns.length - 1];
     if (after && turn) {
       if (turn.correct) {
-        haptic(turn.technique ? 'heavy' : 'impact');
-        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: 0 });
-        if (!reduce) {
-          shake.set(withSequence(withTiming(10, { duration: 60 }), withTiming(-8, { duration: 70 }), withTiming(0, { duration: 80 })));
-          flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
-        }
+        haptic(turn.technique || turn.convergence ? 'heavy' : 'impact');
+        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: 0, convergence: turn.convergence });
         const felled = boss.trait.kind === 'heads' && (turn.headsFelled ?? 0) > 0 ? boss.trait.heads[headsFelled(boss, after.hp) - 1] : null;
         setLine(
-          felled && after.status !== 'won'
+          after.status === 'won'
+            ? boss.lines.defeat
+            : turn.convergence
+              ? 'Convergência! Seus três selos se uniram: o conhecimento atravessa a Névoa.'
+            : felled
             ? felled.fall
             : turn.armorBroke
             ? boss.lines.phase2
             : turn.technique
               ? boss.technique.line
-              : after.status === 'won'
-                ? boss.lines.defeat
-                : pickLine(boss.lines.playerHit, after.turns.length),
+              : pickLine(boss.lines.playerHit, after.turns.length),
         );
       } else {
         setHit((turn.healed ?? 0) > 0 ? { id: after.turns.length, damage: 0, technique: false, healed: turn.healed ?? 0 } : null);
@@ -332,9 +331,11 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
       </View>
       <ScrollView ref={scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.arena} onLayout={(e) => (feedbackOffset.current = e.nativeEvent.layout.height + space.lg)}>
-          <Animated.View style={artStyle}>
-            <BossArt art={boss.art} size={150} cracked={battle.armorBroken} defeated={battle.status === 'won'} headsFelled={headsFelled(boss, battle.hp)} />
-          </Animated.View>
+          <BossStage boss={boss} battle={battle} />
+          <View style={styles.seals} accessible accessibilityLiveRegion="polite" accessibilityLabel={`Selos de Conhecimento: ${knowledgeSeals(battle).length} de 3. ${battle.turns[battle.turns.length - 1]?.convergence ? 'Convergência liberada!' : 'Acerte subassuntos diferentes sem dicas nem chute.'}`}>
+            {[0, 1, 2].map(i => <Icon key={i} name="sparkle" size={16} color={i < knowledgeSeals(battle).length ? colors.brass : colors.mist} fill={i < knowledgeSeals(battle).length ? colors.brassGlow : 'none'} />)}
+            <Text variant="caption" color={colors.parchmentDim}>Selos {knowledgeSeals(battle).length}/3 · {battle.turns[battle.turns.length - 1]?.convergence ? 'Convergência!' : 'una saberes'}</Text>
+          </View>
         </View>
         {question ? (
           <QuestionBody
@@ -518,14 +519,16 @@ const styles = StyleSheet.create({
   rule: { flexDirection: 'row', gap: space.md, paddingVertical: space.sm },
   top: { flexDirection: 'row', alignItems: 'flex-start', gap: space.xs, paddingHorizontal: space.sm, paddingBottom: space.sm },
   hud: { gap: 6, paddingRight: space.md, paddingTop: 4 },
-  hudRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  hudRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
   hudName: { flexShrink: 1 },
   hudTags: { flexDirection: 'row', gap: space.xs },
   resolve: { flexDirection: 'row', gap: 4 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, height: 24, borderRadius: radius.pill, backgroundColor: colors.ink800 },
   content: { paddingHorizontal: space.xl, paddingBottom: space.xxxl, gap: space.lg },
-  arena: { alignItems: 'center' },
-  hpRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexShrink: 0 },
+  arena: { alignItems: 'center', gap: space.sm },
+  seals: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: space.sm },
+  hpRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: space.sm, flexShrink: 1, maxWidth: '100%' },
+  hit: { flexShrink: 1, maxWidth: '100%' },
   narration: { fontStyle: 'italic' },
   footer: { paddingHorizontal: space.xl, paddingTop: space.md, backgroundColor: colors.ink900, borderTopWidth: 1, borderTopColor: colors.lineSoft },
   resultStats: { flexDirection: 'row', gap: space.sm },
