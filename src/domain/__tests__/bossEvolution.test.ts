@@ -6,6 +6,8 @@ import { emptyQuestionState } from '../learning/srs';
 import { battleAnswer, createInitialState, fullDelta, startBattle } from '../game/game';
 import { SqlGameRepository } from '../../data/repository/SqlGameRepository';
 import { openNodeDriver } from '../../data/testing/nodeDriver';
+import { normalizeState } from '../game/normalize';
+import { decodeSyncState, encodeSyncState, toSyncState, withSyncState } from '../../sync/snapshot';
 
 const boss = getBoss('golem-proporcional');
 const initial = () => createBattle(boss, 'seal-test', 1000, 0);
@@ -17,20 +19,25 @@ function hit(battle: BattleState, key: string, extra = {}) {
 }
 
 describe('Selos de Conhecimento', () => {
-  it('uma resposta real persiste o selo em SQLite e preserva o cálculo de XP', async () => {
+  it('uma questão nova mantém progresso e selos após sincronização e reabertura do SQLite', async () => {
     const state = createInitialState(1000);
     state.campaign['r1-m3'] = { nodeId: 'r1-m3', completedAt: 999, bestCorrect: 5, runs: 1, bestScore: 1000, bestStars: 3, lastScore: 1000 };
     const started = startBattle(state, boss.id, 'sqlite-seals', 1000).state;
-    const q = getQuestion(started.battle!.currentQuestionId!);
+    const q = getQuestion('VAG-001');
+    started.battle!.currentQuestionId = q.id;
     const result = battleAnswer(started, { attemptId: 'sqlite-answer', chosen: q.answer, hints: 0, guessed: false, timeMs: 20000 }, 2000);
     expect(knowledgeSeals(result.state.battle!)).toEqual([`${q.topic}:${q.subtopic}`]);
     expect(result.state.profile.xp).toBeGreaterThan(state.profile.xp);
+    const synced = withSyncState(result.state, decodeSyncState(encodeSyncState(toSyncState(result.state)), 2000));
+    expect(synced.questionStates[q.id]).toEqual(result.state.questionStates[q.id]);
+    expect(synced.battle).toEqual(result.state.battle);
     const driver = openNodeDriver();
     try {
       const repo = new SqlGameRepository(driver, () => 2000);
-      await repo.commit(result.state, fullDelta(result.state));
+      await repo.commit(synced, fullDelta(synced));
       const reloaded = await repo.load();
       expect(reloaded!.battle).toEqual(result.state.battle);
+      expect(reloaded!.questionStates[q.id]).toEqual(result.state.questionStates[q.id]);
       expect(reloaded!.profile.xp).toBe(result.state.profile.xp);
     } finally { driver.close(); }
   });
@@ -62,8 +69,9 @@ describe('Selos de Conhecimento', () => {
     expect(hit(saved, 'c').turn.convergence).toBe(true);
     const old = hit(initial(), 'a').battle;
     old.turns = old.turns.map(({ seal: _seal, convergence: _convergence, ...turn }) => turn);
-    expect(knowledgeSeals(old)).toEqual([]);
-    expect(hit(old, 'b').battle.status).toBe('active');
+    const restored = normalizeState({ ...createInitialState(1000), battle: old }, 2000).battle!;
+    expect(knowledgeSeals(restored)).toEqual([]);
+    expect(hit(restored, 'b').battle.status).toBe('active');
   });
 
   it('convergência pode vencer e não produz vida negativa', () => {

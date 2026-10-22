@@ -2,6 +2,14 @@
 
 Base: `aae38b1`, de 22/10/2026, incluindo autenticação Google e sincronização. Branch: `codex/questoes-chefes-2026-10-22`.
 
+## Compatibilidade com a versão atual
+
+Conferido novamente no GitHub em 22/10/2026: a branch `claude/questforge-google-auth-persistence-y2en2n` continua exatamente em `aae38b1aa56431f1080175c04cf611ec06a28461`. Ela contém os commits das outras duas branches remotas, sem commits exclusivos pendentes de integração. A versão do app é **0.3.0**, Android **versionCode 7**. Esta implementação parte desse commit; `package.json`, lockfile, configuração nativa, autenticação, motor de sincronização e migrações não foram alterados.
+
+A checagem adicional passou em **12 suítes / 156 testes**, cobrindo autenticação, sessão, migração, sincronização, persistência e combate. Uma questão nova (`VAG-001`) foi respondida pelo motor real, passou pelo formato de snapshot existente e foi gravada/reaberta em SQLite sem perder XP, progresso ou selo. Batalhas antigas sem os novos metadados também passam pela normalização e continuam jogáveis. O snapshot continua no schema 1; batalhas em andamento permanecem locais ao aparelho, conforme a regra existente.
+
+As exportações atuais passaram para web (QA) e Android (produção, QA desativado), incluindo bytecode Hermes de 7.602.956 bytes. A prévia atual foi recarregada e testada no navegador: resposta correta, dano, selo e próxima pergunta, sem avisos ou erros de console nessa execução. Isso confirma compatibilidade do código e dos dados com a base atual; instalação e uso dos serviços reais no Android ainda dependem da validação em aparelho.
+
 ## Conteúdo integrado
 
 O banco passou de **314 para 644 questões**, preservando os IDs e arquivos antigos. Foram adicionadas **20 questões para cada uma das nove missões (180)** e **50 extras próprios para cada um dos três chefes (150)**. Todos os itens novos têm cinco alternativas, duas dicas, explicação do conceito, resolução com contas e verificador numérico.
@@ -26,4 +34,4 @@ Comandos: `npm test -- --runInBand --cacheDirectory ../jest-cache`, `npm run typ
 
 O relatório JSON de Jest registra sucesso, mas o processo global permanece aberto com atividade assíncrona após terminar. Não foi usado `--forceExit`; execuções focadas encerraram normalmente. A prévia no navegador verificou as três batalhas reais, dano, combo, Convergência, mudança de fase, console e ausência de estouro horizontal em 320 px. `/vfx-lab?grid=bosses`, somente com `EXPO_PUBLIC_QA=1`, permite repetir a inspeção; a preparação de combate dessa tela é restrita ao preview web em memória.
 
-Limites: sem teste em aparelho físico, sem benchmark de FPS nativo, sem login Google/Firestore reais nem emuladores de regras. A exportação informa ausência do `google-services.json` local; a configuração de nuvem existente não foi alterada. A revisão adicional por Claude, autorizada somente para questões, **não foi executada**: a aprovação automática falhou por limite de uso, não por avaliação de insegurança. O pacote cego contém apenas enunciados e alternativas, sem código, gabaritos ou dados de conta.
+Limites: sem teste em aparelho físico, sem benchmark de FPS nativo, sem login Google/Firestore reais nem emuladores de regras. A exportação informa ausência do `google-services.json` local; a configuração de nuvem existente não foi alterada. A revisão adicional por Claude, autorizada somente para questões, **ainda não produziu parecer**: primeiro a aprovação automática falhou por limite de uso; após esse horário, a nova execução foi autorizada, mas o CLI falhou com sessão OAuth expirada e sem conseguir renová-la. É necessário renovar o login do Claude para retomar. O pacote cego contém apenas enunciados e alternativas, sem código, gabaritos ou dados de conta.

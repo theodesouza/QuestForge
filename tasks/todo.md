@@ -7,4 +7,5 @@
 - [x] Evoluir os três personagens e integrar arena e reações acessíveis.
 - [x] Executar suíte, lint, tipos, exportação e fluxo móvel no navegador.
 - [x] Revisão independente, documentação e entrega de código e evidências.
-- [ ] Revisão adicional por Claude, apenas questões, autorizada pelo usuário: execução bloqueada pelo limite de uso da aprovação automática; pacote cego preparado, sem código ou gabaritos.
+- [x] Reconfirmar a base atual no GitHub (app 0.3.0 / Android 7), testar sincronização e retomada com questão nova e exportar novamente para web e Android/Hermes.
+- [ ] Revisão adicional por Claude, apenas questões, autorizada pelo usuário: nova execução aprovada, mas a sessão OAuth do CLI expirou e não foi renovada; aguardando login. Pacote cego preparado, sem código ou gabaritos.
