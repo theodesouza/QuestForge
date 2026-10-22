@@ -1,0 +1,10 @@
+- [x] Conteúdo e auditoria do Vale: 60 questões de missões e 50 do Golem.
+- [x] Conteúdo e auditoria do Mercado: 60 questões de missões e 50 do Mercador; segundo gabarito cego 110/110 concordante.
+- [x] Conteúdo e auditoria das Planícies: 60 questões de missões e 50 da Quimera.
+- [x] Integrar lotes e testar contagens adicionais, unicidade, matemática e compatibilidade.
+- [x] Corrigir repetição após esgotamento de inéditas nos chefes com regressão.
+- [x] Implementar Selos/Convergência e testar retomada, dicas, chute e vitória.
+- [x] Evoluir os três personagens e integrar arena e reações acessíveis.
+- [x] Executar suíte, lint, tipos, exportação e fluxo móvel no navegador.
+- [x] Revisão independente, documentação e entrega de código e evidências.
+- [ ] Revisão adicional por Claude, apenas questões, autorizada pelo usuário: execução bloqueada pelo limite de uso da aprovação automática; pacote cego preparado, sem código ou gabaritos.
