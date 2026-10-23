@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { findLesson } from '../content/academy/catalog';
 import type { GameEvent, GameState, SessionSummary } from '../domain/game/types';
 import type { Reward } from '../domain/progression/rewards';
 
@@ -71,6 +72,14 @@ export function publish(state: GameState, events: GameEvent[]) {
     if (e.type === 'rested') patch.restedNotice = e.gained;
     if (e.type === 'questComplete') {
       toasts.push({ id: `t${celebrationSeq++}`, tone: 'quest', title: 'Encomenda cumprida', detail: `${e.title} · +${e.xp} XP · +${e.ink} Tinta` });
+    }
+    if (e.type === 'academy' && e.milestone === 'sealed' && e.lessonId) {
+      toasts.push({
+        id: `t${celebrationSeq++}`,
+        tone: 'bonus',
+        title: 'Selo de domínio conquistado!',
+        detail: `${findLesson(e.lessonId)?.title ?? 'Aula'}: todas as etapas dominadas · +${e.xp} XP · +${e.ink} Tinta`,
+      });
     }
     if (e.type === 'questBonus') {
       toasts.push({

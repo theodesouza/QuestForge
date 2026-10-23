@@ -8,6 +8,8 @@ import { findNode } from '../content/regions';
 import { getItem } from '../content/items';
 import type { AltKey, TopicId } from '../content/types';
 import { alternativeOrder, displayLetter } from '../domain/learning/alternatives';
+import { planStageDrill } from '../domain/academy/drill';
+import * as academy from '../domain/game/academy';
 import * as game from '../domain/game/game';
 import type { AnswerInput, OnboardingInput } from '../domain/game/game';
 import type { GameEvent, Result, Settings } from '../domain/game/types';
@@ -94,6 +96,36 @@ export async function startMission(nodeId: string): Promise<string> {
   );
   return id;
 }
+
+/** Treino dirigido: questões do Atlas ligadas a uma etapa da Academia (Ecos primeiro). */
+export async function startStageDrill(ref: string): Promise<string> {
+  const id = newId('aca');
+  await run((s, now) => {
+    const ids = planStageDrill(s.questionStates, ref, now, seed());
+    return game.startSession(s, { id, mode: 'expedition', nodeId: null, minutes: null, questionIds: ids }, now);
+  });
+  return id;
+}
+
+// ———————————————————————————————————————————— Academia
+
+export const academyView = (ref: string) => run((s, now) => academy.academyView(s, ref, now));
+export const academyLearnPos = (ref: string, pos: number) => run((s, now) => academy.academyLearn(s, { ref, pos }, now));
+export async function academyLearnDone(ref: string, id: string, correct?: boolean): Promise<GameEvent[]> {
+  const r = await run((s, now) => academy.academyLearn(s, { ref, done: { id, correct, answerId: newId('acl') } }, now));
+  return r.events;
+}
+export async function academyPractice(ref: string, exerciseId: string, correct: boolean, hints: number): Promise<GameEvent[]> {
+  const r = await run((s, now) => academy.academyPractice(s, { ref, exerciseId, correct, hints, answerId: newId('acp') }, now));
+  return r.events;
+}
+export const academyStartChallenge = (ref: string) =>
+  run((s, now) => academy.academyStartChallenge(s, { ref, runId: newId('acr'), seed: seed() }, now));
+export async function academyChallengeAnswer(ref: string, runId: string, exerciseId: string, correct: boolean): Promise<GameEvent[]> {
+  const r = await run((s, now) => academy.academyChallengeAnswer(s, { ref, runId, exerciseId, correct, answerId: newId('acc') }, now));
+  return r.events;
+}
+export const academyAbandonChallenge = (ref: string) => run((s) => academy.academyAbandonChallenge(s, ref));
 
 export async function answer(input: Omit<AnswerInput, 'attemptId'>): Promise<GameEvent[]> {
   const r = await run((s, now) => game.answerCurrent(s, { ...input, attemptId: newId('att') }, now));

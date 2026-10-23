@@ -12,15 +12,17 @@ import { getItem } from '../../content/items';
 import { subtopicLabel } from '../../content/topics';
 import { nextNode } from '../../domain/campaign/campaign';
 import { EXPEDITION_SIZES } from '../../domain/game/game';
+import { recommendStages } from '../../domain/academy/recommend';
 import { recommendFocus } from '../../domain/learning/recommend';
 import { dueQuestionIds } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { nextItemLevel } from '../../domain/progression/rewards';
+import { RecCard } from '../../features/academy/bits';
 import { DailyQuestCard } from '../../features/quests/DailyQuestCard';
 import { UpdateBanner } from '../../features/updates/UpdateBanner';
 import { useStagePaused } from '../../features/useStagePaused';
 import { useStarter } from '../../features/useStarter';
-import { dismissRestedNotice, refreshQuests, startEchoHunt, startExpedition, startFocus, startMission } from '../../state/actions';
+import { dismissRestedNotice, refreshQuests, startEchoHunt, startExpedition, startFocus, startMission, startStageDrill } from '../../state/actions';
 import { useGame, useGameStore } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
 import { Button } from '../../ui/Button';
@@ -70,6 +72,11 @@ export default function Camp() {
   const next = nextNode({ progress: campaign, bosses });
   const dueCount = useMemo(() => dueQuestionIds(questionStates, now).length, [questionStates, now]);
   const focus = useMemo(() => recommendFocus(QUESTIONS, questionStates), [questionStates]);
+  const academy = useGame((g) => g.academy);
+  const study = useMemo(
+    () => recommendStages({ questionStates, academy, campaign, bosses }, now, { limit: 1 })[0] ?? null,
+    [questionStates, academy, campaign, bosses, now],
+  );
   const enter = (i: number) => (reduce ? undefined : FadeInDown.delay(60 * i).duration(380));
 
   const resume = session
@@ -284,6 +291,29 @@ export default function Camp() {
             </Text>
           </Pressable>
         ) : null}
+      </Animated.View>
+
+      {/* Academia */}
+      <Animated.View entering={enter(5)} style={styles.section}>
+        <View style={styles.sectionHead}>
+          <Text variant="subheading">Academia</Text>
+          <Pressable onPress={() => router.push('/academy')} accessibilityRole="button" accessibilityLabel="Abrir a Academia" hitSlop={8}>
+            <Text variant="caption" color={colors.brass}>
+              todas as aulas
+            </Text>
+          </Pressable>
+        </View>
+        {study ? (
+          <RecCard rec={study} onTest={(ref) => start('drill', () => startStageDrill(ref))} />
+        ) : (
+          <Pressable onPress={() => router.push('/academy')} accessibilityRole="button" style={styles.tile}>
+            <Icon name="scroll" size={22} color={colors.verdigris} />
+            <Text variant="subheading">Aprenda no seu ritmo</Text>
+            <Text variant="caption" color={colors.mist}>
+              Aulas em etapas, da descoberta à maestria, com laboratórios e desafios.
+            </Text>
+          </Pressable>
+        )}
       </Animated.View>
     </Screen>
   );

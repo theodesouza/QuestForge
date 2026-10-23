@@ -9,6 +9,7 @@ import { TOPICS } from '../topics';
 import { parseNumeric } from '../validation/validate';
 import { COURSES, LESSONS, findStage, stageRef } from './catalog';
 import { instantiate } from './kit/build';
+import { DISTRACTOR_NOTES } from './distractors';
 import { QUESTION_STAGES } from './questionMap';
 import type { Course, Exercise, ExerciseDef, LabSpec, LabValues, Lesson, Option, SimSpec, StageBody, Viz } from './types';
 
@@ -403,4 +404,31 @@ export function academyReport(courses: Course[] = COURSES): AcademyReport {
     }
   }
   return r;
+}
+
+// ———————————————————————————————————————————————— notas das alternativas erradas do banco
+
+export function validateDistractorNotes(): AcademyIssue[] {
+  const issues: AcademyIssue[] = [];
+  for (const [id, notes] of Object.entries(DISTRACTOR_NOTES)) {
+    const q = QUESTIONS.find((x) => x.id === id);
+    if (!q) {
+      issues.push({ where: id, message: 'nota para questão inexistente' });
+      continue;
+    }
+    for (const [key, text] of Object.entries(notes)) {
+      if (!['A', 'B', 'C', 'D', 'E'].includes(key)) issues.push({ where: id, message: `letra inválida: ${key}` });
+      if (key === q.answer) issues.push({ where: id, message: `nota na alternativa correta (${key})` });
+      if (!textOk(text, MIN_FEEDBACK)) issues.push({ where: id, message: `nota curta demais (${key})` });
+      if (text && LETTER_REF.test(text)) issues.push({ where: id, message: `nota cita alternativa pela letra (${key})` });
+    }
+  }
+  return issues;
+}
+
+/** Quantas alternativas erradas do banco têm explicação do equívoco. */
+export function distractorCoverage(): { explained: number; wrongAlternatives: number } {
+  let explained = 0;
+  for (const q of QUESTIONS) for (const k of ['A', 'B', 'C', 'D', 'E'] as const) if (k !== q.answer && DISTRACTOR_NOTES[q.id]?.[k]) explained++;
+  return { explained, wrongAlternatives: QUESTIONS.length * 4 };
 }

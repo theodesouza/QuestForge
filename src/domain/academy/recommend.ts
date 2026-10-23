@@ -4,7 +4,9 @@
  * domínio vencidas, a aula em andamento e a preparação para o próximo marco da campanha.
  */
 import { findLesson, findStage, lessonsFor, stageRef, stagesForQuestion, STAGE_REFS } from '../../content/academy/catalog';
-import { getBoss } from '../../content/bosses';
+import { BOSSES, getBoss } from '../../content/bosses';
+import { REGIONS } from '../../content/regions';
+import type { Lesson } from '../../content/academy/types';
 import type { TopicId } from '../../content/types';
 import { getTopic } from '../../content/topics';
 import { nextNode, type BossProgress, type NodeProgress } from '../campaign/campaign';
@@ -212,4 +214,22 @@ export function bossPrepBonus(bossId: string, academy: Record<string, StageProgr
   const prep = preparationFor(boss.topics, boss.subtopics, academy);
   if (prep.stages === 0) return 0;
   return Math.round((PREP_BONUS_MAX * prep.mastered * 100) / prep.stages) / 100;
+}
+
+/** Missões e chefões do Atlas cujos assuntos a aula cobre. */
+export function preparesFor(lesson: Lesson): { label: string; kind: 'mission' | 'boss' }[] {
+  const out: { label: string; kind: 'mission' | 'boss' }[] = [];
+  for (const region of REGIONS) {
+    for (const node of region.nodes) {
+      if (node.kind === 'mission') {
+        if (node.topics.includes(lesson.topic) && node.subtopics.some((s) => lesson.subtopics.includes(s))) out.push({ label: node.title, kind: 'mission' });
+      } else {
+        const boss = BOSSES.find((b) => b.id === node.bossId);
+        if (boss && boss.topics.includes(lesson.topic) && (boss.subtopics.length === 0 || boss.subtopics.some((s) => lesson.subtopics.includes(s)))) {
+          out.push({ label: boss.name, kind: 'boss' });
+        }
+      }
+    }
+  }
+  return out;
 }

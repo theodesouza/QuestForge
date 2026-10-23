@@ -20,15 +20,18 @@ import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
+import { bossPrepBonus, preparationFor, recommendStages } from '../domain/academy/recommend';
 import { activeHeadIndex, headSpans, headsFelled, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import type { GameEvent } from '../domain/game/types';
+import { RecCard } from '../features/academy/bits';
 import { BossArt } from '../features/boss/BossArt';
 import { HeadsBar } from '../features/boss/HeadsBar';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { useAttempt } from '../features/question/useAttempt';
-import { battleAnswer, beginBattle, dismissBattle, retreat } from '../state/actions';
+import { useStarter } from '../features/useStarter';
+import { battleAnswer, beginBattle, dismissBattle, retreat, startStageDrill } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
 import { calm } from '../ui/calm';
@@ -59,6 +62,9 @@ function Intro({ boss }: { boss: BossDef }) {
   const status = useGame((g) => bossNodeStatus(g, boss.id));
   const [busy, setBusy] = useState(false);
   const knowledge = Math.min(30, (progress?.failedSinceWin ?? 0) * 10);
+  const academy = useGame((g) => g.academy);
+  const prep = preparationFor(boss.topics, boss.subtopics, academy);
+  const prepBonus = Math.round(bossPrepBonus(boss.id, academy) * 100);
 
   const fight = async () => {
     setBusy(true);
@@ -160,6 +166,27 @@ function Intro({ boss }: { boss: BossDef }) {
           </View>
         </View>
       </Panel>
+      {prep.stages > 0 ? (
+        <Panel accent={colors.verdigris} tone="sunken">
+          <View style={styles.rule}>
+            <Icon name="scroll" size={20} color={colors.verdigris} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text variant="subheading">Preparo na Academia</Text>
+              <Text variant="caption" color={colors.parchmentDim}>
+                {prep.mastered} de {prep.stages} etapas dominadas nas aulas deste chefão ({prep.studied} estudadas).{' '}
+                {prepBonus > 0 ? `Seu preparo rende +${prepBonus}% de dano nesta batalha.` : 'Cada etapa dominada aumenta o seu dano (até +15%).'}
+              </Text>
+            </View>
+          </View>
+          <Button
+            label="Estudar para esta batalha"
+            size="md"
+            variant="secondary"
+            icon="scroll"
+            onPress={() => router.push(boss.topics.length === 1 ? `/course?topic=${boss.topics[0]}` : '/academy')}
+          />
+        </Panel>
+      ) : null}
       {progress && (progress.wins > 0 || knowledge > 0) ? (
         <Text variant="caption" color={colors.mist} align="center">
           {progress.wins > 0 ? `Vitórias: ${progress.wins}${progress.flawless ? ' · já venceu sem erros' : ''}` : `Conhecimento do Inimigo: +${knowledge}% de dano`}
@@ -369,6 +396,18 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
   const items = events.filter((e): e is Extract<GameEvent, { type: 'item' }> => e.type === 'item' && e.source.startsWith('boss:'));
   const correct = battle.turns.filter((t) => t.correct).length;
   const [busy, setBusy] = useState(false);
+  const questionStates = useGame((g) => g.questionStates);
+  const academy = useGame((g) => g.academy);
+  const campaign = useGame((g) => g.campaign);
+  const bossesProgress = useGame((g) => g.bosses);
+  const now = useGameStore((s) => s.now);
+  const drill = useStarter();
+  const wrongIds = battle.turns.filter((t) => !t.correct).map((t) => t.questionId);
+  const reinforcement = wrongIds.length
+    ? recommendStages({ questionStates, academy, campaign, bosses: bossesProgress }, now, { wrongIds, where: 'nesta batalha', limit: 2 }).filter(
+        (r) => r.reason === 'erros-recentes',
+      )
+    : [];
 
   const leave = async () => {
     await dismissBattle();
@@ -448,6 +487,17 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
               </View>
             );
           })}
+        </View>
+      ) : null}
+
+      {reinforcement.length > 0 ? (
+        <View style={{ gap: space.sm }}>
+          <Text variant="label" color={colors.verdigris}>
+            {won ? 'Para fixar o que escapou' : 'Estude o que faltou na Academia'}
+          </Text>
+          {reinforcement.map((r) => (
+            <RecCard key={r.ref} rec={r} onTest={(ref) => drill.start('drill', () => startStageDrill(ref))} />
+          ))}
         </View>
       ) : null}
 

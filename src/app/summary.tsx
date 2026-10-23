@@ -10,11 +10,13 @@ import { QUESTIONS, getQuestion } from '../content/bank';
 import { findNode } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { nextNode } from '../domain/campaign/campaign';
+import { recommendStages } from '../domain/academy/recommend';
 import { recommendFocus } from '../domain/learning/recommend';
 import { inlineLabel } from '../domain/quests/quests';
 import { levelProgress } from '../domain/progression/levels';
+import { RecCard } from '../features/academy/bits';
 import { useStarter } from '../features/useStarter';
-import { startExpedition, startFocus, startMission } from '../state/actions';
+import { startExpedition, startFocus, startMission, startStageDrill } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
 import { calm } from '../ui/calm';
@@ -54,7 +56,20 @@ export default function Summary() {
   const campaign = useGame((g) => g.campaign);
   const bosses = useGame((g) => g.bosses);
   const { busy, start } = useStarter();
+  const academy = useGame((g) => g.academy);
+  const now = useGameStore((s) => s.now);
   const focus = useMemo(() => recommendFocus(QUESTIONS, questionStates), [questionStates]);
+  const reinforcement = useMemo(
+    () =>
+      summary && summary.echoes.length > 0
+        ? recommendStages({ questionStates, academy, campaign, bosses }, now, {
+            wrongIds: summary.echoes,
+            where: summary.mode === 'mission' ? 'nesta missão' : 'nesta expedição',
+            limit: 2,
+          }).filter((r) => r.reason === 'erros-recentes')
+        : [],
+    [summary, questionStates, academy, campaign, bosses, now],
+  );
 
   if (!summary) return <Redirect href="/camp" />;
 
@@ -243,7 +258,18 @@ export default function Summary() {
         </Animated.View>
       ) : null}
 
-      <Animated.View entering={enter(5)}>
+      {reinforcement.length > 0 ? (
+        <Animated.View entering={enter(5)} style={{ gap: space.sm }}>
+          <Text variant="label" color={colors.verdigris}>
+            {summary.mode === 'mission' && !summary.missionPassed ? 'Antes de tentar de novo: reforço na Academia' : 'Reforço na Academia'}
+          </Text>
+          {reinforcement.map((r) => (
+            <RecCard key={r.ref} rec={r} onTest={(ref) => start('drill', () => startStageDrill(ref), { replace: true })} />
+          ))}
+        </Animated.View>
+      ) : null}
+
+      <Animated.View entering={enter(6)}>
         <Text variant="label" color={colors.mist} style={{ marginBottom: space.xs }}>
           Próximo passo
         </Text>

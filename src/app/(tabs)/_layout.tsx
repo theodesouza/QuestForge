@@ -8,6 +8,7 @@ import { colors, radius, space } from '../../ui/theme';
 const TABS: Record<string, { label: string; icon: IconName }> = {
   camp: { label: 'Acampamento', icon: 'camp' },
   atlas: { label: 'Atlas', icon: 'atlas' },
+  academy: { label: 'Academia', icon: 'scroll' },
   hero: { label: 'Herói', icon: 'hero' },
 };
 
@@ -37,7 +38,7 @@ function TabBar({ state, navigation, insets }: BottomTabBarProps) {
               <View style={[styles.iconWrap, focused && styles.iconActive]}>
                 <Icon name={meta.icon} size={22} color={focused ? colors.ink900 : colors.mist} fill={focused ? colors.ink900 : 'none'} />
               </View>
-              <Text variant="caption" color={focused ? colors.brass : colors.mist} style={styles.label}>
+              <Text variant="caption" color={focused ? colors.brass : colors.mist} style={styles.label} numberOfLines={1} adjustsFontSizeToFit>
                 {meta.label}
               </Text>
             </Pressable>
@@ -56,6 +57,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="camp" />
       <Tabs.Screen name="atlas" />
+      <Tabs.Screen name="academy" />
       <Tabs.Screen name="hero" />
     </Tabs>
   );
