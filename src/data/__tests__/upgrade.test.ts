@@ -105,6 +105,38 @@ describe.each(['v0.1.0-sessao', 'v0.1.0-batalha'])('atualização a partir de %s
   });
 });
 
+describe('atualização para a Academia (banco na versão 3)', () => {
+  it('cria as tabelas da Academia sem mexer no progresso existente', async () => {
+    const driver = openNodeDriver(':memory:');
+    await migrate(driver, MIGRATIONS.slice(0, 3));
+    expect(await currentVersion(driver)).toBe(3);
+    await driver.exec(`INSERT INTO profile (id, data, updated_at) VALUES (1, '${JSON.stringify({ name: 'Lia', onboarded: true, xp: 900 })}', 1)`);
+    await driver.run('INSERT INTO campaign_progress (node_id, completed_at, best_correct, runs, best_score, best_stars, last_score) VALUES (?, ?, ?, ?, ?, ?, ?)', ['r1-m1', 1000, 5, 3, 920, 3, 920]);
+    const repo = new SqlGameRepository(driver, () => LATER);
+    const loaded = (await repo.load())!;
+    expect(await currentVersion(driver)).toBe(LATEST_VERSION);
+    expect(loaded.profile.xp).toBe(900);
+    expect(loaded.campaign['r1-m1']).toMatchObject({ bestScore: 920, bestStars: 3 });
+    expect(loaded.academy).toEqual({});
+    // Progresso gravado por uma versão sem campos novos é completado com padrões.
+    await driver.run('INSERT INTO academy_progress (stage_ref, data, updated_at) VALUES (?, ?, ?)', [
+      'fracoes/partes-do-todo',
+      JSON.stringify({ ref: 'fracoes/partes-do-todo', viewedAt: 5, studiedAt: 6, checks: ['x'] }),
+      7,
+    ]);
+    const again = (await new SqlGameRepository(driver, () => LATER).load())!;
+    expect(again.academy['fracoes/partes-do-todo']).toMatchObject({
+      viewedAt: 5,
+      studiedAt: 6,
+      checks: ['x'],
+      masteredAt: null,
+      practice: { answered: 0, correct: 0, unaided: 0, helped: 0, seen: [] },
+      challenge: { runs: 0, run: null },
+    });
+    driver.close();
+  });
+});
+
 describe('atualização a partir da v0.2.0 (banco na versão 2)', () => {
   it('acrescenta a pontuação das missões sem mexer no progresso', async () => {
     const driver = openNodeDriver(':memory:');

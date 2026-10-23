@@ -8,6 +8,7 @@ import {
   fullDelta,
   startSession,
 } from '../../domain/game/game';
+import { academyChallengeAnswer, academyLearn, academyPractice, academyStartChallenge } from '../../domain/game/academy';
 import { emptyDelta } from '../../domain/game/tx';
 import type { GameState } from '../../domain/game/types';
 import { GameController } from '../../state/controller';
@@ -77,6 +78,28 @@ describe.each(factories)('repositório (%s)', (_name, make) => {
     }
     expect(state.profile.equipped.frame).toBe('frame-bronze');
     expect(await repo.recentAttempts(10)).toHaveLength(3);
+    close?.();
+  });
+
+  it('grava e recarrega o progresso da Academia (etapa vista, prática e desafio em andamento)', async () => {
+    const { repo, close } = make();
+    let state = onboarded();
+    await repo.commit(state, fullDelta(state));
+    const ref = 'fracoes/partes-do-todo';
+    const steps = [
+      (s: GameState) => academyLearn(s, { ref, pos: 3 }, T0 + 1),
+      (s: GameState) => academyPractice(s, { ref, exerciseId: 'fracoes.partes-do-todo.p1', correct: true, hints: 1, answerId: 'ac1' }, T0 + 2),
+      (s: GameState) => academyStartChallenge(s, { ref, runId: 'run', seed: 5 }, T0 + 3),
+      (s: GameState) =>
+        academyChallengeAnswer(s, { ref, runId: 'run', exerciseId: s.academy[ref].challenge.run!.items[0].exerciseId, correct: true, answerId: 'ac2' }, T0 + 4),
+    ];
+    for (const step of steps) {
+      const r = step(state);
+      await repo.commit(r.state, r.delta);
+      state = r.state;
+      expect(await repo.load()).toEqual(state);
+    }
+    expect(state.academy[ref].challenge.run!.answers).toHaveLength(1);
     close?.();
   });
 
@@ -158,6 +181,23 @@ describe('SQLite', () => {
     const loaded = await repo.load();
     expect(loaded!.profile).toMatchObject({ name: 'Antigo', xp: 120, settings: { haptics: true } });
     expect(loaded!.profile.equipped.frame).toBe('frame-cobre');
+    driver.close();
+  });
+
+  it('respostas da Academia ficam num registro imutável, sem duplicar', async () => {
+    const driver = openNodeDriver();
+    const repo = new SqlGameRepository(driver, () => T0);
+    const state = onboarded();
+    await repo.commit(state, fullDelta(state));
+    const r = academyPractice(state, { ref: 'fracoes/partes-do-todo', exerciseId: 'fracoes.partes-do-todo.p1', correct: false, hints: 0, answerId: 'dup' }, T0);
+    await repo.commit(r.state, r.delta);
+    await repo.commit(r.state, r.delta);
+    expect(await driver.all('SELECT id, stage_ref, mode, correct FROM academy_answers')).toEqual([
+      { id: 'dup', stage_ref: 'fracoes/partes-do-todo', mode: 'practice', correct: 0 },
+    ]);
+    await repo.reset();
+    expect(await driver.all('SELECT * FROM academy_answers')).toEqual([]);
+    expect(await driver.all('SELECT * FROM academy_progress')).toEqual([]);
     driver.close();
   });
 

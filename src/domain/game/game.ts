@@ -17,6 +17,7 @@ import {
   isFlawless,
   type BattleState,
 } from '../boss/battle';
+import { bossPrepBonus } from '../academy/recommend';
 import { nodeStatus, type BossProgress } from '../campaign/campaign';
 import { STAR_REWARDS, missionScore, missionStars, type ScoredAnswer } from '../campaign/score';
 import { planMissionRun, unseenCount } from '../learning/missionPlan';
@@ -86,6 +87,7 @@ export function createInitialState(now: number): GameState {
     session: null,
     battle: null,
     quests: { daily: null, weekly: null },
+    academy: {},
   };
 }
 
@@ -102,6 +104,8 @@ export function fullDelta(state: GameState): Result['delta'] {
     session: true,
     battle: true,
     quests: true,
+    academy: Object.keys(state.academy),
+    academyAnswers: [],
   };
 }
 
@@ -664,7 +668,7 @@ export function startBattle(state: GameState, bossId: string, battleId: string, 
     bestTurns: prev?.bestTurns ?? null,
   };
   tx.setBossProgress(progress);
-  const battle = createBattle(boss, battleId, now, progress.failedSinceWin);
+  const battle = createBattle(boss, battleId, now, progress.failedSinceWin, bossPrepBonus(boss.id, state.academy));
   battle.currentQuestionId = pickBossQuestion(state, boss, battle, now);
   tx.setBattle(battle);
   return tx.done();

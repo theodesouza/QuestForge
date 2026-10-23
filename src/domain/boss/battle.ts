@@ -38,6 +38,8 @@ export interface BattleState {
   maxCombo: number;
   /** +10% de dano por tentativa anterior sem vitória (até +30%). */
   knowledgeBonus: number;
+  /** Preparo na Academia: etapas dominadas das aulas do chefão (até +15%). Ausente em batalhas antigas. */
+  prepBonus?: number;
   currentQuestionId: string | null;
   usedQuestionIds: string[];
   turns: BattleTurn[];
@@ -53,6 +55,7 @@ export function createBattle(
   id: string,
   now: number,
   previousFailedAttempts: number,
+  prepBonus = 0,
 ): BattleState {
   return {
     id,
@@ -66,6 +69,7 @@ export function createBattle(
     combo: 0,
     maxCombo: 0,
     knowledgeBonus: Math.min(KNOWLEDGE_CAP, Math.max(0, previousFailedAttempts) * KNOWLEDGE_PER_ATTEMPT),
+    prepBonus: Math.max(0, prepBonus),
     currentQuestionId: null,
     usedQuestionIds: [],
     turns: [],
@@ -92,7 +96,7 @@ export function computeDamage(boss: BossDef, battle: BattleState, input: DamageI
   dmg *= comboMultiplier(comboAfter);
   dmg *= hintMultiplier(input.hints);
   if (input.guessed) dmg *= GUESS_MULT;
-  dmg *= 1 + battle.knowledgeBonus;
+  dmg *= 1 + battle.knowledgeBonus + (battle.prepBonus ?? 0);
   const technique = comboAfter % boss.technique.every === 0;
   const total = Math.round(dmg) + (technique ? boss.technique.bonus : 0);
   return { damage: total, technique, armored };

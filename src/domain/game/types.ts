@@ -1,4 +1,5 @@
 import type { ItemSlot } from '../../content/items';
+import type { StageProgress } from '../academy/progress';
 import type { AltKey, TopicId } from '../../content/types';
 import type { BattleState } from '../boss/battle';
 import type { BossProgress, NodeProgress } from '../campaign/campaign';
@@ -7,7 +8,7 @@ import type { QuestPeriod, QuestsState } from '../quests/quests';
 import type { Reward } from '../progression/rewards';
 import type { XpKind } from '../progression/xp';
 
-export type XpSource = XpKind | 'session' | 'mission' | 'boss' | 'quest';
+export type XpSource = XpKind | 'session' | 'mission' | 'boss' | 'quest' | 'academy';
 
 export type Goal = 'enem' | 'reforco' | 'curiosidade';
 export type SelfLevel = 'iniciante' | 'intermediario' | 'avancado';
@@ -115,6 +116,19 @@ export interface GameState {
   session: ActiveSession | null;
   battle: BattleState | null;
   quests: QuestsState;
+  /** Progresso na Academia, por etapa (`aula/etapa`). */
+  academy: Record<string, StageProgress>;
+}
+
+/** Resposta registrada na Academia (log imutável, como `attempts`). */
+export interface AcademyAnswer {
+  id: string;
+  ref: string;
+  exerciseId: string;
+  mode: 'check' | 'practice' | 'challenge';
+  correct: boolean;
+  hints: number;
+  createdAt: number;
 }
 
 /** O que precisa ser gravado após uma operação (chaves "sujas" + tentativas novas). */
@@ -129,6 +143,8 @@ export interface Delta {
   session: boolean;
   battle: boolean;
   quests: boolean;
+  academy: string[];
+  academyAnswers: AcademyAnswer[];
 }
 
 export interface SessionSummary {
@@ -191,7 +207,16 @@ export type GameEvent =
   | { type: 'sessionComplete'; summary: SessionSummary }
   | { type: 'questComplete'; period: QuestPeriod; questId: string; title: string; xp: number; ink: number }
   | { type: 'questBonus'; period: QuestPeriod; xp: number; ink: number; itemId: string | null }
-  | { type: 'purchase'; itemId: string; price: number };
+  | { type: 'purchase'; itemId: string; price: number }
+  | {
+      type: 'academy';
+      ref: string;
+      milestone: 'studied' | 'practiced' | 'mastered' | 'reviewed' | 'sealed';
+      xp: number;
+      ink: number;
+      /** Selo: a aula inteira dominada. */
+      lessonId?: string;
+    };
 
 export interface Result {
   state: GameState;

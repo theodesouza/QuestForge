@@ -3,10 +3,12 @@
  * alterado e marca a chave como "suja" no Delta, que o repositório grava numa
  * única transação.
  */
+import type { StageProgress } from '../academy/progress';
 import type { BattleState } from '../boss/battle';
 import type { BossProgress, NodeProgress } from '../campaign/campaign';
 import type { QuestionState } from '../learning/srs';
 import type {
+  AcademyAnswer,
   ActiveSession,
   Attempt,
   Delta,
@@ -29,6 +31,8 @@ export function emptyDelta(): Delta {
     session: false,
     battle: false,
     quests: false,
+    academy: [],
+    academyAnswers: [],
   };
 }
 
@@ -100,6 +104,15 @@ export class Tx {
   setQuests(q: GameState['quests']) {
     this.state.quests = q;
     this.delta.quests = true;
+  }
+
+  setStageProgress(p: StageProgress) {
+    this.state.academy = { ...this.state.academy, [p.ref]: p };
+    addUnique(this.delta.academy, p.ref);
+  }
+
+  addAcademyAnswer(a: AcademyAnswer) {
+    this.delta.academyAnswers.push(a);
   }
 
   emit(e: GameEvent) {

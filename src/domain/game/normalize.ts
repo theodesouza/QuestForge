@@ -4,6 +4,7 @@
  * Nunca remove nem altera dados existentes.
  */
 import { findNode } from '../../content/regions';
+import { emptyStageProgress, type StageProgress } from '../academy/progress';
 import type { BattleState } from '../boss/battle';
 import type { NodeProgress } from '../campaign/campaign';
 import type { QuestsState } from '../quests/quests';
@@ -63,6 +64,29 @@ function normalizeQuests(q: Partial<QuestsState> | null | undefined): QuestsStat
   return { daily: board(q?.daily), weekly: board(q?.weekly) };
 }
 
+/** Progresso da Academia: campos ausentes recebem padrão; o que existe é mantido. */
+export function normalizeStageProgress(raw: Loose<StageProgress> & { ref: string }): StageProgress {
+  const base = emptyStageProgress(raw.ref);
+  return {
+    ...base,
+    ...(Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined && v !== null)) as Partial<StageProgress>),
+    viewedAt: raw.viewedAt ?? null,
+    studiedAt: raw.studiedAt ?? null,
+    masteredAt: raw.masteredAt ?? null,
+    dueAt: raw.dueAt ?? null,
+    lastAt: raw.lastAt ?? null,
+    checks: raw.checks ?? [],
+    practice: { ...base.practice, ...(raw.practice ?? {}) },
+    challenge: { ...base.challenge, ...(raw.challenge ?? {}), run: raw.challenge?.run ?? null },
+  };
+}
+
+function normalizeAcademy(raw: Record<string, Loose<StageProgress>> | null | undefined): GameState['academy'] {
+  return Object.fromEntries(
+    Object.entries(raw ?? {}).map(([ref, p]) => [ref, normalizeStageProgress({ ...p, ref: p.ref ?? ref })]),
+  );
+}
+
 export function normalizeState(raw: Loose<GameState>, now: number): GameState {
   return {
     profile: normalizeProfile(raw.profile, now),
@@ -76,5 +100,6 @@ export function normalizeState(raw: Loose<GameState>, now: number): GameState {
     session: raw.session ?? null,
     battle: normalizeBattle(raw.battle),
     quests: normalizeQuests(raw.quests),
+    academy: normalizeAcademy(raw.academy as Record<string, Loose<StageProgress>> | null | undefined),
   };
 }

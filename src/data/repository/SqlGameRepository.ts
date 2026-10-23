@@ -1,7 +1,8 @@
 import type { BattleState } from '../../domain/boss/battle';
 import type { BossProgress, NodeProgress } from '../../domain/campaign/campaign';
 import type { QuestionState } from '../../domain/learning/srs';
-import type { ActiveSession, Attempt, Delta, GameState } from '../../domain/game/types';
+import type { StageProgress } from '../../domain/academy/progress';
+import type { AcademyAnswer, ActiveSession, Attempt, Delta, GameState } from '../../domain/game/types';
 import { migrate } from '../migrations';
 import type { SqlDriver, SqlExecutor, SqlValue } from '../sql/driver';
 import { normalizeState } from '../../domain/game/normalize';
@@ -146,6 +147,11 @@ export class SqlGameRepository implements GameRepository {
     const sessionRow = runs.find((r) => r.kind === 'session');
     const battleRow = runs.find((r) => r.kind === 'battle');
     const boards = await this.db.all<{ period: string; data: string }>('SELECT period, data FROM quest_board');
+    const academy: Record<string, StageProgress> = {};
+    for (const r of await this.db.all<{ stage_ref: string; data: string }>('SELECT stage_ref, data FROM academy_progress')) {
+      const p = safeParse<StageProgress>(r.data);
+      if (p) academy[r.stage_ref] = { ...p, ref: r.stage_ref };
+    }
     const board = (period: string) => {
       const row = boards.find((b) => b.period === period);
       return row ? safeParse<QuestBoard>(row.data) : null;
@@ -162,6 +168,7 @@ export class SqlGameRepository implements GameRepository {
         session: sessionRow ? safeParse<ActiveSession>(sessionRow.data) : null,
         battle: battleRow ? safeParse<BattleState>(battleRow.data) : null,
         quests: { daily: board('daily'), weekly: board('weekly') },
+        academy,
       },
       now,
     );
@@ -205,6 +212,13 @@ export class SqlGameRepository implements GameRepository {
       }
       if (delta.session) await writeRun(tx, 'session', state.session, now);
       if (delta.battle) await writeRun(tx, 'battle', state.battle, now);
+      for (const ref of delta.academy ?? []) {
+        const p = state.academy[ref];
+        if (p) {
+          await tx.run('INSERT OR REPLACE INTO academy_progress (stage_ref, data, updated_at) VALUES (?, ?, ?)', [ref, JSON.stringify(p), now]);
+        }
+      }
+      for (const a of delta.academyAnswers ?? []) await insertAcademyAnswer(tx, a);
       if (delta.quests) {
         for (const period of ['daily', 'weekly'] as const) {
           const b = state.quests[period];
@@ -235,6 +249,8 @@ export class SqlGameRepository implements GameRepository {
         'boss_progress',
         'active_run',
         'quest_board',
+        'academy_progress',
+        'academy_answers',
       ]) {
         await tx.exec(`DELETE FROM ${table}`);
       }
@@ -293,6 +309,15 @@ async function insertAttempt(tx: SqlExecutor, a: Attempt) {
     `INSERT OR IGNORE INTO attempts (id, question_id, session_id, mode, chosen, correct, guessed, hints, time_ms, xp, kind, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [a.id, a.questionId, a.sessionId, a.mode, a.chosen, b(a.correct), b(a.guessed), a.hints, a.timeMs, a.xp, a.kind, a.createdAt],
+  );
+}
+
+async function insertAcademyAnswer(tx: SqlExecutor, a: AcademyAnswer) {
+  // Log imutável: repetir o id (toque duplo, nova tentativa de gravação) não duplica a resposta.
+  await tx.run(
+    `INSERT OR IGNORE INTO academy_answers (id, stage_ref, exercise_id, mode, correct, hints, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [a.id, a.ref, a.exerciseId, a.mode, b(a.correct), a.hints, a.createdAt],
   );
 }
 

@@ -105,6 +105,27 @@ export const MIGRATIONS: Migration[] = [
       ALTER TABLE campaign_progress ADD COLUMN last_score INTEGER;
     `,
   },
+  {
+    version: 4,
+    description: 'Academia: progresso por etapa e registro das respostas de aulas',
+    sql: `
+      CREATE TABLE academy_progress (
+        stage_ref TEXT PRIMARY KEY,
+        data TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE TABLE academy_answers (
+        id TEXT PRIMARY KEY,
+        stage_ref TEXT NOT NULL,
+        exercise_id TEXT NOT NULL,
+        mode TEXT NOT NULL,
+        correct INTEGER NOT NULL,
+        hints INTEGER NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX idx_academy_answers_stage ON academy_answers (stage_ref);
+    `,
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;
