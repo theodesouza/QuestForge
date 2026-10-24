@@ -4,6 +4,18 @@
  * O teste de cobertura exige que toda questão do banco esteja aqui.
  */
 export const QUESTION_STAGES: Record<string, string[]> = {
+  // ——— Matemática básica: operações
+  'BAS-116': ['operacoes/reta-numerica'],
+  'BAS-110': ['operacoes/reta-numerica'],
+  'BAS-122': ['operacoes/reta-numerica'],
+  'BAS-118': ['operacoes/reta-numerica', 'operacoes/maestria'],
+  'BAS-107': ['operacoes/ordem'],
+  'BAS-115': ['operacoes/ordem'],
+  'BAS-112': ['operacoes/ordem', 'operacoes/decimais'],
+  'BAS-104': ['operacoes/decimais', 'operacoes/dia-a-dia'],
+  'BAS-121': ['operacoes/decimais'],
+  'BAS-005': ['operacoes/dia-a-dia'],
+  'BAS-120': ['operacoes/dia-a-dia', 'operacoes/decimais'],
   // ——— Matemática básica: frações
   'BAS-001': ['fracoes/partes-do-todo'],
   'BAS-101': ['fracoes/partes-do-todo'],

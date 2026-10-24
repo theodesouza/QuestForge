@@ -212,9 +212,29 @@ export function validateLab(lab: LabSpec, where: string): AcademyIssue[] {
   if (lab.goal) {
     const initial = Object.fromEntries(lab.params.map((p) => [p.key, p.value]));
     if (lab.goal.done(initial)) add('a missão do laboratório já começa cumprida');
+    if (!reachable) reachable = goalReachable(lab);
     if (!reachable) add('a missão do laboratório não é alcançável com os controles');
   }
   return issues;
+}
+
+/** Busca completa (todas as posições dos controles) quando o espaço é pequeno o bastante. */
+function goalReachable(lab: LabSpec): boolean {
+  const axes = lab.params.map((prm) => {
+    const n = Math.max(0, Math.round((prm.max - prm.min) / prm.step));
+    return Array.from({ length: n + 1 }, (_, k) => Math.round((prm.min + k * prm.step) * 1e9) / 1e9);
+  });
+  if (axes.reduce((total, a) => total * a.length, 1) > 400_000) return false;
+  const values: LabValues = {};
+  const walk = (i: number): boolean => {
+    if (i === axes.length) return !!lab.goal?.done(values);
+    for (const v of axes[i]) {
+      values[lab.params[i].key] = v;
+      if (walk(i + 1)) return true;
+    }
+    return false;
+  };
+  return walk(0);
 }
 
 export function validateSim(sim: SimSpec, where: string): AcademyIssue[] {
