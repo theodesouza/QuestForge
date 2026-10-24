@@ -1,4 +1,198 @@
 /** Notas das alternativas erradas — Porcentagem. */
 import type { DistractorNotes } from '../distractors';
 
-export const NOTES_PORCENTAGEM: DistractorNotes = {};
+export const NOTES_PORCENTAGEM: DistractorNotes = {
+  // ——— Porcentagem básica
+  'PCT-001': {
+    A: 'R$ 20,00 é o valor do DESCONTO (25% de 80). O cliente paga 80 − 20 = R$ 60,00.',
+    C: 'R$ 55,00 = 80 − 25 tira 25 reais, mas o desconto é de 25 POR CENTO: 25% de 80 = R$ 20,00.',
+    D: 'R$ 65,00 não corresponde a 25% de desconto: 80 × 0,75 = R$ 60,00.',
+    E: 'R$ 100,00 = 80 × 1,25 aplica um ACRÉSCIMO de 25%. Com desconto: 80 × 0,75 = R$ 60,00.',
+  },
+  'PCT-002': {
+    A: '25 é 10% de 250. Para 30%: 3 × 25 = 75.',
+    B: '30 é a porcentagem, não a quantidade. 30% de 250 = 0,3 × 250 = 75 estudantes.',
+    C: '83 ≈ 250 ÷ 3 trata 30% como um terço. 30% = 0,3: 0,3 × 250 = 75.',
+    E: '175 é o número de estudantes que NÃO vão de ônibus (70%). Os de ônibus são 75.',
+  },
+  'PCT-014': {
+    B: '18 é o número de acertos, não o percentual. 18 ÷ 24 = 0,75 = 75%.',
+    C: '24 é o número de questões. O percentual de acertos é 18 ÷ 24 = 75%.',
+    D: '66% corresponderia a cerca de 16 acertos. Com 18: 18 ÷ 24 = 75%.',
+    E: '80% corresponderia a 19,2 acertos em 24. Com 18: 75%.',
+  },
+  'PCT-101': {
+    A: 'R$ 1.710,00 tem um zero a menos: 6% de 285.000 = 0,06 × 285.000 = R$ 17.100,00.',
+    C: 'R$ 2.850,00 é 1% do valor. A comissão é de 6%: 6 × 2.850 = R$ 17.100,00.',
+    D: 'R$ 47.500,00 = 285.000 ÷ 6 divide pelo número 6. Calcular 6% é multiplicar por 0,06: R$ 17.100,00.',
+    E: 'R$ 267.900,00 é o que sobra depois da comissão (94%). A comissão é R$ 17.100,00.',
+  },
+  'PCT-102': {
+    A: 'R$ 68,00 é só a tarifa de esgoto (80% de 85). O total soma a água: 85 + 68 = R$ 153,00.',
+    B: 'R$ 165,00 soma 80 reais à conta, mas o esgoto é 80 POR CENTO da água: 0,8 × 85 = R$ 68,00. Total: R$ 153,00.',
+    C: 'R$ 91,80 = 85 × 1,08 usa 8%, e não 80%. Com 80%: 85 × 1,8 = R$ 153,00.',
+    D: 'R$ 106,25 = 85 ÷ 0,8 trata a água como 80% do total. O esgoto é que é 80% da água: 85 + 68 = R$ 153,00.',
+  },
+  'PCT-110': {
+    A: 'R$ 21,20 tem um zero a menos: 8% de 2.650 = 0,08 × 2.650 = R$ 212,00.',
+    B: 'R$ 2.438,00 é 92% do salário, como se os 8% fossem descontados. O depósito do FGTS é de 8%: R$ 212,00.',
+    D: 'R$ 331,25 = 2.650 ÷ 8 divide por 8. Calcular 8% é multiplicar por 0,08: R$ 212,00.',
+    E: 'R$ 2.120,00 tem um zero a mais: 0,08 × 2.650 = R$ 212,00.',
+  },
+  'VAM-041': {
+    B: '35 vagas são 10% de 350. Para 12%: 35 + 7 = 42.',
+    C: '38 vagas não são 12% de 350: 0,12 × 350 = 42.',
+    D: '48 vagas seriam 12% de 400. De 350: 42 vagas.',
+    E: '120 não é 12% de 350: 0,12 × 350 = 42 vagas.',
+  },
+  'VAM-042': {
+    A: '28% corresponderia a 280 páginas de 1.000. São 800 páginas: 280 ÷ 800 = 35%.',
+    C: '40% corresponderia a 320 páginas. Com 280: 35%.',
+    D: '52% não é a razão entre o revisado e o total: 280 ÷ 800 = 35%.',
+    E: '65% é a parte que AINDA NÃO foi revisada. Revisado: 35%.',
+  },
+  'PCT-006': {
+    A: '12 é a porcentagem, não o volume. 12% de 1.500 mL = 180 mL.',
+    B: '18 mL tem um zero a menos: 1,5 L = 1.500 mL, e 12% de 1.500 = 180 mL.',
+    C: '120 mL seria 12% de 1 L. A garrafa tem 1,5 L: 12% de 1.500 mL = 180 mL.',
+    D: '1.320 mL é o volume que NÃO é polpa (88%). Polpa: 180 mL.',
+  },
+  'PCT-103': {
+    B: '25 g é a quantidade de FIBRAS que dá 100% do valor diário (6 g ÷ 0,24), não de cereal. O cereal: 30 ÷ 0,24 = 125 g.',
+    C: '120 g = 30 × 4 dariam 96% do valor diário (4 × 24%). Para 100%: 30 ÷ 0,24 = 125 g.',
+    D: '7,2 = 30 × 0,24 calcula 24% de 30. Aqui os 30 g é que correspondem a 24%: 30 ÷ 0,24 = 125 g.',
+    E: '150 g dariam 120% do valor diário. Para 100%: 125 g.',
+  },
+  'VAM-044': {
+    A: 'R$ 2.880,00 = 40% de 7.200. Os 40% que faltam são da META (12.000): R$ 4.800,00.',
+    B: 'R$ 4.320,00 = 60% de 7.200. Os 7.200 já são 60% da meta: meta = 12.000, e faltam R$ 4.800,00.',
+    C: 'R$ 12.000,00 é a meta inteira. Já foram arrecadados 7.200: faltam R$ 4.800,00.',
+    E: 'R$ 5.200,00 não corresponde aos 40% que faltam: a meta é 7.200 ÷ 0,6 = 12.000, e faltam R$ 4.800,00.',
+  },
+  'VAM-047': {
+    A: '25 é 10% de 250. Fazem teatro e música 30% dos 100 do teatro: 30 pessoas.',
+    C: '70 soma as porcentagens (40% + 30%). Os 30% valem sobre os 100 do teatro: 30 pessoas.',
+    D: '75 = 30% de 250 aplica os 30% a todos os participantes. Eles valem só para os 100 do teatro: 30 pessoas.',
+    E: '100 é o número de pessoas do TEATRO (40% de 250). Dessas, 30% fazem música: 30.',
+  },
+  'VAM-050': {
+    A: '80 kg é a parte que NÃO pode ser reciclada (12,5% de 640). Recicláveis: 640 − 80 = 560 kg.',
+    B: '480 kg seriam 75% do lote. Com 12,5% de rejeito, sobram 87,5%: 560 kg.',
+    C: '520 kg não correspondem a 87,5% de 640: 0,875 × 640 = 560 kg.',
+    D: '600 kg descontam só 40 kg. 12,5% de 640 = 80 kg: recicláveis = 560 kg.',
+  },
+  'VAM-057': {
+    A: '80 pessoas seriam 16% de 500. A noite ficou com 100% − 42% − 38% = 20%: 100 pessoas.',
+    C: '120 pessoas seriam 24% de 500. A noite tem 20%: 100 pessoas.',
+    D: '190 é o número de pessoas que preferiram a TARDE (38%). A noite tem 20%: 100.',
+    E: '210 é o número de pessoas que preferiram a MANHÃ (42%). A noite tem 20%: 100.',
+  },
+  'VAG-026': {
+    B: '420 é a energia CONSUMIDA pelo ataque (35% de 1.200). Restam 1.200 − 420 = 780.',
+    C: '840 seriam 70% da capacidade. Depois de perder 35%, restam 65%: 780 unidades.',
+    D: '900 seriam 75% da capacidade. Restam 65%: 780.',
+    E: '1.165 = 1.200 − 35 tira 35 unidades, mas são 35 POR CENTO: 420 unidades.',
+  },
+  'VAG-027': {
+    A: '1.260 é o que SOBROU depois da liberação. Antes havia 240 ÷ 0,16 = 1.500 setas.',
+    C: '1.600 = 16 × 100 confunde a porcentagem com a quantidade. Se 240 são 16%, o total é 240 ÷ 0,16 = 1.500.',
+    D: '1.740 soma a liberação ao estoque. O estoque anterior já incluía as 240: 1.500 setas.',
+    E: '3.840 = 240 × 16 multiplica pela porcentagem. 240 são 16% do estoque: divida, 240 ÷ 0,16 = 1.500.',
+  },
+  'VAG-037': {
+    A: '30% = 60 ÷ 200 usa o PREÇO de venda como base. O lucro sobre o custo é 60 ÷ 140 ≈ 42,86%.',
+    C: '40% de 140 seriam R$ 56,00 de lucro; o lucro foi R$ 60,00: 60 ÷ 140 ≈ 42,86%.',
+    D: '60 é o lucro em REAIS, não em porcentagem. Sobre o custo: 60 ÷ 140 ≈ 42,86%.',
+    E: '70% = 140 ÷ 200 é a parte do preço que cobre o custo. O lucro sobre o custo é 60 ÷ 140 ≈ 42,86%.',
+  },
+  'VAG-038': {
+    A: '12% de 180 seriam R$ 21,60. A taxa (R$ 30,00) sobre o total pago (R$ 180,00) é 16,67%.',
+    B: '20% é a taxa sobre o valor da ENCOMENDA (150). Sobre o total pago: 30 ÷ 180 ≈ 16,67%.',
+    D: '25% de 180 seriam R$ 45,00. A taxa de R$ 30,00 é 16,67% do total.',
+    E: '30 é a taxa em REAIS. Em porcentagem do total pago: 30 ÷ 180 ≈ 16,67%.',
+  },
+  'VAG-040': {
+    A: '30% de 50 seriam 15 experientes; são 10 + 10 = 20 de 50: 40%.',
+    B: '35% não corresponde ao novo grupo: 20 experientes de 50 integrantes = 40%.',
+    C: '50% = 20 ÷ 40 usa o total antigo. Agora são 50 integrantes: 20 ÷ 50 = 40%.',
+    D: '60% não corresponde ao novo grupo: 20 experientes de 50 = 40%.',
+  },
+  'VAG-043': {
+    A: '20% de 200 seriam R$ 40,00. O desconto foi de R$ 60,00 (60% de 100): 60 ÷ 200 = 30%.',
+    B: '40% não corresponde ao desconto: R$ 60,00 em R$ 200,00 = 30%.',
+    D: '50% seria pagar só R$ 100,00 pelo par. Paga-se R$ 140,00: desconto de 30%.',
+    E: '60% vale só para o SEGUNDO capacete. Sobre o par: 60 ÷ 200 = 30%.',
+  },
+  'VAG-046': {
+    B: '89 votos dão só 61,4% de 145. O mínimo é 0,62 × 145 = 89,9 → 90 votos (arredonde para cima).',
+    C: '91 votos aprovam, mas não são o MENOR número: 90 já passam de 62% (62,07%).',
+    D: '92 votos aprovam, mas não são o menor número: 90 já bastam.',
+    E: '100 votos sobram: o mínimo é 0,62 × 145 = 89,9 → 90.',
+  },
+  'PCT-009': {
+    A: 'R$ 144,50 = 170 × 0,85 aplica o desconto de novo sobre o preço já reduzido. Para voltar: 170 ÷ 0,85 = R$ 200,00.',
+    B: 'R$ 185,50 não desfaz o desconto: 170 é 85% do preço original, e 170 ÷ 0,85 = R$ 200,00.',
+    C: 'R$ 195,50 = 170 × 1,15 soma 15% ao preço com desconto. Os 15% eram sobre o preço ORIGINAL: 170 ÷ 0,85 = R$ 200,00.',
+    E: 'R$ 215,00 com 15% de desconto daria R$ 182,75, e não R$ 170,00. O original é 170 ÷ 0,85 = R$ 200,00.',
+  },
+  'PCT-012': {
+    A: '12% não corresponde ao álcool da mistura: 60 + 30 = 90 mL em 500 mL = 18%.',
+    B: '15% de 500 seriam 75 mL; há 60 + 30 = 90 mL de álcool: 18%.',
+    C: '20% é a média simples de 30% e 10%, mas os volumes são diferentes: (60 + 30) ÷ 500 = 18%.',
+    D: '40% soma as porcentagens (30% + 10%). Calcule o álcool: 60 + 30 = 90 mL em 500 mL = 18%.',
+  },
+  'VAM-053': {
+    A: 'Com 20 peças a mais, o lote teria 170, e as 30 reprovadas seriam 17,6%. Para 15%: total = 30 ÷ 0,15 = 200, e acrescentam-se 50.',
+    B: 'Com 30 a mais, o total seria 180, e as reprovadas, 16,7%. São necessárias 50.',
+    D: 'Com 60 a mais, o total seria 210, e as reprovadas, 14,3% — abaixo dos 15%.',
+    E: 'Com 75 a mais, as reprovadas seriam 30 de 225 = 13,3%.',
+  },
+  'VAG-030': {
+    A: '40% de 300 seriam 120 aprovados; foram 60 + 80 = 140: 46,67%.',
+    B: '50% seriam 150 aprovados; foram 140 de 300: 46,67%.',
+    C: '55% é a média simples de 30% e 80%, mas os grupos têm tamanhos diferentes: (60 + 80) ÷ 300 ≈ 46,67%.',
+    D: '70% não corresponde aos aprovados: 140 de 300 ≈ 46,67%.',
+  },
+  'VAG-041': {
+    B: '20% subtrai 20 pontos do percentual. Calcule o corante: 120 − 40 = 80 mL em 300 mL ≈ 26,67%.',
+    C: '30% não corresponde ao corante que sobra: 80 mL em 300 mL ≈ 26,67%.',
+    D: '33,33% = 80 ÷ 240 esquece de somar os 100 mL de água ao volume. O frasco volta a ter 300 mL: 80 ÷ 300 ≈ 26,67%.',
+    E: '40% era o percentual inicial. A água acrescentada dilui a mistura: 80 ÷ 300 ≈ 26,67%.',
+  },
+  'VAG-042': {
+    A: '40 mL = 20% de 200 aplica a diferença de percentuais (50% − 30%) ao volume antigo, mas o volume cresce junto: 60 + x = 0,5 × (200 + x) → x = 80 mL.',
+    C: 'Com 60 mL a mais, o pigmento seria 120 mL de 260 mL ≈ 46%. Para 50%: 80 mL.',
+    D: '100 mL = 50% de 200 ignora que já há 60 mL de pigmento. Com 80 mL: 140 de 280 = 50%.',
+    E: '140 mL é a quantidade de BASE. O pigmento deve igualá-la: 60 + 80 = 140, então acrescentam-se 80 mL.',
+  },
+  'VAG-047': {
+    A: '15% = 30 ÷ 200 usa o total antigo. O lote ficou com 190 cristais: 30 ÷ 190 ≈ 15,79%.',
+    C: '18% não corresponde ao lote restante: 30 danificados em 190 ≈ 15,79%.',
+    D: '10% subtrai 10 do percentual. Calcule: 30 danificados em 190 ≈ 15,79%.',
+    E: '21,05% = 40 ÷ 190 esquece de tirar os 10 danificados do numerador: 30 ÷ 190 ≈ 15,79%.',
+  },
+  'PCT-104': {
+    A: '156 kg tira 35 pontos percentuais da massa. A parte seca (12 kg) é que se mantém: no produto ela é 40%, então 12 ÷ 0,4 = 30 kg.',
+    B: '18 kg não mantém a parte seca em 40% da massa: 12 kg ÷ 0,4 = 30 kg.',
+    D: '144 kg = 60% de 240 aplica o novo percentual ao lote inicial. A massa seca (12 kg) é que fica fixa: 30 kg.',
+    E: '12 kg é só a parte seca. No produto, ela é 40% da massa: 12 ÷ 0,4 = 30 kg.',
+  },
+  'PCT-111': {
+    A: '66.000 = 55% de todos os eleitores aptos. Os 55% são dos votos VÁLIDOS: 0,55 × 91.200 = 50.160.',
+    B: '52.800 = 55% de quem compareceu, mas os brancos e nulos (5%) saem antes: 0,55 × 91.200 = 50.160.',
+    C: '49.500 tira 25% de uma vez (20% + 5%), mas os 5% valem sobre quem compareceu: 120.000 × 0,8 × 0,95 × 0,55 = 50.160.',
+    D: '62.700 desconta só os brancos e nulos, esquecendo a abstenção. Votos válidos: 91.200; o eleito teve 50.160.',
+  },
+  'VAM-059': {
+    A: '6,40 kg = 8% de 80 é a água que restaria no lote inicial, não a retirada. Massa seca: 64 kg = 92% do final → 69,57 kg; retiram-se 10,43 kg.',
+    B: '8 kg não mantêm a massa seca em 92% do produto: final = 64 ÷ 0,92 ≈ 69,57 kg, e saem 10,43 kg.',
+    C: '9,60 kg = 12% de 80 subtrai os pontos percentuais (20% − 8%) do lote inicial. O total também diminui: saem 10,43 kg.',
+    E: '16 kg é TODA a água inicial. O produto ainda tem 8% de água: saem 10,43 kg.',
+  },
+  'VAG-050': {
+    A: '120 é o número de inscrições REJEITADAS (40% de 300). O total é 18 ÷ 0,06 = 300.',
+    B: '180 seria o total se as 18 fossem 10% dele. Elas são 0,6 × 0,25 × 0,4 = 6% do total: 300.',
+    C: '240 inscrições dariam 14,4 aprovadas por recurso. Para 18: 18 ÷ 0,06 = 300.',
+    D: '450 trata as 18 como 4% do total. Elas são 0,6 × 0,25 × 0,4 = 6%: 300 inscrições.',
+  },
+};
