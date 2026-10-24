@@ -105,7 +105,7 @@ describe.each(['v0.1.0-sessao', 'v0.1.0-batalha'])('atualização a partir de %s
   });
 });
 
-describe('atualização para a Academia (banco na versão 3)', () => {
+describe('atualização para a Academia (bancos nas versões 3 e 4)', () => {
   it('cria as tabelas da Academia sem mexer no progresso existente', async () => {
     const driver = openNodeDriver(':memory:');
     await migrate(driver, MIGRATIONS.slice(0, 3));
@@ -133,6 +133,22 @@ describe('atualização para a Academia (banco na versão 3)', () => {
       practice: { answered: 0, correct: 0, unaided: 0, helped: 0, seen: [] },
       challenge: { runs: 0, run: null },
     });
+    driver.close();
+  });
+
+  it('banco na versão 4 (sincronização já publicada): ganha a Academia sem tocar nos metadados da nuvem', async () => {
+    const driver = openNodeDriver(':memory:');
+    await migrate(driver, MIGRATIONS.slice(0, 4));
+    expect(await currentVersion(driver)).toBe(4);
+    await driver.exec(`INSERT INTO profile (id, data, updated_at) VALUES (1, '${JSON.stringify({ name: 'Lia', onboarded: true, xp: 900 })}', 1)`);
+    await driver.run('INSERT INTO sync_kv (key, value) VALUES (?, ?)', ['meta', '{"v":1,"uid":"uid-lia"}']);
+    const repo = new SqlGameRepository(driver, () => LATER);
+    const loaded = (await repo.load())!;
+    expect(await currentVersion(driver)).toBe(LATEST_VERSION);
+    expect(LATEST_VERSION).toBe(5);
+    expect(loaded.profile.xp).toBe(900);
+    expect(loaded.academy).toEqual({});
+    expect(await repo.getKv('meta')).toBe('{"v":1,"uid":"uid-lia"}');
     driver.close();
   });
 });

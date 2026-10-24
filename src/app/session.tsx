@@ -11,15 +11,17 @@ import { findNode } from '../content/regions';
 import { currentQuestionId } from '../domain/game/game';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
+import { ScaffoldLesson } from '../features/question/ScaffoldLesson';
 import { useAttempt } from '../features/question/useAttempt';
 import { RouteTrail } from '../features/session/RouteTrail';
-import { abandon, answer, finish, skip } from '../state/actions';
+import { abandon, acknowledgeScaffold, answer, finish, skip } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
 import { useReduceMotion } from '../ui/feedback';
 import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
 import { MapBackdrop } from '../ui/MapBackdrop';
 import { Text } from '../ui/Text';
+import { Button } from '../ui/Button';
 import { colors, space } from '../ui/theme';
 
 export default function SessionScreen() {
@@ -30,14 +32,19 @@ export default function SessionScreen() {
   const [pinnedId, setShownId] = useState<string | null>(current);
   const shownId = pinnedId ?? current;
   const [leaving, setLeaving] = useState(false);
-  const attempt = useAttempt(shownId);
+  const [readingBusy, setReadingBusy] = useState(false);
+  const [readingError, setReadingError] = useState<string | null>(null);
+  const lesson = session?.scaffoldLesson?.practiceQuestionId === shownId ? session.scaffoldLesson : null;
+  const example = lesson ? findQuestion(lesson.exampleQuestionId) : undefined;
+  const showingLesson = !!lesson && !!example;
+  const attempt = useAttempt(showingLesson ? null : shownId);
   const scroll = useRef<ScrollView>(null);
   const feedbackOffset = useRef(0);
   const reduce = useReduceMotion();
 
   useEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
-  }, [shownId]);
+  }, [shownId, showingLesson]);
 
   if (!session) return leaving ? null : <Redirect href="/camp" />;
 
@@ -63,6 +70,19 @@ export default function SessionScreen() {
     const next = s ? currentQuestionId(s) : null;
     if (next) setShownId(next);
     else wrapUp();
+  };
+
+  const onLessonRead = async () => {
+    if (!lesson || readingBusy) return;
+    setReadingBusy(true);
+    setReadingError(null);
+    try {
+      await acknowledgeScaffold(lesson.practiceQuestionId);
+    } catch {
+      setReadingError('Não foi possível salvar. Tente novamente; seu reforço continua aqui.');
+    } finally {
+      setReadingBusy(false);
+    }
   };
 
   const onSkip = async () => {
@@ -114,7 +134,7 @@ export default function SessionScreen() {
       </View>
 
       <ScrollView ref={scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {question ? (
+        {question && showingLesson && example ? <ScaffoldLesson example={example} practice={question} /> : question ? (
           <QuestionBody
             question={question}
             attempt={attempt}
@@ -126,13 +146,18 @@ export default function SessionScreen() {
 
       {question ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
-          <AnswerBar
+          {showingLesson ? (
+            <>
+              {readingError ? <Text variant="caption" color={colors.ember} accessibilityLiveRegion="polite">{readingError}</Text> : null}
+              <Button label="Agora vou tentar" onPress={onLessonRead} loading={readingBusy} iconRight="chevronRight" />
+            </>
+          ) : <AnswerBar
             attempt={attempt}
             onConfirm={() => attempt.submit(answer)}
             onContinue={onContinue}
             onSkip={onSkip}
-            continueLabel={latestSession() && currentQuestionId(latestSession()!) ? 'Próxima questão' : 'Concluir expedição'}
-          />
+            continueLabel={session.scaffoldLesson && findQuestion(session.scaffoldLesson.exampleQuestionId) ? 'Ver exemplo resolvido' : latestSession() && currentQuestionId(latestSession()!) ? 'Próxima questão' : 'Concluir expedição'}
+          />}
         </View>
       ) : null}
     </View>

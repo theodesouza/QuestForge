@@ -22,6 +22,9 @@ export interface BattleTurn {
   healed?: number;
   /** Cabeças que caíram neste turno (Quimera). Ausente nos demais chefões. */
   headsFelled?: number;
+  /** Subassunto dominado sem dicas/chute; opcional para saves antigos. */
+  seal?: string;
+  convergence?: boolean;
 }
 
 export interface BattleState {
@@ -49,6 +52,17 @@ export interface BattleState {
 
 export const KNOWLEDGE_PER_ATTEMPT = 0.1;
 export const KNOWLEDGE_CAP = 0.3;
+export const CONVERGENCE_BONUS = 18;
+
+/** Os turnos já são persistidos: retomar não precisa de estado paralelo ou migração. */
+export function knowledgeSeals(battle: BattleState): string[] {
+  const seals = new Set<string>();
+  for (const turn of battle.turns) {
+    if (turn.seal) seals.add(turn.seal);
+    if (turn.convergence) seals.clear();
+  }
+  return [...seals];
+}
 
 export function createBattle(
   boss: BossDef,
@@ -113,6 +127,7 @@ export interface BattleAnswer {
   correct: boolean;
   guessed: boolean;
   hints: number;
+  knowledgeKey?: string;
 }
 
 export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: BattleAnswer) {
@@ -130,13 +145,19 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
   let turn: BattleTurn;
 
   if (answer.correct) {
-    const { damage, technique } = computeDamage(boss, battle, answer);
+    const base = computeDamage(boss, battle, answer);
+    const seals = knowledgeSeals(battle);
+    const seal = !answer.guessed && answer.hints === 0 && answer.knowledgeKey && !seals.includes(answer.knowledgeKey)
+      ? answer.knowledgeKey : undefined;
+    const convergence = !!seal && seals.length === 2;
+    const damage = base.damage + (convergence ? CONVERGENCE_BONUS : 0);
+    const technique = base.technique;
     next.hp = Math.max(0, battle.hp - damage);
     next.combo = battle.combo + 1;
     next.maxCombo = Math.max(battle.maxCombo, next.combo);
     const armorBroke = !battle.armorBroken && next.hp <= boss.maxHp * boss.trait.breaksAtHpRatio;
     if (armorBroke) next.armorBroken = true;
-    turn = { ...pick(answer), damage, technique, armorBroke, healed: 0 };
+    turn = { ...pick(answer), damage, technique, armorBroke, healed: 0, seal, convergence };
     if (boss.trait.kind === 'heads') turn.headsFelled = headsFelled(boss, next.hp) - headsFelled(boss, battle.hp);
     if (next.hp === 0) next.status = 'won';
   } else {

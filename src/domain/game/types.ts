@@ -94,6 +94,14 @@ export interface ActiveSession {
   skippedOnce: string[];
   /** Questões inseridas pelo andaime adaptativo. */
   scaffoldIds: string[];
+  /** Exemplos de leitura ficam fora dos reforços avaliados posteriores da mesma sessão. */
+  scaffoldExampleIds?: string[];
+  /** Opcional para compatibilidade com sessões antigas; leitura não conta como tentativa. */
+  scaffoldLesson?: {
+    sourceQuestionId: string;
+    practiceQuestionId: string;
+    exampleQuestionId: string;
+  } | null;
   xp: number;
   ink: number;
   restedBonus: number;

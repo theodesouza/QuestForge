@@ -10,10 +10,23 @@
       "android": {
         "buildType": "apk"
       },
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_LEGACY_MIGRATION": "0"
+      }
     },
     "production": {
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_LEGACY_MIGRATION": "0"
+      }
+    },
+    "legacy-migration": {
+      "extends": "preview",
+      "channel": "legacy-migration",
+      "env": {
+        "EXPO_PUBLIC_LEGACY_MIGRATION": "1"
+      }
     }
   }
 }

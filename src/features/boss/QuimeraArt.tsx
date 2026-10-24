@@ -4,8 +4,10 @@
  * e perde a cor; a legenda embaixo mostra as frações que ainda restam.
  */
 import { memo } from 'react';
-import Svg, { Circle, Defs, Ellipse, G, Line, Path, Polygon, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
+import type { SharedValue } from 'react-native-reanimated';
+import Svg, { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polygon, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { colors, fonts } from '../../ui/theme';
+import { BossJoint } from './BossJoint';
 
 interface Props {
   size?: number;
@@ -14,6 +16,8 @@ interface Props {
   defeated?: boolean;
   /** Cabeças que já caíram (0–3). */
   headsFelled?: number;
+  attacking?: boolean;
+  pulse?: SharedValue<number>;
 }
 
 const MANE = Array.from({ length: 14 }, (_, i) => {
@@ -25,7 +29,7 @@ const MANE = Array.from({ length: 14 }, (_, i) => {
   return `${p(50, 0)} ${p(33, 13)} ${p(33, -13)}`;
 });
 
-export const QuimeraArt = memo(function QuimeraArt({ size = 220, defeated = false, headsFelled = 0 }: Props) {
+export const QuimeraArt = memo(function QuimeraArt({ size = 220, defeated = false, headsFelled = 0, attacking = false, pulse }: Props) {
   const fell = defeated ? 3 : headsFelled;
   const lionDown = fell >= 1;
   const goatDown = fell >= 2;
@@ -44,6 +48,12 @@ export const QuimeraArt = memo(function QuimeraArt({ size = 220, defeated = fals
   return (
     <Svg width={size} height={size} viewBox="0 0 240 240">
       <Defs>
+        <LinearGradient id="quiWing" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={lionDown ? '#648F86' : '#617A88'} /><Stop offset="1" stopColor="#162C37" />
+        </LinearGradient>
+        <LinearGradient id="quiArmor" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#B9BD90" /><Stop offset="0.5" stopColor="#758268" /><Stop offset="1" stopColor="#304840" />
+        </LinearGradient>
         <RadialGradient id="quiGlow" cx="50%" cy="45%" r="50%">
           <Stop offset="0" stopColor={defeated ? colors.ink600 : '#5FD38D'} stopOpacity={0.24} />
           <Stop offset="1" stopColor={colors.ink900} stopOpacity={0} />
@@ -51,6 +61,13 @@ export const QuimeraArt = memo(function QuimeraArt({ size = 220, defeated = fals
       </Defs>
       <Circle cx={120} cy={110} r={112} fill="url(#quiGlow)" />
       <Path d="M24 214 Q120 200 216 214" stroke={colors.line} strokeWidth={2} fill="none" />
+
+      {/* Asas recortadas e membranas: a silhueta se abre quando o leão cai. */}
+      <G stroke={lionDown && !defeated ? colors.verdigris : '#7B9891'} strokeWidth={1.5} strokeLinejoin="round" fill="url(#quiWing)" opacity={defeated ? 0.35 : 1}>
+        <Path d={lionDown ? 'M85 157 Q43 113 10 28 L6 97 L24 86 L20 130 L44 119 L52 164 Z' : 'M85 157 Q51 120 18 49 L14 111 L31 101 L30 144 L49 135 L57 170 Z'} />
+        <Path d={lionDown ? 'M155 157 Q197 113 230 28 L234 97 L216 86 L220 130 L196 119 L188 164 Z' : 'M155 157 Q189 120 222 49 L226 111 L209 101 L210 144 L191 135 L183 170 Z'} />
+        <Path d="M24 66 L61 146 M36 109 L68 153 M216 66 L179 146 M204 109 L172 153" fill="none" opacity={0.7} />
+      </G>
 
       {/* serpente (cauda) — atrás do corpo */}
       <G fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -86,10 +103,18 @@ export const QuimeraArt = memo(function QuimeraArt({ size = 220, defeated = fals
         <Ellipse cx={160} cy={211} rx={21} ry={7} fill={bodyLight} />
       </G>
       <Path d="M70 196 Q120 178 170 196" stroke={bodyLight} strokeWidth={2} fill="none" strokeLinecap="round" />
+      <G fill="url(#quiArmor)" stroke="#1A302D" strokeWidth={1.4}>
+        <Path d="M76 153 L96 149 L105 163 L89 176 L72 169 Z M144 149 L164 153 L168 169 L151 176 L135 163 Z" />
+        <Path d="M104 157 L120 165 L136 157 L133 183 L120 198 L107 183 Z" />
+      </G>
+      <Path d="M111 176 L120 181 L129 176 M114 184 L120 188 L126 184" fill="none" stroke={defeated ? colors.ink500 : '#A4E3BC'} strokeWidth={1.5} />
+      <G fill={defeated ? '#647266' : '#E0D5AC'} stroke="#243E31" strokeWidth={1}>
+        {[66, 78, 90, 146, 158, 170].map(x => <Path key={x} d={`M${x} 208 l4 10 l-9 -2 Z`} />)}
+      </G>
 
       {/* cabra */}
       <Polygon points="140,148 160,98 190,106 176,156" fill={dead(goatDown, '#9AA3C7', '#4A5070')} stroke={colors.ink900} strokeWidth={2} strokeLinejoin="round" />
-      <G transform={goatDown ? 'translate(8 38) rotate(32 180 82)' : undefined}>
+      <BossJoint pulse={goatDown ? undefined : pulse} degrees={-4} x={180} y={96}><G transform={goatDown ? 'translate(8 38) rotate(32 180 82)' : undefined}>
         <Path d="M172 66 Q158 40 178 30 Q172 44 182 52" stroke={dead(goatDown, '#F4ECDC', '#5A6285')} strokeWidth={4.5} strokeLinecap="round" fill="none" />
         <Path d="M190 64 Q208 42 194 28 Q196 44 186 54" stroke={dead(goatDown, '#F4ECDC', '#5A6285')} strokeWidth={4.5} strokeLinecap="round" fill="none" />
         <Ellipse cx={180} cy={80} rx={15} ry={20} fill={dead(goatDown, '#DDE3F5', '#6A7295')} stroke={colors.ink900} strokeWidth={2} transform="rotate(18 180 80)" />
@@ -103,17 +128,20 @@ export const QuimeraArt = memo(function QuimeraArt({ size = 220, defeated = fals
             <Line x1={176} y1={73.4} x2={176} y2={78.6} stroke={colors.ink900} strokeWidth={1.6} />
           </>
         )}
-      </G>
+      </G></BossJoint>
 
       {/* leão */}
-      <G transform={lionDown ? 'translate(0 26) rotate(-12 120 118)' : undefined}>
+      <BossJoint pulse={lionDown ? undefined : pulse} degrees={2.5} x={120} y={148}><G transform={lionDown ? 'translate(0 26) rotate(-12 120 118)' : attacking ? 'translate(0 -4) scale(1.03 1)' : undefined}>
         {MANE.map((pts, i) => (
           <Polygon key={i} points={pts} fill={dead(lionDown, i % 2 ? '#F2B54A' : '#E39A2E', i % 2 ? '#6B5B3E' : '#5A4B32')} stroke={colors.ink900} strokeWidth={1.4} strokeLinejoin="round" />
         ))}
         <Circle cx={120} cy={118} r={31} fill={dead(lionDown, '#EAB45E', '#85704B')} stroke={colors.ink900} strokeWidth={2} />
+        <Path d="M95 100 L100 85 L110 94 M130 94 L140 85 L145 100" fill="#F7DA9E" stroke={colors.ink900} strokeWidth={1.5} />
+        <Path d="M103 101 L110 97 L116 104 M124 104 L130 97 L137 101" fill="none" stroke="#A3682D" strokeWidth={2} />
         <Ellipse cx={120} cy={129} rx={15} ry={11} fill={dead(lionDown, '#F7DA9E', '#9A8560')} />
         <Polygon points="114,121 126,121 120,128" fill={dead(lionDown, '#7A3B2E', '#4A3A30')} />
         <Path d="M120 128 L120 134 M120 134 Q112 140 106 135 M120 134 Q128 140 134 135" stroke={colors.ink900} strokeWidth={1.8} strokeLinecap="round" fill="none" />
+        {attacking && !lionDown ? <Path d="M107 134 Q120 155 133 134 Q120 141 107 134 Z" fill="#421E28" stroke={colors.ink900} strokeWidth={1.2} /> : null}
         {lionDown ? (
           <>
             {eyeX(108, 110)}
@@ -129,7 +157,7 @@ export const QuimeraArt = memo(function QuimeraArt({ size = 220, defeated = fals
             <Polygon points="124,136 127,136 125.5,142" fill="#FFFFFF" />
           </>
         )}
-      </G>
+      </G></BossJoint>
 
       {/* legenda: as frações que ainda restam */}
       {[

@@ -1,0 +1,12 @@
+- [x] Conteúdo e auditoria do Vale: 60 questões de missões e 50 do Golem.
+- [x] Conteúdo e auditoria do Mercado: 60 questões de missões e 50 do Mercador; segundo gabarito cego 110/110 concordante.
+- [x] Conteúdo e auditoria das Planícies: 60 questões de missões e 50 da Quimera.
+- [x] Integrar lotes e testar contagens adicionais, unicidade, matemática e compatibilidade.
+- [x] Corrigir repetição após esgotamento de inéditas nos chefes com regressão.
+- [x] Implementar Selos/Convergência e testar retomada, dicas, chute e vitória.
+- [x] Evoluir os três personagens e integrar arena e reações acessíveis.
+- [x] Executar suíte, lint, tipos, exportação e fluxo móvel no navegador.
+- [x] Revisão independente, documentação e entrega de código e evidências.
+- [x] Reconfirmar a base atual no GitHub (app 0.3.0 / Android 7), testar sincronização e retomada com questão nova e exportar novamente para web e Android/Hermes.
+- [x] Enviar e integrar os commits no GitHub; publicar Android 0.3.0 em preview e production; conferir manifestos e SHA-256 dos bundles baixados.
+- [x] Revisão adicional por Claude Sonnet 5.5, apenas questões: três lotes de 110, 330 respostas comparadas e zero divergências; três observações editoriais reconciliadas sem necessidade de alterar conteúdo.

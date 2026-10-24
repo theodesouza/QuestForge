@@ -18,5 +18,6 @@ export async function openExpoDriver(name = 'questforge.db'): Promise<SqlDriver>
   return {
     ...wrap(db),
     transaction: (fn) => db.withExclusiveTransactionAsync((txn) => fn(wrap(txn))),
+    close: () => db.closeAsync(),
   };
 }

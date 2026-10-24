@@ -107,6 +107,16 @@ export const MIGRATIONS: Migration[] = [
   },
   {
     version: 4,
+    description: 'Sincronização em nuvem: metadados duráveis (base, pendências, cursor de tentativas)',
+    sql: `
+      CREATE TABLE sync_kv (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    `,
+  },
+  {
+    version: 5,
     description: 'Academia: progresso por etapa e registro das respostas de aulas',
     sql: `
       CREATE TABLE academy_progress (

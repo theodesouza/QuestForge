@@ -18,6 +18,7 @@ import { unequip } from '../../state/actions';
 import { useGame } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
 import { Chip } from '../../ui/Chip';
+import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Icon } from '../../ui/Icon';
 import { ItemGlyph } from '../../ui/ItemGlyph';
@@ -132,6 +133,8 @@ export default function Hero() {
         <Stat label="de estudo" value={formatTime(timeMs)} />
         <Stat label="Ecos ativos" value={String(echoes)} />
       </View>
+
+      <Button label="Ver minha evolução" icon="book" variant="secondary" onPress={() => router.push('/progress')} />
 
       <Panel accent={colors.verdigris}>
         <View style={styles.sealsHead}>

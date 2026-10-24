@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { QUESTIONS } from '../content/bank';
 import { bankReport } from '../content/validation/validate';
+import { AccountPanel } from '../features/auth/AccountPanel';
 import { PendingUpdateButton } from '../features/updates/UpdateBanner';
 import { checkAndFetch, updatesEnabled, versionInfo } from '../features/updates/updates';
 import type { EffectsLevel, ReduceMotionPref } from '../domain/game/types';
@@ -38,7 +39,7 @@ export default function Settings() {
   const info = versionInfo();
 
   const confirmReset = () =>
-    Alert.alert('Apagar todo o progresso?', 'Nível, itens, histórico e revisões serão apagados deste aparelho. Isso não pode ser desfeito.', [
+    Alert.alert('Apagar todo o progresso?', 'Nível, itens, histórico e revisões serão apagados deste aparelho e da nuvem (em todos os aparelhos desta conta). Isso não pode ser desfeito.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Apagar tudo',
@@ -134,7 +135,7 @@ export default function Settings() {
         </Text>
         <Text variant="caption" color={colors.mist}>
           {updatesEnabled
-            ? 'As versões novas chegam sozinhas pela internet e seu progresso continua salvo no aparelho.'
+            ? 'As versões novas chegam sozinhas pela internet e seu progresso continua salvo.'
             : 'Atualizações automáticas ficam ativas no app instalado no celular.'}
         </Text>
         {updatesEnabled ? (
@@ -182,12 +183,14 @@ export default function Settings() {
         </Text>
       </Panel>
 
+      <AccountPanel />
+
       <Panel accent={colors.ember}>
         <Text variant="label" color={colors.ember}>
           Seus dados
         </Text>
         <Text variant="body" style={styles.gap}>
-          Todo o progresso fica salvo apenas neste aparelho. Sem conta, sem anúncios, sem rastreamento.
+          O progresso fica neste aparelho e é sincronizado com a sua conta Google. Sem anúncios, sem rastreamento.
         </Text>
         <Button label="Apagar todo o progresso" variant="danger" size="md" onPress={confirmReset} style={styles.gap} />
       </Panel>

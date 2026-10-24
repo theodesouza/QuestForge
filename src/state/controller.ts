@@ -18,11 +18,14 @@ export interface ControllerDeps {
   /** Fuso do aparelho em minutos (Date#getTimezoneOffset). */
   tzOffset?: () => number;
   onState: (state: GameState, events: GameEvent[]) => void;
+  /** Chamado depois de cada gravação de progresso feita pelo jogo (agenda a sincronização). */
+  onChange?: () => void;
 }
 
 export class GameController {
   private state: GameState | null = null;
   private queue: Promise<unknown> = Promise.resolve();
+  private closed = false;
   private readonly clock: () => number;
   private readonly tzOffset: () => number;
 
@@ -47,7 +50,8 @@ export class GameController {
       const touched = touch(state, now, this.tzOffset());
       await this.deps.repo.commit(touched.state, touched.delta);
       this.state = touched.state;
-      this.deps.onState(touched.state, touched.events);
+      this.publish(touched.state, touched.events);
+      this.changed();
       return touched.events;
     });
   }
@@ -58,9 +62,40 @@ export class GameController {
       const result = reducer(this.state, this.clock());
       await this.deps.repo.commit(result.state, result.delta);
       this.state = result.state;
-      this.deps.onState(result.state, result.events);
+      this.publish(result.state, result.events);
+      this.changed();
       return result;
     });
+  }
+
+  /**
+   * Executa `job` na mesma fila das ações do jogo: nenhuma resposta é gravada enquanto ele roda.
+   * A sincronização usa isto para ler o estado e aplicar o resultado sem corridas.
+   */
+  exclusive<T>(job: () => Promise<T>): Promise<T> {
+    return this.enqueue(job);
+  }
+
+  /** Publica um estado que o chamador JÁ gravou (dentro de `exclusive`). Não agenda sincronização. */
+  adopt(state: GameState): void {
+    this.state = state;
+    this.publish(state, []);
+  }
+
+  /**
+   * Encerra o controlador (saída da conta): nada mais é publicado na tela nem agenda sincronização.
+   * Uma operação que ainda esteja em andamento termina e grava no banco normalmente — só não aparece.
+   */
+  close(): void {
+    this.closed = true;
+  }
+
+  private publish(state: GameState, events: GameEvent[]) {
+    if (!this.closed) this.deps.onState(state, events);
+  }
+
+  private changed() {
+    if (!this.closed) this.deps.onChange?.();
   }
 
   reset(): Promise<void> {
@@ -69,8 +104,17 @@ export class GameController {
       const state = createInitialState(this.clock());
       await this.deps.repo.commit(state, fullDelta(state));
       this.state = state;
-      this.deps.onState(state, []);
+      this.publish(state, []);
+      this.changed();
     });
+  }
+
+  activitySince(since: number) {
+    return this.enqueue(() => this.deps.repo.activitySince(since));
+  }
+
+  mistakeHistory(limit: number, offset: number) {
+    return this.enqueue(() => this.deps.repo.mistakeHistory(limit, offset));
   }
 
   private enqueue<T>(job: () => Promise<T>): Promise<T> {
