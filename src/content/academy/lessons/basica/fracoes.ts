@@ -405,6 +405,18 @@ export const FRACOES = lesson({
           { title: 'Decimal', tone: 'sky', lines: ['0,5', '0,25', '0,75', '0,2', '0,125'] },
           { title: 'Porcentagem', tone: 'verdigris', lines: ['50%', '25%', '75%', '20%', '12,5%'] },
         ], 'Três jeitos de escrever a mesma parte'),
+        check(choice({
+          prompt: [p('Numa reta numérica, os pontos 0, P e 1 estão nessa ordem, e a distância de P até 1 é o triplo da distância de 0 até P.')],
+          ask: 'Que fração o ponto P representa?',
+          options: [
+            ok('1/4'),
+            no('1/3', 'Com P = 1/3, a distância até 1 seria 2/3: o dobro, não o triplo.'),
+            no('3/4', '3/4 é a distância de P até 1. O ponto P fica a 1/4 do zero.'),
+            no('1/2', 'No meio da reta, as duas distâncias seriam iguais.'),
+          ],
+          solution: ['Se a distância de 0 até P é x, a de P até 1 é 3x — e juntas formam a unidade.', '$x + 3x = 1 → x = [[1|4]]'],
+          verify: () => 0.25,
+        })),
       ],
       practice: [
         choice({
@@ -702,6 +714,29 @@ export const FRACOES = lesson({
           parts: ['[[3|4]] ÷ [[2|5]] = [[3|4]] × ', { options: ['[[5|2]]', '[[2|5]]', '[[4|3]]'], answer: 0 }, ' = ', { options: ['[[15|8]]', '[[6|20]]', '[[8|15]]'], answer: 0 }],
           solution: ['Inverta só o divisor (a segunda fração): 2/5 vira 5/2.', '$[[3|4]] × [[5|2]] = [[15|8]]'],
           why: 'Dividir por uma fração é multiplicar pelo inverso do divisor.',
+        })),
+        key('Fração de uma quantidade', 'Para calcular 3/5 de 40, divida pelo denominador e multiplique pelo numerador: 40 ÷ 5 × 3 = 24. Se a quantidade se divide em dois grupos e um deles é 3/5, o outro é 1 − 3/5 = 2/5.'),
+        check(numeric({
+          prompt: [p('Uma escola tem 56 professores. Três oitavos deles dão aula de manhã; os demais, à tarde.')],
+          ask: 'Quantos professores dão aula à tarde?',
+          answer: 35,
+          wrong: [
+            { value: 21, feedback: '21 são os professores da manhã (3/8 de 56). Os da tarde são o restante: 5/8 de 56.' },
+            { value: 7, feedback: '7 é 1/8 de 56. Os da tarde são 5/8: 5 × 7 = 35.' },
+          ],
+          solution: ['Tarde: 1 − 3/8 = 5/8 dos professores.', '$56 ÷ 8 × 5 = 7 × 5 = 35'],
+        })),
+        check(numeric({
+          prompt: [p('Uma produtora tem 3,5 L de suco e vai encher garrafas de 2/3 de litro. Só garrafas completamente cheias serão vendidas.')],
+          ask: 'Quantas garrafas ela consegue vender?',
+          unit: 'garrafas',
+          answer: 5,
+          wrong: [
+            { value: 6, feedback: '3,5 ÷ 2/3 = 5,25: a sexta garrafa ficaria incompleta. Só contam as cheias.' },
+            { value: 5.25, feedback: '5,25 é o quociente; garrafas se contam inteiras e só as cheias valem: 5.' },
+            { value: 7 / 3, feedback: 'Você multiplicou 3,5 × 2/3. Para saber quantas cabem, divida: 3,5 ÷ 2/3.' },
+          ],
+          solution: ['$3,5 ÷ [[2|3]] = [[7|2]] × [[3|2]] = [[21|4]] = 5,25', 'Só garrafas cheias contam: 5 (o resto não enche outra garrafa).'],
         })),
       ],
       practice: [
@@ -1143,6 +1178,20 @@ export const FRACOES = lesson({
         ], 'Foram colhidos 2.000 kg.'),
         reveal('Por que a resposta de um problema inverso de frações precisa ser maior que a parte dada?', 'Porque a parte é uma fração (menor que 1) do todo. Se você chegou a um todo menor que a parte, multiplicou quando devia dividir.'),
         tip('Confira de trás para a frente', 'Com o todo encontrado, refaça as etapas na ordem do enunciado. Em 30 segundos você confirma — ou descobre — o erro.'),
+        key('Grupos que se sobrepõem', 'Se 3/4 da turma joga e 1/2 canta, a soma (5/4) passa do inteiro porque quem faz as duas coisas foi contado duas vezes. Pelo menos uma atividade = joga + canta − faz as duas; nenhuma = 1 − esse total.'),
+        check(numeric({
+          prompt: [p('Numa turma, 3/4 dos alunos jogam algum esporte e 1/2 canta no coral. Exatamente 1/3 da turma faz as duas coisas.')],
+          ask: 'Que fração da turma não faz nenhuma das duas atividades?',
+          answer: 1 / 12,
+          tolerance: 0.002,
+          placeholder: 'ex.: 1/12',
+          wrong: [
+            { value: 5 / 12, feedback: 'Você descontou quem faz as duas atividades duas vezes. Desconte uma vez só: 3/4 + 1/2 − 1/3 = 11/12.' },
+            { value: 1 / 3, feedback: '1/3 é a fração de quem faz as DUAS atividades, não de quem não faz nenhuma.' },
+            { value: 11 / 12, feedback: '11/12 é a fração de quem faz pelo menos uma atividade. Nenhuma: 1 − 11/12.' },
+          ],
+          solution: ['Pelo menos uma: [[3|4]] + [[1|2]] − [[1|3]] = [[9|12]] + [[6|12]] − [[4|12]] = [[11|12]]', '$Nenhuma: 1 − [[11|12]] = [[1|12]]'],
+        })),
       ],
       practice: [
         numeric({

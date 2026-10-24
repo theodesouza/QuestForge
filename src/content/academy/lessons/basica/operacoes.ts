@@ -6,6 +6,7 @@ import {
   askStep,
   check,
   choice,
+  compare,
   draftChoice,
   draftNumeric,
   example,
@@ -34,7 +35,7 @@ import {
   warn,
 } from '../../kit/build';
 import { brl, fixed, num, round } from '../../kit/format';
-import type { Rand } from '../../types';
+import type { Rand, Tone } from '../../types';
 
 const signed = (n: number) => (n < 0 ? `−${num(-n)}` : num(n));
 const deg = (n: number) => `${signed(n)} °C`;
@@ -210,6 +211,130 @@ function billGen(r: Rand) {
   });
 }
 
+// ———————————————————————————————————————————————— divisão com resto
+
+const REMAINDER_CTX = [
+  {
+    intro: (n: number, g: number) => `Uma escola vai embalar ${n} crachás em pacotes de ${g}.`,
+    asks: {
+      full: 'Quantos pacotes completos ela consegue fazer?',
+      need: 'Quantos pacotes são necessários para embalar todos os crachás (o último pode ficar incompleto)?',
+      left: 'Quantos crachás ficam fora dos pacotes completos?',
+    },
+  },
+  {
+    intro: (n: number, g: number) => `Uma excursão vai levar ${n} pessoas em vans de ${g} lugares.`,
+    asks: {
+      full: 'Quantas vans saem lotadas?',
+      need: 'Quantas vans são necessárias para levar todo mundo?',
+      left: 'Quantas pessoas vão na van que não sai lotada?',
+    },
+  },
+  {
+    intro: (n: number, g: number) => `Uma obra precisa de ${n} parafusos, vendidos só em caixas fechadas com ${g} cada.`,
+    asks: {
+      need: 'Quantas caixas, no mínimo, devem ser compradas?',
+      spare: 'Comprando o mínimo de caixas, quantos parafusos vão sobrar?',
+    },
+  },
+] as const;
+
+type RemainderAsk = 'full' | 'need' | 'left' | 'spare';
+
+function remainderGen(r: Rand) {
+  for (;;) {
+    const g = r.int(6, 45);
+    const n = r.int(3 * g, 12 * g);
+    const q = Math.floor(n / g);
+    const rest = n % g;
+    if (rest === 0 || (n === 158 && g === 12) || (n === 73 && g === 8) || (n === 166 && g === 40)) continue;
+    const ctx = r.pick(REMAINDER_CTX);
+    const kinds = Object.keys(ctx.asks) as RemainderAsk[];
+    const kind = r.pick(kinds);
+    const values: Record<RemainderAsk, number> = { full: q, need: q + 1, left: rest, spare: g - rest };
+    const why: Record<RemainderAsk, string> = {
+      full: `${q} é o número de grupos COMPLETOS (o quociente).`,
+      need: `${q + 1} é o número de grupos necessários: os ${q} completos e mais um para a sobra.`,
+      left: `${rest} é o resto: o que não completa um grupo.`,
+      spare: `${g - rest} é o que falta para completar o último grupo (${g} − ${rest}).`,
+    };
+    const asks = ctx.asks as Partial<Record<RemainderAsk, string>>;
+    return draftNumeric({
+      prompt: [p(ctx.intro(n, g))],
+      ask: asks[kind] as string,
+      answer: values[kind],
+      wrong: [
+        ...(['full', 'need', 'left', 'spare'] as RemainderAsk[]).filter((k) => k !== kind).map((k) => ({ value: values[k], feedback: `${why[k]} A pergunta pede outra coisa: releia.` })),
+        { value: round(n / g, 2), feedback: `${num(n / g, 2)} é o quociente com vírgula. Grupos são contados inteiros: decida se a pergunta quer os completos, os necessários ou a sobra.` },
+      ],
+      hints: [`Divida: ${n} = ${g} × ${q} + ${rest}.`, 'Completos = quociente; necessários = quociente + 1 (quando sobra); sobra = resto.'],
+      solution: [`$${n} = ${g} × ${q} + ${rest}`, `${why[kind]}`],
+    });
+  }
+}
+
+function undoGen(r: Rand) {
+  for (;;) {
+    const kind = r.pick(['think', 'boxes'] as const);
+    if (kind === 'think') {
+      const x = r.int(4, 25);
+      const a = r.int(2, 9);
+      const plus = r.next() < 0.5;
+      const b = r.int(3, 30);
+      const c = plus ? a * x + b : a * x - b;
+      if (c <= 0) continue;
+      return draftNumeric({
+        prompt: [p(`Pensei num número, multipliquei por ${a} e depois ${plus ? `somei ${b}` : `tirei ${b}`}. O resultado foi ${c}.`)],
+        ask: 'Em que número pensei?',
+        answer: x,
+        wrong: [
+          { value: round(plus ? (c + b) / a : (c - b) / a, 2), feedback: `Desfaça a operação com a INVERSA: ${plus ? `somar ${b} se desfaz subtraindo` : `tirar ${b} se desfaz somando`}.` },
+          { value: round(c / a + (plus ? -b : b), 2), feedback: 'A ordem importa: desfaça primeiro a ÚLTIMA operação (a soma ou subtração) e só depois a multiplicação.' },
+          { value: c * a, feedback: `Multiplicar se desfaz dividindo: ${plus ? `(${c} − ${b})` : `(${c} + ${b})`} ÷ ${a}.` },
+        ],
+        hints: ['Percorra as operações de trás para a frente.', `Primeiro desfaça o "${plus ? `somei ${b}` : `tirei ${b}`}", depois a multiplicação por ${a}.`],
+        solution: [`$${c} ${plus ? '−' : '+'} ${b} = ${plus ? c - b : c + b}`, `$${plus ? c - b : c + b} ÷ ${a} = ${x}`, `Confira: ${x} × ${a} ${plus ? '+' : '−'} ${b} = ${c}.`],
+      });
+    }
+    const k = r.int(3, 9);
+    const each = r.int(8, 30);
+    const removed = r.int(5, Math.min(40, k * each - 5));
+    const left = k * each - removed;
+    if ((k === 5 && removed === 17 && left === 48) || (k === 6 && removed === 14 && left === 52)) continue;
+    return draftNumeric({
+      prompt: [p(`${k} caixas tinham a mesma quantidade de peças. Depois de retirar ${removed} peças do conjunto das ${k} caixas, restaram ${left}.`)],
+      ask: 'Quantas peças havia em cada caixa?',
+      answer: each,
+      wrong: [
+        { value: round((left - removed) / k, 2), feedback: `As ${removed} peças foram retiradas: para desfazer, devolva-as (${left} + ${removed}), não tire de novo.` },
+        { value: left + removed, feedback: `${left + removed} é o total de peças antes da retirada. Falta repartir entre as ${k} caixas.` },
+        { value: round(left / k, 2), feedback: `Faltou devolver as ${removed} peças retiradas antes de dividir.` },
+      ],
+      hints: ['Desfaça a retirada primeiro: quantas peças havia no total?', `Depois reparta o total entre as ${k} caixas.`],
+      solution: [`$${left} + ${removed} = ${left + removed} peças no início`, `$${left + removed} ÷ ${k} = ${each} peças por caixa`],
+    });
+  }
+}
+
+function divisionViz(n: number, g: number) {
+  const q = Math.floor(n / g);
+  const rest = n % g;
+  const cols = q + (rest > 0 ? 1 : 0);
+  const cells: (Tone | null)[] = [];
+  for (let i = 0; i < g; i++) for (let j = 0; j < cols; j++) cells.push(j < q ? 'brass' : i < rest ? 'ember' : null);
+  return {
+    kind: 'grid' as const,
+    rows: g,
+    cols,
+    cells,
+    legend: [
+      { tone: 'brass' as Tone, label: `grupos completos: ${q}` },
+      ...(rest ? [{ tone: 'ember' as Tone, label: `sobra: ${rest}` }] : []),
+    ],
+    summary: `${n} itens em grupos de ${g}: ${q} grupos completos${rest ? ` e sobra de ${rest}` : ', sem sobra'}`,
+  };
+}
+
 export const OPERACOES = lesson({
   id: 'operacoes',
   topic: 'basica',
@@ -342,7 +467,20 @@ export const OPERACOES = lesson({
           why: 'A multiplicação vem antes da subtração: 18 − 12 + 3 = 9. Fazer 18 − 4 primeiro muda tudo.',
           solution: ['$18 − 4 × 3 + 6 ÷ 2 = 18 − 12 + 3 = 9'],
         })),
-        tip('Traduzindo regras em expressões', 'Quando um enunciado descreve um cálculo ("cada infração desconta 2 pontos; foram 8 leves e 4 graves em cada uma de 3 rodadas"), escreva a expressão com parênteses onde a frase agrupa as coisas: 2 × (8 + 3 × 4).'),
+        tip('Traduzindo regras em expressões', 'Quando um enunciado descreve um cálculo ("cada atraso custa 3 pontos; foram 5 atrasos leves e, em cada uma de 4 rodadas, 2 graves"), escreva a expressão com parênteses onde a frase agrupa as coisas: 3 × (5 + 4 × 2).'),
+        key('Sinais na multiplicação e na divisão', 'Sinais iguais dão resultado positivo; sinais diferentes, negativo: (−4) × (−5) = 20 e (−12) ÷ 3 = −4. Numa expressão, aplique a regra de sinais em cada multiplicação ou divisão, na ordem de sempre.'),
+        check(numeric({
+          prompt: [{ kind: 'math', lines: ['−4 × (3 − 8) + 6 ÷ (−2)'] }],
+          ask: 'Qual é o valor da expressão?',
+          answer: 17,
+          wrong: [
+            { value: -23, feedback: '−4 × (−5) = +20: menos com menos dá mais.' },
+            { value: 23, feedback: '6 ÷ (−2) = −3: sinais diferentes dão resultado negativo.' },
+            { value: -17, feedback: 'Confira os dois sinais: −4 × (−5) = +20 e 6 ÷ (−2) = −3; 20 − 3 = 17.' },
+          ],
+          placeholder: 'use − para negativo',
+          solution: ['$(3 − 8) = −5', '$−4 × (−5) = 20', '$6 ÷ (−2) = −3', '$20 + (−3) = 17'],
+        })),
       ],
       practice: [
         gen(expressionGen),
@@ -565,6 +703,141 @@ export const OPERACOES = lesson({
         'Total = parte fixa + preço por unidade × quantidade.',
         'Para achar a quantidade a partir do total: (total − fixo) ÷ preço por unidade.',
         'Em várias etapas, encadeie as unidades (km → litros → reais) e releia a pergunta antes de responder.',
+      ],
+    })),
+
+    stage('divisao', 'interpretacao', 'Divisão com resto: o que fazer com a sobra', 'Interpretar quociente e resto conforme a pergunta (grupos completos, grupos necessários ou sobra), redistribuir igualmente e desfazer operações para achar um valor inicial.', () => ({
+      learn: [
+        text('Nem toda divisão é exata. Ao levar 175 alunos em vans de 12 lugares, saem 14 vans lotadas e sobram 7 alunos: 175 = 12 × 14 + 7. O **quociente** (14) e o **resto** (7) respondem a perguntas diferentes.'),
+        math('dividendo = divisor × quociente + resto      (0 ≤ resto < divisor)'),
+        lab({
+          title: 'Quociente e resto',
+          intro: 'Escolha a quantidade de itens e o tamanho de cada grupo. Cada coluna é um grupo; a coluna vermelha é a sobra.',
+          params: [
+            { key: 'n', label: 'Itens', min: 10, max: 100, step: 1, value: 50, format: (v) => `${v}` },
+            { key: 'g', label: 'Tamanho do grupo', min: 3, max: 12, step: 1, value: 8, format: (v) => `${v}` },
+          ],
+          readouts: ({ n, g }) => [
+            { label: 'Divisão', value: `${n} = ${g} × ${Math.floor(n / g)} + ${n % g}`, big: true, tone: 'brass' },
+            { label: 'Grupos completos', value: `${Math.floor(n / g)}` },
+            { label: 'Grupos necessários para todos', value: `${Math.ceil(n / g)}` },
+            { label: 'Sobra (resto)', value: `${n % g}` },
+          ],
+          viz: ({ n, g }) => divisionViz(n, g),
+          goal: {
+            task: 'Com 77 itens, escolha um tamanho de grupo que deixe sobra de exatamente 5.',
+            done: ({ n, g }) => n === 77 && n % g === 5,
+            success: 'Isso: 77 − 5 = 72, e o tamanho do grupo precisa dividir 72 e ser maior que a sobra — 6, 8, 9 ou 12.',
+          },
+          insight: 'O resto é sempre menor que o tamanho do grupo: se sobrasse um grupo inteiro, dava para formar mais um.',
+        }),
+        compare(
+          [
+            { title: 'Grupos completos', tone: 'brass', lines: ['Quantas vans saem lotadas?', 'Quantos pacotes completos?', 'Use o quociente: 14'] },
+            { title: 'Grupos necessários', tone: 'verdigris', lines: ['Quantas vans levam todos?', 'Quantas caixas comprar?', 'Quociente + 1, se sobrar: 15'] },
+            { title: 'A sobra', tone: 'ember', lines: ['Quantos ficam de fora?', 'Quantos itens avulsos?', 'Use o resto: 7'] },
+          ],
+          'A mesma divisão, três respostas: 175 ÷ 12',
+        ),
+        example('Quantos ônibus?', 'Uma excursão leva 118 estudantes e 27 professores. Cada ônibus tem 44 lugares.', [
+          step('Total de passageiros:', '118 + 27 = 145'),
+          step('Divida pela capacidade:', '145 = 44 × 3 + 13'),
+          askStep('Três ônibus lotados levam 132 pessoas.', 'Quantos ônibus são necessários?', [
+            ok('4'),
+            no('3', 'Com 3 ônibus, 13 pessoas ficariam para trás: a sobra precisa de mais um ônibus.'),
+            no('3,3', 'Não existe 0,3 de ônibus: quando sobra gente, arredonda-se para cima.'),
+          ], '3 + 1 = 4 ônibus'),
+        ], 'São necessários 4 ônibus (o último leva 13 pessoas).'),
+        warn('Leia o que a pergunta quer', '"Quantos cabem" e "quantos são necessários" pedem arredondamentos opostos: para baixo e para cima. E, se o que sobra são unidades completas (potes cheios, pacotes fechados), a parte decimal do quociente é descartada.'),
+        key('Redistribuir igualmente', 'Juntar tudo e repartir em partes iguais é dividir o total pelo número de partes — a média. Nunca reparta antes de juntar.'),
+        text('**Desfazer operações.** Para descobrir um valor inicial, percorra as etapas de trás para a frente, trocando cada operação pela inversa: soma ↔ subtração, multiplicação ↔ divisão.'),
+        check(order({
+          prompt: [p('Pensei num número, multipliquei por 4 e depois tirei 9. Deu 31.')],
+          ask: 'Ponha em ordem os passos para descobrir o número.',
+          steps: ['Parto do resultado: 31', 'Desfaço a subtração: 31 + 9 = 40', 'Desfaço a multiplicação: 40 ÷ 4 = 10', 'Confiro: 10 × 4 − 9 = 31'],
+          solution: ['A última operação feita é a primeira a ser desfeita.'],
+        })),
+        check(numeric({
+          prompt: [p('Seis caixas tinham a mesma quantidade de peças. Depois de retirar 14 peças do conjunto das seis caixas, restaram 52.')],
+          ask: 'Quantas peças havia em cada caixa?',
+          answer: 11,
+          wrong: [
+            { value: 38 / 6, feedback: 'As 14 peças foram retiradas: para desfazer, devolva-as (52 + 14), não tire de novo.' },
+            { value: 66, feedback: '66 é o total de peças antes da retirada. Falta repartir entre as 6 caixas.' },
+            { value: 52 / 6, feedback: 'Faltou devolver as 14 peças retiradas antes de dividir.' },
+          ],
+          solution: ['$52 + 14 = 66 peças antes da retirada', '$66 ÷ 6 = 11 peças por caixa'],
+        })),
+      ],
+      practice: [
+        gen(remainderGen),
+        gen(undoGen),
+        numeric({
+          prompt: [p('Quatro turmas arrecadaram 14, 9, 22 e 15 kg de alimentos. Tudo será juntado e redistribuído igualmente entre as quatro turmas.')],
+          ask: 'Com quantos quilogramas cada turma fica?',
+          unit: 'kg',
+          answer: 15,
+          wrong: [
+            { value: 60, feedback: '60 kg é o total arrecadado. Falta repartir entre as 4 turmas.' },
+            { value: 14, feedback: 'Confira a soma: 14 + 9 + 22 + 15 = 60; 60 ÷ 4 = 15.' },
+          ],
+          hints: ['Junte tudo primeiro: some as quatro arrecadações.', 'Depois divida o total por 4.'],
+          solution: ['$14 + 9 + 22 + 15 = 60 kg', '$60 ÷ 4 = 15 kg por turma'],
+        }),
+        numeric({
+          prompt: [p('Uma conta de restaurante de R$ 210,00 teve um desconto fixo de R$ 30,00. O restante foi dividido igualmente entre 8 amigos.')],
+          ask: 'Quanto cada amigo pagou?',
+          prefix: 'R$',
+          answer: 22.5,
+          wrong: [
+            { value: 26.25, feedback: 'R$ 26,25 = 210 ÷ 8 ignora o desconto. Desconte antes de dividir: (210 − 30) ÷ 8.' },
+            { value: 30, feedback: 'O desconto DIMINUI a conta: (210 − 30) ÷ 8, e não (210 + 30) ÷ 8.' },
+            { value: 180, feedback: 'R$ 180,00 é a conta com desconto. Falta dividir entre os 8 amigos.' },
+          ],
+          hints: ['O desconto vale para a conta inteira: aplique-o primeiro.', 'Depois divida o que sobrou entre as 8 pessoas.'],
+          solution: ['$210 − 30 = 180', '$180 ÷ 8 = R$ 22,50'],
+        }),
+      ],
+      challenge: [
+        gen(remainderGen),
+        choice({
+          ask: 'Hoje é terça-feira. Que dia da semana será daqui a 100 dias?',
+          options: [
+            ok('Quinta-feira'),
+            no('Terça-feira', '100 não é múltiplo de 7: depois das 14 semanas completas ainda sobram 2 dias.'),
+            no('Quarta-feira', '100 = 7 × 14 + 2: são 2 dias além das semanas completas, não 1.'),
+            no('Sábado', '100 ÷ 7 deixa resto 2, não 4.'),
+          ],
+          solution: ['$100 = 7 × 14 + 2', 'As 14 semanas voltam à terça-feira; mais 2 dias: quinta-feira.'],
+        }),
+        numeric({
+          ask: 'Quantos números de 1 a 500 deixam resto 3 na divisão por 7?',
+          answer: 72,
+          wrong: [
+            { value: 71, feedback: 'Faltou um: os números são 3, 10, 17, …, 500 — de 3 + 7 × 0 até 3 + 7 × 71, são 72.' },
+            { value: 500 / 7, feedback: '500 ÷ 7 ≈ 71,4 não conta os números com resto 3. Liste: 3, 10, 17, …, 500.' },
+          ],
+          solution: ['Os números são da forma 7k + 3: 3, 10, 17, …', '$7k + 3 ≤ 500 → k ≤ 71 (e 7 × 71 + 3 = 500)', 'k vai de 0 a 71: são 72 números.'],
+        }),
+        numeric({
+          prompt: [p('Ana gastou metade do dinheiro que tinha e, depois, mais R$ 12,00. Ficou com R$ 30,00.')],
+          ask: 'Quanto ela tinha no início?',
+          prefix: 'R$',
+          answer: 84,
+          wrong: [
+            { value: 72, feedback: 'A ordem importa: desfaça primeiro a última despesa (30 + 12 = 42) e só depois a metade (42 × 2).' },
+            { value: 42, feedback: 'R$ 42,00 é o que ela tinha depois de gastar a metade. Desfaça a metade: 42 × 2.' },
+            { value: 54, feedback: 'Gastar a metade se desfaz DOBRANDO, não somando 12 de novo: (30 + 12) × 2.' },
+          ],
+          solution: ['$30 + 12 = 42 (antes da segunda despesa)', '$42 × 2 = 84 (antes de gastar a metade)', 'Confira: 84 ÷ 2 = 42; 42 − 12 = 30.'],
+        }),
+        gen(undoGen),
+      ],
+      recap: [
+        'dividendo = divisor × quociente + resto, com o resto menor que o divisor.',
+        'Grupos completos: quociente. Grupos necessários: quociente + 1 se sobrar. Sobra: o resto.',
+        'Redistribuir igualmente: junte tudo e divida pelo número de partes.',
+        'Desfazer operações: de trás para a frente, com as operações inversas.',
       ],
     })),
 
