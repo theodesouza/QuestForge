@@ -59,7 +59,8 @@ export function numericOptions(
   correct: { value: number; text: string },
   wrongs: { value: number; text: string; feedback: Rich }[],
 ): Option[] {
-  const same = (a: number, b: number) => Math.abs(a - b) <= Math.max(1e-9, Math.abs(b) * 1e-9);
+  // Comparação relativa: vale também para números muito pequenos (notação científica).
+  const same = (a: number, b: number) => Math.abs(a - b) <= Math.max(Math.abs(a), Math.abs(b)) * 1e-9;
   const out: Option[] = [ok(correct.text)];
   const values = [correct.value];
   const texts = new Set([correct.text]);

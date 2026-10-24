@@ -209,11 +209,15 @@ export function preparationFor(topics: TopicId[], subtopics: string[], academy: 
 /** Bônus de dano por preparo na Academia: até +15% com todas as etapas do chefão dominadas. */
 export const PREP_BONUS_MAX = 0.15;
 
+/**
+ * Proporcional às etapas dominadas, sem arredondar para pontos percentuais inteiros: com
+ * dezenas de etapas, a primeira etapa dominada já precisa render algo (ex.: +0,5%).
+ */
 export function bossPrepBonus(bossId: string, academy: Record<string, StageProgress>): number {
   const boss = getBoss(bossId);
   const prep = preparationFor(boss.topics, boss.subtopics, academy);
   if (prep.stages === 0) return 0;
-  return Math.round((PREP_BONUS_MAX * prep.mastered * 100) / prep.stages) / 100;
+  return Math.round((PREP_BONUS_MAX * prep.mastered * 10000) / prep.stages) / 10000;
 }
 
 /** Missões e chefões do Atlas cujos assuntos a aula cobre. */

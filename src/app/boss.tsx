@@ -15,6 +15,7 @@ import { findQuestion } from '../content/bank';
 import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
+import { num } from '../content/academy/kit/format';
 import { getItem, RARITY_LABEL } from '../content/items';
 import { bossPrepBonus, preparationFor, recommendStages } from '../domain/academy/recommend';
 import { activeHeadIndex, CONVERGENCE_BONUS, headSpans, headsFelled, knowledgeSeals, type BattleState } from '../domain/boss/battle';
@@ -60,7 +61,7 @@ function Intro({ boss }: { boss: BossDef }) {
   const knowledge = Math.min(30, (progress?.failedSinceWin ?? 0) * 10);
   const academy = useGame((g) => g.academy);
   const prep = preparationFor(boss.topics, boss.subtopics, academy);
-  const prepBonus = Math.round(bossPrepBonus(boss.id, academy) * 100);
+  const prepBonus = bossPrepBonus(boss.id, academy) * 100;
 
   const fight = async () => {
     setBusy(true);
@@ -179,7 +180,7 @@ function Intro({ boss }: { boss: BossDef }) {
               <Text variant="subheading">Preparo na Academia</Text>
               <Text variant="caption" color={colors.parchmentDim}>
                 {prep.mastered} de {prep.stages} etapas dominadas nas aulas deste chefão ({prep.studied} estudadas).{' '}
-                {prepBonus > 0 ? `Seu preparo rende +${prepBonus}% de dano nesta batalha.` : 'Cada etapa dominada aumenta o seu dano (até +15%).'}
+                {prepBonus > 0 ? `Seu preparo rende +${num(prepBonus, 1)}% de dano nesta batalha.` : 'Cada etapa dominada aumenta o seu dano (até +15%).'}
               </Text>
             </View>
           </View>
