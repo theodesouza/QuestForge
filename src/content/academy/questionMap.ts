@@ -624,4 +624,8 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'FIN-029': ['custo-beneficio/maestria'],
   'FIN-320': ['custo-beneficio/maestria', 'custo-beneficio/ponto-de-equilibrio'],
   'MEC-046': ['custo-beneficio/maestria', 'porcentagem/descontos'],
+  // ——— Equações e sistemas
+  'EQU-001': ['equacao-1grau/dois-lados'],
+  'EQU-002': ['sistemas/substituicao', 'sistemas/duas-pistas'],
+  'EQU-003': ['sistemas/duas-pistas'],
 };
