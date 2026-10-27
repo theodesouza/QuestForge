@@ -670,4 +670,6 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'GEO-001': ['areas/retangulos'],
   'GEO-002': ['areas/compostas'],
   'GEO-006': ['areas/compostas'],
+  'GEO-003': ['pitagoras/situacoes'],
+  'GEO-007': ['pitagoras/planos'],
 };

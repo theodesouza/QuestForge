@@ -213,4 +213,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: 'Com 50 lajotas, seriam cobertos só 50 × 0,16 = 8 m², um terço dos 24 m² da sala.',
     E: '1.500 erra a conversão: a área da lajota é 0,16 m² (40 cm = 0,4 m e 0,4 × 0,4 = 0,16), e não 0,016 m².',
   },
+  'GEO-003': {
+    B: 'Uma rampa de 4,2 m daria 4,2² = 17,64, mas 1,5² + 3,6² = 2,25 + 12,96 = 15,21 = 3,9².',
+    C: 'Uma rampa de 4,5 m daria 4,5² = 20,25, mas 1,5² + 3,6² = 15,21 = 3,9².',
+    D: '3,6 m é a medida horizontal. A rampa inclinada é a hipotenusa, maior que os catetos: √(1,5² + 3,6²) = 3,9 m.',
+    E: '5,1 soma o desnível e a horizontal (1,5 + 3,6). A rampa é a hipotenusa: √(2,25 + 12,96) = 3,9 m.',
+  },
+  'GEO-007': {
+    B: '30 polegadas é a altura (3 × 10). A largura é o lado 4 da proporção: 4 × 10 = 40.',
+    C: 'Com largura 35, a altura seria 26,25 e a diagonal, 43,75 polegadas, e não 50. Com lados 4k e 3k, a diagonal é 5k = 50: k = 10 e largura 40.',
+    D: '25 divide a diagonal por 2. Com lados 4k e 3k, a diagonal é 5k: k = 50 ÷ 5 = 10, e a largura é 40.',
+    E: 'Com largura 45, a diagonal seria 45 × 5/4 = 56,25 polegadas, e não 50. A largura é 4k, com 5k = 50: 40.',
+  },
 };
