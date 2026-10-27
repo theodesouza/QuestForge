@@ -662,4 +662,7 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'PRB-001': ['probabilidade-simples/chances'],
   'PRB-002': ['probabilidade-simples/espaco'],
   'PRB-005': ['probabilidade-simples/ou-nao'],
+  'PRB-003': ['probabilidade-composta/exatamente'],
+  'PRB-004': ['probabilidade-composta/sem-reposicao'],
+  'PRB-006': ['probabilidade-composta/condicional'],
 };

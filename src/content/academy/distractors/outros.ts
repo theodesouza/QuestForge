@@ -175,4 +175,22 @@ export const NOTES_OUTROS: DistractorNotes = {
     C: '7/8 soma 4 pares e 3 maiores que 5, contando duas vezes o 6 e o 8. Sem repetição, são 5 setores.',
     E: 'Com 3/4, seriam 6 setores vencedores. Os que ganham são 2, 4, 6, 7 e 8: 5 setores.',
   },
+  'PRB-003': {
+    A: '1/8 é a chance de uma sequência específica, como CCK. Há 3 sequências com exatamente duas caras: CCK, CKC e KCC.',
+    B: '1/4 trata os 4 "placares" (0, 1, 2 ou 3 caras) como igualmente prováveis. Não são: das 8 sequências, 3 têm exatamente duas caras.',
+    C: '1/2 = 4/8 contaria 4 sequências. Com exatamente duas caras são só 3 (CCK, CKC, KCC); CCC tem três caras.',
+    E: '2/3 divide 2 caras por 3 lançamentos: é a fração de caras na sequência, e não uma probabilidade. São 3 sequências favoráveis em 8.',
+  },
+  'PRB-004': {
+    A: '9/25 = 3/5 × 3/5 seria com reposição. Sem devolver, sobram 2 bombons de morango em 4: 3/5 × 2/4 = 3/10.',
+    B: '3/5 é só a chance do primeiro bombom. O segundo também precisa ser de morango: 3/5 × 2/4 = 3/10.',
+    D: '1/5 corresponderia a 2 dos 10 pares de bombons possíveis. Os pares com dois de morango são 3 (C(3, 2)): 3/10.',
+    E: '2/5 corresponderia a 4 dos 10 pares de bombons possíveis. Os pares com dois de morango são só 3: 3/10.',
+  },
+  'PRB-006': {
+    A: '1% é a chance antes do teste. O resultado positivo aumenta essa chance: em 10.000 pessoas, 90 doentes e 495 saudáveis testam positivo; 90 ÷ 585 ≈ 15%.',
+    B: '9% não é a proporção de doentes entre os positivos. Em 10.000 pessoas: 90 doentes positivos e 495 saudáveis positivos; 90 ÷ 585 ≈ 15%.',
+    D: '50% supõe que metade dos positivos está doente. Os falsos positivos (495 em 10.000) são bem mais numerosos que os verdadeiros (90): 90 ÷ 585 ≈ 15%.',
+    E: '90% é a chance de dar positivo sabendo que a pessoa está doente. A pergunta é o contrário: entre os positivos, quantos estão doentes — 90 ÷ 585 ≈ 15%.',
+  },
 };
