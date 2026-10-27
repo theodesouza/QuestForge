@@ -131,6 +131,20 @@ export function validateExercise(ex: Exercise, where: string, mode: Mode): Acade
 /** Amostras de cada gerador conferidas pelo validador. */
 export const GENERATOR_SAMPLES = 120;
 
+/** A parte do exercício que muda de uma versão para outra (além do enunciado e da pergunta). */
+function variable(ex: Exercise): unknown {
+  switch (ex.kind) {
+    case 'number':
+      return ex.answer;
+    case 'choice':
+      return ex.options.map((o) => o.text);
+    case 'classify':
+      return ex.items.map((i) => i.text);
+    default:
+      return null;
+  }
+}
+
 export function validateDef(def: ExerciseDef, where: string, mode: Mode): AcademyIssue[] {
   if (def.kind !== 'gen') return validateExercise(def, where, mode);
   const issues: AcademyIssue[] = [];
@@ -148,7 +162,7 @@ export function validateDef(def: ExerciseDef, where: string, mode: Mode): Academ
       issues.push(...found.slice(0, 3));
       break;
     }
-    shapes.add(JSON.stringify([ex.prompt, ex.ask, ex.kind === 'number' ? ex.answer : ex.kind === 'choice' ? ex.options.map((o) => o.text) : null]));
+    shapes.add(JSON.stringify([ex.prompt, ex.ask, variable(ex)]));
   }
   if (issues.length === 0 && shapes.size < 4) issues.push({ where: `${where} [${def.id}]`, message: `gerador pouco variado (${shapes.size} versões em ${GENERATOR_SAMPLES})` });
   return issues;

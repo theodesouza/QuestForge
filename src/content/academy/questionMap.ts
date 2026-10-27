@@ -632,4 +632,6 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   // ——— Funções
   'FUN-001': ['funcao-afim/fixo-variavel'],
   'FUN-002': ['funcao-afim/fixo-variavel'],
+  'FUN-003': ['funcao-quadratica/vertice'],
+  'FUN-004': ['funcao-quadratica/raizes', 'funcao-quadratica/parabola'],
 };

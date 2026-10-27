@@ -35,4 +35,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: 'Com 12 km, a corrida custaria 5 + 2,50 × 12 = R$ 35,00, e não R$ 45,00.',
     E: '20 soma a bandeirada ao valor pago: (45 + 5) ÷ 2,50. Os R$ 5,00 já estão dentro dos R$ 45,00 e precisam sair.',
   },
+  'FUN-003': {
+    A: '20 é a quantidade, em centenas, que dá o lucro máximo: o x do vértice. O lucro é L(20) = −400 + 800 − 300 = 100.',
+    C: '300 é o termo independente, ligado aos custos fixos (L(0) = −300). O máximo está no vértice: L(20) = 100.',
+    D: '400 calcula −20² + 40 × 20 e esquece o termo −300. Com ele, L(20) = 400 − 300 = 100.',
+    E: '500 esquece o termo −x²: 40 × 20 − 300. Com ele, L(20) = −400 + 800 − 300 = 100.',
+  },
+  'FUN-004': {
+    B: 'Em t = 5 s, h = −125 + 100 = −25: a bola já estaria abaixo do chão. Ela volta quando t(20 − 5t) = 0, em t = 4 s.',
+    C: 'Em t = 10 s, h = −500 + 200 = −300: muito depois da queda. De t(20 − 5t) = 0 vem t = 20 ÷ 5 = 4 s.',
+    D: '2 s é o instante da altura máxima (o vértice, −20 ÷ (−10)). A bola volta ao chão no dobro desse tempo: 4 s.',
+    E: '20 esquece o 5: de t(20 − 5t) = 0 vem 5t = 20, e então t = 4 s.',
+  },
 };
