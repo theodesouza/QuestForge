@@ -193,4 +193,24 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: '50% supõe que metade dos positivos está doente. Os falsos positivos (495 em 10.000) são bem mais numerosos que os verdadeiros (90): 90 ÷ 585 ≈ 15%.',
     E: '90% é a chance de dar positivo sabendo que a pessoa está doente. A pergunta é o contrário: entre os positivos, quantos estão doentes — 90 ÷ 585 ≈ 15%.',
   },
+
+  // ——— Geometria plana
+  'GEO-001': {
+    A: '37 soma as medidas (12 + 25). A área é o produto: 12 × 25 = 300 m².',
+    C: '150 divide o produto por 2, como na área do triângulo. O terreno é retangular: 12 × 25 = 300 m².',
+    D: '74 m é o perímetro (2 × 12 + 2 × 25), o contorno do terreno. A grama cobre a área: 12 × 25 = 300 m².',
+    E: '600 é o dobro da área. O retângulo de 12 m por 25 m tem 12 × 25 = 300 m².',
+  },
+  'GEO-002': {
+    A: 'Com 202 m², o canto retirado teria 98 m². Ele mede 8 × 6 = 48 m², e 300 − 48 = 252 m².',
+    B: '300 m² é a área do retângulo inteiro, sem retirar o canto de 8 m × 6 m = 48 m².',
+    D: '348 soma o canto (300 + 48) em vez de tirá-lo.',
+    E: '70 m é o perímetro do retângulo inteiro (2 × 20 + 2 × 15). A pergunta é a área: 300 − 48 = 252 m².',
+  },
+  'GEO-006': {
+    A: '60 divide a área da sala (24 m²) pelo lado da lajota (0,4 m). Divida pela área da lajota: 0,4 × 0,4 = 0,16 m².',
+    C: '15 divide a área pelo contorno da lajota (4 × 0,4 = 1,6 m). O piso é coberto pela área de cada lajota: 24 ÷ 0,16 = 150.',
+    D: 'Com 50 lajotas, seriam cobertos só 50 × 0,16 = 8 m², um terço dos 24 m² da sala.',
+    E: '1.500 erra a conversão: a área da lajota é 0,16 m² (40 cm = 0,4 m e 0,4 × 0,4 = 0,16), e não 0,016 m².',
+  },
 };

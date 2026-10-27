@@ -665,4 +665,9 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'PRB-003': ['probabilidade-composta/exatamente'],
   'PRB-004': ['probabilidade-composta/sem-reposicao'],
   'PRB-006': ['probabilidade-composta/condicional'],
+
+  // ——— Geometria plana
+  'GEO-001': ['areas/retangulos'],
+  'GEO-002': ['areas/compostas'],
+  'GEO-006': ['areas/compostas'],
 };
