@@ -628,4 +628,8 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'EQU-001': ['equacao-1grau/dois-lados'],
   'EQU-002': ['sistemas/substituicao', 'sistemas/duas-pistas'],
   'EQU-003': ['sistemas/duas-pistas'],
+
+  // ——— Funções
+  'FUN-001': ['funcao-afim/fixo-variavel'],
+  'FUN-002': ['funcao-afim/fixo-variavel'],
 };

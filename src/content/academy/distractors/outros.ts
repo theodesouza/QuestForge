@@ -21,4 +21,18 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: '30 é o número de carros. Com 50 veículos e 160 rodas: (160 − 100) ÷ 2 = 30 carros, e 20 motos.',
     E: 'Com 35 motos e 15 carros, seriam 60 + 70 = 130 rodas, e não 160.',
   },
+
+  // ——— Funções
+  'FUN-001': {
+    B: 'R$ 37,50 corresponde a 13 km (5 + 2,50 × 13): soma um quilômetro a mais. Para 12 km: 5 + 30 = R$ 35,00.',
+    C: 'R$ 30,00 é só a parte variável (2,50 × 12). Falta a bandeirada de R$ 5,00, paga em toda corrida.',
+    D: 'Com R$ 42,50, a corrida teria 15 km (5 + 2,50 × 15). Para 12 km: 5 + 2,50 × 12 = R$ 35,00.',
+    E: 'R$ 60,00 multiplica os R$ 5,00 por 12, como se a bandeirada fosse cobrada a cada quilômetro. Ela é paga uma vez só.',
+  },
+  'FUN-002': {
+    B: 'Com 14 km, a corrida custaria 5 + 2,50 × 14 = R$ 40,00, e não R$ 45,00.',
+    C: '18 divide os R$ 45,00 por 2,50 sem tirar a bandeirada. Primeiro tire os R$ 5,00 fixos: (45 − 5) ÷ 2,50 = 16.',
+    D: 'Com 12 km, a corrida custaria 5 + 2,50 × 12 = R$ 35,00, e não R$ 45,00.',
+    E: '20 soma a bandeirada ao valor pago: (45 + 5) ÷ 2,50. Os R$ 5,00 já estão dentro dos R$ 45,00 e precisam sair.',
+  },
 };
