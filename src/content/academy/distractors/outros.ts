@@ -79,4 +79,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     C: '80 supõe 16 mil a mais de 2020 a 2030, mas o ritmo é de 6 mil a cada 5 anos: 12 mil em 10 anos.',
     D: '88 soma quatro intervalos de 6 mil, o que levaria até 2040. De 2020 a 2030 são só dois.',
   },
+  'GRF-003': {
+    A: '16 cobra só 2 horas adicionais (8 + 2 × 4) e ignora os 20 minutos que sobram. A fração também é cobrada como hora inteira: são 3 horas adicionais.',
+    B: 'R$ 18,00 corresponderia a 2,5 horas adicionais (8 + 4 × 2,5), o que a tabela não prevê. Depois da 1ª hora restam 2 h 20 min, cobradas como 3 horas: 8 + 12 = 20.',
+    C: '21,33 cobra as 3 h 20 min inteiras como horas adicionais, de forma proporcional (8 + 4 × 3,33). A 1ª hora já está nos R$ 8,00, e a fração conta como hora inteira.',
+    D: '24 cobra 4 horas adicionais. Depois da 1ª hora restam 2 h 20 min: 2 horas inteiras e uma fração, ou seja, 3 horas adicionais.',
+  },
+  'GRF-005': {
+    A: '20 GB é só o excedente (40 ÷ 2), esquecendo os 10 GB da franquia. O consumo do empate é 10 + 20 = 30 GB.',
+    B: 'Com 25 GB, o plano B custa 40 + 15 × 2 = R$ 70,00, ainda menos que os R$ 80,00 do plano A.',
+    C: 'Com 35 GB, o plano B custa 40 + 25 × 2 = R$ 90,00, mais que os R$ 80,00 do plano A.',
+    D: '40 divide a mensalidade de A pelo preço do GB extra (80 ÷ 2), sem descontar os R$ 40,00 do plano B.',
+  },
 };

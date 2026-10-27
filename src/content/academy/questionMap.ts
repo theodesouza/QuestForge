@@ -641,4 +641,6 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'GRF-001': ['leitura-graficos/barras'],
   'GRF-002': ['leitura-graficos/barras'],
   'GRF-004': ['leitura-graficos/linhas'],
+  'GRF-003': ['tabelas/regras'],
+  'GRF-005': ['tabelas/planos'],
 };
