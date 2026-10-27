@@ -636,4 +636,9 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'FUN-004': ['funcao-quadratica/raizes', 'funcao-quadratica/parabola'],
   'FUN-005': ['funcao-exponencial/dobrar'],
   'FUN-006': ['funcao-exponencial/tempo', 'funcao-exponencial/dobrar'],
+
+  // ——— Gráficos e tabelas
+  'GRF-001': ['leitura-graficos/barras'],
+  'GRF-002': ['leitura-graficos/barras'],
+  'GRF-004': ['leitura-graficos/linhas'],
 };

@@ -59,4 +59,24 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: '48 h divide 16 por 2 e conta 8 meias-vidas. A razão 800 ÷ 50 = 16 = 2⁴ dá 4 meias-vidas: 4 × 6 = 24 h.',
     E: 'Em 18 h são 3 meias-vidas: 800 → 400 → 200 → 100 mg, ainda o dobro dos 50 mg.',
   },
+
+  // ——— Gráficos e tabelas
+  'GRF-001': {
+    A: '270 soma só janeiro e fevereiro (120 + 150). O trimestre tem três meses: falta março, com 90.',
+    B: '300 soma fevereiro, março e abril (150 + 90 + 60). O 1º trimestre é janeiro, fevereiro e março.',
+    C: '420 inclui abril (60). O 1º trimestre tem só janeiro, fevereiro e março: 120 + 150 + 90.',
+    E: '450 é o total dos cinco meses do gráfico. O 1º trimestre tem só os três primeiros.',
+  },
+  'GRF-002': {
+    A: 'Com média 18, o semestre teria 6 × 18 = 108 m³; as barras somam 120 m³, e 120 ÷ 6 = 20.',
+    B: 'Com média 19, o semestre teria 6 × 19 = 114 m³; as barras somam 120 m³, e 120 ÷ 6 = 20.',
+    C: 'Com média 21, o semestre teria 6 × 21 = 126 m³; as barras somam 120 m³, e 120 ÷ 6 = 20.',
+    E: 'Com média 22, o semestre teria 6 × 22 = 132 m³; as barras somam 120 m³, e 120 ÷ 6 = 20.',
+  },
+  'GRF-004': {
+    A: '70 avança só um intervalo de 5 anos (64 + 6, que seria 2025). De 2020 a 2030 são dois: 64 + 12 = 76.',
+    B: '72 supõe 8 mil a mais em 10 anos, mas o gráfico mostra 6 mil a cada 5 anos: 12 mil em 10 anos.',
+    C: '80 supõe 16 mil a mais de 2020 a 2030, mas o ritmo é de 6 mil a cada 5 anos: 12 mil em 10 anos.',
+    D: '88 soma quatro intervalos de 6 mil, o que levaria até 2040. De 2020 a 2030 são só dois.',
+  },
 };
