@@ -91,4 +91,30 @@ export const NOTES_OUTROS: DistractorNotes = {
     C: 'Com 35 GB, o plano B custa 40 + 25 × 2 = R$ 90,00, mais que os R$ 80,00 do plano A.',
     D: '40 divide a mensalidade de A pelo preço do GB extra (80 ÷ 2), sem descontar os R$ 40,00 do plano B.',
   },
+
+  // ——— Estatística
+  'EST-001': {
+    B: '7,5 é a média só das quatro menores notas (6 + 7 + 8 + 9 = 30; 30 ÷ 4). A média usa as cinco: 40 ÷ 5 = 8.',
+    C: '8,5 é a média só das quatro maiores notas (7 + 8 + 9 + 10 = 34; 34 ÷ 4). A média usa as cinco: 40 ÷ 5 = 8.',
+    D: 'Com média 9, as cinco notas somariam 45; elas somam 6 + 7 + 8 + 9 + 10 = 40, e 40 ÷ 5 = 8.',
+    E: 'Com média 7, as cinco notas somariam 35; elas somam 40, e 40 ÷ 5 = 8.',
+  },
+  'EST-003': {
+    B: 'Com 7,5 na terceira, a média seria (12 + 24 + 37,5) ÷ 10 = 7,35: as notas anteriores puxam a média para baixo.',
+    C: 'Com 8,0, a média seria (12 + 24 + 40) ÷ 10 = 7,6: passa da meta, mas não é a nota mínima. A mínima é 7,8.',
+    D: '8,5 usa a média simples (3 × 7,5 − 6 − 8). Com pesos, a terceira nota (peso 5) pesa mais: basta 7,8.',
+    E: 'Com 7,0 na terceira, a média seria (12 + 24 + 35) ÷ 10 = 7,1, abaixo de 7,5.',
+  },
+  'EST-004': {
+    B: 'Tirar uma nota abaixo da média faz a média subir: ela não fica em 6,50. Sobram 130 − 2 = 128 pontos em 19 provas.',
+    C: '6,84 divide o total original (130) por 19, sem tirar a nota 2,0. A nota sai do total e da contagem: 128 ÷ 19 ≈ 6,74.',
+    D: '6,40 tira a nota do total, mas continua dividindo por 20. Agora são 19 provas: 128 ÷ 19 ≈ 6,74.',
+    E: 'Com média 7,00 em 19 provas, o total seria 133 pontos, mas sobram 128 (130 − 2). A nova média é 128 ÷ 19 ≈ 6,74.',
+  },
+  'EST-006': {
+    B: '32 compensa a diferença uma vez só (31 + 1). Pelos totais: 12 × 31 − 10 × 30 = 72 anos para os dois, média 36.',
+    C: '31 é a nova média do grupo todo. Para puxar a média de 30 para 31, quem entrou precisa estar acima dela.',
+    D: 'Com média 35, os dois somariam 70 anos, e o grupo, 370: média de 30,83 anos, e não 31.',
+    E: '72 é a soma das idades dos dois que entraram (372 − 300). A média deles é 72 ÷ 2 = 36.',
+  },
 };

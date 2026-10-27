@@ -643,4 +643,10 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'GRF-004': ['leitura-graficos/linhas'],
   'GRF-003': ['tabelas/regras'],
   'GRF-005': ['tabelas/planos'],
+
+  // ——— Estatística
+  'EST-001': ['media/equilibrio'],
+  'EST-003': ['media/ponderada'],
+  'EST-004': ['media/mudancas'],
+  'EST-006': ['media/mudancas'],
 };
