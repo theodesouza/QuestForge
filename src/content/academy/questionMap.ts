@@ -655,4 +655,6 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   // ——— Análise combinatória
   'COM-001': ['principio-multiplicativo/etapas'],
   'COM-002': ['principio-multiplicativo/sem-repeticao'],
+  'COM-003': ['combinacao/formula', 'combinacao/ordem'],
+  'COM-004': ['combinacao/pelo-menos'],
 };

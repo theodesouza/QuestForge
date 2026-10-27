@@ -143,4 +143,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     C: '6.561 = 9⁴ usa 9 opções em todas as posições. Sem repetição, as opções diminuem a cada posição: 10 × 9 × 8 × 7.',
     D: '10.000 = 10⁴ permite repetir algarismos. Sem repetição, cada posição tem uma opção a menos: 10 × 9 × 8 × 7 = 5.040.',
   },
+  'COM-003': {
+    A: '24 multiplica 8 por 3. Uma comissão de 3 entre 8 é C(8, 3) = (8 × 7 × 6) ÷ (3 × 2 × 1) = 56.',
+    B: '28 = C(8, 2) conta grupos de 2, e não de 3. Para 3 representantes: (8 × 7 × 6) ÷ 6 = 56.',
+    D: '336 = 8 × 7 × 6 conta como se a ordem importasse. Na comissão todos têm a mesma função: cada grupo aparece em 3! = 6 ordens, e 336 ÷ 6 = 56.',
+    E: '512 = 8³ permite repetir a mesma pessoa e considera a ordem. Numa comissão são 3 pessoas diferentes, e a ordem não importa: 56.',
+  },
+  'COM-004': {
+    A: '15 = C(6, 4) são as equipes só de homens, sem nenhuma mulher. A resposta é o total menos elas: 210 − 15 = 195.',
+    B: '90 = C(4, 2) × C(6, 2) conta só as equipes com exatamente 2 mulheres. "Pelo menos uma" inclui equipes com 1, 2, 3 ou 4 mulheres.',
+    C: '210 = C(10, 4) é o total de equipes, incluindo as 15 sem nenhuma mulher, que precisam ser descontadas.',
+    D: '336 fixa uma das 4 mulheres e completa com 3 quaisquer dos 9 restantes (4 × 84), contando várias vezes as equipes com mais de uma mulher.',
+  },
 };
