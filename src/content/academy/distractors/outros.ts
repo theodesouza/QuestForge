@@ -47,4 +47,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: '2 s é o instante da altura máxima (o vértice, −20 ÷ (−10)). A bola volta ao chão no dobro desse tempo: 4 s.',
     E: '20 esquece o 5: de t(20 − 5t) = 0 vem 5t = 20, e então t = 4 s.',
   },
+  'FUN-005': {
+    A: '2.000 multiplica 500 por 4, o número de dobras. Dobrar 4 vezes é multiplicar por 2⁴ = 16: 500 × 16 = 8.000.',
+    C: '4.000 multiplica 500 por 8 (2 × 4, ou só 3 dobras). Em 12 horas cabem 4 dobras: 500 × 2⁴ = 8.000.',
+    D: '6.000 multiplica 500 por 12, o número de horas. A população dobra a cada 3 horas: são 4 dobras, × 16.',
+    E: '16.000 corresponde a 5 dobras (500 × 32). Em 12 horas cabem só 12 ÷ 3 = 4 períodos de 3 horas.',
+  },
+  'FUN-006': {
+    A: 'Em 12 h são só 2 meias-vidas: 800 → 400 → 200 mg, ainda acima dos 50 mg.',
+    C: 'Em 30 h são 5 meias-vidas: restariam 25 mg. Os 50 mg já tinham sido atingidos em 24 h.',
+    D: '48 h divide 16 por 2 e conta 8 meias-vidas. A razão 800 ÷ 50 = 16 = 2⁴ dá 4 meias-vidas: 4 × 6 = 24 h.',
+    E: 'Em 18 h são 3 meias-vidas: 800 → 400 → 200 → 100 mg, ainda o dobro dos 50 mg.',
+  },
 };
