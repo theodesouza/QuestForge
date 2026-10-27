@@ -129,4 +129,18 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: 'R$ 2.650,00 é a média (26.500 ÷ 10), puxada pelo salário de R$ 10.000,00. A mediana é o valor do meio: R$ 1.750,00.',
     E: 'R$ 4.125,00 é a média dos quatro valores da tabela sem considerar quantos funcionários recebem cada um. A mediana conta os 10 funcionários: R$ 1.750,00.',
   },
+
+  // ——— Análise combinatória
+  'COM-001': {
+    A: '9 soma as opções (3 + 4 + 2). Cada sanduíche junta um pão, um recheio e um molho: as escolhas se multiplicam.',
+    B: '12 multiplica só pães e recheios (3 × 4) e esquece os 2 molhos: cada combinação ainda se desdobra em 2.',
+    C: '36 seria 3 × 4 × 3, como se houvesse 3 molhos. Com 2 molhos, são 3 × 4 × 2 = 24 sanduíches.',
+    D: '48 é o dobro da resposta: multiplica por 2 uma vez a mais. Os fatores são 3 pães, 4 recheios e 2 molhos: 3 × 4 × 2 = 24.',
+  },
+  'COM-002': {
+    A: '40 multiplica 10 algarismos por 4 posições. Cada posição tem suas próprias opções: 10 × 9 × 8 × 7 = 5.040.',
+    B: '210 conta grupos de 4 algarismos sem considerar a ordem. Numa senha, a ordem importa: 1234 e 4321 são senhas diferentes.',
+    C: '6.561 = 9⁴ usa 9 opções em todas as posições. Sem repetição, as opções diminuem a cada posição: 10 × 9 × 8 × 7.',
+    D: '10.000 = 10⁴ permite repetir algarismos. Sem repetição, cada posição tem uma opção a menos: 10 × 9 × 8 × 7 = 5.040.',
+  },
 };

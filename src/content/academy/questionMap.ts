@@ -651,4 +651,8 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'EST-006': ['media/mudancas'],
   'EST-002': ['mediana-moda/ordenar'],
   'EST-005': ['mediana-moda/frequencias'],
+
+  // ——— Análise combinatória
+  'COM-001': ['principio-multiplicativo/etapas'],
+  'COM-002': ['principio-multiplicativo/sem-repeticao'],
 };
