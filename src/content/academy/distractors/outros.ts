@@ -117,4 +117,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: 'Com média 35, os dois somariam 70 anos, e o grupo, 370: média de 30,83 anos, e não 31.',
     E: '72 é a soma das idades dos dois que entraram (372 − 300). A média deles é 72 ÷ 2 = 36.',
   },
+  'EST-002': {
+    A: '1 é a moda (aparece três vezes). A mediana é a média dos dois valores centrais da lista ordenada (0, 1, 1, 1, 2, 3, 4, 5): (1 + 2) ÷ 2 = 1,5.',
+    C: '2 é só um dos dois valores centrais. Com 8 rodadas, a mediana é a média do 4º e do 5º valores em ordem: (1 + 2) ÷ 2 = 1,5.',
+    D: '2,125 é a média (17 gols ÷ 8 rodadas). A mediana é o valor do meio da lista ordenada: 1,5.',
+    E: '2,5 pega os dois valores do meio da tabela sem ordenar (4 e 1). Em ordem — 0, 1, 1, 1, 2, 3, 4, 5 —, os centrais são 1 e 2: mediana 1,5.',
+  },
+  'EST-005': {
+    A: 'R$ 1.500,00 é a moda, o salário mais frequente. Com 10 funcionários, a mediana é a média do 5º e do 6º salários em ordem: (1.500 + 2.000) ÷ 2.',
+    C: 'R$ 2.000,00 é só o 6º salário. Com 10 funcionários, a mediana é a média do 5º (R$ 1.500,00) e do 6º (R$ 2.000,00).',
+    D: 'R$ 2.650,00 é a média (26.500 ÷ 10), puxada pelo salário de R$ 10.000,00. A mediana é o valor do meio: R$ 1.750,00.',
+    E: 'R$ 4.125,00 é a média dos quatro valores da tabela sem considerar quantos funcionários recebem cada um. A mediana conta os 10 funcionários: R$ 1.750,00.',
+  },
 };

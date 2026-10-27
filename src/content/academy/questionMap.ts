@@ -649,4 +649,6 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'EST-003': ['media/ponderada'],
   'EST-004': ['media/mudancas'],
   'EST-006': ['media/mudancas'],
+  'EST-002': ['mediana-moda/ordenar'],
+  'EST-005': ['mediana-moda/frequencias'],
 };
