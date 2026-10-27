@@ -1,5 +1,6 @@
 import { course } from '../../kit/build';
 import { COMPRAS_A_PRAZO } from './compras-a-prazo';
+import { CUSTO_BENEFICIO } from './custo-beneficio';
 import { JUROS_COMPOSTOS } from './juros-compostos';
 import { JUROS_COMPOSTOS_FLUXOS } from './juros-compostos-fluxos';
 import { JUROS_SIMPLES } from './juros-simples';
@@ -10,5 +11,5 @@ export const COURSE_FINANCEIRA = course({
   title: 'Matemática financeira',
   tagline: 'Juros, prestações e escolhas que valem mais',
   tone: 'ember',
-  lessons: [JUROS_SIMPLES, JUROS_SIMPLES_DECISOES, JUROS_COMPOSTOS, JUROS_COMPOSTOS_FLUXOS, COMPRAS_A_PRAZO],
+  lessons: [JUROS_SIMPLES, JUROS_SIMPLES_DECISOES, JUROS_COMPOSTOS, JUROS_COMPOSTOS_FLUXOS, COMPRAS_A_PRAZO, CUSTO_BENEFICIO],
 });
