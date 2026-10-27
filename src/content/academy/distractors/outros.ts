@@ -155,4 +155,24 @@ export const NOTES_OUTROS: DistractorNotes = {
     C: '210 = C(10, 4) é o total de equipes, incluindo as 15 sem nenhuma mulher, que precisam ser descontadas.',
     D: '336 fixa uma das 4 mulheres e completa com 3 quaisquer dos 9 restantes (4 × 84), contando várias vezes as equipes com mais de uma mulher.',
   },
+
+  // ——— Probabilidade
+  'PRB-001': {
+    A: '1/4 não corresponde aos dados da urna. Há 4 vermelhas entre 10 bolas: 4/10 = 2/5.',
+    B: '2/3 divide as vermelhas pelas azuis (4/6). O denominador são todas as 10 bolas: 4/10 = 2/5.',
+    C: '3/5 = 6/10 é a chance de sair azul. As vermelhas são 4 de 10: 2/5.',
+    E: '1/6 não usa os casos da urna. As vermelhas são 4 favoráveis entre 10 possíveis: 4/10 = 2/5.',
+  },
+  'PRB-002': {
+    A: '1/12 = 3/36 contaria só 3 pares. Os que somam 7 são 6: (1, 6), (2, 5), (3, 4), (4, 3), (5, 2) e (6, 1).',
+    B: '1/9 = 4/36 contaria só 4 pares. Os que somam 7 são 6 dos 36: 6/36 = 1/6.',
+    C: '7/36 usa a própria soma como número de casos favoráveis. Os pares que somam 7 são 6: 6/36 = 1/6.',
+    D: '1/11 trata as 11 somas possíveis (de 2 a 12) como igualmente prováveis. Não são: a soma 7 aparece em 6 dos 36 pares.',
+  },
+  'PRB-005': {
+    A: '3/8 conta só os maiores que 5 (6, 7 e 8). Os pares 2 e 4 também ganham: são 2, 4, 6, 7 e 8.',
+    B: '1/2 conta só os pares (2, 4, 6 e 8). O 7, ímpar mas maior que 5, também ganha.',
+    C: '7/8 soma 4 pares e 3 maiores que 5, contando duas vezes o 6 e o 8. Sem repetição, são 5 setores.',
+    E: 'Com 3/4, seriam 6 setores vencedores. Os que ganham são 2, 4, 6, 7 e 8: 5 setores.',
+  },
 };

@@ -657,4 +657,9 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'COM-002': ['principio-multiplicativo/sem-repeticao'],
   'COM-003': ['combinacao/formula', 'combinacao/ordem'],
   'COM-004': ['combinacao/pelo-menos'],
+
+  // ——— Probabilidade
+  'PRB-001': ['probabilidade-simples/chances'],
+  'PRB-002': ['probabilidade-simples/espaco'],
+  'PRB-005': ['probabilidade-simples/ou-nao'],
 };
