@@ -674,4 +674,8 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'GEO-007': ['pitagoras/planos'],
   'GEO-004': ['circulo/partes'],
   'GEO-005': ['circulo/comprimento'],
+
+  // ——— Geometria espacial
+  'ESP-001': ['volumes/capacidade'],
+  'ESP-003': ['volumes/deslocamento'],
 };

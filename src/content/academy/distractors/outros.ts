@@ -237,4 +237,18 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: '100 converte 70 cm em 7 m (o certo é 0,7 m): cada volta mediria 21,98 m. Com 3,14 × 0,7 = 2,198 m por volta, são 1.000 voltas.',
     E: '10.000 converte 70 cm em 0,07 m (o certo é 0,7 m). Uma volta mede 3,14 × 0,7 = 2,198 m, e 2.198 ÷ 2,198 = 1.000.',
   },
+
+  // ——— Geometria espacial
+  'ESP-001': {
+    A: '30 L usa 1 m³ = 10 L. Como 1 m³ = 1.000 dm³ e cada dm³ é 1 litro, a caixa de 2 × 1,5 × 1 = 3 m³ guarda 3.000 L.',
+    C: '4.500 soma as medidas (2 + 1,5 + 1 = 4,5) antes de converter. O volume é o produto: 2 × 1,5 × 1 = 3 m³ = 3.000 L.',
+    D: '300 L usa 1 m³ = 100 L. Na verdade, 1 m³ = 10 dm × 10 dm × 10 dm = 1.000 L: 3 m³ = 3.000 L.',
+    E: '30.000 L usa 1 m³ = 10.000 L. Como 1 m³ = 1.000 L, os 3 m³ da caixa são 3.000 L.',
+  },
+  'ESP-003': {
+    A: 'Uma pedra de 1.200 cm³ faria o nível subir só 1.200 ÷ (60 × 30) ≈ 0,67 cm, e não 2 cm. O volume da pedra é 60 × 30 × 2 = 3.600 cm³.',
+    B: '2.400 usa a face lateral (30 × 40) como fundo. A água sobe sobre o fundo do aquário, de 60 × 30 = 1.800 cm²: 1.800 × 2 = 3.600 cm³.',
+    C: '4.800 usa a face da frente (60 × 40) como fundo. A água sobe sobre o fundo, de 60 × 30 = 1.800 cm²: 1.800 × 2 = 3.600 cm³.',
+    D: 'Uma pedra de 7.200 cm³ faria o nível subir 7.200 ÷ 1.800 = 4 cm, o dobro do observado. Para subir 2 cm: 1.800 × 2 = 3.600 cm³.',
+  },
 };
