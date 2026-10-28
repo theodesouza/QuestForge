@@ -465,12 +465,13 @@ function Shape({ viz, width }: { viz: Extract<VizSpec, { kind: 'shape' }>; width
       );
     }
     case 'cylinder': {
-      const k = Math.min((width - 90) / (2 * d0), (H - 50) / d1);
+      // Reserva 22 px acima (rótulo do raio) e abaixo (rótulo da base), além das elipses.
+      const k = Math.min((width - 90) / (2 * d0), (H - 56) / (d1 + 0.56 * d0));
       const r = d0 * k;
       const h = d1 * k;
       const ry = Math.max(6, r * 0.28);
       const cx = width / 2;
-      const top = (H - h) / 2;
+      const top = 22 + ry + (H - (44 + 2 * ry + h)) / 2;
       const level = Math.max(0, Math.min(1, viz.fill ?? 0)) * h;
       return (
         <Svg width={width} height={H}>
@@ -484,7 +485,7 @@ function Shape({ viz, width }: { viz: Extract<VizSpec, { kind: 'shape' }>; width
             <Path d={`M ${cx - r} ${top + h} A ${r} ${ry} 0 0 0 ${cx + r} ${top + h}`} />
           </G>
           <Line x1={cx} y1={top} x2={cx + r} y2={top} stroke={colors.verdigris} strokeWidth={2} />
-          {lbl(l0, cx + r / 2, top - 8, 'middle', colors.verdigris)}
+          {lbl(l0, cx + r / 2, top - ry - 6, 'middle', colors.verdigris)}
           {lbl(l1, cx + r + 8, top + h / 2 + 4, 'start')}
           {lbl(l2, cx, top + h + ry + 16, 'middle', colors.parchment)}
         </Svg>

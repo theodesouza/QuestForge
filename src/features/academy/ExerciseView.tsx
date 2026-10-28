@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     backgroundColor: colors.ink800,
   },
-  input: { flex: 1, color: colors.parchment, fontFamily: fonts.display, fontSize: 22, paddingVertical: space.sm },
+  input: { flex: 1, minWidth: 0, color: colors.parchment, fontFamily: fonts.display, fontSize: 22, paddingVertical: space.sm },
   placed: {
     flexDirection: 'row',
     alignItems: 'center',
