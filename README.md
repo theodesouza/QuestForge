@@ -115,7 +115,13 @@ um APK antigo nunca recebe código que dependa de nativo que ele não tem.
 
 ## Publicação e reversão
 
-Última atualização publicada: **22/10/2026 — 330 questões novas, chefes animados e Convergência**,
+Última atualização publicada: **28/10/2026 — Academia QuestForge** (13 cursos, 40 aulas, 197 etapas),
+código `fc454cf`, Android, runtime `0.3.0` (APK versionCode 7, sem reinstalar):
+
+- `preview`: grupo `e999ba50-7c75-444f-99c9-7b86370ad660`;
+- `production`: grupo `25e682c0-ca23-49b3-9dae-adefb399ea1d`.
+
+Anterior: **22/10/2026 — 330 questões novas, chefes animados e Convergência**,
 código `b1777c0`, Android, runtime `0.3.0` (APK versionCode 7):
 
 - `preview`: grupo `3de15c8f-626e-43ec-a87a-385756ca0441`;

@@ -130,7 +130,7 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [x] `scripts/e2e-academy.js`: fluxo da Academia no navegador com capturas, sem erros de console; e2e principal, tipos, lint, 622 testes e exportação Android conferidos
 - [ ] Testar em Android físico e com TalkBack
 - [ ] Revisão pedagógica por professor externo e teste com estudantes
-- [ ] Publicar por EAS Update (sem mudança nativa: serve ao runtime 0.3.0)
+- [x] Publicada por EAS Update em 28/10/2026 (código `fc454cf`, Android, runtime 0.3.0, sem novo APK): `preview` grupo `e999ba50-7c75-444f-99c9-7b86370ad660`, `production` grupo `25e682c0-ca23-49b3-9dae-adefb399ea1d`; manifestos servidos conferidos nos dois canais. Reversão: grupos de 22/10 (`3de15c8f-626e-43ec-a87a-385756ca0441` e `1e8a3a63-9125-46e7-aa10-201dcf3f49da`)
 - [ ] Atualizar os patches indicados pelo `expo-doctor` (expo 57.0.31, expo-router 57.0.29, expo-sharing 57.0.24), anteriores a este trabalho
 
 ## Etapa 6 — Conteúdo (pendente)
