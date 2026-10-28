@@ -680,4 +680,9 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'ESP-003': ['volumes/deslocamento'],
   'ESP-002': ['cilindro/base-altura'],
   'ESP-004': ['cilindro/comparar'],
+
+  // ——— Grandezas e medidas
+  'GRA-001': ['conversao/doses'],
+  'GRA-003': ['conversao/area-volume'],
+  'GRA-005': ['conversao/doses'],
 };

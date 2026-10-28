@@ -263,4 +263,24 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: '75% é a razão 120π ÷ 160π, o volume da embalagem 2 em relação ao da 1. A pergunta é quanto a 1 tem a mais: 40π ÷ 120π ≈ 33%.',
     E: '100% considera só o raio, que dobra. Mas o raio entra ao quadrado (× 4) e a altura da embalagem 1 é 1/3 da outra: 4 × 1/3 = 4/3, cerca de 33% a mais.',
   },
+
+  // ——— Grandezas e medidas
+  'GRA-001': {
+    A: '1 usa 1 L = 100 mL, transformando 2,5 L em 250 mL. Na verdade, 2,5 L = 2.500 mL, e 2.500 ÷ 250 = 10 copos.',
+    B: '4 é o número de copos em 1 litro (1.000 ÷ 250). A garrafa tem 2,5 L: 2,5 × 4 = 10 copos.',
+    C: 'Com 25 copos de 250 mL, seriam servidos 6.250 mL = 6,25 L, mais que os 2,5 L da garrafa. São 2.500 ÷ 250 = 10 copos.',
+    E: '100 usa 1 L = 10.000 mL (2,5 L viraria 25.000 mL). Um litro tem 1.000 mL: 2.500 ÷ 250 = 10 copos.',
+  },
+  'GRA-003': {
+    A: '240 usa 1 ha = 100 m², confundindo o lado do quadrado (100 m) com a área. 1 ha = 100 × 100 = 10.000 m², e 2,4 × 10.000 = 24.000 m².',
+    B: '2.400 usa 1 ha = 1.000 m². Um hectare tem 100 × 100 = 10.000 m²: 2,4 ha = 24.000 m².',
+    C: '240.000 multiplica por 100.000. Um hectare tem 10.000 m²: 2,4 × 10.000 = 24.000 m².',
+    E: '2.400.000 usa o fator do km² (1.000.000 m²). O hectare é menor, 10.000 m²: 2,4 ha = 24.000 m².',
+  },
+  'GRA-005': {
+    A: 'Em 10 dias seriam usadas só 45 × 10 = 450 gotas, e o frasco tem 30 × 20 = 600. Ele dura 600 ÷ 45 ≈ 13,3: 13 dias completos.',
+    B: '14 arredonda 13,3 para cima, mas no 14º dia faltariam gotas: 14 × 45 = 630, mais que as 600 do frasco. São 13 dias completos.',
+    C: '20 dias exigiriam 20 × 45 = 900 gotas, mas o frasco tem só 30 × 20 = 600. São 600 ÷ 45 ≈ 13,3: 13 dias completos.',
+    E: '40 é o número de doses (600 ÷ 15), e não de dias: são 3 doses por dia. 600 ÷ 45 ≈ 13,3: 13 dias completos.',
+  },
 };
