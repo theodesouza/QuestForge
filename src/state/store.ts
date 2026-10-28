@@ -107,7 +107,7 @@ export function publish(state: GameState, events: GameEvent[]) {
       toasts.push({
         id: `t${celebrationSeq++}`,
         tone: 'bonus',
-        title: 'Selo de domínio conquistado!',
+        title: 'Insígnia de domínio conquistada!',
         detail: `${findLesson(e.lessonId)?.title ?? 'Aula'}: todas as etapas dominadas · +${e.xp} XP · +${e.ink} Tinta`,
       });
     }

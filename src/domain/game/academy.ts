@@ -271,7 +271,7 @@ export function academyAbandonChallenge(state: GameState, ref: string): Result {
   return tx.done();
 }
 
-/** Selo da aula e títulos da Academia. */
+/** Insígnia da aula e títulos da Academia. */
 function afterMastery(tx: Tx, lessonId: string, now: number) {
   const lesson = LESSONS.find((l) => l.id === lessonId);
   if (lesson && lessonSealed(lesson, tx.state.academy)) {

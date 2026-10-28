@@ -402,7 +402,7 @@ function ChallengeFlow({ loc, body, progress, now, onMode }: { loc: StageLocatio
         <Text variant="body" color={colors.parchmentDim}>
           {passed
             ? milestone
-              ? `+${milestone.xp} XP e +${milestone.ink} de Tinta. ${milestone.milestone === 'reviewed' ? 'A próxima revisão fica para daqui a mais tempo.' : 'Em alguns dias, uma revisão rápida vai fixar o que você aprendeu.'}${sealed ? ' E a aula inteira ganhou o selo de domínio!' : ''}`
+              ? `+${milestone.xp} XP e +${milestone.ink} de Tinta. ${milestone.milestone === 'reviewed' ? 'A próxima revisão fica para daqui a mais tempo.' : 'Em alguns dias, uma revisão rápida vai fixar o que você aprendeu.'}${sealed ? ' E a aula inteira ganhou a insígnia de domínio!' : ''}`
               : 'Mais uma prova de que você sabe. (Treino: sem XP.)'
             : 'Releia as resoluções acima, pratique o ponto que pegou e tente de novo — os problemas serão outros.'}
         </Text>

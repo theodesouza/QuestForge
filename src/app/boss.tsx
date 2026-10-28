@@ -262,6 +262,12 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
               </Text>
             </View>
           ) : null}
+          {(battle.prepBonus ?? 0) > 0 ? (
+            <View style={[styles.tag, { backgroundColor: colors.verdigrisGlow }]} accessible accessibilityLabel={`Preparo na Academia: mais ${num((battle.prepBonus ?? 0) * 100, 1)}% de dano`}>
+              <Icon name="scroll" size={13} color={colors.verdigris} />
+              <Text variant="caption" color={colors.verdigris}>preparo +{num((battle.prepBonus ?? 0) * 100, 1)}%</Text>
+            </View>
+          ) : null}
           {battle.combo > 0 ? (
             <View style={[styles.tag, { backgroundColor: colors.brassGlow }]}>
               <Icon name="bolt" size={13} color={colors.brass} fill={colors.brass} strokeWidth={1} />

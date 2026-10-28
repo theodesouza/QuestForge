@@ -376,8 +376,8 @@ export const ITEMS: ItemDef[] = [
     slot: 'title',
     name: 'Erudito',
     rarity: 'raro',
-    description: 'Cinco aulas seladas, da descoberta à maestria.',
-    howToGet: 'Conquiste 5 selos de domínio na Academia (todas as etapas de 5 aulas).',
+    description: 'Cinco aulas dominadas por inteiro, da descoberta à maestria.',
+    howToGet: 'Conquiste 5 insígnias de domínio na Academia (todas as etapas de 5 aulas).',
     visual: { color: '#9B87FF' },
   },
   {
@@ -385,8 +385,8 @@ export const ITEMS: ItemDef[] = [
     slot: 'title',
     name: 'Sábio do Atlas',
     rarity: 'lendario',
-    description: 'Todas as aulas da Academia seladas. Nenhum conteúdo escapou ao seu mapa.',
-    howToGet: 'Conquiste o selo de domínio de todas as aulas da Academia.',
+    description: 'Todas as aulas da Academia dominadas por inteiro. Nenhum conteúdo escapou ao seu mapa.',
+    howToGet: 'Conquiste a insígnia de domínio de todas as aulas da Academia.',
     visual: { color: '#FFD36B' },
   },
   // ——— Oficina (compráveis com Tinta) ———

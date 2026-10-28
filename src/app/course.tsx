@@ -60,7 +60,7 @@ function CourseView({ course }: { course: Course }) {
                 router.push(`/lesson?id=${lesson.id}`);
               }}
               accessibilityRole="button"
-              accessibilityLabel={`Aula ${i + 1}: ${lesson.title}. ${s.mastered} de ${s.stages} etapas dominadas${sealed ? ', com selo de domínio' : ''}.`}
+              accessibilityLabel={`Aula ${i + 1}: ${lesson.title}. ${s.mastered} de ${s.stages} etapas dominadas${sealed ? ', com insígnia de domínio' : ''}.`}
               style={({ pressed }) => [styles.lesson, { borderLeftColor: tone, opacity: pressed ? 0.88 : 1 }]}
             >
               <View style={styles.row}>

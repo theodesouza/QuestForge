@@ -149,7 +149,7 @@ export function courseSummary(course: Course, academy: Record<string, StageProgr
   return summarize(course.lessons.flatMap(lessonRefs), academy, now);
 }
 
-/** Selo de domínio: todas as etapas da aula dominadas. */
+/** Insígnia de domínio: todas as etapas da aula dominadas. */
 export function lessonSealed(lesson: Lesson, academy: Record<string, StageProgress>): boolean {
   return lessonRefs(lesson).every((ref) => academy[ref]?.masteredAt != null);
 }

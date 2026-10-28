@@ -58,10 +58,10 @@ function LessonView({ lesson }: { lesson: Lesson }) {
           {course.title}
         </Text>
         {sealed ? (
-          <View style={styles.seal} accessible accessibilityLabel="Selo de domínio conquistado">
+          <View style={styles.seal} accessible accessibilityLabel="Insígnia de domínio conquistada">
             <Icon name="seal" size={16} color={colors.ink900} fill={colors.ink900} />
             <Text variant="label" color={colors.ink900}>
-              Selo
+              Insígnia
             </Text>
           </View>
         ) : null}

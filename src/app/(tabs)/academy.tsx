@@ -89,7 +89,7 @@ export default function Academy() {
       <Animated.View entering={enter(1)} style={styles.stats}>
         <Stat value={totals.studied} label="etapas estudadas" />
         <Stat value={totals.mastered} label="dominadas" color={colors.verdigris} />
-        <Stat value={totals.seals} label="selos" color={colors.iris} />
+        <Stat value={totals.seals} label="insígnias" color={colors.iris} />
       </Animated.View>
 
       <Animated.View entering={enter(2)} style={{ gap: space.md }}>

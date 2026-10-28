@@ -23,7 +23,7 @@ export const MASTERED_REWARD: Record<StageKind, { xp: number; ink: number }> = {
 
 /** Revisão espaçada no prazo: uma vez por caixa. */
 export const REVIEWED_REWARD = { xp: 12, ink: 3 } as const;
-/** Selo de domínio: todas as etapas de uma aula dominadas. */
+/** Insígnia de domínio: todas as etapas de uma aula dominadas. */
 export const SEALED_REWARD = { xp: 80, ink: 25 } as const;
 
 /** Títulos por marcos da Academia (itens do catálogo). */
@@ -31,8 +31,8 @@ export const ACADEMY_TITLES = {
   firstMastery: 'title-aprendiz',
   /** Etapas dominadas para o segundo título. */
   manyMastered: { itemId: 'title-estudioso', count: 15 },
-  /** Selos de aula para o terceiro título. */
+  /** Insígnias de aula para o terceiro título. */
   seals: { itemId: 'title-erudito', count: 5 },
-  /** Todas as aulas seladas. */
+  /** Todas as aulas com insígnia. */
   allSeals: 'title-sabio',
 } as const;

@@ -140,7 +140,7 @@ export default function Hero() {
         <View style={styles.sealsHead}>
           <Icon name="seal" size={20} color={colors.verdigris} fill={colors.verdigrisGlow} />
           <Text variant="label" color={colors.verdigris} style={{ flex: 1 }}>
-            Selos de domínio
+            Insígnias de domínio
           </Text>
           <Pressable onPress={() => router.push('/academy')} accessibilityRole="button" accessibilityLabel="Abrir a Academia" hitSlop={8}>
             <Text variant="caption" color={colors.brass}>
@@ -149,7 +149,7 @@ export default function Hero() {
           </Pressable>
         </View>
         <Text variant="caption" color={colors.parchmentDim} style={{ marginTop: space.xs }}>
-          {masteredStages} etapa{masteredStages === 1 ? '' : 's'} dominada{masteredStages === 1 ? '' : 's'} sem ajuda · {seals.length} de {LESSONS.length} aulas seladas. Um selo exige dominar todas as etapas de uma aula.
+          {masteredStages} etapa{masteredStages === 1 ? '' : 's'} dominada{masteredStages === 1 ? '' : 's'} sem ajuda · {seals.length} de {LESSONS.length} aulas com insígnia. Uma insígnia exige dominar todas as etapas de uma aula.
         </Text>
         {seals.length ? (
           <View style={styles.seals}>
