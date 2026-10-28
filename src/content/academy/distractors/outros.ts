@@ -225,4 +225,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     D: '25 divide a diagonal por 2. Com lados 4k e 3k, a diagonal é 5k: k = 50 ÷ 5 = 10, e a largura é 40.',
     E: 'Com largura 45, a diagonal seria 45 × 5/4 = 56,25 polegadas, e não 50. A largura é 4k, com 5k = 50: 40.',
   },
+  'GEO-004': {
+    A: '125,6 m é o contorno da praça (2 × 3,14 × 20), um comprimento. A calçada é uma área: 3,14 × (22² − 20²) = 263,76 m².',
+    C: '1.256 m² é a área da própria praça (3,14 × 20²). A calçada é só o anel em volta dela: 3,14 × (22² − 20²) = 263,76 m².',
+    D: '251,2 multiplica o contorno da praça (125,6 m) pela largura (2 m), esquecendo que o anel é mais comprido por fora. A área exata é 3,14 × (22² − 20²) = 263,76 m².',
+    E: '1.519,76 m² é o círculo externo inteiro (3,14 × 22²), com a praça dentro. Tire a praça: 1.519,76 − 1.256 = 263,76 m².',
+  },
+  'GEO-005': {
+    B: 'Com 314 voltas, a roda avançaria só 314 × 2,198 ≈ 690 m, e não 2.198 m. Uma volta avança 3,14 × 0,7 = 2,198 m: 2.198 ÷ 2,198 = 1.000 voltas.',
+    C: '3.140 divide a distância pelo diâmetro (2.198 ÷ 0,7), sem o π. Em cada volta a roda avança o contorno, 3,14 × 0,7 = 2,198 m: 2.198 ÷ 2,198 = 1.000.',
+    D: '100 converte 70 cm em 7 m (o certo é 0,7 m): cada volta mediria 21,98 m. Com 3,14 × 0,7 = 2,198 m por volta, são 1.000 voltas.',
+    E: '10.000 converte 70 cm em 0,07 m (o certo é 0,7 m). Uma volta mede 3,14 × 0,7 = 2,198 m, e 2.198 ÷ 2,198 = 1.000.',
+  },
 };
