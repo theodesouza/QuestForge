@@ -678,4 +678,6 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   // ——— Geometria espacial
   'ESP-001': ['volumes/capacidade'],
   'ESP-003': ['volumes/deslocamento'],
+  'ESP-002': ['cilindro/base-altura'],
+  'ESP-004': ['cilindro/comparar'],
 };

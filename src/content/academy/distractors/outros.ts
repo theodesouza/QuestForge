@@ -251,4 +251,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     C: '4.800 usa a face da frente (60 × 40) como fundo. A água sobe sobre o fundo, de 60 × 30 = 1.800 cm²: 1.800 × 2 = 3.600 cm³.',
     D: 'Uma pedra de 7.200 cm³ faria o nível subir 7.200 ÷ 1.800 = 4 cm, o dobro do observado. Para subir 2 cm: 1.800 × 2 = 3.600 cm³.',
   },
+  'ESP-002': {
+    A: '180 esquece de elevar o raio ao quadrado (3 × 5 × 12). A base é π × r² = 3 × 25 = 75 cm², e 75 × 12 = 900 mL.',
+    B: '300 esquece o π (5² × 12). A área da base é π × r² = 3 × 25 = 75 cm², e 75 × 12 = 900 mL.',
+    D: 'Com 450 mL, a lata teria só 450 ÷ 75 = 6 cm de altura. Com base de 3 × 5² = 75 cm² e 12 cm de altura, são 900 mL.',
+    E: '3.600 usa 10 cm, o diâmetro, como raio (3 × 10² × 12). O raio é 5 cm: 3 × 25 × 12 = 900 mL.',
+  },
+  'ESP-004': {
+    A: '25% compara a diferença (40π) com a embalagem 1 (160π). A pergunta toma a embalagem 2 como referência: 40π ÷ 120π ≈ 33%.',
+    B: 'Se fosse 50% maior, a embalagem 1 teria 1,5 × 120π = 180π, mas ela tem π × 4² × 10 = 160π: 40π a mais, cerca de 33%.',
+    D: '75% é a razão 120π ÷ 160π, o volume da embalagem 2 em relação ao da 1. A pergunta é quanto a 1 tem a mais: 40π ÷ 120π ≈ 33%.',
+    E: '100% considera só o raio, que dobra. Mas o raio entra ao quadrado (× 4) e a altura da embalagem 1 é 1/3 da outra: 4 × 1/3 = 4/3, cerca de 33% a mais.',
+  },
 };

@@ -152,14 +152,15 @@ function circleAreaGen(r: Rand) {
 function pizzaGen(r: Rand) {
   for (;;) {
     const d1 = r.pick([25, 30, 35]);
-    const d2 = d1 + r.pick([5, 10, 15]);
-    const p1 = r.pick([30, 35, 40, 45]);
-    const p2 = p1 + r.pick([10, 15, 20, 25, 30]);
+    const d2 = d1 + r.pick([5, 10]);
     const a1 = PI * (d1 / 2) ** 2;
     const a2 = PI * (d2 / 2) ** 2;
+    // Preço da grande perto do proporcional à área, para que qualquer uma possa ser a mais vantajosa.
+    const p1 = r.pick([30, 35, 40, 45]);
+    const p2 = Math.round(p1 * (a2 / a1) * r.pick([0.75, 0.8, 0.85, 1.15, 1.2, 1.3]));
     const u1 = (p1 / a1) * 100;
     const u2 = (p2 / a2) * 100;
-    if (Math.abs(u1 - u2) / Math.min(u1, u2) < 0.06) continue;
+    if (p2 > 95 || Math.abs(u1 - u2) / Math.min(u1, u2) < 0.06) continue;
     if (d1 === 30 && d2 === 40 && p1 === 40 && p2 === 60) continue; // exemplo da teoria
     const area = (d: number, a: number) => `3,14 × ${num(d / 2)}² ${eq(a, 1)} ${num(a, 1)} cm²`;
     const both = `A média tem ${num(a1, 1)} cm² e sai a cerca de ${brl(u1)} a cada 100 cm²; a grande, ${num(a2, 1)} cm², a cerca de ${brl(u2)}.`;
