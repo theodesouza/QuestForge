@@ -283,4 +283,16 @@ export const NOTES_OUTROS: DistractorNotes = {
     C: '20 dias exigiriam 20 × 45 = 900 gotas, mas o frasco tem só 30 × 20 = 600. São 600 ÷ 45 ≈ 13,3: 13 dias completos.',
     E: '40 é o número de doses (600 ÷ 15), e não de dias: são 3 doses por dia. 600 ÷ 45 ≈ 13,3: 13 dias completos.',
   },
+  'GRA-002': {
+    A: '5 é o ritmo: 50 min ÷ 10 km = 5 minutos por quilômetro. A velocidade é 10 km ÷ (50/60) h = 12 km/h.',
+    B: '10 km/h seria 10 km em 1 hora inteira, mas ela levou só 50 minutos: foi mais rápida. 10 ÷ (50/60) = 12 km/h.',
+    C: 'A 15 km/h, em 50 min ela correria 15 × 50/60 = 12,5 km, e não 10. A velocidade é 10 ÷ (50/60) = 12 km/h.',
+    D: '20 usa 50 min = 0,5 h, mas meia hora são 30 min. 50 min = 50/60 h, e 10 ÷ (50/60) = 12 km/h.',
+  },
+  'GRA-004': {
+    A: 'Em 1 h 30 min, os dois carros andariam juntos 150 × 1,5 = 225 km, menos que os 300 km entre as cidades. São 300 ÷ 150 = 2 h.',
+    B: 'Em 1 h 45 min (1,75 h), juntos andariam 150 × 1,75 = 262,5 km, e não 300. A distância encurta 70 + 80 = 150 km por hora: 300 ÷ 150 = 2 h.',
+    C: 'Em 2 h 15 min (2,25 h), juntos andariam 337,5 km: já teriam se cruzado. 300 ÷ (70 + 80) = 2 h.',
+    E: 'Em 2 h 30 min, juntos andariam 150 × 2,5 = 375 km, mais que os 300 km. A distância encurta 150 km por hora: 300 ÷ 150 = 2 h.',
+  },
 };

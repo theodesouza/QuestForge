@@ -685,4 +685,6 @@ export const QUESTION_STAGES: Record<string, string[]> = {
   'GRA-001': ['conversao/doses'],
   'GRA-003': ['conversao/area-volume'],
   'GRA-005': ['conversao/doses'],
+  'GRA-002': ['velocidade/tempo'],
+  'GRA-004': ['velocidade/encontros'],
 };
