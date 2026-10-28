@@ -29,7 +29,7 @@ import {
   tip,
   warn,
 } from '../../kit/build';
-import { brl, hm, num, pct, round } from '../../kit/format';
+import { brl, hm, num, pct, qty, round } from '../../kit/format';
 import type { Rand } from '../../types';
 
 const isInt = (x: number) => Number.isInteger(round(x, 9));
@@ -184,7 +184,7 @@ function ppGen(r: Rand) {
           ],
       hints: askPP
         ? ['Em pontos percentuais, basta subtrair as taxas: a nova menos a inicial.', 'Não divida pela taxa inicial: isso daria a variação relativa.']
-        : [`Diferença: ${num(b, 1)} − ${num(a, 1)} = ${num(diff, 1)} pontos percentuais.`, `Variação relativa: ${num(d, 1)} ÷ ${num(a, 1)}.`],
+        : [`Diferença: ${num(b, 1)} − ${num(a, 1)} = ${qty(diff, 'ponto percentual', 'pontos percentuais', 1)}.`, `Variação relativa: ${num(d, 1)} ÷ ${num(a, 1)}.`],
       solution: [`$${num(b, 1)} − ${num(a, 1)} = ${num(diff, 1)} p.p.`, ...(askPP ? [] : [`$${num(d, 1)} ÷ ${num(a, 1)} = ${pct(Math.abs(rel))}`])],
     });
   }

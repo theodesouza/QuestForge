@@ -70,10 +70,10 @@ function urnGen(r: Rand) {
         { ...opt(x, total - x), feedback: `Isso divide as bolas ${cols[i].many} pelas outras. O denominador são todas as ${total} bolas da urna.` },
         { ...opt(1, k), feedback: `Isso supõe uma chance para cada cor, mas as cores têm quantidades diferentes de bolas.` },
         { ...opt(x, other), feedback: `Isso compara com as bolas de uma só das outras cores. Divida pelo total de bolas: ${total}.` },
-        { ...opt(total - x, total), feedback: `Essa é a chance de não sair ${cols[i].name}: as outras ${total - x} bolas.` },
+        { ...opt(total - x, total), feedback: `Essa é a chance de não sair ${cols[i].name}: ${total - x === 1 ? 'a outra bola' : `as outras ${total - x} bolas`}.` },
       ]),
       verify: () => x / total,
-      hints: [`Casos possíveis: todas as bolas, ${counts.join(' + ')} = ${total}.`, `Casos favoráveis: as ${x} bolas ${cols[i].many}.`],
+      hints: [`Casos possíveis: todas as bolas, ${counts.join(' + ')} = ${total}.`, `Casos favoráveis: ${x === 1 ? `a única bola ${cols[i].name}` : `as ${x} bolas ${cols[i].many}`}.`],
       solution: [`$P = ${x} ÷ ${total} = ${fr(x, total)}`],
     });
   }
@@ -512,7 +512,7 @@ export const PROBABILIDADE_SIMPLES = lesson({
             ok('5/12'),
             no('1/4', 'Isso conta só os múltiplos de 4 (4, 8 e 12). Os números 1 e 2 também ganham.'),
             no('1/6', 'Isso conta só os menores que 3. Os múltiplos de 4 também ganham.'),
-            no('1/2', 'Isso soma 3 + 2 e mais um. Os grupos não têm números em comum: são 3 + 2 = 5 setores.'),
+            no('1/2', 'Com 1/2, seriam 6 setores vencedores. Os grupos (4, 8, 12 e 1, 2) não têm números em comum: são 3 + 2 = 5 setores.'),
           ],
           solution: ['$múltiplos de 4: 4, 8, 12; menores que 3: 1, 2', '$5 setores, sem repetição → P = 5/12'],
         })),

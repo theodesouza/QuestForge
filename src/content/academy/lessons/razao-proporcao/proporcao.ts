@@ -28,7 +28,7 @@ import {
   tip,
   warn,
 } from '../../kit/build';
-import { brl, gcd, lcm, num, round } from '../../kit/format';
+import { brl, gcd, lcm, num, qty, round } from '../../kit/format';
 import type { Rand } from '../../types';
 
 const NAMES = ['Ana', 'Bruno', 'Carla'];
@@ -174,11 +174,11 @@ function propSplitGen(r: Rand) {
     } else if (ctx === 1) {
       const s = r.int(1, 3);
       shown = w.map((x) => x * s);
-      prompt = `Num mutirão, ${NAMES[0]} trabalhou ${shown[0]} horas, ${NAMES[1]} ${shown[1]} horas e ${NAMES[2]} ${shown[2]} horas. A gorjeta de ${brl(total)} será dividida em partes diretamente proporcionais às horas trabalhadas.`;
+      prompt = `Num mutirão, ${NAMES[0]} trabalhou ${qty(shown[0], 'hora', 'horas')}, ${NAMES[1]}, ${qty(shown[1], 'hora', 'horas')} e ${NAMES[2]}, ${qty(shown[2], 'hora', 'horas')}. A gorjeta de ${brl(total)} será dividida em partes diretamente proporcionais às horas trabalhadas.`;
       ask = `Quanto ${NAMES[i]} vai receber?`;
     } else {
       shown = w;
-      prompt = `Três casas vão dividir a conta de ${brl(total)} de um poço artesiano em partes proporcionais ao número de moradores: a de ${NAMES[0]} tem ${w[0]}, a de ${NAMES[1]} tem ${w[1]} e a de ${NAMES[2]} tem ${w[2]} moradores.`;
+      prompt = `Três casas vão dividir a conta de ${brl(total)} de um poço artesiano em partes proporcionais ao número de moradores: a de ${NAMES[0]} tem ${qty(w[0], 'morador', 'moradores')}, a de ${NAMES[1]}, ${qty(w[1], 'morador', 'moradores')} e a de ${NAMES[2]}, ${qty(w[2], 'morador', 'moradores')}.`;
       ask = `Quanto paga a casa de ${NAMES[i]}?`;
     }
     const simplified = shown.some((v, j) => v !== w[j]);

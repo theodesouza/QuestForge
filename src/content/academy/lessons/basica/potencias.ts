@@ -32,7 +32,7 @@ import {
   tip,
   warn,
 } from '../../kit/build';
-import { brl, num, round, sup } from '../../kit/format';
+import { brl, num, qty, round, sup } from '../../kit/format';
 import type { Rand } from '../../types';
 
 const pow = (b: number, e: number) => `${b}${sup(e)}`;
@@ -77,7 +77,7 @@ function codesGen(r: Rand) {
       wrong: [
         { value: s * n, feedback: `${s} × ${n} soma as escolhas. Cada posição MULTIPLICA as possibilidades: ${Array.from({ length: n }, () => s).join(' × ')} = ${pow(s, n)}.` },
         { value: n ** s, feedback: `${pow(n, s)} inverteu base e expoente. A base é o número de símbolos (${s}); o expoente, o de posições (${n}).` },
-        { value: s ** (n - 1), feedback: `${pow(s, n - 1)} seria um código de ${n - 1} posições.` },
+        { value: s ** (n - 1), feedback: `${pow(s, n - 1)} seria um código de ${qty(n - 1, 'posição', 'posições')}.` },
       ],
       hints: ['Quantas escolhas há para a 1ª posição? E para a 2ª?', 'As escolhas se multiplicam: símbolos elevados ao número de posições.'],
       solution: [`$${Array.from({ length: n }, () => s).join(' × ')} = ${pow(s, n)} = ${num(value)} códigos`],
@@ -252,7 +252,7 @@ function compoundGen(r: Rand) {
       wrong: [
         { value: round(c * (1 + (ff.f - 1) * n), 2), feedback: `Isso aplica a variação sempre sobre o valor INICIAL. A cada ano o fator ${num(ff.f, 2)} incide sobre o valor do ano anterior: ${brl(c)} × ${num(ff.f, 2)}${sup(n)}.` },
         { value: round(c * ff.f * n, 2), feedback: `Isso multiplica o fator pelo número de anos. O fator se repete: eleve-o a ${n}.` },
-        { value: round(c * ff.f ** (n - 1), 2), feedback: `Esse é o valor depois de ${n - 1} anos.` },
+        { value: round(c * ff.f ** (n - 1), 2), feedback: `Esse é o valor depois de ${qty(n - 1, 'ano', 'anos')}.` },
       ].filter((w) => w.value > 0),
       hints: [`A cada ano, multiplique por ${num(ff.f, 2)}.`, `Depois de ${n} anos: ${brl(c)} × ${num(ff.f, 2)}${sup(n)}.`],
       solution: [`$${num(ff.f, 2)}${sup(n)} = ${num(ff.f ** n, 4)}`, `$${num(c)} × ${num(ff.f ** n, 4)} = ${brl(value)}`],

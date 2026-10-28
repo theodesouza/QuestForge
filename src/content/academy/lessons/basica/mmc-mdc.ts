@@ -32,7 +32,7 @@ import {
   warn,
 } from '../../kit/build';
 import { divisorCount, divisors, factorize, isPrime, lcmAll, powersText } from '../../kit/arith';
-import { gcd, hm, lcm, num } from '../../kit/format';
+import { gcd, hm, lcm, num, qty } from '../../kit/format';
 import type { Option, Rand, Tone } from '../../types';
 
 // ———————————————————————————————————————————————— apoio
@@ -368,7 +368,7 @@ function waitGen(r: Rand) {
         ...(today < m ? [] : [{ value: m - (today % m) + m, feedback: 'Confira: a próxima coincidência é o primeiro múltiplo do MMC depois de hoje.' }]),
       ],
       hints: [`Saídas conjuntas: múltiplos de MMC(${a}, ${b}) = ${m}.`, `Qual é o primeiro múltiplo de ${m} depois do dia ${today}?`],
-      solution: [`Saídas conjuntas nos dias ${m}, ${2 * m}, ${3 * m}…`, `A próxima depois do dia ${today} é no dia ${next}: faltam ${next} − ${today} = ${wait} dias.`],
+      solution: [`Saídas conjuntas nos dias ${m}, ${2 * m}, ${3 * m}…`, `A próxima depois do dia ${today} é no dia ${next}: ${wait === 1 ? 'falta' : 'faltam'} ${next} − ${today} = ${qty(wait, 'dia', 'dias')}.`],
     });
   }
 }
@@ -488,7 +488,7 @@ function remainderGen(r: Rand) {
     const m = lcm(d1, d2);
     const answer = m + rest;
     return draftNumeric({
-      prompt: [p(`Um estoque tem mais de ${rest} peças. Ao ser repartido em grupos de ${d1} ou em grupos de ${d2}, sobram exatamente ${rest} peça${rest > 1 ? 's' : ''} nos dois casos.`)],
+      prompt: [p(`Um estoque de peças pode ser repartido em grupos de ${d1} ou em grupos de ${d2}. Nos dois casos, forma-se pelo menos um grupo completo e ${rest > 1 ? `sobram exatamente ${rest} peças` : 'sobra exatamente 1 peça'}.`)],
       ask: 'Qual é a menor quantidade possível de peças?',
       unit: 'peças',
       answer,

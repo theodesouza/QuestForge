@@ -134,9 +134,9 @@ function withReplacementGen(r: Rand) {
 // ———————————————————————————————————————————————— geradores: sem reposição
 
 const BOXES = [
-  { what: 'bombons', a: 'de chocolate branco', b: 'de chocolate amargo', intro: 'Uma caixa tem bombons iguais por fora' },
-  { what: 'meias', a: 'pretas', b: 'brancas', intro: 'Uma gaveta tem meias soltas' },
-  { what: 'lâmpadas', a: 'boas', b: 'queimadas', intro: 'Uma caixa tem lâmpadas misturadas' },
+  { what: 'bombons', a: 'de chocolate branco', b: 'de chocolate amargo', intro: 'Uma caixa tem bombons iguais por fora', fem: false },
+  { what: 'meias', a: 'pretas', b: 'brancas', intro: 'Uma gaveta tem meias soltas', fem: true },
+  { what: 'lâmpadas', a: 'boas', b: 'queimadas', intro: 'Uma caixa tem lâmpadas misturadas', fem: true },
 ];
 
 /** Sem reposição: o segundo sorteio depende do primeiro. */
@@ -151,22 +151,24 @@ function noReplaceGen(r: Rand) {
     const t = a + b;
     const kind = r.pick(['aa', 'bb', 'ab'] as const);
     const [n1, d1] = kind === 'aa' ? [a * (a - 1), t * (t - 1)] : kind === 'bb' ? [b * (b - 1), t * (t - 1)] : [2 * a * b, t * (t - 1)];
-    const ask = kind === 'aa' ? `os dois serem ${g.a}` : kind === 'bb' ? `os dois serem ${g.b}` : `sair um de cada tipo`;
+    // Concordância com o objeto sorteado (os bombons; as meias, as lâmpadas).
+    const [two, both, one, first] = g.fem ? ['duas', 'as duas', 'uma', 'a primeira'] : ['dois', 'os dois', 'um', 'o primeiro'];
+    const ask = kind === 'aa' ? `${both} serem ${g.a}` : kind === 'bb' ? `${both} serem ${g.b}` : `sair ${one} de cada tipo`;
     const x = kind === 'bb' ? b : a;
     return draftChoice({
-      prompt: [p(`${g.intro}: ${a} ${g.a} e ${b} ${g.b}. Retiram-se dois, ao acaso, um depois do outro, sem devolver o primeiro.`)],
+      prompt: [p(`${g.intro}: ${a} ${g.a} e ${b} ${g.b}. Retiram-se ${two}, ao acaso, ${g.fem ? 'uma depois da outra' : 'um depois do outro'}, sem devolver ${first}.`)],
       ask: `Qual é a probabilidade de ${ask}?`,
       options: probOptions(opt(n1, d1), [
         ...(kind !== 'ab'
           ? [
-              { ...opt(x * x, t * t), feedback: 'Isso seria com reposição. Sem devolver o primeiro, sobra um a menos daquele tipo e um a menos no total.' },
+              { ...opt(x * x, t * t), feedback: `Isso seria com reposição. Sem devolver ${first}, sobra ${one} a menos daquele tipo e ${one} a menos no total.` },
               { ...opt(x, t), feedback: 'Essa é a chance da primeira retirada só. A segunda também precisa dar certo.' },
               { ...opt(x * (x - 1), t * t), feedback: 'Isso diminui o numerador, mas esquece de diminuir o total na segunda retirada.' },
             ]
           : [
-              { ...opt(a * b, t * (t - 1)), feedback: `Isso conta só uma ordem (${g.a} e depois ${g.b}). A ordem contrária também dá "um de cada": some as duas.` },
+              { ...opt(a * b, t * (t - 1)), feedback: `Isso conta só uma ordem (${g.a} e depois ${g.b}). A ordem contrária também dá "${one} de cada": some as duas.` },
               { ...opt(2 * a * b, t * t), feedback: 'Isso usa o mesmo total nas duas retiradas, como se houvesse reposição.' },
-              { ...opt(1, 2), feedback: 'Os resultados "dois iguais" e "um de cada" não têm a mesma chance: faça as contas.' },
+              { ...opt(1, 2), feedback: `Os resultados "${two} iguais" e "${one} de cada" não têm a mesma chance: faça as contas.` },
             ]),
       ]),
       verify: () => n1 / d1,

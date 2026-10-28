@@ -25,7 +25,7 @@ import {
   table,
   text,
 } from '../../kit/build';
-import { brl, fixed, num, pct, round } from '../../kit/format';
+import { brl, fixed, num, pct, qty, round } from '../../kit/format';
 import type { Rand } from '../../types';
 
 const cents = (x: number) => Number.isInteger(round(x * 100, 6));
@@ -263,7 +263,7 @@ function takePayGen(r: Rand) {
         answer: units ? paid : paid * pr,
         wrong: [
           ...(n % x ? [{ value: round(((n * y) / x) * (units ? 1 : pr), 2), feedback: `Isso aplica a proporção ${y} de ${x} a todas as unidades. A promoção vale só para grupos completos: as ${n % x} que sobram são pagas normalmente.` }] : []),
-          ...(n % x ? [{ value: groups * y * (units ? 1 : pr), feedback: `Isso esquece as ${n % x} unidades fora dos grupos completos: elas também são pagas.` }] : []),
+          ...(n % x ? [{ value: groups * y * (units ? 1 : pr), feedback: `Isso esquece ${n % x === 1 ? 'a unidade que fica fora dos grupos completos: ela também é paga' : `as ${n % x} unidades fora dos grupos completos: elas também são pagas`}.` }] : []),
           { value: n * (units ? 1 : pr), feedback: 'Isso ignora a promoção.' },
           ...(groups > 1 ? [{ value: (n - 1) * (units ? 1 : pr), feedback: `Isso aplica a promoção uma vez só. Ela vale para cada grupo completo de ${x}: são ${groups} grupos.` }] : []),
         ],
@@ -949,7 +949,7 @@ function exactComboGen(r: Rand) {
         { value: round(N * Math.min(pa / a, pb / b), 2), feedback: 'Isso paga cada tubo pelo menor preço unitário, como se desse para comprar tubos avulsos. Só há embalagens fechadas.' },
       ],
       hints: [`Liste as combinações exatas: ${a}x + ${b}y = ${N}.`, 'Calcule o custo de cada uma e escolha o menor.'],
-      solution: [...sols.map(([x, y], i) => `$${x} × ${a} + ${y} × ${b} = ${N} → ${rs(costs[i])}`), `$Menor: ${bx} de ${a} e ${by} de ${b}, ${rs(best)}`],
+      solution: [...sols.map(([x, y], i) => `$${x} × ${a} + ${y} × ${b} = ${N} → ${brl(costs[i])}`), `$Menor: ${bx} de ${a} e ${by} de ${b}, ${brl(best)}`],
     });
   }
 }
@@ -1044,6 +1044,19 @@ function tierBillGen(r: Rand) {
       return s;
     };
     const tier = (c: number) => (c <= 10 ? t[0] : c <= 20 ? t[1] : c <= 30 ? t[2] : t[3]);
+    /** O consumo repartido pelas faixas: [m³ na faixa, preço da faixa]. */
+    const split = (c: number) => {
+      const lims = [10, 20, 30, Infinity];
+      const out: [number, number][] = [];
+      let prev = 0;
+      for (let k = 0; k < 4; k++) {
+        const part = Math.max(0, Math.min(c, lims[k]) - prev);
+        if (part > 0) out.push([part, t[k]]);
+        prev = lims[k];
+      }
+      return out;
+    };
+    const breakdown = (c: number) => split(c).map(([m, price]) => `${m} × ${num(price, 2)}`).join(' + ');
     const tbl = table(['Faixa de consumo mensal', 'Preço por m³'], [['Primeiros 10 m³', brl(t[0])], ['Do 11º ao 20º m³', brl(t[1])], ['Do 21º ao 30º m³', brl(t[2])], ['Acima de 30 m³', brl(t[3])]]);
     const intro = p('Uma companhia de saneamento cobra a água por faixas de consumo, e cada faixa é cobrada separadamente:');
     if (r.next() < 0.5) {
@@ -1059,7 +1072,7 @@ function tierBillGen(r: Rand) {
           { value: round(c * t[0], 2), feedback: 'Isso cobra todo o consumo pelo preço da 1ª faixa. O que passa de 10 m³ é mais caro.' },
         ],
         hints: ['Separe o consumo pelas faixas: 10 m³ na 1ª, até 10 m³ na 2ª, e assim por diante.', 'Multiplique cada parte pelo preço da sua faixa e some.'],
-        solution: [`$Conta de ${c} m³: ${rs(v)}`],
+        solution: [`$${c} m³ = ${split(c).map(([m]) => `${m} m³`).join(' + ')}`, `$Conta: ${breakdown(c)} = ${brl(v)}`],
       });
     }
     const c1 = r.pick([24, 25, 26, 27, 32, 35]);
@@ -1079,7 +1092,7 @@ function tierBillGen(r: Rand) {
         { value: round(((b1 - b2) / b2) * 100, 1), feedback: 'Isso divide pela conta nova. A redução é medida sobre a conta anterior.' },
       ],
       hints: [`Conta com ${c1} m³: some faixa por faixa.`, `Redução: (conta antiga − conta nova) ÷ conta antiga.`],
-      solution: [`$${c1} m³: ${rs(b1)}; ${c2} m³: ${rs(b2)}`, `$(${rs(b1)} − ${rs(b2)}) ÷ ${rs(b1)} ≈ ${pct(red, 1)}`],
+      solution: [`$${c1} m³: ${breakdown(c1)} = ${brl(b1)}`, `$${c2} m³: ${breakdown(c2)} = ${brl(b2)}`, `$(${rs(b1)} − ${rs(b2)}) ÷ ${rs(b1)} ≈ ${pct(red, 1)}`],
     });
   }
 }
@@ -1100,7 +1113,7 @@ function paybackGen(r: Rand) {
       unit: 'meses',
       answer: n,
       wrong: [
-        { value: naive, feedback: `Isso ignora as revisões: em ${naive} meses, já houve ${down(naive / 12)} revisões de ${brl(m)}, e a economia líquida fica abaixo de ${brl(K)}.` },
+        { value: naive, feedback: `Isso ignora as revisões: em ${naive} meses, já houve ${qty(down(naive / 12), 'revisão', 'revisões')} de ${brl(m)}, e a economia líquida fica abaixo de ${brl(K)}.` },
         { value: n - 1, feedback: `Ao fim do ${n - 1}º mês, a economia líquida é ${brl(s * (n - 1) - m * down((n - 1) / 12))}, ainda menor que ${brl(K)}.` },
         { value: n + 1, feedback: `Ao fim do ${n}º mês, a economia líquida já chega a ${brl(s * n - m * down(n / 12))}: a pergunta é o primeiro mês em que ela alcança o preço do forno.` },
       ].filter((w) => w.value !== n),

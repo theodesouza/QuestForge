@@ -29,7 +29,7 @@ import {
   tip,
   warn,
 } from '../../kit/build';
-import { num, round } from '../../kit/format';
+import { num, qty, round } from '../../kit/format';
 import type { Rand } from '../../types';
 
 const ceil = (x: number) => Math.ceil(x - 1e-9);
@@ -376,7 +376,7 @@ function midChangeGen(r: Rand) {
       unit: 'dias',
       answer,
       wrong: [
-        { value: floor(days), feedback: `Em ${floor(days)} dias ainda faltariam folhetos (o exato é ${num(days, 2)}). Arredonde para CIMA.` },
+        { value: floor(days), feedback: `Em ${qty(floor(days), 'dia', 'dias')} ainda faltariam folhetos (o exato é ${num(days, 2)}). Arredonde para CIMA.` },
         { value: ceil(Q / perDay), feedback: `Isso ignora os ${num(first)} folhetos do primeiro dia: depois dele, faltam só ${num(rest)}.` },
         { value: round(days, 2), feedback: `${num(days, 2)} é o resultado exato; a pergunta conta dias de trabalho inteiros.` },
       ],

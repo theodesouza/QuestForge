@@ -265,7 +265,7 @@ function tilesGen(r: Rand) {
       wrong: [
         { value: round(area / (s / 100), 2), feedback: `Isso divide a área pelo lado da lajota (${num(s / 100)} m). Divida pela área da lajota: ${num(s / 100)} × ${num(s / 100)} = ${num((s / 100) ** 2, 4)} m².` },
         { value: round(area / ((4 * s) / 100), 2), feedback: 'Isso divide pelo contorno da lajota. O piso é coberto pela área de cada lajota.' },
-        { value: nL + nW, feedback: `Isso soma as lajotas de duas paredes vizinhas (${nL} + ${nW}). O piso é um quadriculado: multiplique.` },
+        { value: nL + nW, feedback: `Isso soma as lajotas de duas bordas vizinhas do piso (${nL} + ${nW}). O piso é um quadriculado: multiplique.` },
       ],
       hints: [`Ao longo de ${num(L)} m cabem ${num(L * 100)} ÷ ${s} = ${nL} lajotas; ao longo de ${num(W)} m, ${nW}.`, `Multiplique: ${nL} × ${nW}.`],
       solution: [`$${num(L * 100)} cm ÷ ${s} cm = ${nL}; ${num(W * 100)} cm ÷ ${s} cm = ${nW}`, `$${nL} × ${nW} = ${num(ans)} lajotas`],

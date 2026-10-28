@@ -27,6 +27,11 @@ export function num(n: number, max = 2): string {
   return s.includes(',') ? s.replace(/,?0+$/, '') : s;
 }
 
+/** Quantidade com o substantivo concordando: qty(1, 'dia', 'dias') → "1 dia"; o plural vale do 2 em diante (e para o zero). */
+export function qty(n: number, one: string, many: string, max = 2): string {
+  return `${num(n, max)} ${n !== 0 && Math.abs(n) < 2 ? one : many}`;
+}
+
 /** Valor em reais: brl(1234.5) → "R$ 1.234,50". */
 export function brl(n: number): string {
   return `R$ ${fixed(n, 2)}`;

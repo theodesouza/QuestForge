@@ -255,19 +255,19 @@ function addGen(r: Rand) {
   }
 }
 
+/** Contextos com expoentes realistas: um caminhão tem ~10⁴ kg; uma moeda, ~10⁻³ kg; e assim por diante. */
 const RATIOS = [
-  { what: 'massa', a: 'um caminhão', b: 'uma moeda', ua: 'kg', ub: 'kg' },
-  { what: 'distância', a: 'a distância de uma viagem', b: 'o comprimento de uma formiga', ua: 'm', ub: 'm' },
-  { what: 'população', a: 'a população de um país', b: 'a de um bairro', ua: 'habitantes', ub: 'habitantes' },
+  { what: 'massa', a: 'a massa de um caminhão', b: 'a de uma moeda', ua: 'kg', ub: 'kg', ms: [4], ns: [-3, -2] },
+  { what: 'distância', a: 'a distância de uma viagem', b: 'o comprimento de uma formiga', ua: 'm', ub: 'm', ms: [5, 6], ns: [-3] },
+  { what: 'população', a: 'a população de um país', b: 'a de um bairro', ua: 'habitantes', ub: 'habitantes', ms: [7, 8], ns: [3, 4] },
 ];
 
 function ratioGen(r: Rand) {
   for (;;) {
     const [a, b] = r.pick(DIV_PAIRS.filter(([x, y]) => x / y >= 1));
-    const m = r.int(3, 9);
-    const n = r.int(-4, 3);
-    if (m <= n + 1) continue;
     const ctx = r.pick(RATIOS);
+    const m = r.pick(ctx.ms);
+    const n = r.pick(ctx.ns);
     const raw = a / b;
     const value = raw * 10 ** (m - n);
     return draftChoice({
@@ -279,7 +279,7 @@ function ratioGen(r: Rand) {
         { value: raw * 10 ** (m - n - 1), text: sci(raw * 10 ** (m - n - 1)), feedback: `Confira a subtração dos expoentes: ${sg(m)} − ${par(n)} = ${sg(m - n)}.` },
       ]),
       hints: ['"Quantas vezes A é B" = A ÷ B.', 'Divida os coeficientes e subtraia os expoentes.'],
-      solution: [`$(${sn(a, m)}) ÷ (${sn(b, n)}) = ${num(raw, 3)} × 10${sup(m - n)} = ${sci(value)}`],
+      solution: [`$coeficientes: ${num(a)} ÷ ${num(b)} = ${num(raw, 3)};  expoentes: ${sg(m)} − ${par(n)} = ${sg(m - n)}`, `$(${sn(a, m)}) ÷ (${sn(b, n)}) = ${sci(value)}`],
       verify: () => value,
       tolerance: Math.abs(value) * 1e-9,
     });

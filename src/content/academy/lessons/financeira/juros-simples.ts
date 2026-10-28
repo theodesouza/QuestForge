@@ -27,7 +27,7 @@ import {
   text,
   warn,
 } from '../../kit/build';
-import { brl, fixed, num, pct, round } from '../../kit/format';
+import { brl, fixed, num, pct, qty, round } from '../../kit/format';
 import type { Rand } from '../../types';
 
 const isInt = (x: number) => Number.isInteger(round(x, 9));
@@ -595,9 +595,9 @@ function depositsGen(r: Rand) {
       prefix: 'R$',
       answer: round(J, 2),
       wrong: [
-        { value: round(((A + B) * i * T) / 100, 2), feedback: `Isso faz o 2º depósito render ${T} meses. Ele só rende do fim do ${k}º mês em diante: ${T - k} meses.` },
+        { value: round(((A + B) * i * T) / 100, 2), feedback: `Isso faz o 2º depósito render ${T} meses. Ele só rende do fim do ${k}º mês em diante: ${qty(T - k, 'mês', 'meses')}.` },
         { value: round((A * i * T) / 100, 2), feedback: 'Isso esquece os juros do segundo depósito.' },
-        { value: round(((A + B) * i * (T - k)) / 100, 2), feedback: `Isso faz o 1º depósito render só ${T - k} meses. Ele rende os ${T} meses.` },
+        { value: round(((A + B) * i * (T - k)) / 100, 2), feedback: `Isso faz o 1º depósito render só ${qty(T - k, 'mês', 'meses')}. Ele rende os ${T} meses.` },
       ],
       hints: [`1º depósito: ${T} meses; 2º depósito: ${T - k} meses.`, `J = ${num(A)} × ${dec(i)} × ${T} + ${num(B)} × ${dec(i)} × ${T - k}.`],
       solution: [`$J = ${num((A * i * T) / 100, 2)} + ${num((B * i * (T - k)) / 100, 2)} = ${num(J, 2)}`],

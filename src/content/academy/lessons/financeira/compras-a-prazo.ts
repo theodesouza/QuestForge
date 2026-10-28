@@ -28,7 +28,7 @@ import {
   table,
   text,
 } from '../../kit/build';
-import { brl, fixed, num, pct, round } from '../../kit/format';
+import { brl, fixed, num, pct, qty, round } from '../../kit/format';
 import type { Rand } from '../../types';
 
 const cents = (x: number) => Number.isInteger(round(x * 100, 6));
@@ -384,7 +384,7 @@ function minParcelsGen(r: Rand) {
         unit: 'parcelas',
         answer: n,
         wrong: [
-          ...(isInt(exact) ? [] : [{ value: Math.floor(exact), feedback: `Com ${Math.floor(exact)} parcelas, cada uma seria ${brl(V / Math.floor(exact))}, acima dos ${brl(free)} disponíveis. Arredonde para cima.` }]),
+          ...(isInt(exact) ? [] : [{ value: Math.floor(exact), feedback: `Com ${qty(Math.floor(exact), 'parcela', 'parcelas')}, ${Math.floor(exact) === 1 ? 'ela' : 'cada uma'} seria ${brl(V / Math.floor(exact))}, acima dos ${brl(free)} disponíveis. Arredonde para cima.` }]),
           ...(X ? [{ value: Math.ceil(round((V * 100) / (R * q), 9)), feedback: `Isso esquece a parcela de ${brl(X)} que já existe: para a nova compra, sobram só ${brl(free)} por mês.` }] : []),
           ...(isInt(exact) ? [] : [{ value: round(exact, 2), feedback: 'O número de parcelas é inteiro: arredonde para cima, para a parcela caber no limite.' }]),
         ].filter((w) => w.value > 0),
@@ -412,7 +412,7 @@ function minParcelsGen(r: Rand) {
       answer: n,
       wrong: [
         ...(plain !== n ? [{ value: plain, feedback: 'Isso ignora os juros. Cada parcela tem uma parte do preço mais os juros de um mês sobre o preço inteiro.' }] : []),
-        ...(isInt(exact) ? [] : [{ value: Math.floor(exact), feedback: `Com ${Math.floor(exact)} parcelas, cada uma passaria do limite de ${brl(L)}. Arredonde para cima.` }]),
+        ...(isInt(exact) ? [] : [{ value: Math.floor(exact), feedback: `Com ${qty(Math.floor(exact), 'parcela', 'parcelas')}, ${Math.floor(exact) === 1 ? 'ela' : 'cada uma'} passaria do limite de ${brl(L)}. Arredonde para cima.` }]),
         { value: 12, feedback: '12 parcelas cabem no limite, mas a pergunta é o menor número possível.' },
       ],
       hints: [`Cada parcela vale ${num(V)} ÷ n + ${pct(j)} de ${num(V)} = ${num(V)} ÷ n + ${rs(J)}.`, `Ela precisa ficar até ${brl(L)}: ${num(V)} ÷ n ≤ ${rs(L - J)}.`],
@@ -683,7 +683,7 @@ function earlyPayoffGen(r: Rand) {
     if (!cents(payoff)) continue;
     const w = r.pick(PLANS);
     return draftNumeric({
-      prompt: [p(`${w.a} foi ${w.div} em ${n} parcelas de ${brl(v)}. Depois de pagar ${k}, a pessoa recebe a proposta de quitar as ${n - k} restantes de uma vez, com ${pct(d)} de desconto sobre a soma delas.`)],
+      prompt: [p(`${w.a} foi ${w.div} em ${n} parcelas de ${brl(v)}. Depois de pagar ${k}, a pessoa recebe a proposta de quitar ${n - k === 1 ? `a última de uma vez, com ${pct(d)} de desconto sobre o valor dela` : `as ${n - k} restantes de uma vez, com ${pct(d)} de desconto sobre a soma delas`}.`)],
       ask: 'Se ela aceitar, qual será o total desembolsado?',
       prefix: 'R$',
       answer: round(tot, 2),
@@ -715,7 +715,7 @@ function readjustGen(r: Rand) {
     const it = r.pick(ITEMS);
     const which = m === 1 ? `a última é reajustada em ${pct(rr)}` : `cada uma das ${m} últimas é reajustada em ${pct(rr)}`;
     return draftNumeric({
-      prompt: [p(`O contrato de compra de ${it.a} tinha ${n} parcelas mensais de ${brl(v)}. Ele foi alterado: as ${n - m} primeiras ficam iguais, e ${which}, sempre sobre os ${brl(v)} originais.`)],
+      prompt: [p(`O contrato de compra de ${it.a} tinha ${n} parcelas mensais de ${brl(v)}. Ele foi alterado: ${n - m === 1 ? 'a primeira fica igual' : `as ${n - m} primeiras ficam iguais`}, e ${which}, sempre sobre os ${brl(v)} originais.`)],
       ask: asPct ? `Qual é o acréscimo percentual do total pago sobre os ${brl(n * v)} previstos? Arredonde a duas casas decimais, se preciso.` : 'Qual é o total pago no contrato?',
       ...(asPct ? { unit: '%', tolerance: 0.01 } : { prefix: 'R$' }),
       answer: asPct ? ans : round(total, 2),

@@ -310,7 +310,7 @@ function groupBandGen(r: Rand) {
 const FRANCHISE = [
   { what: 'internet móvel', unit: 'GB', one: 'GB', ask: 'Com que consumo mensal, em GB, os dois planos têm o mesmo custo?', pa: [60, 70, 90, 100], pb: [30, 35, 40, 45, 50], f: [5, 8, 15, 20], e: [2, 3, 4, 5] },
   { what: 'telefonia', unit: 'minutos', one: 'minuto', ask: 'Com quantos minutos de ligação por mês os dois planos têm o mesmo custo?', pa: [50, 60, 80], pb: [20, 25, 30], f: [60, 100, 120], e: [0.5, 1] },
-  { what: 'impressão de uma gráfica rápida', unit: 'páginas', one: 'página', ask: 'Com quantas páginas por mês os dois planos têm o mesmo custo?', pa: [150, 200, 250], pb: [60, 80, 100], f: [200, 300, 400], e: [0.25, 0.5] },
+  { what: 'impressão de uma gráfica rápida', unit: 'páginas', one: 'página', fem: true, ask: 'Com quantas páginas por mês os dois planos têm o mesmo custo?', pa: [150, 200, 250], pb: [60, 80, 100], f: [200, 300, 400], e: [0.25, 0.5] },
 ];
 
 /** Empate entre um plano ilimitado e um plano com franquia mais excedente. */
@@ -336,7 +336,7 @@ function franchiseTieGen(r: Rand) {
       unit: g.unit,
       answer: x,
       wrong: [
-        { value: extra, feedback: `Isso esquece a franquia: os ${num(F)} ${g.unit} já estão incluídos no plano B. O excedente começa depois deles.` },
+        { value: extra, feedback: `Isso esquece a franquia: ${g.fem ? 'as' : 'os'} ${num(F)} ${g.unit} já estão ${g.fem ? 'incluídas' : 'incluídos'} no plano B. O excedente começa depois ${g.fem ? 'delas' : 'deles'}.` },
         { value: round(PA / e, 2), feedback: `Isso divide a mensalidade de A pelo preço do extra, sem descontar os ${brl(PB)} do plano B.` },
         ...(extra - F > 0 ? [{ value: extra - F, feedback: 'Isso subtrai a franquia. Ela se soma ao excedente: o consumo total é franquia + excedente.' }] : []),
       ],

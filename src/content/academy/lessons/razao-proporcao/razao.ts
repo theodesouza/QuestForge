@@ -31,7 +31,7 @@ import {
   tip,
   warn,
 } from '../../kit/build';
-import { brl, frac, gcd, lcm, num, round } from '../../kit/format';
+import { brl, frac, gcd, lcm, num, qty, round } from '../../kit/format';
 import type { Option, Rand } from '../../types';
 
 const ratio = (a: number, b: number) => {
@@ -226,7 +226,7 @@ function splitGen(r: Rand) {
       wrong: [
         { value: round(total / w.length, 2), feedback: 'Isso divide em partes iguais. A razão diz quantas partes cada um recebe.' },
         { value: round((total * w[ask]) / others.reduce((s, o) => s + o.x, 0), 2), feedback: `Divida pelo TOTAL de partes (${sum}), não só pelas partes dos outros.` },
-        { value: round(total / w[ask], 2), feedback: `Cada parte vale ${num(total)} ÷ ${sum}; depois multiplique pelas ${w[ask]} partes.` },
+        { value: round(total / w[ask], 2), feedback: `Cada parte vale ${num(total)} ÷ ${sum}; depois multiplique ${w[ask] === 1 ? 'pela' : 'pelas'} ${qty(w[ask], 'parte', 'partes')}.` },
         ...others.map((o) => ({ value: o.x * k, feedback: `Essa é a parte de ${o.name}.` })),
       ],
       hints: [`Some as partes da razão: ${w.join(' + ')} = ${sum}.`, `Cada parte vale ${num(total)} ÷ ${sum} = ${k}.`],
