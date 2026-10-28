@@ -342,7 +342,7 @@ export const RAZAO = lesson({
     'Comparar por divisão: parte com parte, parte com o todo, preço por quilo, quilômetros por litro, habitantes por km² — e repartir um total numa razão sem perder a ordem.',
   requires: ['fracoes'],
   stages: [
-    stage('comparar', 'descoberta', 'Razão: comparar por divisão', 'Escrever e simplificar razões, distinguindo parte : parte de parte : todo e respeitando a ordem pedida.', () => ({
+    stage('comparar', 'descoberta', 'Comparar por divisão', 'Escrever e simplificar razões, distinguindo parte : parte de parte : todo e respeitando a ordem pedida.', () => ({
       learn: [
         text('Uma **razão** compara duas quantidades por divisão. Numa sala com 15 meninas e 20 meninos, a razão entre meninas e meninos é 15 : 20 = 3 : 4 ("para cada 3 meninas, 4 meninos"). Já a razão entre meninas e o total é 15 : 35 = 3 : 7 — uma fração da turma.'),
         lab({

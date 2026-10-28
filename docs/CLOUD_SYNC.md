@@ -82,12 +82,20 @@ para milhares (teto de 900 000 caracteres, validado nas regras; o limite do Fire
 Chaves antigas no registro de recompensas (encomendas diárias) crescem devagar (~4/dia de uso); se algum dia
 isso se aproximar do teto, o `schema` permite dividir o documento.
 
+**Schema 2 (Academia).** O `data` ganhou o campo `aca`: o progresso de cada etapa (`aula/etapa`), também em tuplas
+compactas. O desafio em andamento não viaja (como a batalha). No merge de 3 vias, cada etapa combina os dois
+lados sem perder nada: datas de "vista", "estudada" e "dominada" ficam com a mais antiga; verificações e
+exercícios vistos se unem; contadores de prática e desafio somam o que cada lado acrescentou desde a base;
+o melhor desempenho fica com o maior; a agenda de revisão segue o lado da atividade mais recente. As
+recompensas `academy:*` do registro seguem a mesma regra das demais (cada marco paga uma vez). Um app que só
+entende o schema 1 recusa sincronizar um documento de schema 2 — nunca apaga o que não conhece.
+
 `attempts/{deviceId}-{posição}`: o id é determinístico — regravar o mesmo lote é idempotente. Vão em lotes de
 40 ou quando a tentativa mais antiga passa de 24 h (o estado derivado já viaja no snapshot a cada ciclo).
 
 ## 4. Persistência local
 
-SQLite por conta, esquema **v4** (migração `sync_kv`, só acrescenta). `sync_kv` guarda, na **mesma transação**
+SQLite por conta, esquema **v5** (v4: `sync_kv`; v5: tabelas da Academia — migrações só acrescentam). `sync_kv` guarda, na **mesma transação**
 que o estado:
 
 - `meta` — `uid`, `deviceId`, `baseRev`, `epoch`, `attemptsCursor`, aviso pendente;

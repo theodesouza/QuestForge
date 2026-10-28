@@ -37,9 +37,11 @@ src/
 │   ├── boss/         motor de batalha determinístico
 │   ├── campaign/     regiões, nós, desbloqueios
 │   ├── session/      planejamento e estado de sessões (expedições)
+│   ├── academy/      Academia: correção, progresso por etapa, desafio, recompensas, recomendação, diagnóstico
 │   └── game/         GameState + reducer `applyAnswer`/`completeSession`/... → (estado, eventos, delta)
 ├── content/        Conteúdo educacional versionado (questões, assuntos, regiões, chefões, itens)
-│   └── validation/   validador estrutural + matemático (roda nos testes e em `npm run validate:content`)
+│   ├── validation/   validador estrutural + matemático (roda nos testes e em `npm run validate:content`)
+│   └── academy/      aulas da Academia, mapa questão → etapa, notas das alternativas e validador próprio
 └── data/           Persistência
     ├── sql/          driver SQL mínimo (interface) + implementação expo-sqlite
     ├── migrations.ts migrações versionadas
@@ -70,7 +72,7 @@ UI (toque "Confirmar")
 - **Sessões retomáveis**: o estado da sessão ativa é gravado a cada resposta
   (`active_session`). Fechar o app no meio não perde nada; o Acampamento oferece "Retomar".
 
-## Banco local (esquema v4, um por conta: `questforge-<uid>.db`)
+## Banco local (esquema v5, um por conta: `questforge-<uid>.db`)
 
 | Tabela | Conteúdo |
 | --- | --- |
@@ -84,6 +86,8 @@ UI (toque "Confirmar")
 | `active_run` | sessão e batalha em andamento serializadas (retomada) |
 | `quest_board` (v2) | quadros de encomendas do dia e da semana (metas, progresso, dias de estudo) |
 | `sync_kv` (v4) | metadados de sincronização: base (último estado na nuvem), envios pendentes, cursor de tentativas, aviso |
+| `academy_progress` (v5) | progresso por etapa da Academia (`aula/etapa` → JSON: vista, estudada, dominada, prática, desafio, caixa de revisão) |
+| `academy_answers` (v5) | respostas dadas nas aulas: etapa, exercício, modo, acerto, dicas usadas |
 
 Migrações em `src/data/migrations.ts`: lista ordenada; cada uma roda numa transação e
 incrementa `PRAGMA user_version`. Nunca editar uma migração publicada — sempre criar outra.
@@ -226,6 +230,27 @@ Tempo de estudo não entra neste painel enquanto o contador não descontar pausa
 - Questões oficiais só entram com fonte/ano e verificação de direitos; as da v1 são
   **autorais**, inspiradas nas competências do ENEM, e assim identificadas na interface.
 
+## Academia
+
+Guia completo em [docs/ACADEMIA.md](docs/ACADEMIA.md). Em resumo:
+
+- **Conteúdo** (`src/content/academy/`): curso → aula → etapa, com o corpo de cada etapa montado
+  sob demanda (`learn`, `practice`, `challenge`, `recap`). Exercícios fixos ou **geradores**
+  determinísticos por semente (`instantiate(def, seed)`), o que mantém a correção reprodutível
+  e a sincronização leve (só ids e sementes viajam).
+- **Validador** (`validation.ts`): estrutura, contas (incluindo `verify()` das alternativas
+  numéricas), variedade dos geradores em 120 sementes, missões de laboratório alcançáveis,
+  feedback e dicas presentes. Os testes também exigem cobertura total: todo subassunto com aula,
+  toda questão do banco ligada a uma etapa do seu subassunto e toda alternativa errada explicada.
+- **Domínio** (`src/domain/academy/` e `domain/game/academy.ts`): o reducer registra estudo,
+  prática, desafio e revisões e devolve eventos e recompensas, como no resto do jogo. Marcos
+  pagam uma vez (registro `academy:*`); erros não tiram nada.
+- **Integrações**: feedback das questões (nota da alternativa + etapa), recomendações em
+  resumos, Acampamento e Atlas, preparo para chefões (`bossPrepBonus`, até +15% de dano,
+  aplicado em `createBattle`) e treino dirigido com questões do Atlas.
+- **Persistência e nuvem**: migração 5 (tabelas acima) e campo `aca` do snapshot (schema 2). O
+  desafio em andamento não é sincronizado, como a batalha.
+
 ## Web
 
 A build web existe só para pré-visualização e capturas de tela de design. Nela, a plataforma
@@ -271,3 +296,4 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
 - `npm run verify:no-legacy` — gera o bundle de produção com o cache limpo e confirma que a ferramenta de
   migração única não está nele.
 - `npx expo export --platform android` — garante que o bundle nativo compila.
+- `node scripts/e2e-academy.js` — fluxo da Academia no navegador (ver [docs/ACADEMIA.md](docs/ACADEMIA.md)).

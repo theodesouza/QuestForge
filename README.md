@@ -13,13 +13,36 @@ e enfraquece os guardiões das regiões. Estudar é evoluir — e o app separa c
 | --- | --- | --- | --- | --- |
 | ![](docs/screenshots/onboarding.jpg) | ![](docs/screenshots/atlas.jpg) | ![](docs/screenshots/chefao-intro.jpg) | ![](docs/screenshots/chefao-vitoria.jpg) | ![](docs/screenshots/heroi.jpg) |
 
-> Capturas da pré-visualização web, geradas pelo teste ponta a ponta (`scripts/e2e-web.js`).
+| Academia | Aula | Laboratório | Exemplo guiado | Verificação |
+| --- | --- | --- | --- | --- |
+| ![](docs/screenshots/academia.jpg) | ![](docs/screenshots/academia-aula.jpg) | ![](docs/screenshots/academia-laboratorio.jpg) | ![](docs/screenshots/academia-exemplo.jpg) | ![](docs/screenshots/academia-verificacao.jpg) |
+
+> Capturas da pré-visualização web, geradas pelos testes ponta a ponta (`scripts/e2e-web.js` e `scripts/e2e-academy.js`).
 
 ## Documentos do projeto
 
 - [`PROJECT_PLAN.md`](PROJECT_PLAN.md) — visão, mecânicas, economia, direção de arte e roteiro.
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — stack, camadas, banco local, conteúdo e qualidade.
 - [`TASKS.md`](TASKS.md) — o que está **implementado e testado** e o que está pendente.
+- [`docs/ACADEMIA.md`](docs/ACADEMIA.md) — a Academia: cursos, etapas, integrações e como escrever aulas.
+
+## Academia
+
+A aba **Academia** ensina o conteúdo antes (e depois) das batalhas: **13 cursos, 40 aulas e
+197 etapas**, cobrindo os 38 subassuntos do banco. Cada aula avança por etapas — Descoberta,
+Fundamentos, Interpretação, Aplicações, Aprofundamento e Maestria —, todas abertas desde o
+início, e cada etapa tem três modos:
+
+- **Aprender**: explicação curta, laboratórios com uma missão, simulações, exemplos em que se
+  escolhe o próximo passo e verificações com feedback para cada erro previsível;
+- **Praticar**: exercícios gerados (versões novas a cada vez), com dicas graduais e resolução;
+- **Desafiar**: problemas sem ajuda; passar marca a etapa como dominada, com revisões em 3, 7,
+  16 e 35 dias.
+
+Errar nunca tira XP, Tinta ou domínio. As 644 questões do Atlas apontam para a etapa que ensina
+o que elas exigem: depois de um erro, o feedback explica a alternativa escolhida e oferece
+**Rever na Academia**; resumos e Acampamento recomendam etapas; e cada etapa dominada nas aulas
+de um chefão soma até +15% de dano na batalha. Detalhes em [`docs/ACADEMIA.md`](docs/ACADEMIA.md).
 
 ## Folha de resolução
 
@@ -109,10 +132,10 @@ sem tratar essas referências; o progresso deve permanecer no banco do aparelho 
 ## Verificações
 
 ```bash
-npm test                 # 194 testes: domínio, evolução, reforço guiado, conteúdo, efeitos, SQLite real e atualização
+npm test                 # 622 testes: domínio, Academia, evolução, reforço guiado, conteúdo, efeitos, SQLite real e atualização
 npm run typecheck        # TypeScript estrito
 npm run lint             # ESLint (config Expo + regras de hooks do React)
-npm run validate:content # só o validador do banco de questões
+npm run validate:content # validadores do banco de questões e da Academia
 npx expo export --platform android   # garante que o bundle nativo compila
 ```
 
@@ -122,6 +145,7 @@ Teste ponta a ponta no navegador (opcional, requer Playwright):
 EXPO_PUBLIC_QA=1 npx expo export --platform web --output-dir dist-web
 python3 -m http.server 8090 --directory dist-web &
 node scripts/e2e-web.js e2e-shots http://localhost:8090/
+node scripts/e2e-academy.js e2e-academy-shots http://localhost:8090/   # Academia
 ```
 
 Para verificar só a primeira expedição e as telas de evolução/histórico, acrescente

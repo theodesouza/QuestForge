@@ -130,7 +130,7 @@ function LessonView({ lesson }: { lesson: Lesson }) {
             </Text>
           ) : null}
           <Text variant="caption" color={colors.parchmentDim}>
-            {atlas.total} questões do Atlas usam esta aula; você já respondeu {atlas.answered}
+            {atlas.total === 1 ? '1 questão do Atlas usa' : `${atlas.total} questões do Atlas usam`} esta aula; você já respondeu {atlas.answered}
             {atlas.echoes ? ` e tem ${atlas.echoes} Eco${atlas.echoes > 1 ? 's' : ''} em aberto` : ''}.
           </Text>
         </View>

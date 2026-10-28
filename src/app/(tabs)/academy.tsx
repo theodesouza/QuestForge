@@ -142,7 +142,7 @@ export default function Academy() {
               </Text>
               <ProgressBar value={s.mastered / Math.max(1, s.stages)} color={tone} height={6} accessibilityLabel={`${s.mastered} de ${s.stages} etapas dominadas`} />
               <Text variant="caption" color={colors.mistDim}>
-                {s.studied} de {s.stages} etapas estudadas · {s.mastered} dominadas
+                {s.studied} de {s.stages} etapas estudadas · {s.mastered} {s.mastered === 1 ? 'dominada' : 'dominadas'}
               </Text>
             </Pressable>
           );

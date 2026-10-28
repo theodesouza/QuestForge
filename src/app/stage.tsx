@@ -500,7 +500,7 @@ function AtlasLink({ loc, progress }: { loc: StageLocation; progress: StageProgr
         </Text>
       </View>
       <Text variant="caption" color={colors.parchmentDim}>
-        {mapped} questões de missões e chefões dependem desta etapa. {evidenceSentence(ev)}
+        {mapped === 1 ? '1 questão de missões e chefões depende' : `${mapped} questões de missões e chefões dependem`} desta etapa. {evidenceSentence(ev)}
         {ev.since ? ` Desde que você estudou: ${ev.since.correct} acerto${ev.since.correct === 1 ? '' : 's'} e ${ev.since.wrong} erro${ev.since.wrong === 1 ? '' : 's'}.` : ''}
       </Text>
       <Button

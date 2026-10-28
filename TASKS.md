@@ -119,6 +119,20 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Lembretes opcionais com horário de silêncio
 - [ ] Pausa saudável após 25 min contínuos
 
+## Academia QuestForge ✅ (pendências no fim)
+- [x] Modelo curso → aula → etapa, com etapas Descoberta, Fundamentos, Interpretação, Aplicações, Aprofundamento e Maestria, todas abertas desde o início; modos Aprender, Praticar e Desafiar em cada etapa
+- [x] **13 cursos, 40 aulas e 197 etapas** cobrindo os 38 subassuntos: 143 laboratórios com missão, 3 simulações, 230 exemplos guiados (escolher o próximo passo), 212 verificações, 1.074 geradores de exercícios; 7 tipos de exercício (escolha, número, ordenar, achar o erro, selecionar, classificar, lacunas)
+- [x] Feedback que explica cada erro previsível; dicas graduais na prática; Desafio sem ajuda; nenhum erro tira XP, Tinta ou domínio
+- [x] Progresso vista → estudada → dominada, revisão espaçada das etapas dominadas (3/7/16/35 dias), recompensas por marco (uma vez cada), insígnias de domínio por aula e 4 títulos
+- [x] Integração: as 644 questões ligadas à etapa do seu subassunto; as 2.576 alternativas erradas com nota explicativa no feedback; "Rever na Academia"; recomendações em resumos, Acampamento e Atlas; preparo para chefões (+15% de dano no máximo, visível no HUD); treino dirigido com questões do Atlas; diagnóstico por etapa sem veredito com poucos dados
+- [x] Persistência (migração 5), nuvem (snapshot schema 2 com merge por etapa), normalização e testes de atualização
+- [x] Validador de conteúdo (estrutura, contas, variedade dos geradores, missões alcançáveis, feedback) e testes de cobertura total; revisão dos itens de Maestria/Aprofundamento e varreduras mecânicas (resposta presente na resolução em 86 mil instâncias; concordância)
+- [x] `scripts/e2e-academy.js`: fluxo da Academia no navegador com capturas, sem erros de console; e2e principal, tipos, lint, 622 testes e exportação Android conferidos
+- [ ] Testar em Android físico e com TalkBack
+- [ ] Revisão pedagógica por professor externo e teste com estudantes
+- [ ] Publicar por EAS Update (sem mudança nativa: serve ao runtime 0.3.0)
+- [ ] Atualizar os patches indicados pelo `expo-doctor` (expo 57.0.31, expo-router 57.0.29, expo-sharing 57.0.24), anteriores a este trabalho
+
 ## Etapa 6 — Conteúdo (pendente)
 - [~] Expandir para 500 questões validadas, em lotes por assunto — **314 hoje** (91 do MVP + 25 de financeira + 126 de missões das regiões 1–2 + 72 da Região 3); combinatória, geometria espacial e equações têm poucos itens
 

@@ -43,7 +43,7 @@ function CourseView({ course }: { course: Course }) {
       </Text>
       <Panel tone="raised" accent={tone}>
         <Text variant="caption" color={colors.mist}>
-          {sum.mastered} de {sum.stages} etapas dominadas · {sum.studied} estudadas
+          {sum.mastered} de {sum.stages} etapas dominadas · {sum.studied} {sum.studied === 1 ? 'estudada' : 'estudadas'}
         </Text>
         <ProgressBar value={sum.mastered / Math.max(1, sum.stages)} color={tone} height={8} />
       </Panel>

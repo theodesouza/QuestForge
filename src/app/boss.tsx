@@ -179,7 +179,7 @@ function Intro({ boss }: { boss: BossDef }) {
             <View style={{ flex: 1, gap: 2 }}>
               <Text variant="subheading">Preparo na Academia</Text>
               <Text variant="caption" color={colors.parchmentDim}>
-                {prep.mastered} de {prep.stages} etapas dominadas nas aulas deste chefão ({prep.studied} estudadas).{' '}
+                {prep.mastered} de {prep.stages} etapas dominadas nas aulas deste chefão ({prep.studied} {prep.studied === 1 ? 'estudada' : 'estudadas'}).{' '}
                 {prepBonus > 0 ? `Seu preparo rende +${num(prepBonus, 1)}% de dano nesta batalha.` : 'Cada etapa dominada aumenta o seu dano (até +15%).'}
               </Text>
             </View>
