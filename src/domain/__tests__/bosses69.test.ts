@@ -1,7 +1,7 @@
 import { getBoss } from '../../content/bosses';
 import { getRegion } from '../../content/regions';
 import { getTopic } from '../../content/topics';
-import { applyBattleAnswer, battleTarget, createBattle, hydraHeadsOf, hydraRegen, isRiddleTurn, riddleEvery, scalesMultiplier, scalesOf, turnsToRiddle, type BattleState, type BattleTurn } from '../boss/battle';
+import { activeHeadIndex, applyBattleAnswer, battleTarget, createBattle, headSpans, headsFelled, hydraHeadsOf, hydraRegen, isRiddleTurn, riddleEvery, scalesMultiplier, scalesOf, turnsToRiddle, type BattleState, type BattleTurn } from '../boss/battle';
 import { nodeStatus } from '../campaign/campaign';
 
 const T0 = Date.UTC(2026, 9, 30, 15);
@@ -14,6 +14,7 @@ describe('Atlas: Regiões 6 a 9 (estrutura)', () => {
     { id: 'observatorio-dados', index: 6, prefix: 'r6', boss: 'leviata-dos-graficos', after: 'r5-boss' },
     { id: 'labirinto-acaso', index: 7, prefix: 'r7', boss: 'esfinge-do-acaso', after: 'r6-boss' },
     { id: 'cordilheira-funcoes', index: 8, prefix: 'r8', boss: 'hidra-das-funcoes', after: 'r7-boss' },
+    { id: 'ilhas-medida', index: 9, prefix: 'r9', boss: 'leviata-das-escalas', after: 'r8-boss' },
   ];
   it.each(regions)('região $index: três missões em cadeia, chefão só depois delas', ({ id, index, prefix, boss, after }) => {
     const region = getRegion(id);
@@ -290,5 +291,66 @@ describe('Hidra das Funções: Cabeças que Renascem', () => {
     expect(m.turn.healed).toBe(0);
     expect(m.turn.headGrown).toBeUndefined();
     expect(hydraRegen(boss, r.battle)).toBe(0);
+  });
+});
+
+// ———————————————————————————————————————————————— Leviatã das Escalas
+
+describe('Leviatã das Escalas: Três Escalas', () => {
+  const boss = getBoss('leviata-das-escalas');
+  const fresh = (extra: Partial<BattleState> = {}): BattleState => ({ ...createBattle(boss, 'c', T0, 0), currentQuestionId: 'Q', ...extra });
+  const hit = (b: BattleState, difficulty: 1 | 2 | 3 | 4 = 3) => applyBattleAnswer(boss, { ...b, currentQuestionId: 'Q' }, { questionId: 'Q', difficulty, correct: true, guessed: false, hints: 0 });
+  const miss = (b: BattleState) => applyBattleAnswer(boss, { ...b, currentQuestionId: 'Q' }, { questionId: 'Q', difficulty: 2, correct: false, guessed: false, hints: 0 });
+
+  it('as três escalas cobrem exatamente os seis subassuntos da região e dividem a vida em terços', () => {
+    expect(boss.trait.kind).toBe('phases');
+    if (boss.trait.kind !== 'phases') return;
+    const covered = boss.trait.stages.flatMap((st) => st.subtopics).sort();
+    const region = getRegion(boss.regionId);
+    const taught = region.nodes.flatMap((n) => (n.kind === 'mission' ? n.subtopics : [])).sort();
+    expect(covered).toEqual(taught);
+    expect(headSpans(boss).map((sp) => sp.floorHp)).toEqual([boss.maxHp * (2 / 3), boss.maxHp / 3, 0]);
+    expect([boss.maxHp, boss.maxHp - 1, boss.maxHp * (2 / 3) + 1, boss.maxHp * (2 / 3), boss.maxHp / 3, 1].map((hp) => activeHeadIndex(boss, hp))).toEqual([0, 0, 0, 1, 2, 2]);
+  });
+
+  it('concluir uma escala devolve 1 ponto de Determinação (até o máximo) e avisa o turno', () => {
+    const b = fresh({ hp: boss.maxHp * (2 / 3) + 10, resolve: 1 });
+    const r = hit(b, 3);
+    expect(r.turn.headsFelled).toBe(1);
+    expect(headsFelled(boss, r.battle.hp)).toBe(1);
+    expect(r.battle.resolve).toBe(2);
+    expect(r.turn.resolveRestored).toBe(1);
+    expect(r.turn.armorBroke).toBe(false);
+    expect(r.battle.armorBroken).toBe(false);
+    const full = hit(fresh({ hp: boss.maxHp * (2 / 3) + 10 }), 3);
+    expect(full.battle.resolve).toBe(boss.resolve);
+    expect(full.turn.resolveRestored).toBeUndefined();
+  });
+
+  it('um golpe que cruza duas escalas devolve até 2 pontos (limitado ao máximo)', () => {
+    const r = hit(fresh({ hp: 20, resolve: 1, combo: 2 }), 3);
+    expect(r.battle.status).toBe('won');
+    expect(r.turn.resolveRestored).toBeUndefined();
+    const two = hit(fresh({ hp: boss.maxHp * (2 / 3) + 30, resolve: 1, combo: 2 }), 4);
+    expect(two.turn.headsFelled).toBeGreaterThanOrEqual(1);
+    expect(two.battle.resolve).toBeLessThanOrEqual(boss.resolve);
+    expect(two.battle.resolve).toBeGreaterThan(1);
+  });
+
+  it('o erro só custa Determinação: nada se regenera e nenhuma escala volta', () => {
+    const b = fresh({ hp: 300 });
+    const m = miss(b);
+    expect(m.battle.hp).toBe(300);
+    expect(m.battle.resolve).toBe(boss.resolve - 1);
+    expect(m.turn.healed).toBe(0);
+    expect(m.turn.resolveRestored).toBeUndefined();
+    expect(miss(fresh({ resolve: 1 })).battle.status).toBe('retreated');
+  });
+
+  it('a vitória acontece na última escala, sem fase 2 e sem bônus de Determinação', () => {
+    const r = hit(fresh({ hp: 10 }), 3);
+    expect(r.battle.status).toBe('won');
+    expect(r.turn.armorBroke).toBe(false);
+    expect(r.battle.resolve).toBe(boss.resolve);
   });
 });

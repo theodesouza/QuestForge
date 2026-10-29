@@ -130,6 +130,8 @@ export const TOPICS: Topic[] = [
       { id: 'semelhanca', label: 'Semelhança e Teorema de Tales' },
       { id: 'circulo', label: 'Círculo e circunferência' },
       { id: 'angulos', label: 'Ângulos e polígonos regulares' },
+      { id: 'trigonometria', label: 'Razões trigonométricas no triângulo retângulo' },
+      { id: 'trigonometria-aplicada', label: 'Trigonometria em problemas de medida' },
     ],
   },
   {
@@ -153,7 +155,9 @@ export const TOPICS: Topic[] = [
     enemWeight: 4,
     subtopics: [
       { id: 'conversao', label: 'Conversão de unidades' },
-      { id: 'velocidade', label: 'Velocidade e tempo' },
+      { id: 'unidades-compostas', label: 'Densidade, vazão e grandezas compostas' },
+      { id: 'velocidade', label: 'Velocidade e deslocamento' },
+      { id: 'tempo', label: 'Tempo, horários e fusos' },
     ],
   },
 ];

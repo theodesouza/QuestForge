@@ -47,6 +47,7 @@ const BUILDERS: Record<CustomFrameStyle, (o: FrameOpts) => FrameParts> = {
   axes,
   maze,
   peaks,
+  ruler,
 };
 
 export const isCustomFrame = (s: FrameStyle | undefined): s is CustomFrameStyle => !!s && (CUSTOM_FRAME_STYLES as readonly string[]).includes(s);
@@ -539,6 +540,38 @@ function peaks(o: FrameOpts): FrameParts {
     ),
     moving: o.compact ? undefined : <Path d={wavyCircle(r - w * 3.4, 2.4, 12)} stroke={color2} strokeOpacity={0.7} strokeWidth={w * 0.35} fill="none" />,
     motion: { kind: 'spin', period: 38000, reverse: true },
+  };
+}
+
+/**
+ * Ilhas: anel graduado como régua e transferidor (traços longos, médios e curtos) e, no
+ * astrolábio, um marco de navegação que gira na borda.
+ */
+function ruler(o: FrameOpts): FrameParts {
+  const { r, w, color, color2 } = o;
+  const cx = o.cx ?? C;
+  const cy = o.cy ?? C;
+  const n = o.compact ? 24 : 60;
+  const long = o.compact ? 6 : 5;
+  const unit = o.compact ? w * 1.0 : 3.4;
+  const marker = polar(r + w * 2.6 + unit * 2.6, 0, cx, cy);
+  return {
+    fixed: (
+      <>
+        {ring(o, w * 0.8)}
+        {Array.from({ length: n }, (_, i) => {
+          const a = (360 / n) * i;
+          const isLong = i % long === 0;
+          const isMid = !isLong && i % 2 === 0;
+          const len = unit * (isLong ? 2.6 : isMid ? 1.8 : 1.1);
+          const p0 = polar(r + w * 0.6, a, cx, cy);
+          const p1 = polar(r + w * 0.6 + len, a, cx, cy);
+          return <Line key={i} x1={p0.x} y1={p0.y} x2={p1.x} y2={p1.y} stroke={isLong ? color2 : color} strokeOpacity={isLong ? 1 : 0.8} strokeWidth={isLong ? w * 0.55 : w * 0.32} />;
+        })}
+      </>
+    ),
+    moving: o.compact ? undefined : <Polygon points={`${f(marker.x)},${f(marker.y - 5)} ${f(marker.x + 3.4)},${f(marker.y + 3)} ${f(marker.x - 3.4)},${f(marker.y + 3)}`} fill={color2} stroke="#FFFFFF" strokeWidth={0.8} strokeLinejoin="round" />,
+    motion: { kind: 'spin', period: 18000 },
   };
 }
 

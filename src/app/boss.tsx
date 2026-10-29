@@ -20,7 +20,7 @@ import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
-import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, hydraHeadsOf, isRiddleTurn, scalesOf, type BattleState } from '../domain/boss/battle';
+import { activeHeadIndex, bandsOf, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, hydraHeadsOf, isRiddleTurn, scalesOf, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import { battleReviewItems } from '../domain/game/review';
 import type { GameEvent } from '../domain/game/types';
@@ -67,6 +67,15 @@ function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' | 'dice
 
 /** Erro do Arquiteto sem espaço para mais uma camada (no limite, ou com o concreto já rachado). */
 const CONCRETE_FULL = 'O concreto não cresce mais — mas o erro custou Determinação.';
+
+/** Nome do subassunto em qualquer um dos assuntos do chefão (o Leviatã das Escalas cruza dois). */
+function bossSubtopicLabel(boss: BossDef, subtopic: string): string {
+  for (const topic of boss.topics) {
+    const label = subtopicLabel(topic, subtopic);
+    if (label !== subtopic) return label;
+  }
+  return subtopic;
+}
 
 function pickLine(lines: string[], n: number) {
   return lines[n % lines.length];
@@ -148,16 +157,16 @@ function Intro({ boss }: { boss: BossDef }) {
             </Text>
           </View>
         </View>
-        {boss.trait.kind === 'heads'
-          ? boss.trait.heads.map((h) => (
-              <View key={h.id} style={styles.headRow} accessible accessibilityLabel={`${h.name}: ${h.share[0]}/${h.share[1]} da vida. ${h.subtopics.map((s) => subtopicLabel(boss.topics[0], s)).join(', ')}.`}>
+        {boss.trait.kind === 'heads' || boss.trait.kind === 'phases'
+          ? bandsOf(boss).map((h) => (
+              <View key={h.id} style={styles.headRow} accessible accessibilityLabel={`${h.name}: ${h.share[0]}/${h.share[1]} da vida. ${h.subtopics.map((s) => bossSubtopicLabel(boss, s)).join(', ')}.`}>
                 <View style={[styles.headDot, { backgroundColor: h.color }]} />
                 <Text variant="caption" color={colors.parchment} style={{ flex: 1 }}>
                   <Text variant="caption" color={h.color}>
                     {h.name} · {h.share[0]}/{h.share[1]}
                   </Text>
                   {'  '}
-                  {h.subtopics.map((s) => subtopicLabel(boss.topics[0], s)).join(' · ')}
+                  {h.subtopics.map((s) => bossSubtopicLabel(boss, s)).join(' · ')}
                 </Text>
               </View>
             ))
@@ -238,7 +247,7 @@ function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { b
           </Text>
         </View>
       </View>
-      {boss.trait.kind === 'heads' ? (
+      {boss.trait.kind === 'heads' || boss.trait.kind === 'phases' ? (
         <HeadsBar boss={boss} battle={battle} />
       ) : (
         <ProgressBar value={battle.hp / battle.maxHp} color={colors.ember} height={10} accessibilityLabel={`Vida de ${boss.name}: ${battle.hp} de ${battle.maxHp}`} />
@@ -251,8 +260,8 @@ function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { b
           ))}
         </View>
         <View style={styles.hudTags}>
-          {boss.trait.kind === 'heads' ? (
-            <View style={styles.tag} accessible accessibilityLabel={`Cabeça de pé: ${headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.name}`}>
+          {boss.trait.kind === 'heads' || boss.trait.kind === 'phases' ? (
+            <View style={styles.tag} accessible accessibilityLabel={`${boss.trait.kind === 'phases' ? 'Escala atual' : 'Cabeça de pé'}: ${headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.name}`}>
               <View style={[styles.headDot, { backgroundColor: headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.color }]} />
               <Text variant="caption" color={colors.mist}>
                 {headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.name}
@@ -364,7 +373,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
           shake.set(withSequence(withTiming(10, { duration: 60 }), withTiming(-8, { duration: 70 }), withTiming(0, { duration: 80 })));
           flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
         }
-        const felled = boss.trait.kind === 'heads' && (turn.headsFelled ?? 0) > 0 ? boss.trait.heads[headsFelled(boss, after.hp) - 1] : null;
+        const felled = (boss.trait.kind === 'heads' || boss.trait.kind === 'phases') && (turn.headsFelled ?? 0) > 0 ? bandsOf(boss)[headsFelled(boss, after.hp) - 1] : null;
         const cracked = boss.trait.kind === 'facets' && turn.facetCracked ? boss.trait.facets.find((f) => f.id === turn.facetCracked) : null;
         setLine(
           felled && after.status !== 'won'

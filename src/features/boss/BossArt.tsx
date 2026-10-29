@@ -1,6 +1,7 @@
 import type { BossArt as BossArtId } from '../../content/bosses';
 import { ArquitetoArt } from './ArquitetoArt';
 import { ColossoArt } from './ColossoArt';
+import { EscalasArt } from './EscalasArt';
 import { EsfingeArt } from './EsfingeArt';
 import { GolemArt } from './GolemArt';
 import { HidraArt } from './HidraArt';
@@ -13,7 +14,7 @@ interface Props {
   size?: number;
   cracked?: boolean;
   defeated?: boolean;
-  /** Quimera: cabeças que já caíram. */
+  /** Quimera: cabeças que já caíram (no Leviatã das Escalas: escalas vencidas). */
   headsFelled?: number;
   /** Colosso: acertos em cada vértice e quantos racham um. */
   facetHits?: Record<string, number>;
@@ -42,6 +43,8 @@ export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, 
       return <ColossoArt size={size} cracked={cracked} defeated={defeated} facetHits={facetHits} hitsToCrack={hitsToCrack} />;
     case 'arquiteto':
       return <ArquitetoArt size={size} cracked={cracked} defeated={defeated} layers={layers} />;
+    case 'escalas':
+      return <EscalasArt size={size} cracked={cracked} defeated={defeated} stage={headsFelled} />;
     case 'hidra':
       return <HidraArt size={size} cracked={cracked} defeated={defeated} heads={hydraHeads} />;
     case 'esfinge':

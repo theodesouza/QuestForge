@@ -1038,6 +1038,53 @@ const Cordilheira: SceneFx = {
   ),
 };
 
+const Ilhas: SceneFx = {
+  Art: ({ uid }) => (
+    <>
+      <Sky id={`sk${uid}`} stops={[[0, '#0E1B4A'], [0.5, '#2A3F8F'], [0.72, '#8A5AA8'], [0.86, '#FF9A6A'], [1, '#FFC27A']]} />
+      <Stars seed={181} n={34} box={[0, 0, 300, 140]} />
+      <Glow id={`sg${uid}`} x={70} y={196} r={90} color="#FFB648" opacity={0.45} />
+      <Circle cx={70} cy={200} r={20} fill="#FFE2A8" />
+      {/* ilhas */}
+      <Path d="M0 214 Q30 196 62 212 Q86 202 116 216 L116 232 L0 232 Z" fill="#1E2C66" />
+      <Path d="M170 224 Q196 190 226 206 Q250 194 276 212 Q290 208 300 214 L300 232 L170 232 Z" fill="#17234F" />
+      {/* farol na ilha da direita */}
+      <Path d="M246 206 L250 176 L260 176 L264 206 Z" fill="#E8EDFF" stroke="#17234F" strokeWidth={1.2} />
+      <Path d="M251 192 H259 M250 184 H260" stroke="#E0584A" strokeWidth={3} />
+      <Path d="M248 176 L255 166 L262 176 Z" fill="#17234F" />
+      <Circle cx={255} cy={171} r={3.4} fill="#FFE08A" />
+      {/* mar */}
+      <Path d="M0 232 L300 232 L300 300 L0 300 Z" fill="#0E2257" />
+      <G stroke="#6C8CFF" strokeOpacity={0.5} strokeWidth={1.4} fill="none" strokeLinecap="round">
+        <Path d="M14 246 q10 -5 20 0 t20 0 M120 256 q10 -5 20 0 t20 0 M200 270 q10 -5 20 0 t20 0 M30 282 q10 -5 20 0 t20 0" />
+      </G>
+      {/* barco */}
+      <Path d="M170 258 H206 L198 268 H178 Z" fill="#2A1A3A" stroke="#17234F" strokeWidth={1} />
+      <Path d="M188 258 V230 L206 254 Z" fill="#FFE2A8" />
+      <Path d="M188 258 V236 L172 254 Z" fill="#E8EDFF" />
+    </>
+  ),
+  Live: () => (
+    <>
+      {/* feixe do farol, girando em torno da lâmpada */}
+      <Rotate period={9000} cx={255} cy={171}>
+        <Polygon points="255,171 330,150 330,192" fill="#FFE08A" fillOpacity={0.22} />
+        <Polygon points="255,171 -90,150 -90,192" fill="#FFE08A" fillOpacity={0.1} />
+      </Rotate>
+      <Pulse period={2600} opacity={[0.4, 1]}>
+        <Glow id="ilh" x={255} y={171} r={26} color="#FFE08A" opacity={0.8} />
+      </Pulse>
+      <Drift period={9000} amp={8}>
+        <G stroke="#9DB5FF" strokeOpacity={0.55} strokeWidth={1.6} fill="none" strokeLinecap="round">
+          <Path d="M40 262 q10 -5 20 0 t20 0 M150 288 q10 -5 20 0 t20 0 M230 250 q10 -5 20 0 t20 0" />
+        </G>
+      </Drift>
+      <Twinkles count={10} seed={182} box={[6, 6, 294, 140]} colors={['#FFFFFF', '#CFE0FF']} />
+      <Motes count={6} seed={183} box={[0, 236, 300, 296]} colors={['#9DB5FF', '#FFE2A8']} size={[1.6, 2.4]} period={8800} travel={30} sway={18} />
+    </>
+  ),
+};
+
 export const SCENES: Record<SceneFxId, SceneFx> = {
   noite: Noite,
   colinas: Colinas,
@@ -1055,6 +1102,7 @@ export const SCENES: Record<SceneFxId, SceneFx> = {
   mirante: Mirante,
   labirinto: Labirinto,
   cordilheira: Cordilheira,
+  ilhas: Ilhas,
 };
 
 /** Arte estática do cenário (também usada nas miniaturas), em coordenadas 300 × 300. */

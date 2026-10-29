@@ -54,6 +54,9 @@ export interface BossFacet {
  *   nova regenera `regenPerHead` de vida da Hidra; a Técnica (acertos seguidos) cauteriza uma cabeça.
  *   Com a vida abaixo de `breaksAtHpRatio` (fase 2), os pescoços secam: as cabeças somem e a
  *   regeneração acaba.
+ * - phases: a vida é dividida em fases de escala (`stages`, em frações exatas, como as cabeças da
+ *   Quimera). A fase de pé decide a matéria das perguntas; cada vez que uma fase termina, a maré
+ *   recua e o jogador recupera `restore` ponto de Determinação (até o máximo).
  * - concrete: cada erro faz o Arquiteto despejar uma camada de concreto (até `maxLayers`),
  *   e cada camada reduz o dano dos golpes seguintes. Uma Técnica (acertos seguidos) ignora
  *   as camadas e quebra todas. Com a vida abaixo de `breaksAtHpRatio`, o concreto racha e para
@@ -139,6 +142,16 @@ export type BossTrait =
       regenPerHead: number;
     }
   | {
+      kind: 'phases';
+      name: string;
+      description: string;
+      /** Não usado: não há quebra de mecânica, só a troca de fase. */
+      breaksAtHpRatio: number;
+      stages: BossHead[];
+      /** Determinação recuperada a cada fase concluída (exceto a última). */
+      restore: number;
+    }
+  | {
       kind: 'concrete';
       name: string;
       description: string;
@@ -150,7 +163,7 @@ export type BossTrait =
     };
 
 /** Arte vetorial registrada na UI (src/features/boss/art). */
-export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto' | 'leviata' | 'esfinge' | 'hidra';
+export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto' | 'leviata' | 'esfinge' | 'hidra' | 'escalas';
 
 export interface BossDef {
   id: string;
@@ -666,6 +679,89 @@ export const BOSSES: BossDef[] = [
       firstItems: ['frame-cordilheira', 'title-domador-curvas'],
       flawlessItem: 'core-curvas',
       repeatXp: 100,
+    },
+  },
+  {
+    id: 'leviata-das-escalas',
+    name: 'Leviatã das Escalas',
+    epithet: 'Guardião das Ilhas da Medida',
+    regionId: 'ilhas-medida',
+    art: 'escalas',
+    accent: '#4C8DFF',
+    topics: ['grandezas', 'geo-plana'],
+    subtopics: [],
+    maxHp: 480,
+    resolve: 3,
+    damage: { 1: 20, 2: 28, 3: 38, 4: 50 },
+    startTarget: 2,
+    targetStep: 0.25,
+    trait: {
+      kind: 'phases',
+      name: 'Três Escalas',
+      description:
+        'O Leviatã encolhe em três escalas — Colossal, Grande e Comum — e cada uma faz perguntas de uma matéria: conversões e grandezas, velocidade e tempo, e trigonometria. Cada vez que uma escala termina, a maré recua: você recupera 1 ponto de Determinação.',
+      breaksAtHpRatio: 0,
+      restore: 1,
+      stages: [
+        {
+          id: 'colossal',
+          name: 'Colossal',
+          share: [1, 3],
+          subtopics: ['conversao', 'unidades-compostas'],
+          color: '#4C8DFF',
+          fall: 'O Leviatã encolhe: da escala Colossal para a Grande. A maré recua — você recupera 1 ponto de Determinação.',
+        },
+        {
+          id: 'grande',
+          name: 'Grande',
+          share: [1, 3],
+          subtopics: ['velocidade', 'tempo'],
+          color: '#38D6B0',
+          fall: 'De Grande a Comum: o Leviatã já quase cabe no mapa. A maré recua — +1 ponto de Determinação.',
+        },
+        {
+          id: 'comum',
+          name: 'Comum',
+          share: [1, 3],
+          subtopics: ['trigonometria', 'trigonometria-aplicada'],
+          color: '#FFD36B',
+          fall: 'A última escala se desfaz.',
+        },
+      ],
+    },
+    technique: {
+      name: 'Medida Exata',
+      every: 3,
+      bonus: 36,
+      line: 'Três acertos seguidos! A Medida Exata atravessa as escalas de uma só vez.',
+    },
+    lines: {
+      intro: [
+        'Quando você julga ter me medido, eu mudo de tamanho.',
+        'Sou Colossal, Grande e Comum: três escalas, três matérias.',
+        'A cada escala que vence, a maré recua e você respira. Chegue ao tamanho Comum — se souber medir.',
+      ],
+      phase2: 'Minhas escalas se confundem?! Nenhuma régua me prende.',
+      playerHit: [
+        'A medida fecha — e o Leviatã encolhe um pouco.',
+        'Uma conversão certa, uma onda a menos.',
+        'O mar recua sob o golpe exato.',
+        'Grandeza medida, grandeza dominada.',
+      ],
+      bossHit: [
+        'O Leviatã aproveita o deslize e muda de escala.',
+        'Uma unidade trocada — e a onda passa por cima.',
+        'O mar estremece. Revise a resolução e siga.',
+      ],
+      defeat: 'Você mediu o imensurável, Cartógrafo. As Ilhas — e o Atlas inteiro — são suas.',
+      retreat: 'Volte quando suas escalas estiverem em ordem. O mar espera.',
+    },
+    rewards: {
+      firstXp: 600,
+      firstInk: 240,
+      firstItems: ['frame-ilhas', 'title-navegador-escalas'],
+      flawlessItem: 'core-rosa-medidas',
+      repeatXp: 120,
     },
   },
 ];

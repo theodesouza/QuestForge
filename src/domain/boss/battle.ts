@@ -35,6 +35,8 @@ export interface BattleTurn {
   layers?: number;
   /** Esfinge do Acaso: este turno foi um Enigma. */
   riddle?: boolean;
+  /** Leviatã das Escalas: Determinação recuperada ao concluir uma escala. */
+  resolveRestored?: number;
   /** Hidra das Funções: cabeças novas depois deste turno. */
   hydraHeads?: number;
   /** Hidra: nasceu uma cabeça nova (erro). */
@@ -198,6 +200,8 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
         }
       }
       armorBroke = !battle.armorBroken && allFacetsCracked(boss, next);
+    } else if (trait.kind === 'phases') {
+      armorBroke = false;
     } else if (trait.kind === 'scales') {
       // Cada acerto arranca uma escama (a Técnica, duas); sem nenhuma, o Leviatã fica exposto.
       const before = scalesOf(boss, battle);
@@ -224,7 +228,15 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
         turn.healed = regen;
       }
     }
-    if (trait.kind === 'heads') turn.headsFelled = headsFelled(boss, next.hp) - headsFelled(boss, battle.hp);
+    if (trait.kind === 'heads' || trait.kind === 'phases') turn.headsFelled = headsFelled(boss, next.hp) - headsFelled(boss, battle.hp);
+    if (trait.kind === 'phases' && next.hp > 0 && (turn.headsFelled ?? 0) > 0) {
+      // A maré recua a cada escala concluída.
+      const gain = Math.min(next.maxResolve - next.resolve, (turn.headsFelled ?? 0) * trait.restore);
+      if (gain > 0) {
+        next.resolve += gain;
+        turn.resolveRestored = gain;
+      }
+    }
     if (trait.kind === 'concrete') {
       const before = concreteLayers(battle);
       // A Técnica quebra o concreto; a fase 2 também (ele racha e escorre).
@@ -314,10 +326,14 @@ export interface HeadSpan {
   ceilHp: number;
 }
 
-/** Faixas de vida de cada cabeça, de cima para baixo. Vazio para chefões sem cabeças. */
+/** Faixas de vida por matéria: as cabeças da Quimera ou as escalas do Leviatã. Vazio nos demais chefões. */
+export function bandsOf(boss: BossDef): BossHead[] {
+  return boss.trait.kind === 'heads' ? boss.trait.heads : boss.trait.kind === 'phases' ? boss.trait.stages : [];
+}
+
+/** Faixas de vida de cada cabeça (ou escala), de cima para baixo. Vazio para chefões sem faixas. */
 export function headSpans(boss: BossDef): HeadSpan[] {
-  if (boss.trait.kind !== 'heads') return [];
-  const heads = boss.trait.heads;
+  const heads = bandsOf(boss);
   let remaining = 1;
   let ceil = boss.maxHp;
   return heads.map((head, index) => {

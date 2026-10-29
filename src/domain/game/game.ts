@@ -642,7 +642,7 @@ function findBossNode(bossId: string): BossNode | null {
  * vértice da vez (rodízio entre os que ainda não racharam).
  */
 function bossPool(boss: BossDef, battle?: BattleState) {
-  if (boss.trait.kind === 'heads' && battle) {
+  if ((boss.trait.kind === 'heads' || boss.trait.kind === 'phases') && battle) {
     const span = headSpans(boss)[activeHeadIndex(boss, battle.hp)];
     const pool = questionsFor({ topics: boss.topics, subtopics: span.head.subtopics });
     if (pool.length > 0) return pool;

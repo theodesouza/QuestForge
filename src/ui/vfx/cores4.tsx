@@ -3,6 +3,7 @@
  *   Histograma → barras, linha e rosca de setores (Leviatã dos Gráficos).
  *   Dado       → um d20 e dados menores em órbita (Esfinge do Acaso).
  *   Curvas     → um plano cartesiano com reta, parábola e exponencial (Hidra das Funções).
+ *   Rosa       → uma rosa dos ventos graduada, com arco de transferidor (Leviatã das Escalas).
  * Mesma escada dos outros lendários: runas, objetos flutuantes e um clarão periódico.
  */
 import { Circle, Defs, G, Line, Path, Polygon, Polyline, Rect, Text as SvgText } from 'react-native-svg';
@@ -206,6 +207,75 @@ export function Curvas({ v }: CoreProps) {
         <Particles mode="orbit" count={2} period={12000} colors={[c2]} size={[2.6, 3.4]} radius={[47, 47]} tilt={0.45} plane={34} reverse glow seed={92} />
       </Extra>
       <Particles mode="rise" count={6} period={3600} colors={['#FFE7D6', '#FFD36B']} size={[2.2, 3.4]} radius={[8, 28]} arc={[-120, 120]} travel={32} sparkle seed={93} />
+    </>
+  );
+}
+
+const UNITS = ['m', 's', '°', 'h', 'L', 'g', 'π', 'θ'] as const;
+
+/** Ponta da rosa dos ventos: duas metades (clara e escura) a partir do centro. */
+function rosePoint(deg: number, len: number) {
+  const tip = polar(len, deg);
+  const l = polar(len * 0.3, deg - 42);
+  const r = polar(len * 0.3, deg + 42);
+  const f = (p: { x: number; y: number }) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+  return { left: `${f(tip)} ${f(l)} ${C},${C}`, right: `${f(tip)} ${f(r)} ${C},${C}` };
+}
+
+/** Núcleo da Rosa das Medidas: rosa dos ventos de oito pontas, graduações e um arco de transferidor. */
+export function Rosa({ v }: CoreProps) {
+  const h = useGid('rs');
+  const c2 = v.color2 ?? v.color;
+  const points = [
+    ...[0, 90, 180, 270].map((d) => ({ d, len: 27 })),
+    ...[45, 135, 225, 315].map((d) => ({ d, len: 17 })),
+  ];
+  return (
+    <>
+      <Breathe period={3600} scale={[0.93, 1.08]} opacity={[0.55, 1]}>
+        <Glow id={h} color={v.color} r={50} opacity={0.5} />
+      </Breathe>
+      <Wave period={6600} from={14} to={56} drawnAt={42} peak={0.85} hold={0.55}>
+        <Circle cx={C} cy={C} r={42} stroke="#E8F0FF" strokeWidth={2.2} fill="none" />
+        <Circle cx={C} cy={C} r={38} stroke={c2} strokeWidth={1} fill="none" />
+      </Wave>
+      <Spin period={34000} reverse>
+        <GreekRing r={37} color="#CFE0FF" size={7} glyphs={UNITS} />
+      </Spin>
+      <Spin period={52000}>
+        <G stroke="#FFFFFF" strokeOpacity={0.5} strokeWidth={0.8}>
+          {Array.from({ length: 36 }, (_, i) => {
+            const a = i * 10;
+            const p0 = polar(30, a);
+            const p1 = polar(i % 3 === 0 ? 33.5 : 32, a);
+            return <Line key={i} x1={p0.x} y1={p0.y} x2={p1.x} y2={p1.y} />;
+          })}
+        </G>
+      </Spin>
+      <Spin period={22000} reverse>
+        <Path d={arc(28, -28, 32)} stroke={c2} strokeWidth={2} strokeLinecap="round" fill="none" />
+        <Path d={arc(24.5, -28, 32)} stroke={c2} strokeOpacity={0.5} strokeWidth={0.8} strokeDasharray="1.4 2.6" fill="none" />
+      </Spin>
+      <Breathe period={5000} scale={[0.97, 1.04]}>
+        {points.map(({ d, len }) => {
+          const k = rosePoint(d, len);
+          return (
+            <G key={d} strokeLinejoin="round" stroke="#0B1A3A" strokeWidth={0.9}>
+              <Polygon points={k.left} fill={v.color} />
+              <Polygon points={k.right} fill="#E8F0FF" />
+            </G>
+          );
+        })}
+        <Circle cx={C} cy={C} r={3.4} fill={c2} stroke="#0B1A3A" strokeWidth={0.9} />
+        <SvgText x={C} y={C - 29.5} fontSize={6} fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          N
+        </SvgText>
+      </Breathe>
+      <Particles mode="orbit" count={2} period={8200} colors={['#FFFFFF', v.color]} size={[3, 4]} radius={[47, 47]} tilt={0.45} plane={-24} glow seed={101} />
+      <Extra>
+        <Particles mode="orbit" count={2} period={12600} colors={[c2]} size={[2.6, 3.4]} radius={[47, 47]} tilt={0.45} plane={34} reverse glow seed={102} />
+      </Extra>
+      <Particles mode="rise" count={5} period={3800} colors={['#E8F0FF', '#FFFFFF']} size={[2.2, 3.4]} radius={[8, 28]} arc={[-120, 120]} travel={30} sparkle seed={103} />
     </>
   );
 }

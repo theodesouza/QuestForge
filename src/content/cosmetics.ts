@@ -342,6 +342,15 @@ export const MORE_ITEMS: ItemDef[] = [
     visual: { color: '#FF8A55', color2: '#FFD36B', fx: 'cordilheira' },
   },
   {
+    id: 'scene-ilhas',
+    slot: 'scene',
+    name: 'Arquipélago ao Anoitecer',
+    rarity: 'raro',
+    description: 'Ilhas no horizonte, um farol que varre o mar e um barco voltando para casa.',
+    howToGet: 'Derrote o Leviatã das Escalas.',
+    visual: { color: '#4C8DFF', color2: '#FFB648', fx: 'ilhas' },
+  },
+  {
     id: 'scene-polar',
     slot: 'scene',
     name: 'Campo Polar',

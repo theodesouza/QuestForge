@@ -33,6 +33,7 @@ export const FEATS: Feat[] = [
   { id: 'scene:leviata-dos-graficos', label: 'Espólio do Leviatã dos Gráficos', itemIds: ['scene-mirante'], done: bossWon('leviata-dos-graficos') },
   { id: 'scene:esfinge-do-acaso', label: 'Espólio da Esfinge do Acaso', itemIds: ['scene-labirinto'], done: bossWon('esfinge-do-acaso') },
   { id: 'scene:hidra-das-funcoes', label: 'Espólio da Hidra das Funções', itemIds: ['scene-cordilheira'], done: bossWon('hidra-das-funcoes') },
+  { id: 'scene:leviata-das-escalas', label: 'Espólio do Leviatã das Escalas', itemIds: ['scene-ilhas'], done: bossWon('leviata-das-escalas') },
   { id: 'echoes:10', label: 'Feito: 10 Ecos superados', itemIds: ['title-cacador-ecos'], done: (s) => echoesBeatenCount(s.questionStates) >= 10 },
   { id: 'echoes:40', label: 'Feito: 40 Ecos superados', itemIds: ['title-senhor-ecos'], done: (s) => echoesBeatenCount(s.questionStates) >= 40 },
   { id: 'answers:1000', label: 'Feito: 1000 questões respondidas', itemIds: ['title-mil-passos'], done: (s) => s.profile.totals.answered >= 1000 },

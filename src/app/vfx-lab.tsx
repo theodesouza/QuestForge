@@ -72,7 +72,7 @@ export default function VfxLab() {
             <BossArt
               art={art}
               size={170}
-              headsFelled={Math.min(n, 3)}
+              headsFelled={art === 'escalas' ? Math.min(n, 2) : Math.min(n, 3)}
               cracked={['colosso', 'arquiteto', 'leviata', 'esfinge'].includes(art) ? n >= 3 : n >= 1}
               riddle={n === 1 || n === 3}
               hydraHeads={Math.min(n, 3)}
@@ -147,6 +147,7 @@ export default function VfxLab() {
         ['core-histograma', 'aura-mare'],
         ['core-dado', 'aura-eletrica'],
         ['core-curvas', 'aura-brasa'],
+        ['core-rosa-medidas', 'aura-lunar'],
       ];
       for (const [core, aura] of pairs) {
         const s = resolveSynergy({ core, aura });

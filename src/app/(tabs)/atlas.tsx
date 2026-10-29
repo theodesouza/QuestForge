@@ -23,13 +23,6 @@ import { Stars } from '../../ui/Stars';
 import { Text } from '../../ui/Text';
 import { TAB_BAR_SPACE, colors, space } from '../../ui/theme';
 
-const UPCOMING = [
-  'Observatório dos Dados',
-  'Labirinto do Acaso',
-  'Cordilheira das Funções',
-  'Ilhas da Medida',
-];
-
 const MEDAL = 66;
 
 function Medallion({ node, status }: { node: CampaignNode; status: NodeStatus }) {
@@ -188,7 +181,7 @@ export default function Atlas() {
           </Text>
         </View>
         <Text variant="caption" color={colors.mistDim} style={{ marginTop: space.xs }}>
-          Regiões em desenvolvimento, que chegarão em próximas versões: {UPCOMING.join(' · ')}.
+          Você chegou às Ilhas da Medida, a última região do Atlas. O Cume do ENEM — com simulados completos — chegará em uma próxima versão.
         </Text>
       </Panel>
     </Screen>

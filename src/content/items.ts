@@ -50,7 +50,7 @@ export type OptionalSlot = (typeof OPTIONAL_SLOTS)[number];
 
 /** Estilos de moldura — cada um desenha o anel do astrolábio de um jeito (src/ui/vfx/frames.tsx). */
 export const LEGACY_FRAME_STYLES = ['plain', 'double', 'notched', 'armillary', 'segmented'] as const;
-export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes', 'axes', 'maze', 'peaks'] as const;
+export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes', 'axes', 'maze', 'peaks', 'ruler'] as const;
 export const FRAME_STYLES = [...LEGACY_FRAME_STYLES, ...CUSTOM_FRAME_STYLES] as const;
 export type FrameStyle = (typeof FRAME_STYLES)[number];
 export type CustomFrameStyle = (typeof CUSTOM_FRAME_STYLES)[number];
@@ -498,6 +498,34 @@ const BASE_ITEMS: ItemDef[] = [
     description: 'O coração da Hidra: um plano cartesiano em brasa, com uma reta, uma parábola e uma exponencial traçando-se sem parar.',
     howToGet: 'Derrote a Hidra das Funções sem erros e sem usar dicas.',
     visual: { color: '#FF8A55', color2: '#FFD36B', element: 'fogo', fx: 'curvas' },
+  },
+  // ——— Região 9: Ilhas da Medida ———
+  {
+    id: 'frame-ilhas',
+    slot: 'frame',
+    name: 'Moldura das Ilhas',
+    rarity: 'raro',
+    description: 'Um anel graduado como régua e transferidor, com um marco de navegação que gira na borda.',
+    howToGet: 'Derrote o Leviatã das Escalas.',
+    visual: { color: '#4C8DFF', color2: '#FFD36B', frameStyle: 'ruler' },
+  },
+  {
+    id: 'title-navegador-escalas',
+    slot: 'title',
+    name: 'Navegador das Escalas',
+    rarity: 'raro',
+    description: 'Atravessa quilômetros, minutos e graus sem trocar uma unidade.',
+    howToGet: 'Derrote o Leviatã das Escalas.',
+    visual: { color: '#4C8DFF' },
+  },
+  {
+    id: 'core-rosa-medidas',
+    slot: 'core',
+    name: 'Núcleo da Rosa das Medidas',
+    rarity: 'lendario',
+    description: 'O coração do Leviatã: uma rosa dos ventos de oito pontas, cercada de graduações e de um arco de transferidor que nunca perde o norte.',
+    howToGet: 'Derrote o Leviatã das Escalas sem erros e sem usar dicas.',
+    visual: { color: '#4C8DFF', color2: '#FFD36B', element: 'lunar', fx: 'rosa' },
   },
   // ——— Encomendas ———
   {

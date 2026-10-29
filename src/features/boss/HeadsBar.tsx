@@ -31,12 +31,13 @@ export function HeadsBar({ boss, battle }: { boss: BossDef; battle: BattleState 
   const spans = headSpans(boss);
   if (spans.length === 0) return null;
   const active = activeHeadIndex(boss, battle.hp);
+  const noun = boss.trait.kind === 'phases' ? 'Escalas restantes' : 'Cabeças de pé';
   const alive = spans.filter((s) => battle.hp > s.floorHp).map((s) => `${s.head.name}, ${s.head.share[0]}/${s.head.share[1]} da vida`);
   return (
     <View
       accessible
       accessibilityRole="progressbar"
-      accessibilityLabel={`Vida de ${boss.name}: ${battle.hp} de ${battle.maxHp}. Cabeças de pé: ${alive.join('; ') || 'nenhuma'}.`}
+      accessibilityLabel={`Vida de ${boss.name}: ${battle.hp} de ${battle.maxHp}. ${noun}: ${alive.join('; ') || 'nenhuma'}.`}
     >
       <View style={styles.row}>
         {spans.map((s) => {
