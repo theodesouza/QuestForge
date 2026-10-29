@@ -96,7 +96,24 @@ Aparelho real:
   - **Arquiteto dos Sólidos** (`BossTrait` `concrete`): cada erro despeja uma camada de concreto (até 3) que tira 20% do dano; só a Técnica (3 acertos seguidos) quebra tudo; com a vida abaixo de 50% o concreto racha e para de se formar — `ConcreteTag` no HUD, arte `ArquitetoArt` com as camadas subindo pelo corpo
   - recompensas: Moldura de Geodo (raro, coroa de cubos isométricos), título Volumetra, Caverna de Cristais (cenário, por feito) e, sem erros nem dicas, **Núcleo do Poliedro** (lendário: cubo, octaedro e tetraedro encaixados)
   - catálogo: 88 → 96 peças (21 molduras com 2 estilos novos, 19 núcleos, 14 auras, 13 cenários, 29 títulos); a Lenda do Atlas agora exige vencer os cinco chefões sem errar
-- [ ] Regiões 6–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
+- [x] **Região 6 — Observatório dos Dados** (gráficos de barras/linhas/setores, tabelas e frequências, média/mediana/moda): 3 missões + chefão, abre após vencer o Arquiteto
+  - **72 questões autorais novas** (`GRF-101…136`, `EST-101…136`), com dois **tipos novos de gráfico no enunciado** (linhas e setores); 2 subassuntos novos (`graficos-setores`, `frequencias`)
+  - **Leviatã dos Gráficos** (`scales`): 4 escamas que reduzem o dano em 30%; acertos as arrancam (Técnica: duas), erros fazem duas crescerem; sem escamas, +50% de dano — `ScalesTag`, arte `LeviataArt`
+  - recompensas: Moldura do Observatório (barras e radar), título Analista de Dados, cenário Mirante dos Gráficos e, sem erros nem dicas, **Núcleo do Histograma** (lendário)
+- [x] **Região 7 — Labirinto do Acaso** (princípio multiplicativo, permutações, combinações, contagem com restrições, probabilidade): 3 missões + chefão
+  - **72 questões autorais novas** (`COM-101…148`, `PRB-101…124`), muitas com verificação por busca exaustiva; 3 subassuntos novos (`permutacao`, `contagem-restricoes`)
+  - **Esfinge do Acaso** (`riddle`): a cada 4 golpes (3 na fase 2) vem um Enigma — pergunta um nível acima, +50% de dano ao acertar e −2 de Determinação ao errar — `RiddleTag`, banner "Golpe do Enigma", arte `EsfingeArt`
+  - recompensas: Moldura do Labirinto (greca), título Mestre do Acaso, cenário Corredores do Labirinto e **Núcleo do Dado Perfeito** (lendário)
+- [x] **Região 8 — Cordilheira das Funções** (função afim, 1º grau, função quadrática, 2º grau, exponencial, progressões): 3 missões + chefão
+  - **72 questões autorais novas** (`FUN-101…148`, `EQU-101…124`); 2 subassuntos novos (`equacao-2grau`, `progressoes`)
+  - **Hidra das Funções** (`hydra`): cada erro faz nascer uma cabeça, e cada cabeça regenera 12 de vida por golpe; a Técnica cauteriza uma; com a vida abaixo de 40% os pescoços secam — `HydraTag`, arte `HidraArt` com as cabeças novas
+  - recompensas: Moldura da Cordilheira, título Domador de Curvas, cenário Cordilheira ao Amanhecer e **Núcleo das Curvas** (lendário)
+- [x] **Região 9 — Ilhas da Medida** (conversões, densidade/vazão/consumo, velocidade, tempo e fusos, trigonometria): 3 missões + chefão, a última região do Atlas
+  - **73 questões autorais novas** (`GRA-101…148`, `TRG-101…125`); 4 subassuntos novos (`unidades-compostas`, `tempo`, `trigonometria`, `trigonometria-aplicada`)
+  - **Leviatã das Escalas** (`phases`): três escalas (Colossal, Grande e Comum), cada uma com a sua matéria; cada escala concluída devolve 1 de Determinação — arte `EscalasArt`, que encolhe com a escala
+  - recompensas: Moldura das Ilhas (régua), título Navegador das Escalas, cenário Arquipélago ao Anoitecer e **Núcleo da Rosa das Medidas** (lendário)
+  - catálogo: 96 → 112 peças (25 molduras com 4 estilos novos, 23 núcleos, 14 auras, 17 cenários, 33 títulos); a Lenda do Atlas agora exige vencer os nove chefões sem errar; aviso único de novidade para quem já joga
+- [ ] Cume do ENEM: simulados completos (planejado)
 - [ ] Conquistas e coleções
 - [ ] Companheiros
 - [ ] Selos de domínio gravados no astrolábio
@@ -141,7 +158,7 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Pausa saudável após 25 min contínuos
 
 ## Etapa 6 — Conteúdo (pendente)
-- [~] Expandir para 500 questões validadas, em lotes por assunto — **459 hoje** (91 do MVP + 25 de financeira + 126 de missões das regiões 1–2 + 72 da Região 3 + 72 da Região 4 + 73 da Região 5); combinatória e equações têm poucos itens
+- [x] Expandir para 500 questões validadas, em lotes por assunto — **748 hoje** (91 do MVP + 25 de financeira + 126 de missões das regiões 1–2 + 72 da Região 3 + 72 + 73 das Regiões 4 e 5 + 72 + 72 + 72 + 73 das Regiões 6 a 9); toda questão de missão recalcula o gabarito (`verify()`)
 
 ## Etapa 7 — Polimento (pendente)
 - [ ] Sons (desativáveis)

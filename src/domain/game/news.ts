@@ -23,6 +23,11 @@ export const NEWS: readonly News[] = [
     title: 'Duas novas regiões no Atlas',
     detail: 'Torres Euclidianas e Cavernas Volumétricas: geometria plana e espacial, com o Colosso Euclidiano e o Arquiteto dos Sólidos.',
   },
+  {
+    id: 'atlas-r6-r9',
+    title: 'Quatro novas regiões no Atlas',
+    detail: 'Observatório dos Dados, Labirinto do Acaso, Cordilheira das Funções e Ilhas da Medida, cada uma com um chefão de mecânica própria.',
+  },
 ];
 
 export function announceNews(tx: Tx, now: number) {

@@ -166,16 +166,17 @@ describe('avisos de novidade', () => {
     expect(newsOf(first.events)).toEqual([
       expect.objectContaining({ id: 'cosmetics-v2', title: 'Novidades na personalização' }),
       expect.objectContaining({ id: 'atlas-r4-r5', title: 'Duas novas regiões no Atlas' }),
+      expect.objectContaining({ id: 'atlas-r6-r9', title: 'Quatro novas regiões no Atlas' }),
     ]);
-    expect(first.delta.ledger).toEqual(expect.arrayContaining(['news:cosmetics-v2', 'news:atlas-r4-r5']));
+    expect(first.delta.ledger).toEqual(expect.arrayContaining(['news:cosmetics-v2', 'news:atlas-r4-r5', 'news:atlas-r6-r9']));
     expect(newsOf(touch(first.state, T0 + 2000, 180).events)).toEqual([]);
   });
 
-  it('quem já viu o aviso anterior recebe só o das novas regiões', () => {
+  it('quem já viu os avisos anteriores recebe só o das regiões novas', () => {
     const s = onboarded();
-    const ledger = Object.fromEntries(Object.entries(s.ledger).filter(([k]) => k !== 'news:atlas-r4-r5'));
+    const ledger = Object.fromEntries(Object.entries(s.ledger).filter(([k]) => k !== 'news:atlas-r6-r9'));
     const { events } = touch({ ...s, ledger }, T0 + 1000, 180);
-    expect(newsOf(events).map((n) => n.id)).toEqual(['atlas-r4-r5']);
+    expect(newsOf(events).map((n) => n.id)).toEqual(['atlas-r6-r9']);
   });
 
   it('antes da apresentação não há aviso', () => {

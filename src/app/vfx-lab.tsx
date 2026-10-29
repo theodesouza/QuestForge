@@ -73,7 +73,7 @@ export default function VfxLab() {
               art={art}
               size={170}
               headsFelled={art === 'escalas' ? Math.min(n, 2) : Math.min(n, 3)}
-              cracked={['colosso', 'arquiteto', 'leviata', 'esfinge'].includes(art) ? n >= 3 : n >= 1}
+              cracked={['colosso', 'arquiteto', 'leviata', 'esfinge', 'hidra', 'escalas'].includes(art) ? n >= 3 : n >= 1}
               riddle={n === 1 || n === 3}
               hydraHeads={Math.min(n, 3)}
               defeated={n >= (art === 'quimera' ? 3 : 4)}

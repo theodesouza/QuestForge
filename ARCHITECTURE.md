@@ -250,8 +250,10 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
   gerado antes de registrar a resposta, para que o Eco criado por ela não vire encomenda do mesmo dia;
   metas semanais criadas no meio da semana são proporcionais aos dias restantes.
 - **Mecânicas de chefão como dados** (`BossTrait`): couraça (Golem), cofre de juros (Mercador),
-  cabeças (Quimera), vértices (Colosso) e concreto (Arquiteto) compartilham a "fase 2" (`armorBroken`);
-  a arte de cada chefão vem de um registro (`features/boss/BossArt`).
+  cabeças (Quimera), vértices (Colosso), concreto (Arquiteto), escamas (Leviatã dos Gráficos), enigma
+  (Esfinge), cabeças que renascem (Hidra) e escalas (Leviatã das Escalas); as que têm "fase 2" usam
+  `armorBroken`. A arte de cada chefão vem de um registro (`features/boss/BossArt`) e os medidores do
+  HUD, de `features/boss/TraitMeters` (`FacetsBar`, `ConcreteTag`, `ScalesTag`, `RiddleTag`, `HydraTag`).
 - **Quimera Fracionária** (`domain/boss/battle.ts`): as cabeças são faixas da vida máxima (`headSpans`:
   1/2, 1/3 e 1/6 de 240 ⇒ 240→120, 120→40, 40→0). A cabeça de pé (`activeHeadIndex`) decide de qual
   matéria sai a próxima pergunta (`bossPool` em `game.ts`) e é a única que se regenera num erro
@@ -270,6 +272,25 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
   golpe cheio. Com a vida abaixo de 50% o concreto racha (fase 2): as camadas somem e param de se
   formar. Golpes registram `layers`, `layerAdded` e `layersBroken`. Batalhas gravadas antes continuam
   válidas (campos opcionais).
+- **Leviatã dos Gráficos** (`scales`): quatro escamas (`BattleState.scales`). Com escama, o dano é ×0,7
+  (`scalesMultiplier`); cada acerto arranca uma (a Técnica, duas) e cada erro faz duas crescerem de volta.
+  Sem escamas, o Leviatã fica exposto (×1,5); a primeira vez que isso acontece é a fase 2. Batalhas
+  gravadas sem o campo valem como escamas cheias (`scalesOf`).
+- **Esfinge do Acaso** (`riddle`): o golpe número 4, 8, 12… (3, 6, 9… na fase 2) é um Enigma
+  (`isRiddleTurn`, `turnsToRiddle`): a pergunta vem um nível mais difícil (`battleTarget`), acertar amplia
+  o dano em 50% e errar custa 2 de Determinação. A tela mostra o aviso "Golpe do Enigma" e troca o
+  botão para "Decifrar o Enigma"; o turno guarda `riddle` para a revisão.
+- **Hidra das Funções** (`hydra`): cada erro faz nascer uma cabeça (`BattleState.hydraHeads`, até 3);
+  depois de cada golpe, cada cabeça regenera 12 de vida (`BattleTurn.healed`). A Técnica cauteriza uma
+  cabeça antes da regeneração; com a vida abaixo de 40% os pescoços secam (cabeças somem, sem regeneração).
+- **Leviatã das Escalas** (`phases`): a vida é dividida em três terços (mesma conta das cabeças da
+  Quimera, `bandsOf`/`headSpans`); a escala de pé decide a matéria da pergunta (`bossPool`) e cada escala
+  concluída devolve 1 de Determinação (`BattleTurn.resolveRestored`). Não há fase 2.
+- **Gráficos nos enunciados** (`Block`): além de tabela e barras, `line` (gráfico de linhas, com
+  `yMin` e `showValues`) e `pie` (setores, com texto por fatia, "?" para ocultar um valor), desenhados
+  em SVG por `features/question/Charts.tsx`; o validador exige 2+ pontos/fatias positivas.
+- **Gabarito equilibrado nos lotes**: os lotes são escritos com a correta em A e depois rotacionados
+  (script de autoria) para que cada letra tenha 15–25% do banco — o teste do banco cobra isso.
 - **Validador numérico**: `parseNumeric` lê o valor de cada alternativa (R$, %, frações e mistos, horas,
   notação científica, potências, raízes) para exigir que `verify()` bata com exatamente uma delas.
 - **Fontes empacotadas por peso** (`@expo-google-fonts/<família>/<peso>`) para não embutir pesos não usados.

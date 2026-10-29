@@ -2,6 +2,8 @@
  * Teste ponta a ponta no navegador (pré-visualização web), jogando o fluxo do MVP:
  * onboarding → expedição → Região 1 (3 missões + Golem) → Região 2 (3 missões + Mercador)
  * → Região 3 (Quimera) → Região 4 (Colosso Euclidiano) → Região 5 (Arquiteto dos Sólidos)
+ * → Região 6 (Leviatã dos Gráficos) → Região 7 (Esfinge do Acaso) → Região 8 (Hidra das Funções)
+ * → Região 9 (Leviatã das Escalas)
  * → encomendas → Oficina → ajustes, com capturas de tela.
  *
  * Uso:
@@ -148,7 +150,10 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const playMission = async (label) => {
     await click('Começar missão');
     await wait(1000);
+    let qn = 0;
     while (await current()) {
+      // Gráficos de barras, linhas e setores e tabelas: uma foto de cada questão da 1ª missão da Região 6.
+      if (label === 'r6-m1') await shot(`${label}-q${++qn}`);
       await answerOne(true);
       await dismissCelebrations(label === 'r1-m1' ? 'levelup-midsession' : null);
       const s = await page.evaluate(() => globalThis.__qf.store.getState().game.session);
@@ -159,7 +164,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await wait(800);
     await dismissCelebrations(null);
     await dismissReveals();
-    if (['r1-m1', 'r2-m1', 'r3-m1', 'r4-m1', 'r5-m1'].includes(label)) await shot(`${label}-summary`);
+    if (['r1-m1', 'r2-m1', 'r3-m1', 'r4-m1', 'r5-m1', 'r6-m1', 'r7-m1', 'r8-m1', 'r9-m1'].includes(label)) await shot(`${label}-summary`);
     await click('Voltar ao acampamento');
     await wait(800);
   };
@@ -177,6 +182,11 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     // Colosso: vértices partidos; Arquiteto: camadas de concreto — uma foto a cada mudança.
     let lastMark = 0;
     let layersSeen = 0;
+    let minScales = 99;
+    let headsSeen = 0;
+    let healedSeen = 0;
+    let riddleSeen = false;
+    let stageMark = 0;
     while (turns++ < 40) {
       const b = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
       if (!b || b.status !== 'active') break;
@@ -188,11 +198,31 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
         await click('Voltar à questão atual');
         await wait(400);
       }
-      await answerOne(!misses.includes(turns), 'Atacar');
+      const riddleNow = prefix === 'esfinge' && (b.turns.length + 1) % (b.armorBroken ? 3 : 4) === 0;
+      await answerOne(!misses.includes(turns), riddleNow ? 'Decifrar o Enigma' : 'Atacar');
       if (turns === 1) await shot(`${prefix}-hit`);
       if (turns === misses[0]) await shot(`${prefix}-miss`);
       await dismissCelebrations(null);
       const after = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
+      const last = after.turns[after.turns.length - 1];
+      if (prefix === 'leviata') {
+        minScales = Math.min(minScales, after.scales);
+        if (after.scales !== lastMark) { lastMark = after.scales; await shot(`${prefix}-scales-${after.scales}`); }
+      }
+      if (prefix === 'esfinge' && last.riddle && !riddleSeen) { riddleSeen = true; await shot(`${prefix}-riddle-${last.correct ? 'hit' : 'miss'}`); }
+      if (prefix === 'hidra') {
+        headsSeen = Math.max(headsSeen, after.hydraHeads || 0);
+        healedSeen += last.healed || 0;
+        if ((after.hydraHeads || 0) !== lastMark) { lastMark = after.hydraHeads || 0; await shot(`${prefix}-heads-${lastMark}`); }
+      }
+      if (prefix === 'escalas') {
+        const stage = after.hp <= after.maxHp / 3 ? 2 : after.hp <= (after.maxHp * 2) / 3 ? 1 : 0;
+        if (stage !== stageMark) {
+          if (after.status === 'active' && !(after.resolve > b.resolve) && b.resolve < after.maxResolve) throw new Error('Concluir uma escala não devolveu Determinação');
+          stageMark = stage;
+          await shot(`${prefix}-stage-${stage}`);
+        }
+      }
       if (prefix === 'colosso' || prefix === 'arquiteto') {
         const mark = prefix === 'colosso' ? Object.values(after.facetHits || {}).filter((h) => h >= 2).length : after.layers || 0;
         layersSeen = Math.max(layersSeen, prefix === 'arquiteto' ? mark : 0);
@@ -213,6 +243,10 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
       await wait(400);
     }
     if (prefix === 'arquiteto' && layersSeen === 0) throw new Error('O Arquiteto não despejou concreto depois dos erros');
+    if (prefix === 'leviata' && !(minScales < 4)) throw new Error('O Leviatã dos Gráficos não perdeu escamas');
+    if (prefix === 'esfinge' && !riddleSeen) throw new Error('A Esfinge não propôs o Enigma');
+    if (prefix === 'hidra' && (headsSeen === 0 || healedSeen === 0)) throw new Error('A Hidra não ganhou cabeça nem se regenerou depois do erro');
+    if (prefix === 'escalas' && stageMark < 2) throw new Error('O Leviatã das Escalas não chegou à última escala');
     await dismissCelebrations(null);
     await shot(`${prefix}-result`);
     await click('Voltar ao Atlas');
@@ -260,6 +294,22 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.mouse.move(195, 500);
   await page.mouse.wheel(0, 2200);
   await shot('atlas-after-arquiteto');
+
+  // Regiões 6 a 9: gráficos, acaso, funções e medidas — cada chefão com a sua mecânica.
+  for (const [region, boss, name, misses, wheel] of [
+    ['r6', 'leviata', 'Leviatã dos Gráficos', [2], 2600],
+    ['r7', 'esfinge', 'Esfinge do Acaso', [2], 3000],
+    ['r8', 'hidra', 'Hidra das Funções', [2], 3400],
+    ['r9', 'escalas', 'Leviatã das Escalas', [2], 3800],
+  ]) {
+    await page.getByRole('tab', { name: 'Acampamento' }).click();
+    await wait(800);
+    for (const m of ['m1', 'm2', 'm3']) await playMission(`${region}-${m}`);
+    await fightBoss(boss, name, misses);
+    await page.mouse.move(195, 500);
+    await page.mouse.wheel(0, wheel);
+    await shot(`atlas-after-${boss}`);
+  }
 
   // Encomendas.
   await page.getByRole('tab', { name: 'Acampamento' }).click();
@@ -345,7 +395,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await shot('settings');
   const g = await page.evaluate(() => { const g = globalThis.__qf.store.getState().game; return { xp: g.profile.xp, ink: g.profile.ink, inv: Object.keys(g.inventory), bosses: g.bosses, equipped: g.profile.equipped, quests: g.quests }; });
   console.log(JSON.stringify(g));
-  for (const id of ['scene-pedreira', 'scene-mercado', 'scene-planicie', 'scene-torres', 'scene-cavernas', 'frame-torres', 'frame-geodo', 'title-geometra', 'title-volumetra']) if (!g.inv.includes(id)) throw new Error(`Feito de chefão não concedeu ${id}`);
+  for (const id of ['scene-pedreira', 'scene-mercado', 'scene-planicie', 'scene-torres', 'scene-cavernas', 'frame-torres', 'frame-geodo', 'title-geometra', 'title-volumetra', 'scene-mirante', 'scene-labirinto', 'scene-cordilheira', 'scene-ilhas', 'frame-observatorio', 'frame-labirinto', 'frame-cordilheira', 'frame-ilhas', 'title-analista', 'title-mestre-acaso', 'title-domador-curvas', 'title-navegador-escalas']) if (!g.inv.includes(id)) throw new Error(`Feito de chefão não concedeu ${id}`);
   console.log('ERRORS', JSON.stringify(errors.slice(0, 20), null, 1));
   await browser.close();
 })().catch((e) => { console.error('FAILED', e); process.exit(1); });
