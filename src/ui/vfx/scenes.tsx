@@ -763,41 +763,51 @@ function Crystal({ x, base, w, h, tilt = 0, left, right, tip }: { x: number; bas
 }
 
 const STALACTITES: [number, number, number][] = [
-  [0, 38, 52], [38, 32, 26], [70, 36, 64], [106, 30, 34], [136, 40, 48], [176, 34, 70], [210, 32, 30], [242, 34, 58], [276, 30, 44], [296, 8, 20],
+  [0, 38, 70], [38, 32, 34], [70, 36, 84], [106, 30, 44], [136, 40, 62], [176, 34, 90], [210, 32, 40], [242, 34, 76], [276, 30, 58], [296, 8, 24],
 ];
 
+const CYAN = { left: '#2C9DB0', right: '#1A6C8C', tip: '#7FF3FF' };
+const VIOLET = { left: '#6C55C8', right: '#47359A', tip: '#B79CFF' };
+
+/** Aglomerados no chão e nas paredes; os do teto pendem de cabeça para baixo (inclinação de 180°). */
 const CRYSTALS = [
-  { x: 36, base: 292, w: 22, h: 92, tilt: -8, left: '#2C9DB0', right: '#1A6C8C', tip: '#7FF3FF' },
-  { x: 62, base: 296, w: 16, h: 58, tilt: 10, left: '#6C55C8', right: '#47359A', tip: '#B79CFF' },
-  { x: 262, base: 292, w: 24, h: 104, tilt: 7, left: '#2C9DB0', right: '#1A6C8C', tip: '#7FF3FF' },
-  { x: 236, base: 296, w: 16, h: 64, tilt: -11, left: '#6C55C8', right: '#47359A', tip: '#B79CFF' },
-  { x: 122, base: 300, w: 14, h: 40, tilt: -6, left: '#2C9DB0', right: '#1A6C8C', tip: '#BFFBFF' },
-  { x: 178, base: 300, w: 14, h: 46, tilt: 9, left: '#6C55C8', right: '#47359A', tip: '#D8C8FF' },
+  { x: 30, base: 300, w: 30, h: 142, tilt: -6, ...CYAN },
+  { x: 66, base: 300, w: 18, h: 72, tilt: 12, ...VIOLET },
+  { x: 268, base: 300, w: 32, h: 152, tilt: 6, ...CYAN },
+  { x: 232, base: 300, w: 18, h: 80, tilt: -12, ...VIOLET },
+  { x: 122, base: 300, w: 14, h: 36, tilt: -6, ...CYAN },
+  { x: 178, base: 300, w: 14, h: 42, tilt: 9, ...VIOLET },
+  { x: 6, base: 118, w: 14, h: 48, tilt: 72, ...VIOLET },
+  { x: 294, base: 104, w: 14, h: 52, tilt: -72, ...CYAN },
+  { x: 98, base: -2, w: 14, h: 52, tilt: 180, ...CYAN },
+  { x: 208, base: -2, w: 12, h: 42, tilt: 180, ...VIOLET },
 ];
 
 const CAVE_GLOWS = [
-  { x: 36, y: 230, r: 62, c: '#7FF3FF', p: 5400, ph: 0 },
-  { x: 262, y: 224, r: 66, c: '#7FF3FF', p: 6200, ph: 0.4 },
-  { x: 62, y: 262, r: 40, c: '#B79CFF', p: 4800, ph: 0.7 },
-  { x: 236, y: 266, r: 42, c: '#B79CFF', p: 5800, ph: 0.2 },
+  { x: 30, y: 200, r: 72, c: '#7FF3FF', p: 5400, ph: 0 },
+  { x: 268, y: 192, r: 76, c: '#7FF3FF', p: 6200, ph: 0.4 },
+  { x: 66, y: 262, r: 44, c: '#B79CFF', p: 4800, ph: 0.7 },
+  { x: 232, y: 264, r: 46, c: '#B79CFF', p: 5800, ph: 0.2 },
+  { x: 98, y: 44, r: 40, c: '#7FF3FF', p: 6600, ph: 0.55 },
+  { x: 208, y: 34, r: 34, c: '#B79CFF', p: 5000, ph: 0.9 },
 ];
 
 const Cavernas: SceneFx = {
   Art: ({ uid }) => (
     <>
-      <Sky id={`sk${uid}`} stops={[[0, '#070A1E'], [0.55, '#15153A'], [1, '#271E5E']]} />
-      <Glow id={`cg${uid}`} x={150} y={250} r={150} color="#7FF3FF" opacity={0.16} />
+      <Sky id={`sk${uid}`} stops={[[0, '#0B1032'], [0.5, '#1D1B5A'], [1, '#3A2C8C']]} />
+      <Glow id={`cg${uid}`} x={150} y={170} r={140} color="#7FF3FF" opacity={0.16} />
       {CAVE_GLOWS.map((g, i) => (
-        <Glow key={i} id={`cx${i}${uid}`} x={g.x} y={g.y} r={g.r} color={g.c} opacity={0.24} />
+        <Glow key={i} id={`cx${i}${uid}`} x={g.x} y={g.y} r={g.r} color={g.c} opacity={0.3} />
       ))}
-      <G fill="#0C0F2C">
+      <G fill="#1A1E52" stroke="#3A4290" strokeOpacity={0.6} strokeWidth={1} strokeLinejoin="round">
         {STALACTITES.map(([x, w, h]) => (
           <Polygon key={x} points={`${x},-4 ${x + w},-4 ${x + w * 0.5},${h}`} />
         ))}
       </G>
-      <Path d="M0 0 L0 120 Q18 150 12 210 L0 240 Z" fill="#0F1334" />
-      <Path d="M300 0 L300 110 Q282 150 290 214 L300 240 Z" fill="#0F1334" />
-      <Path d="M0 300 L0 272 Q60 258 120 276 T240 270 T300 274 L300 300 Z" fill="#0A0D26" />
+      <Path d="M0 0 L0 120 Q18 150 12 210 L0 240 Z" fill="#171B4A" stroke="#3A4290" strokeOpacity={0.5} />
+      <Path d="M300 0 L300 110 Q282 150 290 214 L300 240 Z" fill="#171B4A" stroke="#3A4290" strokeOpacity={0.5} />
+      <Path d="M0 300 L0 272 Q60 258 120 276 T240 270 T300 274 L300 300 Z" fill="#0F1238" stroke="#3A4290" strokeOpacity={0.5} />
       {CRYSTALS.map((c, i) => (
         <Crystal key={i} {...c} />
       ))}

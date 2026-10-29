@@ -117,7 +117,8 @@ Regiões planejadas (cada uma com missões, desafios opcionais, revisão e chef�
 | ∞ | Cume do ENEM | simulados completos | — |
 
 Regiões já vencidas permanecem abertas para revisão. A primeira versão jogável (MVP)
-implementa a Região 1 completa.
+implementou a Região 1; hoje o Atlas jogável vai da **Região 1 à 5** (cada uma com 3 missões e o
+chefão), e as regiões 6–9 seguem planejadas.
 
 ### 2.6 Chefões
 
@@ -130,7 +131,9 @@ Batalha por turnos em que **cada turno é uma questão**:
 - Determinação zerada = **retirada**, nunca "game over": o XP das questões fica, e a
   próxima tentativa ganha **Conhecimento do Inimigo** (+10% de dano por tentativa, até +30%).
 - Cada chefão tem personalidade (falas de introdução, fase e derrota) e uma mecânica
-  própria (ex.: o Golem possui **Armadura** que reduz dano de questões fáceis até ser quebrada).
+  própria (ex.: o Golem possui **Armadura** que reduz dano de questões fáceis até ser quebrada;
+  o Colosso Euclidiano tem **três vértices** que racham com acertos; o Arquiteto dos Sólidos
+  despeja **concreto** a cada erro, quebrado só pela Técnica).
 
 ### 2.7 Conhecimento — o treinador
 

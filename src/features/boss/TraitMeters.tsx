@@ -25,7 +25,6 @@ export function FacetsBar({ boss, battle, activeFacetId }: { boss: BossDef; batt
         const active = f.id === activeFacetId && !broken;
         return (
           <View key={f.id} style={[styles.chip, active && { borderColor: f.color }]}>
-            <View style={[styles.dot, { backgroundColor: broken ? colors.ink500 : f.color }]} />
             <Text variant="caption" color={broken ? colors.ink500 : active ? f.color : colors.mist} numberOfLines={1} style={[styles.name, broken && styles.struck, active && styles.bold]}>
               {f.name}
             </Text>
@@ -67,8 +66,7 @@ export function ConcreteTag({ boss, battle }: { boss: BossDef; battle: BattleSta
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 6 },
-  chip: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 7, height: 26, borderRadius: radius.pill, backgroundColor: colors.ink800, borderWidth: 1, borderColor: 'transparent' },
-  dot: { width: 8, height: 8, borderRadius: 4 },
+  chip: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 4, paddingHorizontal: 8, height: 26, borderRadius: radius.pill, backgroundColor: colors.ink800, borderWidth: 1, borderColor: 'transparent' },
   name: { flexShrink: 1, fontSize: 11, lineHeight: 15 },
   struck: { textDecorationLine: 'line-through' },
   bold: { fontWeight: '700' },

@@ -249,14 +249,27 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
   mantém o quadro e o progresso (um quadro muito "no futuro", de relógio errado, é trocado). O quadro é
   gerado antes de registrar a resposta, para que o Eco criado por ela não vire encomenda do mesmo dia;
   metas semanais criadas no meio da semana são proporcionais aos dias restantes.
-- **Mecânicas de chefão como dados** (`BossTrait`): couraça (Golem), cofre de juros (Mercador) e
-  cabeças (Quimera) compartilham a quebra na fase 2; a arte de cada chefão vem de um registro
-  (`features/boss/BossArt`).
+- **Mecânicas de chefão como dados** (`BossTrait`): couraça (Golem), cofre de juros (Mercador),
+  cabeças (Quimera), vértices (Colosso) e concreto (Arquiteto) compartilham a "fase 2" (`armorBroken`);
+  a arte de cada chefão vem de um registro (`features/boss/BossArt`).
 - **Quimera Fracionária** (`domain/boss/battle.ts`): as cabeças são faixas da vida máxima (`headSpans`:
   1/2, 1/3 e 1/6 de 240 ⇒ 240→120, 120→40, 40→0). A cabeça de pé (`activeHeadIndex`) decide de qual
   matéria sai a próxima pergunta (`bossPool` em `game.ts`) e é a única que se regenera num erro
   (`headRegen`, limitada ao topo dela — cabeça caída não volta). Cada golpe registra quantas cabeças
   caíram (`BattleTurn.headsFelled`, opcional: batalhas antigas continuam válidas).
+- **Colosso Euclidiano** (`facets`): três vértices (Áreas, Triângulos, Círculos), cada um com os seus
+  subassuntos. As perguntas percorrem em rodízio os vértices ainda intactos (`nextFacet`, usado por
+  `bossPool`); enquanto o vértice da pergunta está intacto o dano é multiplicado por 0,6
+  (`facetMultiplier`). `hitsToCrack` (2) acertos racham o vértice para sempre; um erro o reajusta (tira
+  um acerto, só se ainda não rachou). Com os três rachados a fase 2 começa (`armorBroke`) e o dano
+  passa a ×1,4. O estado vive em `BattleState.facetHits`; cada golpe registra `facet`, `facetCracked`
+  e `facetRepaired` (todos opcionais).
+- **Arquiteto dos Sólidos** (`concrete`): cada erro despeja uma camada de concreto (até 3,
+  `BattleState.layers`), e cada camada tira 20% do dano dos golpes comuns (`concreteMultiplier`).
+  Acertos não removem concreto: só a Técnica (3 acertos seguidos) quebra todas as camadas e causa o
+  golpe cheio. Com a vida abaixo de 50% o concreto racha (fase 2): as camadas somem e param de se
+  formar. Golpes registram `layers`, `layerAdded` e `layersBroken`. Batalhas gravadas antes continuam
+  válidas (campos opcionais).
 - **Validador numérico**: `parseNumeric` lê o valor de cada alternativa (R$, %, frações e mistos, horas,
   notação científica, potências, raízes) para exigir que `verify()` bata com exatamente uma delas.
 - **Fontes empacotadas por peso** (`@expo-google-fonts/<família>/<peso>`) para não embutir pesos não usados.

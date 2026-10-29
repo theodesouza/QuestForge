@@ -357,10 +357,18 @@ function polygon(o: FrameOpts): FrameParts {
       </>
     ),
     moving: o.compact ? undefined : (
-      <G stroke={color2} strokeOpacity={0.75} strokeWidth={w * 0.3} strokeLinejoin="round" fill="none">
-        <Circle cx={cx} cy={cy} r={rr} strokeDasharray="1.5 4" strokeLinecap="round" />
-        <Polygon points={regular(3, rr, cx, cy)} />
-        <Polygon points={regular(4, rr, cx, cy)} />
+      <G>
+        <Circle cx={cx} cy={cy} r={rr} stroke={color2} strokeOpacity={0.6} strokeWidth={w * 0.3} strokeDasharray="1.5 4" strokeLinecap="round" fill="none" />
+        {/* Marcas régua e compasso na circunferência: três triângulos e quatro quadrados, alternados. */}
+        {Array.from({ length: 3 }, (_, i) => {
+          const p = polar(rr, i * 120, cx, cy);
+          return <Polygon key={`t${i}`} points={regular(3, w * 1.5, p.x, p.y)} transform={`rotate(${i * 120} ${f(p.x)} ${f(p.y)})`} fill={color2} />;
+        })}
+        {Array.from({ length: 4 }, (_, i) => {
+          const p = polar(rr, 60 + i * 90, cx, cy);
+          const h = w * 0.85;
+          return <Polygon key={`q${i}`} points={`${f(p.x - h)},${f(p.y - h)} ${f(p.x + h)},${f(p.y - h)} ${f(p.x + h)},${f(p.y + h)} ${f(p.x - h)},${f(p.y + h)}`} transform={`rotate(${60 + i * 90} ${f(p.x)} ${f(p.y)})`} fill="none" stroke={color} strokeWidth={w * 0.4} strokeLinejoin="round" />;
+        })}
       </G>
     ),
     motion: { kind: 'spin', period: 70000 },
@@ -372,10 +380,10 @@ function cubes(o: FrameOpts): FrameParts {
   const { r, w, color, color2 } = o;
   const cx = o.cx ?? C;
   const cy = o.cy ?? C;
-  const n = o.compact ? 6 : 12;
-  const s = o.compact ? w * 1.1 : w * 2.1;
+  const n = o.compact ? 6 : 10;
+  const s = o.compact ? w * 1.45 : w * 3;
   const k = 0.866;
-  const at = (i: number) => polar(r + w * 0.9, (360 / n) * i + 360 / n / 2, cx, cy);
+  const at = (i: number) => polar(r + w * 1.1, (360 / n) * i + 360 / n / 2, cx, cy);
   const hex = (p: { x: number; y: number }, pts: [number, number][]) => pts.map(([dx, dy]) => `${f(p.x + dx * s)},${f(p.y + dy * s)}`).join(' ');
   const top: [number, number][] = [[0, -1], [k, -0.5], [0, 0], [-k, -0.5]];
   const left: [number, number][] = [[-k, -0.5], [0, 0], [0, 1], [-k, 0.5]];

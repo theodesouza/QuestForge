@@ -18,6 +18,11 @@ export const NEWS: readonly News[] = [
     title: 'Novidades na personalização',
     detail: 'Cenários atrás do herói, molduras, núcleos e auras novas e mais peças na Oficina.',
   },
+  {
+    id: 'atlas-r4-r5',
+    title: 'Duas novas regiões no Atlas',
+    detail: 'Torres Euclidianas e Cavernas Volumétricas: geometria plana e espacial, com o Colosso Euclidiano e o Arquiteto dos Sólidos.',
+  },
 ];
 
 export function announceNews(tx: Tx, now: number) {

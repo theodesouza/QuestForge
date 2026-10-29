@@ -87,7 +87,16 @@ Aparelho real:
 - [x] **Quimera Fracionária** (`BossTrait` `heads`): a vida é a soma de três cabeças — Leão 1/2 (frações e contas), Cabra 1/3 (MMC e MDC), Serpente 1/6 (potências e notação) — e cada cabeça faz as perguntas da própria matéria; um erro faz a cabeça de pé se regenerar (6% da vida), mas nunca além do topo dela: cabeça derrubada não volta
   - barra de vida segmentada nas frações exatas (`HeadsBar`), arte vetorial com as cabeças que caem (`QuimeraArt`), fala própria a cada cabeça derrubada, lista das cabeças na introdução
   - recompensas: Moldura dos Três Arcos (raro, anel em arcos de 1/2, 1/3 e 1/6) e título Soma Inteira; sem erros nem dicas: **Núcleo da Trindade** (lendário, roda das frações + três gemas), que também desperta a Forma Mítica com qualquer aura lendária
-- [ ] Regiões 4–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
+- [x] **Região 4 — Torres Euclidianas** (geometria plana: áreas e áreas compostas, Pitágoras, semelhança e Tales, círculo, ângulos e polígonos regulares): 3 missões + chefão, abre após vencer a Quimera
+  - **72 questões autorais novas** (`GEO-101…172`, 6 lotes de 12), pools de 25–27 por missão; 3 subassuntos novos (`areas-compostas`, `semelhanca`, `angulos`); todas com `verify()` numérico
+  - **Colosso Euclidiano** (`BossTrait` `facets`): três vértices — Áreas, Triângulos e Círculos — que as perguntas percorrem em rodízio; vértice intacto reduz o dano em 40%, dois acertos o racham, um erro o reajusta; com os três rachados o Colosso fica exposto (+40% de dano) — `FacetsBar` no HUD, arte `ColossoArt` com as rachaduras de cada vértice
+  - recompensas: Moldura das Torres (raro, polígono com triângulo e quadrado inscritos), título Geômetra, Planalto das Torres (cenário, por feito) e, sem erros nem dicas, **Núcleo de Euclides** (lendário: o 3-4-5 com seus quadrados 9 + 16 = 25)
+- [x] **Região 5 — Cavernas Volumétricas** (geometria espacial: volumes, capacidade, cilindro, cone e esfera, área da superfície, sólidos compostos): 3 missões + chefão, abre após vencer o Colosso
+  - **72 questões autorais novas** (`ESP-101…173`, 6 lotes de 12–13), pools de 25–28 por missão; 4 subassuntos novos (`capacidade`, `cone-esfera`, `superficie`, `solidos-compostos`)
+  - **Arquiteto dos Sólidos** (`BossTrait` `concrete`): cada erro despeja uma camada de concreto (até 3) que tira 20% do dano; só a Técnica (3 acertos seguidos) quebra tudo; com a vida abaixo de 50% o concreto racha e para de se formar — `ConcreteTag` no HUD, arte `ArquitetoArt` com as camadas subindo pelo corpo
+  - recompensas: Moldura de Geodo (raro, coroa de cubos isométricos), título Volumetra, Caverna de Cristais (cenário, por feito) e, sem erros nem dicas, **Núcleo do Poliedro** (lendário: cubo, octaedro e tetraedro encaixados)
+  - catálogo: 88 → 96 peças (21 molduras com 2 estilos novos, 19 núcleos, 14 auras, 13 cenários, 29 títulos); a Lenda do Atlas agora exige vencer os cinco chefões sem errar
+- [ ] Regiões 6–9 com missões, desafios opcionais e chefões próprios (catálogo no plano)
 - [ ] Conquistas e coleções
 - [ ] Companheiros
 - [ ] Selos de domínio gravados no astrolábio
@@ -132,7 +141,7 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Pausa saudável após 25 min contínuos
 
 ## Etapa 6 — Conteúdo (pendente)
-- [~] Expandir para 500 questões validadas, em lotes por assunto — **314 hoje** (91 do MVP + 25 de financeira + 126 de missões das regiões 1–2 + 72 da Região 3); combinatória, geometria espacial e equações têm poucos itens
+- [~] Expandir para 500 questões validadas, em lotes por assunto — **459 hoje** (91 do MVP + 25 de financeira + 126 de missões das regiões 1–2 + 72 da Região 3 + 72 da Região 4 + 73 da Região 5); combinatória e equações têm poucos itens
 
 ## Etapa 7 — Polimento (pendente)
 - [ ] Sons (desativáveis)

@@ -1,6 +1,7 @@
 /**
  * Teste ponta a ponta no navegador (pré-visualização web), jogando o fluxo do MVP:
  * onboarding → expedição → Região 1 (3 missões + Golem) → Região 2 (3 missões + Mercador)
+ * → Região 3 (Quimera) → Região 4 (Colosso Euclidiano) → Região 5 (Arquiteto dos Sólidos)
  * → encomendas → Oficina → ajustes, com capturas de tela.
  *
  * Uso:
@@ -158,12 +159,12 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await wait(800);
     await dismissCelebrations(null);
     await dismissReveals();
-    if (label === 'r1-m1' || label === 'r2-m1' || label === 'r3-m1') await shot(`${label}-summary`);
+    if (['r1-m1', 'r2-m1', 'r3-m1', 'r4-m1', 'r5-m1'].includes(label)) await shot(`${label}-summary`);
     await click('Voltar ao acampamento');
     await wait(800);
   };
 
-  const fightBoss = async (prefix, bossName) => {
+  const fightBoss = async (prefix, bossName, misses = [2]) => {
     await shot(`${prefix}-camp-ready`);
     await click('Enfrentar o chefão');
     await wait(2500);
@@ -173,6 +174,9 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await shot(`${prefix}-battle`);
     let turns = 0;
     const headShots = new Set();
+    // Colosso: vértices partidos; Arquiteto: camadas de concreto — uma foto a cada mudança.
+    let lastMark = 0;
+    let layersSeen = 0;
     while (turns++ < 40) {
       const b = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
       if (!b || b.status !== 'active') break;
@@ -184,11 +188,19 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
         await click('Voltar à questão atual');
         await wait(400);
       }
-      await answerOne(turns !== 2, 'Atacar');
+      await answerOne(!misses.includes(turns), 'Atacar');
       if (turns === 1) await shot(`${prefix}-hit`);
-      if (turns === 2) await shot(`${prefix}-miss`);
+      if (turns === misses[0]) await shot(`${prefix}-miss`);
       await dismissCelebrations(null);
       const after = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
+      if (prefix === 'colosso' || prefix === 'arquiteto') {
+        const mark = prefix === 'colosso' ? Object.values(after.facetHits || {}).filter((h) => h >= 2).length : after.layers || 0;
+        layersSeen = Math.max(layersSeen, prefix === 'arquiteto' ? mark : 0);
+        if (mark !== lastMark) {
+          lastMark = mark;
+          await shot(`${prefix}-${prefix === 'colosso' ? 'vertex' : 'layers'}-${mark}`);
+        }
+      }
       // Quimera: uma foto quando cada cabeça cai (vida ≤ 1/2 e ≤ 1/6 da máxima).
       for (const [n, ratio] of [[1, 0.5], [2, 1 / 6]]) {
         if (prefix === 'quimera' && after.hp <= after.maxHp * ratio && !headShots.has(n)) {
@@ -200,6 +212,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
       await click(after.status === 'active' ? 'Próximo golpe' : 'Ver resultado');
       await wait(400);
     }
+    if (prefix === 'arquiteto' && layersSeen === 0) throw new Error('O Arquiteto não despejou concreto depois dos erros');
     await dismissCelebrations(null);
     await shot(`${prefix}-result`);
     await click('Voltar ao Atlas');
@@ -229,6 +242,24 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.mouse.move(195, 500);
   await page.mouse.wheel(0, 1400);
   await shot('atlas-after-quimera');
+
+  // Região 4: Torres Euclidianas e o Colosso Euclidiano (um erro depois de acertos reajusta um vértice).
+  await page.getByRole('tab', { name: 'Acampamento' }).click();
+  await wait(800);
+  for (const m of ['r4-m1', 'r4-m2', 'r4-m3']) await playMission(m);
+  await fightBoss('colosso', 'Colosso Euclidiano', [4]);
+  await page.mouse.move(195, 500);
+  await page.mouse.wheel(0, 1800);
+  await shot('atlas-after-colosso');
+
+  // Região 5: Cavernas Volumétricas e o Arquiteto dos Sólidos (dois erros: duas camadas de concreto).
+  await page.getByRole('tab', { name: 'Acampamento' }).click();
+  await wait(800);
+  for (const m of ['r5-m1', 'r5-m2', 'r5-m3']) await playMission(m);
+  await fightBoss('arquiteto', 'Arquiteto dos Sólidos', [2, 3]);
+  await page.mouse.move(195, 500);
+  await page.mouse.wheel(0, 2200);
+  await shot('atlas-after-arquiteto');
 
   // Encomendas.
   await page.getByRole('tab', { name: 'Acampamento' }).click();
@@ -314,7 +345,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await shot('settings');
   const g = await page.evaluate(() => { const g = globalThis.__qf.store.getState().game; return { xp: g.profile.xp, ink: g.profile.ink, inv: Object.keys(g.inventory), bosses: g.bosses, equipped: g.profile.equipped, quests: g.quests }; });
   console.log(JSON.stringify(g));
-  for (const id of ['scene-pedreira', 'scene-mercado', 'scene-planicie']) if (!g.inv.includes(id)) throw new Error(`Feito de chefão não concedeu ${id}`);
+  for (const id of ['scene-pedreira', 'scene-mercado', 'scene-planicie', 'scene-torres', 'scene-cavernas', 'frame-torres', 'frame-geodo', 'title-geometra', 'title-volumetra']) if (!g.inv.includes(id)) throw new Error(`Feito de chefão não concedeu ${id}`);
   console.log('ERRORS', JSON.stringify(errors.slice(0, 20), null, 1));
   await browser.close();
 })().catch((e) => { console.error('FAILED', e); process.exit(1); });
