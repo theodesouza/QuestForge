@@ -292,10 +292,10 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.getByRole('button', { name: 'Remover cenário' }).click();
   await wait(500);
   if (await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene)) throw new Error('Remover cenário não limpou o espaço');
-  await page.getByRole('button', { name: 'Bloqueados' }).click();
+  await page.getByRole('button', { name: 'Bloqueados', exact: true }).click();
   await wait(400);
   await shot('hero-collection-locked');
-  await page.getByRole('button', { name: 'Todos' }).click();
+  await page.getByRole('button', { name: 'Todos', exact: true }).click();
   await wait(300);
   // Experimentar um núcleo (prévia com transformação) — inclusive um bloqueado.
   await page.getByRole('button', { name: /^Núcleo/ }).first().click();
