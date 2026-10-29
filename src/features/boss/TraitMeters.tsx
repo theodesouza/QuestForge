@@ -7,7 +7,7 @@
  */
 import { StyleSheet, View } from 'react-native';
 import type { BossDef } from '../../content/bosses';
-import { concreteLayers, facetHitsOf, type BattleState } from '../../domain/boss/battle';
+import { concreteLayers, facetHitsOf, scalesOf, type BattleState } from '../../domain/boss/battle';
 import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
 import { colors, radius } from '../../ui/theme';
@@ -64,6 +64,30 @@ export function ConcreteTag({ boss, battle }: { boss: BossDef; battle: BattleSta
   );
 }
 
+export function ScalesTag({ boss, battle }: { boss: BossDef; battle: BattleState }) {
+  if (boss.trait.kind !== 'scales') return null;
+  const { maxScales, scaledMultiplier, exposedMultiplier } = boss.trait;
+  const left = scalesOf(boss, battle);
+  const exposed = left === 0;
+  return (
+    <View
+      style={styles.tag}
+      accessible
+      accessibilityLabel={`Escamas: ${left} de ${maxScales}. ${exposed ? `Exposto: ${Math.round((exposedMultiplier - 1) * 100)}% a mais de dano` : `${Math.round((1 - scaledMultiplier) * 100)}% a menos de dano`}`}
+    >
+      <Icon name="shield" size={13} color={exposed ? colors.ember : colors.mist} />
+      <Text variant="caption" color={exposed ? colors.ember : colors.mist}>
+        {exposed ? 'exposto' : 'escamas'}
+      </Text>
+      <View style={styles.pips}>
+        {Array.from({ length: maxScales }, (_, i) => (
+          <View key={i} style={[styles.scale, i < left && styles.scaleOn]} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 6 },
   chip: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 4, paddingHorizontal: 8, height: 26, borderRadius: radius.pill, backgroundColor: colors.ink800, borderWidth: 1, borderColor: 'transparent' },
@@ -73,6 +97,8 @@ const styles = StyleSheet.create({
   pips: { flexDirection: 'row', gap: 3 },
   pip: { width: 7, height: 7, borderRadius: 4, borderWidth: 1.2 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, height: 24, borderRadius: radius.pill, backgroundColor: colors.ink800 },
+  scale: { width: 9, height: 9, borderRadius: 5, borderWidth: 1.2, borderColor: colors.ink500 },
+  scaleOn: { backgroundColor: colors.verdigris, borderColor: '#7FF3FF' },
   layer: { width: 9, height: 9, borderRadius: 2, borderWidth: 1.2, borderColor: colors.ink500 },
   layerOn: { backgroundColor: '#9097AE', borderColor: '#B8BED4' },
 });

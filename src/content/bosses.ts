@@ -42,6 +42,10 @@ export interface BossFacet {
  *   Enquanto a face da pergunta está intacta, o dano é reduzido; `hitsToCrack` acertos nela a
  *   racham (para sempre) e um erro a "reajusta" (perde um acerto, se ainda não rachou). Com
  *   todas as faces rachadas o Colosso fica exposto: fase 2 e dano ampliado.
+ * - scales: o Leviatã é coberto de escamas (`maxScales`). Enquanto há escama, o dano é reduzido
+ *   (`scaledMultiplier`); cada acerto arranca uma escama (a Técnica arranca duas) e cada erro faz
+ *   `regrow` escamas crescerem de volta. Sem escamas o Leviatã fica exposto (`exposedMultiplier`);
+ *   a primeira vez que isso acontece é a fase 2.
  * - concrete: cada erro faz o Arquiteto despejar uma camada de concreto (até `maxLayers`),
  *   e cada camada reduz o dano dos golpes seguintes. Uma Técnica (acertos seguidos) ignora
  *   as camadas e quebra todas. Com a vida abaixo de `breaksAtHpRatio`, o concreto racha e para
@@ -87,6 +91,20 @@ export type BossTrait =
       facets: BossFacet[];
     }
   | {
+      kind: 'scales';
+      name: string;
+      description: string;
+      /** Não usado: a fase 2 vem de arrancar todas as escamas pela primeira vez. */
+      breaksAtHpRatio: number;
+      maxScales: number;
+      /** Escamas que crescem de volta a cada erro. */
+      regrow: number;
+      /** Multiplicador de dano enquanto houver escamas. */
+      scaledMultiplier: number;
+      /** Multiplicador de dano sem nenhuma escama (Leviatã exposto). */
+      exposedMultiplier: number;
+    }
+  | {
       kind: 'concrete';
       name: string;
       description: string;
@@ -98,7 +116,7 @@ export type BossTrait =
     };
 
 /** Arte vetorial registrada na UI (src/features/boss/art). */
-export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto';
+export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto' | 'leviata';
 
 export interface BossDef {
   id: string;
@@ -434,6 +452,66 @@ export const BOSSES: BossDef[] = [
       firstItems: ['frame-geodo', 'title-volumetra'],
       flawlessItem: 'core-poliedro',
       repeatXp: 70,
+    },
+  },
+  {
+    id: 'leviata-dos-graficos',
+    name: 'Leviatã dos Gráficos',
+    epithet: 'Guardião do Observatório dos Dados',
+    regionId: 'observatorio-dados',
+    art: 'leviata',
+    accent: '#38D6B0',
+    topics: ['graficos', 'estatistica'],
+    subtopics: [],
+    maxHp: 380,
+    resolve: 3,
+    damage: { 1: 20, 2: 28, 3: 38, 4: 50 },
+    startTarget: 2,
+    targetStep: 0.25,
+    trait: {
+      kind: 'scales',
+      name: 'Escamas de Dados',
+      description:
+        'Quatro escamas cobrem o Leviatã. Enquanto houver escama, seus golpes causam 30% menos dano. Cada acerto arranca uma escama (a Técnica arranca duas), e cada erro faz duas crescerem de volta. Sem nenhuma escama, o Leviatã fica exposto: +50% de dano.',
+      breaksAtHpRatio: 0,
+      maxScales: 4,
+      regrow: 2,
+      scaledMultiplier: 0.7,
+      exposedMultiplier: 1.5,
+    },
+    technique: {
+      name: 'Gráfico Desenhado',
+      every: 3,
+      bonus: 30,
+      line: 'Três acertos seguidos! O Gráfico Desenhado arranca duas escamas de uma só vez.',
+    },
+    lines: {
+      intro: [
+        'Gráficos mentem quando ninguém os lê com cuidado.',
+        'Cubro-me de escamas de dados: cada eixo é um escudo.',
+        'Arranque todas — lendo bem cada número — e eu ficarei sem esconderijo.',
+      ],
+      phase2: 'Sem escamas?! Nenhum eixo me protege de quem sabe ler os números.',
+      playerHit: [
+        'A leitura fecha — e uma escama salta da pele do Leviatã.',
+        'Barras desabam, linhas se partem: o golpe acerta.',
+        'O Leviatã ruge, e um setor do seu corpo se desfaz.',
+        'Dados limpos, golpe limpo.',
+      ],
+      bossHit: [
+        'As escamas crescem de volta: o Leviatã se recompõe.',
+        'Um eixo mal lido — e duas escamas voltam ao lugar.',
+        'O Leviatã sorri entre as marés de dados. Revise a resolução e siga.',
+      ],
+      defeat: 'Os números falaram, Cartógrafo. O Observatório é seu — leitura correta e tudo.',
+      retreat: 'Volte quando souber ler as escalas. Os dados esperam.',
+    },
+    rewards: {
+      firstXp: 400,
+      firstInk: 160,
+      firstItems: ['frame-observatorio', 'title-analista'],
+      flawlessItem: 'core-histograma',
+      repeatXp: 80,
     },
   },
 ];

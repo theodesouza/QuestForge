@@ -11,7 +11,7 @@
 import { useMemo, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
-import Svg, { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polygon, RadialGradient, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polygon, Polyline, RadialGradient, Rect, Stop } from 'react-native-svg';
 import type { ItemVisual } from '../../content/items';
 import { useFx, useLoop } from './engine';
 import { goldenSpiral } from './geometry';
@@ -835,6 +835,88 @@ const Cavernas: SceneFx = {
   ),
 };
 
+/** Fatia de pizza (graus, 0 = topo, sentido horário). */
+function pieSlice(cx: number, cy: number, r: number, from: number, to: number) {
+  const pt = (deg: number) => {
+    const a = ((deg - 90) * Math.PI) / 180;
+    return `${(cx + r * Math.cos(a)).toFixed(2)} ${(cy + r * Math.sin(a)).toFixed(2)}`;
+  };
+  return `M${cx} ${cy} L${pt(from)} A${r} ${r} 0 ${to - from > 180 ? 1 : 0} 1 ${pt(to)} Z`;
+}
+
+const MIRANTE_BARS: [number, number][] = [
+  [10, 52], [22, 84], [34, 62], [46, 96], [58, 70],
+  [238, 70], [250, 98], [262, 58], [274, 86], [286, 54],
+];
+const MIRANTE_LINE: [number, number][] = [[8, 126], [50, 98], [92, 112], [134, 78], [176, 92], [218, 66]];
+const MOON_SLICES: [number, number, string][] = [
+  [0, 120, '#F4ECDC'],
+  [120, 210, '#38D6B0'],
+  [210, 290, '#9B87FF'],
+  [290, 360, '#F2B54A'],
+];
+
+const Mirante: SceneFx = {
+  Art: ({ uid }) => (
+    <>
+      <Sky id={`sk${uid}`} stops={[[0, '#081735'], [0.55, '#123A63'], [0.85, '#1B6B7A'], [1, '#2AA89A']]} />
+      <Stars seed={151} n={34} box={[0, 0, 300, 150]} />
+      <Glow id={`mg${uid}`} x={236} y={56} r={64} color="#7FF3FF" opacity={0.26} />
+      <Circle cx={236} cy={56} r={25} fill="#F4ECDC" fillOpacity={0.5} />
+      <Polyline points={MIRANTE_LINE.map(([x, y]) => `${x},${y}`).join(' ')} fill="none" stroke="#7FF3FF" strokeOpacity={0.55} strokeWidth={1.4} strokeLinejoin="round" strokeLinecap="round" />
+      <G fill="#7FF3FF" fillOpacity={0.8}>
+        {MIRANTE_LINE.map(([x, y]) => (
+          <Circle key={x} cx={x} cy={y} r={2.4} />
+        ))}
+      </G>
+      <G fill="#38D6B0" fillOpacity={0.45} stroke="#7FF3FF" strokeOpacity={0.7} strokeWidth={1}>
+        {MIRANTE_BARS.map(([x, h]) => (
+          <Rect key={x} x={x} y={262 - h} width={9} height={h + 40} rx={1.5} />
+        ))}
+      </G>
+      <Path d="M0 300 L0 252 Q70 232 150 254 T300 246 L300 300 Z" fill="#061C33" />
+      <Path d="M0 300 L0 276 Q80 262 160 278 T300 272 L300 300 Z" fill="#04152A" />
+      {/* Telescópio no alto da colina */}
+      <G stroke="#0B2A47" strokeWidth={2} strokeLinecap="round">
+        <Path d="M262 252 L252 276 M262 252 L272 276 M262 252 L262 278" />
+      </G>
+      <Path d="M246 244 L276 230 L280 238 L250 252 Z" fill="#0F3A5C" stroke="#7FF3FF" strokeOpacity={0.5} strokeWidth={1} strokeLinejoin="round" />
+    </>
+  ),
+  Live: () => (
+    <>
+      <Rotate period={140000} cx={236} cy={56}>
+        {MOON_SLICES.map(([a, b, color]) => (
+          <Path key={a} d={pieSlice(236, 56, 25, a, b)} fill={color} fillOpacity={0.82} stroke="#081735" strokeWidth={1.4} strokeLinejoin="round" />
+        ))}
+      </Rotate>
+      <Pulse period={5600} opacity={[0.25, 1]}>
+        <G fill="#B8FFF0" fillOpacity={0.5}>
+          {MIRANTE_BARS.slice(0, 5).map(([x, h]) => (
+            <Rect key={x} x={x + 1.5} y={262 - h} width={6} height={4} rx={1} />
+          ))}
+        </G>
+      </Pulse>
+      <Pulse period={6800} opacity={[0.2, 1]} phase={0.5}>
+        <G fill="#B8FFF0" fillOpacity={0.5}>
+          {MIRANTE_BARS.slice(5).map(([x, h]) => (
+            <Rect key={x} x={x + 1.5} y={262 - h} width={6} height={4} rx={1} />
+          ))}
+        </G>
+      </Pulse>
+      <Pulse period={4400} opacity={[0.3, 1]} phase={0.25}>
+        <G fill="#FFFFFF">
+          {MIRANTE_LINE.map(([x, y]) => (
+            <Circle key={x} cx={x} cy={y} r={3.4} />
+          ))}
+        </G>
+      </Pulse>
+      <Twinkles count={10} seed={152} box={[6, 6, 294, 150]} colors={['#FFFFFF', '#BFFBEF']} />
+      <Motes count={7} seed={153} box={[0, 200, 300, 296]} colors={['#7FF3FF', '#B8FFF0']} size={[1.6, 2.6]} period={8600} travel={70} sway={14} glow />
+    </>
+  ),
+};
+
 export const SCENES: Record<SceneFxId, SceneFx> = {
   noite: Noite,
   colinas: Colinas,
@@ -849,6 +931,7 @@ export const SCENES: Record<SceneFxId, SceneFx> = {
   cosmos: Cosmos,
   torres: Torres,
   cavernas: Cavernas,
+  mirante: Mirante,
 };
 
 /** Arte estática do cenário (também usada nas miniaturas), em coordenadas 300 × 300. */

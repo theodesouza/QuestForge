@@ -50,7 +50,7 @@ export type OptionalSlot = (typeof OPTIONAL_SLOTS)[number];
 
 /** Estilos de moldura — cada um desenha o anel do astrolábio de um jeito (src/ui/vfx/frames.tsx). */
 export const LEGACY_FRAME_STYLES = ['plain', 'double', 'notched', 'armillary', 'segmented'] as const;
-export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes'] as const;
+export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes', 'axes'] as const;
 export const FRAME_STYLES = [...LEGACY_FRAME_STYLES, ...CUSTOM_FRAME_STYLES] as const;
 export type FrameStyle = (typeof FRAME_STYLES)[number];
 export type CustomFrameStyle = (typeof CUSTOM_FRAME_STYLES)[number];
@@ -414,6 +414,34 @@ const BASE_ITEMS: ItemDef[] = [
     description: 'O coração do Arquiteto: sólidos de Platão encaixados uns nos outros, girando sem nunca se tocar.',
     howToGet: 'Derrote o Arquiteto dos Sólidos sem erros e sem usar dicas.',
     visual: { color: '#7FF3FF', color2: '#B79CFF', element: 'lunar', fx: 'poliedro' },
+  },
+  // ——— Região 6: Observatório dos Dados ———
+  {
+    id: 'frame-observatorio',
+    slot: 'frame',
+    name: 'Moldura do Observatório',
+    rarity: 'raro',
+    description: 'Barras de um histograma em volta do anel e um ponteiro de radar que varre o contorno.',
+    howToGet: 'Derrote o Leviatã dos Gráficos.',
+    visual: { color: '#38D6B0', color2: '#7FF3FF', frameStyle: 'axes' },
+  },
+  {
+    id: 'title-analista',
+    slot: 'title',
+    name: 'Analista de Dados',
+    rarity: 'raro',
+    description: 'Lê o que os números dizem — e o que eles escondem.',
+    howToGet: 'Derrote o Leviatã dos Gráficos.',
+    visual: { color: '#38D6B0' },
+  },
+  {
+    id: 'core-histograma',
+    slot: 'core',
+    name: 'Núcleo do Histograma',
+    rarity: 'lendario',
+    description: 'O coração do Leviatã: barras que sobem e descem, uma linha que as une e uma rosca de setores que gira sem nunca errar a escala.',
+    howToGet: 'Derrote o Leviatã dos Gráficos sem erros e sem usar dicas.',
+    visual: { color: '#38D6B0', color2: '#7FF3FF', element: 'mare', fx: 'histograma' },
   },
   // ——— Encomendas ———
   {

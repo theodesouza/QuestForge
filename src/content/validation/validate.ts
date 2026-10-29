@@ -90,6 +90,8 @@ export function validateQuestion(q: Question): Issue[] {
     if (b.kind === 'p' && b.text.trim().length < 10) add('parágrafo muito curto');
     if (b.kind === 'table' && b.rows.some((r) => r.length !== b.header.length)) add('tabela com colunas inconsistentes');
     if (b.kind === 'bars' && b.data.length < 2) add('gráfico com menos de 2 barras');
+    if (b.kind === 'line' && b.data.length < 2) add('gráfico de linhas com menos de 2 pontos');
+    if (b.kind === 'pie' && (b.data.length < 2 || b.data.some((d) => !(d.value > 0)))) add('gráfico de setores precisa de 2+ fatias com valor positivo');
   }
   if (q.ask.trim().length < 8) add('pergunta (ask) ausente ou curta');
 

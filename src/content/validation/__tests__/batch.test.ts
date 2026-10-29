@@ -26,6 +26,10 @@ function blockText(b: Block): string {
       return [b.caption ? `Tabela: ${b.caption}` : 'Tabela:', b.header.join(' | '), ...b.rows.map((r) => r.join(' | '))].join('\n');
     case 'bars':
       return [`Gráfico de barras${b.title ? `: ${b.title}` : ''}${b.unit ? ` (${b.unit})` : ''}`, ...b.data.map((d) => `${d.label}: ${d.value}`)].join('\n');
+    case 'line':
+      return [`Gráfico de linhas${b.title ? `: ${b.title}` : ''}${b.unit ? ` (${b.unit})` : ''}${b.showValues === false ? ' [sem valores sobre os pontos]' : ''}`, ...b.data.map((d) => `${d.label}: ${d.value}`)].join('\n');
+    case 'pie':
+      return [`Gráfico de setores${b.title ? `: ${b.title}` : ''}`, ...b.data.map((d) => `${d.label}: ${d.text ?? d.value} (ângulo proporcional a ${d.value})`)].join('\n');
     case 'figure':
       return `[Figura ${b.id}${b.caption ? ` — ${b.caption}` : ''}]`;
   }

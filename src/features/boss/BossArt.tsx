@@ -2,6 +2,7 @@ import type { BossArt as BossArtId } from '../../content/bosses';
 import { ArquitetoArt } from './ArquitetoArt';
 import { ColossoArt } from './ColossoArt';
 import { GolemArt } from './GolemArt';
+import { LeviataArt } from './LeviataArt';
 import { MercadorArt } from './MercadorArt';
 import { QuimeraArt } from './QuimeraArt';
 
@@ -17,10 +18,13 @@ interface Props {
   hitsToCrack?: number;
   /** Arquiteto: camadas de concreto no corpo. */
   layers?: number;
+  /** Leviatã dos Gráficos: escamas que ainda cobrem o corpo. */
+  scales?: number;
+  maxScales?: number;
 }
 
 /** Registro das artes de chefão: cada BossDef aponta para uma delas. */
-export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers }: Props) {
+export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers, scales, maxScales }: Props) {
   switch (art) {
     case 'golem':
       return <GolemArt size={size} cracked={cracked} defeated={defeated} />;
@@ -32,5 +36,7 @@ export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, 
       return <ColossoArt size={size} cracked={cracked} defeated={defeated} facetHits={facetHits} hitsToCrack={hitsToCrack} />;
     case 'arquiteto':
       return <ArquitetoArt size={size} cracked={cracked} defeated={defeated} layers={layers} />;
+    case 'leviata':
+      return <LeviataArt size={size} cracked={cracked} defeated={defeated} scales={scales} maxScales={maxScales} />;
   }
 }

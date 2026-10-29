@@ -4,6 +4,7 @@ import Svg, { G, Line, Rect, Text as SvgText } from 'react-native-svg';
 import type { Block } from '../../content/types';
 import { Text } from '../../ui/Text';
 import { colors, fonts, radius, space } from '../../ui/theme';
+import { LineChart, PieChart } from './Charts';
 import { Figure } from './figures';
 
 function formatNumber(n: number): string {
@@ -107,6 +108,10 @@ export const StemBlocks = memo(function StemBlocks({ blocks }: { blocks: Block[]
             return <Table key={i} block={b} />;
           case 'bars':
             return <Bars key={i} block={b} />;
+          case 'line':
+            return <LineChart key={i} block={b} />;
+          case 'pie':
+            return <PieChart key={i} block={b} />;
           case 'figure':
             return (
               <View key={i} style={styles.figure} accessible accessibilityLabel={b.caption ?? 'Figura do enunciado'}>

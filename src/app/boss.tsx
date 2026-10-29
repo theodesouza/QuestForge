@@ -20,13 +20,13 @@ import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
-import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, type BattleState } from '../domain/boss/battle';
+import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, scalesOf, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import { battleReviewItems } from '../domain/game/review';
 import type { GameEvent } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
 import { HeadsBar } from '../features/boss/HeadsBar';
-import { ConcreteTag, FacetsBar } from '../features/boss/TraitMeters';
+import { ConcreteTag, FacetsBar, ScalesTag } from '../features/boss/TraitMeters';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
@@ -50,6 +50,7 @@ function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' {
   switch (boss.trait.kind) {
     case 'armor':
     case 'concrete':
+    case 'scales':
       return 'shield';
     case 'heads':
       return 'target';
@@ -254,6 +255,8 @@ function Hud({ boss, battle, hit, line, activeFacetId }: { boss: BossDef; battle
             </View>
           ) : boss.trait.kind === 'concrete' ? (
             <ConcreteTag boss={boss} battle={battle} />
+          ) : boss.trait.kind === 'scales' ? (
+            <ScalesTag boss={boss} battle={battle} />
           ) : boss.trait.kind === 'facets' ? (
             battle.armorBroken ? (
               <View style={styles.tag} accessible accessibilityLabel="Colosso exposto: dano ampliado">
@@ -431,6 +434,8 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
               facetHits={facetHitsOf(battle)}
               hitsToCrack={boss.trait.kind === 'facets' ? boss.trait.hitsToCrack : undefined}
               layers={concreteLayers(battle)}
+              scales={scalesOf(boss, battle)}
+              maxScales={boss.trait.kind === 'scales' ? boss.trait.maxScales : undefined}
             />
           </Animated.View>
         </View>
@@ -511,11 +516,13 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
           art={boss.art}
           size={190}
           defeated={won}
-          cracked={boss.trait.kind === 'facets' || boss.trait.kind === 'concrete' ? battle.armorBroken : true}
+          cracked={boss.trait.kind === 'facets' || boss.trait.kind === 'concrete' || boss.trait.kind === 'scales' ? battle.armorBroken : true}
           headsFelled={headsFelled(boss, battle.hp)}
           facetHits={facetHitsOf(battle)}
           hitsToCrack={boss.trait.kind === 'facets' ? boss.trait.hitsToCrack : undefined}
           layers={concreteLayers(battle)}
+          scales={scalesOf(boss, battle)}
+          maxScales={boss.trait.kind === 'scales' ? boss.trait.maxScales : undefined}
         />
       </Animated.View>
       <View style={styles.center}>

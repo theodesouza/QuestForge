@@ -5,10 +5,12 @@
  */
 import { Redirect, useGlobalSearchParams } from 'expo-router';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { findQuestion } from '../content/bank';
 import type { BossArt as BossArtId } from '../content/bosses';
 import { ITEMS, RARITY_LABEL, getItem } from '../content/items';
 import type { EffectsLevel, Equipped } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
+import { StemBlocks } from '../features/question/StemBlocks';
 import { Astrolabe } from '../ui/Astrolabe';
 import { SceneStage } from '../ui/SceneStage';
 import { ItemGlyph } from '../ui/ItemGlyph';
@@ -33,7 +35,7 @@ function Cell({ equipped, label, sub, size, level, effects }: { equipped: Equipp
 }
 
 export default function VfxLab() {
-  const routed = useGlobalSearchParams<{ boss?: string; felled?: string; grid?: string; core?: string; aura?: string; frame?: string; scene?: string; level?: string; fx?: string; glyphs?: string }>();
+  const routed = useGlobalSearchParams<{ q?: string; boss?: string; felled?: string; grid?: string; core?: string; aura?: string; frame?: string; scene?: string; level?: string; fx?: string; glyphs?: string }>();
   // Na exportação web estática os parâmetros às vezes chegam vazios: lê direto da URL.
   const p =
     Platform.OS === 'web' && typeof window !== 'undefined' && Object.keys(routed).length === 0
@@ -43,6 +45,21 @@ export default function VfxLab() {
   const level = Number(p.level ?? 20);
   const effects = (p.fx as EffectsLevel) ?? undefined;
   const base: Equipped = { frame: p.frame ?? 'frame-bronze', core: p.core ?? 'core-quartzo', aura: p.aura ?? null, scene: p.scene ?? null, title: null };
+
+  if (p.q) {
+    const qs = p.q.split(',').map((id) => findQuestion(id)).filter((x) => !!x);
+    return (
+      <ScrollView style={styles.root} contentContainerStyle={{ padding: 16, gap: 28, maxWidth: 420 }}>
+        {qs.map((q) => (
+          <View key={q!.id} style={{ gap: 10 }}>
+            <Text variant="caption" color={colors.mist}>{q!.id}</Text>
+            <StemBlocks blocks={q!.stem} />
+            <Text variant="ask">{q!.ask}</Text>
+          </View>
+        ))}
+      </ScrollView>
+    );
+  }
 
   if (p.boss) {
     const art = p.boss as BossArtId;
@@ -61,6 +78,7 @@ export default function VfxLab() {
               facetHits={hits(n)}
               hitsToCrack={2}
               layers={Math.min(n, 3)}
+              scales={Math.max(0, 4 - n)}
             />
             <Text variant="caption" color={colors.mist}>{n === 4 ? 'derrotado' : `estado ${n}`}</Text>
           </View>
@@ -124,6 +142,7 @@ export default function VfxLab() {
         ['core-euclides', 'aura-constelacao'],
         ['core-poliedro', 'aura-neve'],
         ['core-euclides', 'aura-zenite'],
+        ['core-histograma', 'aura-mare'],
       ];
       for (const [core, aura] of pairs) {
         const s = resolveSynergy({ core, aura });

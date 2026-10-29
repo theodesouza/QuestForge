@@ -33,6 +33,12 @@ export interface BattleTurn {
   facetRepaired?: boolean;
   /** Arquiteto: camadas de concreto depois deste turno. */
   layers?: number;
+  /** Leviatã dos Gráficos: escamas depois deste turno. */
+  scales?: number;
+  /** Leviatã: escamas arrancadas por este acerto. */
+  scalesTorn?: number;
+  /** Leviatã: escamas que cresceram de volta por causa do erro. */
+  scalesRegrown?: number;
   /** Arquiteto: uma camada foi despejada por um erro neste turno. */
   layerAdded?: boolean;
   /** Arquiteto: camadas que a Técnica (ou a fase 2) quebrou neste turno. */
@@ -62,6 +68,8 @@ export interface BattleState {
   facetHits?: Record<string, number>;
   /** Arquiteto: camadas de concreto atuais. Ausente nos demais. */
   layers?: number;
+  /** Leviatã dos Gráficos: escamas atuais. Ausente nos demais. */
+  scales?: number;
 }
 
 export const KNOWLEDGE_PER_ATTEMPT = 0.1;
@@ -92,6 +100,7 @@ export function createBattle(
     xpEarned: 0,
     ...(boss.trait.kind === 'facets' ? { facetHits: {} } : {}),
     ...(boss.trait.kind === 'concrete' ? { layers: 0 } : {}),
+    ...(boss.trait.kind === 'scales' ? { scales: boss.trait.maxScales } : {}),
   };
 }
 
@@ -118,6 +127,7 @@ export function computeDamage(boss: BossDef, battle: BattleState, input: DamageI
   if (input.guessed) dmg *= GUESS_MULT;
   dmg *= 1 + battle.knowledgeBonus;
   dmg *= facetMultiplier(boss, battle, input.subtopic);
+  dmg *= scalesMultiplier(boss, battle);
   // A Técnica ignora o concreto (e o quebra); os golpes comuns pagam o preço das camadas.
   if (!technique) dmg *= concreteMultiplier(boss, battle);
   const total = Math.round(dmg) + (technique ? boss.technique.bonus : 0);
@@ -174,6 +184,14 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
         }
       }
       armorBroke = !battle.armorBroken && allFacetsCracked(boss, next);
+    } else if (trait.kind === 'scales') {
+      // Cada acerto arranca uma escama (a Técnica, duas); sem nenhuma, o Leviatã fica exposto.
+      const before = scalesOf(boss, battle);
+      const after = Math.max(0, before - (technique ? 2 : 1));
+      next.scales = after;
+      turn.scales = after;
+      if (before > after) turn.scalesTorn = before - after;
+      armorBroke = !battle.armorBroken && after === 0;
     } else {
       armorBroke = !battle.armorBroken && next.hp <= boss.maxHp * trait.breaksAtHpRatio;
     }
@@ -207,6 +225,13 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
           turn.facetRepaired = true;
         }
       }
+    }
+    if (trait.kind === 'scales') {
+      const before = scalesOf(boss, battle);
+      const after = Math.min(trait.maxScales, before + trait.regrow);
+      next.scales = after;
+      turn.scales = after;
+      if (after > before) turn.scalesRegrown = after - before;
     }
     if (trait.kind === 'concrete' && !battle.armorBroken) {
       const before = concreteLayers(battle);
@@ -319,6 +344,19 @@ export function facetMultiplier(boss: BossDef, battle: BattleState, subtopic?: s
   if (allFacetsCracked(boss, battle)) return boss.trait.exposedMultiplier;
   const facet = facetOf(boss, subtopic);
   return facet && !isFacetCracked(boss, battle, facet.id) ? boss.trait.intactMultiplier : 1;
+}
+
+// ———————————————————————————————————————————————— Leviatã dos Gráficos: escamas
+
+/** Escamas que ainda cobrem o Leviatã (zero em batalhas de outros chefões). */
+export function scalesOf(boss: BossDef, battle: BattleState): number {
+  return boss.trait.kind === 'scales' ? (battle.scales ?? boss.trait.maxScales) : 0;
+}
+
+/** Dano do golpe: reduzido pelas escamas, ampliado com o Leviatã exposto. */
+export function scalesMultiplier(boss: BossDef, battle: BattleState): number {
+  if (boss.trait.kind !== 'scales') return 1;
+  return scalesOf(boss, battle) > 0 ? boss.trait.scaledMultiplier : boss.trait.exposedMultiplier;
 }
 
 // ———————————————————————————————————————————————— Arquiteto: camadas de concreto

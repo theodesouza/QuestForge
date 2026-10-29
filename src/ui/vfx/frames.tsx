@@ -44,6 +44,7 @@ const BUILDERS: Record<CustomFrameStyle, (o: FrameOpts) => FrameParts> = {
   shards,
   polygon,
   cubes,
+  axes,
 };
 
 export const isCustomFrame = (s: FrameStyle | undefined): s is CustomFrameStyle => !!s && (CUSTOM_FRAME_STYLES as readonly string[]).includes(s);
@@ -416,6 +417,40 @@ function cubes(o: FrameOpts): FrameParts {
       </G>
     ),
     motion: { kind: 'breathe', period: 3600, opacity: [0.05, 0.9] },
+  };
+}
+
+/**
+ * Observatório: barras de um histograma em volta do anel (alturas variadas, como dados de
+ * verdade) e, no astrolábio, um ponteiro de radar que varre o contorno.
+ */
+function axes(o: FrameOpts): FrameParts {
+  const { r, w, color, color2 } = o;
+  const cx = o.cx ?? C;
+  const cy = o.cy ?? C;
+  const n = o.compact ? 10 : 24;
+  const heights = [0.45, 0.8, 0.6, 1, 0.5, 0.75, 0.9, 0.55];
+  const max = o.compact ? w * 2.6 : 12;
+  return {
+    fixed: (
+      <>
+        {ring(o, w * 0.8)}
+        {Array.from({ length: n }, (_, i) => {
+          const a = (360 / n) * i;
+          const len = (0.35 + 0.65 * heights[i % heights.length]) * max;
+          const p0 = polar(r + w * 0.7, a, cx, cy);
+          const p1 = polar(r + w * 0.7 + len, a, cx, cy);
+          return <Line key={i} x1={p0.x} y1={p0.y} x2={p1.x} y2={p1.y} stroke={i % 3 === 0 ? color2 : color} strokeOpacity={0.92} strokeWidth={o.compact ? w * 0.7 : w * 0.95} />;
+        })}
+      </>
+    ),
+    moving: o.compact ? undefined : (
+      <>
+        <Path d={arc(r + w * 0.2, -22, 6, cx, cy)} stroke="#FFFFFF" strokeOpacity={0.9} strokeWidth={w * 0.9} strokeLinecap="round" fill="none" />
+        <Path d={arc(r + w * 0.2, -46, -22, cx, cy)} stroke={color2} strokeOpacity={0.45} strokeWidth={w * 0.7} strokeLinecap="round" fill="none" />
+      </>
+    ),
+    motion: { kind: 'spin', period: 9000 },
   };
 }
 

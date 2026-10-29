@@ -78,7 +78,8 @@ export const TOPICS: Topic[] = [
     short: 'Gráficos',
     enemWeight: 5,
     subtopics: [
-      { id: 'leitura-graficos', label: 'Leitura de gráficos' },
+      { id: 'leitura-graficos', label: 'Leitura de gráficos de barras e linhas' },
+      { id: 'graficos-setores', label: 'Gráficos de setores e comparações' },
       { id: 'tabelas', label: 'Tabelas' },
     ],
   },
@@ -90,6 +91,7 @@ export const TOPICS: Topic[] = [
     subtopics: [
       { id: 'media', label: 'Média aritmética e ponderada' },
       { id: 'mediana-moda', label: 'Mediana e moda' },
+      { id: 'frequencias', label: 'Frequências e tabelas de distribuição' },
     ],
   },
   {

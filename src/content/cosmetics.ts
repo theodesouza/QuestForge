@@ -315,6 +315,15 @@ export const MORE_ITEMS: ItemDef[] = [
     visual: { color: '#7FF3FF', color2: '#9B87FF', fx: 'cavernas' },
   },
   {
+    id: 'scene-mirante',
+    slot: 'scene',
+    name: 'Mirante dos Gráficos',
+    rarity: 'raro',
+    description: 'No alto da colina, barras e linhas de luz sobem do vale como uma cidade feita de dados.',
+    howToGet: 'Derrote o Leviatã dos Gráficos.',
+    visual: { color: '#38D6B0', color2: '#9B87FF', fx: 'mirante' },
+  },
+  {
     id: 'scene-polar',
     slot: 'scene',
     name: 'Campo Polar',

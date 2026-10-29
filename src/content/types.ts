@@ -55,6 +55,26 @@ export type Block =
       unit?: string;
       data: { label: string; value: number }[];
     }
+  /** Gráfico de linhas: um ponto por rótulo, ligados em ordem; os valores aparecem sobre os pontos. */
+  | {
+      kind: 'line';
+      title?: string;
+      unit?: string;
+      data: { label: string; value: number }[];
+      /** Valor onde o eixo vertical começa (padrão 0). */
+      yMin?: number;
+      /** false = sem os valores sobre os pontos: o leitor estima pelas linhas de grade. */
+      showValues?: boolean;
+    }
+  /**
+   * Gráfico de setores: o ângulo de cada fatia vem de `value`; `text` é o que se escreve nela
+   * (ex.: "25%"). Use "?" para ocultar um valor que a questão pede.
+   */
+  | {
+      kind: 'pie';
+      title?: string;
+      data: { label: string; value: number; text?: string }[];
+    }
   | { kind: 'figure'; id: FigureId; caption?: string };
 
 export type QuestionSource =

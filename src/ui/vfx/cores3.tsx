@@ -11,16 +11,17 @@ import { Glow, useGid, type CoreProps } from './kit';
 
 const GLYPHS = ['α', 'β', 'γ', 'π', 'Δ', 'θ', '√', 'φ'];
 
-/** Anel de letras gregas (as dos ângulos e das constantes), à maneira do anel de runas do Tesouro. */
-function GreekRing({ r, color, size = 7, opacity = 0.9 }: { r: number; color: string; size?: number; opacity?: number }) {
+/** Anel de letras (por padrão as gregas dos ângulos), à maneira do anel de runas do Tesouro. */
+export function GreekRing({ r, color, size = 7, opacity = 0.9, glyphs = GLYPHS }: { r: number; color: string; size?: number; opacity?: number; glyphs?: readonly string[] }) {
   return (
     <G>
       <Circle cx={C} cy={C} r={r + size * 0.85} stroke={color} strokeOpacity={opacity * 0.6} strokeWidth={0.7} fill="none" />
       <Circle cx={C} cy={C} r={r - size * 0.85} stroke={color} strokeOpacity={opacity * 0.6} strokeWidth={0.7} fill="none" />
-      {GLYPHS.map((g, i) => {
-        const p = polar(r, i * 45);
+      {glyphs.map((g, i) => {
+        const deg = (360 / glyphs.length) * i;
+        const p = polar(r, deg);
         return (
-          <SvgText key={g} x={p.x} y={p.y + size * 0.36} fontSize={size} fontWeight="700" fill={color} fillOpacity={opacity} textAnchor="middle" transform={`rotate(${i * 45} ${p.x} ${p.y})`}>
+          <SvgText key={`${g}${i}`} x={p.x} y={p.y + size * 0.36} fontSize={size} fontWeight="700" fill={color} fillOpacity={opacity} textAnchor="middle" transform={`rotate(${deg} ${p.x} ${p.y})`}>
             {g}
           </SvgText>
         );
