@@ -215,11 +215,11 @@ export default function Summary() {
         </Panel>
       </Animated.View>
 
-      {summary.redemptions.length > 0 ? (
+      {summary.overcame.length > 0 ? (
         <Animated.View entering={enter(3)} style={styles.note}>
           <Icon name="sparkle" size={20} color={colors.verdigris} fill={colors.verdigrisGlow} />
           <Text variant="body" style={{ flex: 1 }}>
-            Você redimiu {summary.redemptions.length} Eco{summary.redemptions.length > 1 ? 's' : ''}: errar e depois acertar é exatamente como se aprende.
+            Você superou {summary.overcame.length} Eco{summary.overcame.length > 1 ? 's' : ''}: errar e depois acertar é exatamente como se aprende.
           </Text>
         </Animated.View>
       ) : null}

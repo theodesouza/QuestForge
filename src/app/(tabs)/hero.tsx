@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ITEMS, RARITY_LABEL, SLOT_LABEL, getItem, type ItemSlot } from '../../content/items';
-import { echoCount } from '../../domain/learning/srs';
+import { ECHO_MAX_AGE_DAYS, echoCount, echoesBeatenCount, echoesFadedCount } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { rewardsForLevel } from '../../domain/progression/rewards';
 import { TryOnSheet } from '../../features/hero/TryOnSheet';
@@ -62,6 +62,8 @@ export default function Hero() {
   const progress = levelProgress(profile.xp);
   const rank = rankFor(progress.level);
   const echoes = useMemo(() => echoCount(questionStates), [questionStates]);
+  const echoesBeaten = useMemo(() => echoesBeatenCount(questionStates), [questionStates]);
+  const echoesFaded = useMemo(() => echoesFadedCount(questionStates), [questionStates]);
   const { answered, correct, timeMs } = profile.totals;
   const owned = Object.keys(inventory).length;
 
@@ -124,7 +126,9 @@ export default function Hero() {
           note={answered >= MIN_FOR_ACCURACY ? undefined : `após ${MIN_FOR_ACCURACY} respostas`}
         />
         <Stat label="de estudo" value={formatTime(timeMs)} />
-        <Stat label="Ecos ativos" value={String(echoes)} />
+        <Stat label="Ecos ativos" value={String(echoes)} note={`somem após ${ECHO_MAX_AGE_DAYS} dias`} />
+        <Stat label="Ecos superados" value={String(echoesBeaten)} note="errou e depois acertou" />
+        {echoesFaded > 0 ? <Stat label="Ecos dissipados" value={String(echoesFaded)} note="eram muito antigos" /> : null}
       </View>
 
       <Panel>

@@ -7,6 +7,7 @@ import { findNode } from '../../content/regions';
 import type { BattleState } from '../boss/battle';
 import type { NodeProgress } from '../campaign/campaign';
 import type { QuestsState } from '../quests/quests';
+import { emptyQuestionState, type QuestionState } from '../learning/srs';
 import { createInitialState } from './game';
 import type { GameState, Profile } from './types';
 
@@ -52,6 +53,17 @@ export function normalizeNodeProgress(p: Loose<NodeProgress> & { nodeId: string 
   };
 }
 
+/** Estados gravados antes dos Ecos superados/dissipados ganham os campos novos com padrão neutro. */
+function normalizeQuestionState(s: Loose<QuestionState>, id: string): QuestionState {
+  return {
+    ...emptyQuestionState(s.questionId ?? id),
+    ...s,
+    echoBeaten: s.echoBeaten ?? 0,
+    echoBeatenAt: s.echoBeatenAt ?? null,
+    echoFadedAt: s.echoFadedAt ?? null,
+  } as QuestionState;
+}
+
 function normalizeBattle(b: BattleState | null | undefined): BattleState | null {
   if (!b) return null;
   return { ...b, turns: (b.turns ?? []).map((t) => ({ ...t, healed: t.healed ?? 0 })) };
@@ -66,7 +78,9 @@ function normalizeQuests(q: Partial<QuestsState> | null | undefined): QuestsStat
 export function normalizeState(raw: Loose<GameState>, now: number): GameState {
   return {
     profile: normalizeProfile(raw.profile, now),
-    questionStates: raw.questionStates ?? {},
+    questionStates: Object.fromEntries(
+      Object.entries(raw.questionStates ?? {}).map(([id, s]) => [id, normalizeQuestionState(s, id)]),
+    ),
     inventory: raw.inventory ?? {},
     ledger: raw.ledger ?? {},
     campaign: Object.fromEntries(

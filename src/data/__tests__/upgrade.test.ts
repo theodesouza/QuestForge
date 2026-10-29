@@ -36,7 +36,14 @@ describe.each(['v0.1.0-sessao', 'v0.1.0-batalha'])('atualização a partir de %s
     expect(await currentVersion(driver)).toBe(LATEST_VERSION);
 
     const old = expected(name);
-    expect(loaded.questionStates).toEqual(old.questionStates);
+    // Revisão espaçada: tudo o que existia continua idêntico; os campos de Eco superado/dissipado
+    // entram (o histórico de redenções vira "Ecos superados", sem nenhuma questão dissipada).
+    expect(Object.keys(loaded.questionStates)).toEqual(Object.keys(old.questionStates));
+    for (const [id, st] of Object.entries(old.questionStates)) {
+      expect(loaded.questionStates[id]).toMatchObject(st);
+      expect(loaded.questionStates[id].echoFadedAt).toBeNull();
+      expect(loaded.questionStates[id].echoBeaten).toBeGreaterThanOrEqual(0);
+    }
     expect(loaded.inventory).toEqual(old.inventory);
     expect(loaded.ledger).toEqual(old.ledger);
     // Missões: campos antigos idênticos; pontuação nova em branco e estrelas deduzidas dos acertos.
@@ -125,6 +132,36 @@ describe('atualização a partir da v0.2.0 (banco na versão 2)', () => {
     } as never);
     const again = (await new SqlGameRepository(driver, () => LATER).load())!;
     expect(again.campaign['r1-m1']).toMatchObject({ bestScore: 870, bestStars: 3, lastScore: 870, bestCorrect: 4, runs: 2 });
+    driver.close();
+  });
+});
+
+describe('atualização a partir da versão 3 (Ecos superados)', () => {
+  it('cada redenção antiga vira um Eco superado, e o resto do progresso fica intacto', async () => {
+    const driver = openNodeDriver(':memory:');
+    await migrate(driver, MIGRATIONS.slice(0, 3));
+    expect(await currentVersion(driver)).toBe(3);
+    await driver.exec(`INSERT INTO profile (id, data, updated_at) VALUES (1, '${JSON.stringify({ name: 'Lia', onboarded: true, xp: 300, level: 3 })}', 1)`);
+    const row = (id: string, echo: number) =>
+      driver.run(
+        'INSERT INTO question_state (question_id, box, due_at, seen, correct, wrong, guessed_correct, last_answered_at, last_correct_at, last_wrong_at, last_wrong_session_id, last_xp_at, echo, favorite, flagged) VALUES (?, 2, 5000, 3, 2, 1, 0, 4000, 4000, 1000, ?, 4000, ?, 0, 0)',
+        [id, 's1', echo],
+      );
+    await row('BAS-001', 0);
+    await row('BAS-002', 1);
+    await row('BAS-003', 0);
+    const attempt = (id: string, q: string, kind: string, at: number) =>
+      driver.run('INSERT INTO attempts (id, question_id, session_id, mode, chosen, correct, guessed, hints, time_ms, xp, kind, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, 0, 1000, 10, ?, ?)', [id, q, 's1', 'expedition', 'A', 1, kind, at]);
+    await attempt('a1', 'BAS-001', 'redemption', 2000);
+    await attempt('a2', 'BAS-001', 'redemption', 3000);
+    await attempt('a3', 'BAS-001', 'first', 1500);
+    await attempt('a4', 'BAS-003', 'first', 1500);
+    const loaded = (await new SqlGameRepository(driver, () => LATER).load())!;
+    expect(await currentVersion(driver)).toBe(LATEST_VERSION);
+    expect(loaded.questionStates['BAS-001']).toMatchObject({ echo: false, echoBeaten: 2, echoBeatenAt: 3000, echoFadedAt: null, box: 2, dueAt: 5000, seen: 3 });
+    // Um Eco ainda ativo e uma questão sem redenção não ganham histórico.
+    expect(loaded.questionStates['BAS-002']).toMatchObject({ echo: true, echoBeaten: 0, echoBeatenAt: null });
+    expect(loaded.questionStates['BAS-003']).toMatchObject({ echo: false, echoBeaten: 0, echoBeatenAt: null });
     driver.close();
   });
 });

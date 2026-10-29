@@ -21,7 +21,7 @@ import { nodeStatus, type BossProgress } from '../campaign/campaign';
 import { STAR_REWARDS, missionScore, missionStars, type ScoredAnswer } from '../campaign/score';
 import { planMissionRun, unseenCount } from '../learning/missionPlan';
 import { DEFAULT_TARGET, adjustTarget, selectQuestions } from '../learning/selection';
-import { dueQuestionIds, emptyQuestionState, schedule } from '../learning/srs';
+import { dueEchoIds, dueReviewIds, emptyQuestionState, retireOldEchoes, schedule } from '../learning/srs';
 import { accrueRested } from '../progression/rested';
 import {
   MISSION_FIRST_INK,
@@ -153,6 +153,12 @@ export function touch(state: GameState, now: number, tzOffsetMin?: number): Resu
   tx.patchProfile({ restedPool: pool, lastActiveAt: now });
   if (gained > 0) tx.emit({ type: 'rested', gained, pool });
   refreshQuests(tx, now);
+  // Ecos muito antigos (ou em excesso) se dissipam: a pilha de erros não cresce sem fim.
+  const faded = retireOldEchoes(tx.state.questionStates, now);
+  if (faded.length) {
+    for (const s of faded) tx.setQuestionState(s);
+    tx.emit({ type: 'echoesFaded', count: faded.length });
+  }
   return tx.done();
 }
 
@@ -225,10 +231,13 @@ export function planFocus(
   return [...primary, ...extra].map((q) => q.id);
 }
 
-/** Caça aos Ecos: só questões com revisão vencida, as mais antigas primeiro. */
+/**
+ * Caça aos Ecos: os Ecos ativos que já voltaram, os mais antigos primeiro; se faltar, completa
+ * com revisões vencidas (inclui Ecos já superados). Nunca traz Eco que ainda não venceu.
+ */
 export const ECHO_HUNT_SIZE = 5;
 export function planEchoHunt(state: GameState, now: number): string[] {
-  return dueQuestionIds(state.questionStates, now)
+  return [...dueEchoIds(state.questionStates, now), ...dueReviewIds(state.questionStates, now)]
     .filter((id) => findQuestion(id))
     .slice(0, ECHO_HUNT_SIZE);
 }
@@ -292,7 +301,7 @@ function recordAnswer(
   mode: SessionMode,
   sessionId: string,
   now: number,
-): { correct: boolean; xp: XpResult; granted: number } {
+): { correct: boolean; xp: XpResult; granted: number; echoOvercome: boolean } {
   validateAnswer(input);
   // Quadro do dia gerado antes da resposta: um Eco criado agora não vira encomenda de hoje.
   refreshQuests(tx, now);
@@ -310,6 +319,7 @@ function recordAnswer(
   });
   const outcome = !correct ? 'wrong' : guessed ? 'guess' : 'correct';
   const qs = schedule(prior, q.id, outcome, now, sessionId);
+  const echoOvercome = !!prior?.echo && outcome === 'correct';
   if (xp.xp > 0) qs.lastXpAt = now;
   tx.setQuestionState(qs);
 
@@ -325,6 +335,7 @@ function recordAnswer(
     correct,
     guessed,
     kind: xp.kind,
+    echoOvercome,
     xp: granted,
     restedBonus: poolBefore - tx.profile.restedPool,
     ink: xp.ink,
@@ -367,7 +378,7 @@ function recordAnswer(
   }
   if (xp.kind === 'redemption') incs.push({ metric: 'redemptions', amount: 1 });
   progressQuests(tx, { incs, answerTimeMs: input.timeMs }, now);
-  return { correct, xp, granted };
+  return { correct, xp, granted, echoOvercome };
 }
 
 export function currentQuestionId(session: ActiveSession): string | null {
@@ -386,7 +397,7 @@ export function answerCurrent(state: GameState, input: AnswerInput, now: number)
   const q = getQuestion(qid);
   const tx = new Tx(state);
   const before = tx.profile.restedPool;
-  const { correct, xp, granted } = recordAnswer(tx, q, input, session.mode, session.id, now);
+  const { correct, xp, granted, echoOvercome } = recordAnswer(tx, q, input, session.mode, session.id, now);
   const restedUsed = before - tx.profile.restedPool;
 
   const next: ActiveSession = {
@@ -398,6 +409,7 @@ export function answerCurrent(state: GameState, input: AnswerInput, now: number)
         questionId: q.id,
         chosen: input.chosen,
         correct,
+        ...(echoOvercome ? { echoOvercome: true } : {}),
         guessed: correct && input.guessed,
         hints: input.hints,
         timeMs: input.timeMs,
@@ -584,6 +596,7 @@ export function finishSession(state: GameState, now: number): Result {
     starInk,
     unseenLeft,
     echoes: answered.filter((a) => !a.correct).map((a) => a.questionId),
+    overcame: answered.filter((a) => a.echoOvercome).map((a) => a.questionId),
     redemptions: answered.filter((a) => a.kind === 'redemption').map((a) => a.questionId),
     durationMs: Math.max(0, now - session.startedAt),
   };
@@ -682,6 +695,7 @@ export function battleAnswer(state: GameState, input: AnswerInput, now: number):
   const { correct, granted } = recordAnswer(tx, q, input, 'boss', battle.id, now);
   const { battle: after } = applyBattleAnswer(boss, battle, {
     questionId: q.id,
+    chosen: input.chosen,
     difficulty: q.difficulty,
     correct,
     guessed: correct && input.guessed,

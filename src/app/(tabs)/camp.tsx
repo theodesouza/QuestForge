@@ -13,7 +13,7 @@ import { subtopicLabel } from '../../content/topics';
 import { nextNode } from '../../domain/campaign/campaign';
 import { EXPEDITION_SIZES } from '../../domain/game/game';
 import { recommendFocus } from '../../domain/learning/recommend';
-import { dueQuestionIds } from '../../domain/learning/srs';
+import { dueEchoIds, dueReviewIds } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { nextItemLevel } from '../../domain/progression/rewards';
 import { DailyQuestCard } from '../../features/quests/DailyQuestCard';
@@ -68,7 +68,9 @@ export default function Camp() {
   const rank = rankFor(progress.level);
   const reward = nextItemLevel(progress.level);
   const next = nextNode({ progress: campaign, bosses });
-  const dueCount = useMemo(() => dueQuestionIds(questionStates, now).length, [questionStates, now]);
+  const dueEchoes = useMemo(() => dueEchoIds(questionStates, now).length, [questionStates, now]);
+  const dueReviews = useMemo(() => dueReviewIds(questionStates, now).length, [questionStates, now]);
+  const dueCount = dueEchoes + dueReviews;
   const focus = useMemo(() => recommendFocus(QUESTIONS, questionStates), [questionStates]);
   const enter = (i: number) => (reduce ? undefined : FadeInDown.delay(60 * i).duration(380));
 
@@ -253,13 +255,29 @@ export default function Camp() {
           style={[styles.tile, dueCount === 0 && styles.tileDisabled]}
           disabled={dueCount === 0}
           accessibilityRole="button"
-          accessibilityLabel={dueCount ? `Caçar Ecos: ${dueCount} prontos` : 'Nenhum Eco pronto agora'}
+          accessibilityLabel={
+            dueEchoes
+              ? `Caçar Ecos: ${dueEchoes} prontos${dueReviews ? `, mais ${dueReviews} revisões` : ''}`
+              : dueReviews
+                ? `Revisar: ${dueReviews} questões prontas`
+                : 'Nenhum Eco pronto agora'
+          }
           onPress={() => start('echo', startEchoHunt)}
         >
           <Icon name="echo" size={22} color={colors.iris} />
-          <Text variant="subheading">{dueCount > 0 ? `${dueCount} Eco${dueCount > 1 ? 's' : ''} à espreita` : 'Sem Ecos agora'}</Text>
+          <Text variant="subheading">
+            {dueEchoes > 0
+              ? `${dueEchoes} Eco${dueEchoes > 1 ? 's' : ''} à espreita`
+              : dueReviews > 0
+                ? `${dueReviews} revisõ${dueReviews > 1 ? 'es' : 'ão'} pronta${dueReviews > 1 ? 's' : ''}`
+                : 'Sem Ecos agora'}
+          </Text>
           <Text variant="caption" color={colors.mist}>
-            {dueCount > 0 ? 'Derrotar um Eco vale 150% de XP' : 'Erros voltam no dia seguinte para revisão'}
+            {dueEchoes > 0
+              ? 'Superar um Eco no prazo vale 150% de XP'
+              : dueReviews > 0
+                ? 'Ecos superados e questões para fixar'
+                : 'Erros voltam no dia seguinte para revisão'}
           </Text>
         </Pressable>
         {focus ? (

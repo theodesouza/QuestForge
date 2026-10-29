@@ -39,9 +39,21 @@ export function useAttempt(questionId: string | null) {
   if (current !== state) setState(current);
 
   const startedAt = useRef(0);
+  // Tempo parado enquanto o jogador revê outra questão: não conta como tempo de resposta.
+  const pausedAt = useRef<number | null>(null);
+  const pausedTotal = useRef(0);
   useEffect(() => {
     startedAt.current = Date.now();
+    pausedAt.current = null;
+    pausedTotal.current = 0;
   }, [questionId]);
+  const setPaused = useCallback((paused: boolean) => {
+    if (paused && pausedAt.current === null) pausedAt.current = Date.now();
+    if (!paused && pausedAt.current !== null) {
+      pausedTotal.current += Date.now() - pausedAt.current;
+      pausedAt.current = null;
+    }
+  }, []);
 
   const patch = (p: Partial<AttemptState>) => setState((s) => (s.questionId === questionId ? { ...s, ...p } : s));
 
@@ -51,7 +63,8 @@ export function useAttempt(questionId: string | null) {
       if (!selected || submitting || outcome) return;
       setState((s) => ({ ...s, submitting: true, error: null }));
       try {
-        const events = await send({ chosen: selected, guessed, hints, timeMs: Date.now() - startedAt.current });
+        setPaused(false);
+        const events = await send({ chosen: selected, guessed, hints, timeMs: Math.max(0, Date.now() - startedAt.current - pausedTotal.current) });
         const answered = events.find((e): e is AnsweredEvent => e.type === 'answered');
         if (!answered) throw new Error('Resposta não registrada');
         const scaffold = events.find((e): e is Extract<GameEvent, { type: 'scaffold' }> => e.type === 'scaffold') ?? null;
@@ -65,7 +78,7 @@ export function useAttempt(questionId: string | null) {
         }));
       }
     },
-    [current],
+    [current, setPaused],
   );
 
   return {
@@ -81,6 +94,7 @@ export function useAttempt(questionId: string | null) {
     submitting: current.submitting,
     error: current.error,
     submit,
+    setPaused,
   };
 }
 

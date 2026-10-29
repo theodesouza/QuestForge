@@ -3,14 +3,16 @@
  * feedback imediato e explicação clara. Efeitos só depois da resposta.
  */
 import { Redirect, router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { findQuestion } from '../content/bank';
+import { findQuestion, getQuestion } from '../content/bank';
 import { findNode } from '../content/regions';
 import { currentQuestionId } from '../domain/game/game';
+import { sessionReviewItems } from '../domain/game/review';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
+import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
 import { useAttempt } from '../features/question/useAttempt';
 import { RouteTrail } from '../features/session/RouteTrail';
 import { abandon, answer, finish, skip } from '../state/actions';
@@ -35,9 +37,39 @@ export default function SessionScreen() {
   const feedbackOffset = useRef(0);
   const reduce = useReduceMotion();
 
+  // Rever respostas anteriores: a questão atual fica guardada (seleção, dicas, rolagem e tempo).
+  const reviewItems = useMemo(() => (session ? sessionReviewItems(session, !!attempt.outcome) : []), [session, attempt.outcome]);
+  const review = useReview(reviewItems);
+  const reviewed = review.item;
+  const savedScroll = useRef(0);
+  const { setPaused } = attempt;
+  const openReview = useCallback(() => {
+    setPaused(true);
+    review.open();
+  }, [review, setPaused]);
+  const closeReview = useCallback(() => {
+    review.close();
+    setPaused(false);
+    const y = savedScroll.current;
+    requestAnimationFrame(() => scroll.current?.scrollTo({ y, animated: false }));
+  }, [review, setPaused]);
+  const reviewedAttempt = useMemo(() => (reviewed ? reviewAttempt(reviewed) : null), [reviewed]);
+
   useEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
   }, [shownId]);
+  useEffect(() => {
+    if (reviewed) scroll.current?.scrollTo({ y: 0, animated: false });
+  }, [reviewed]);
+  // No Android, "voltar" fecha a revisão antes de sair da tela.
+  useEffect(() => {
+    if (!reviewed) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      closeReview();
+      return true;
+    });
+    return () => sub.remove();
+  }, [reviewed, closeReview]);
 
   if (!session) return leaving ? null : <Redirect href="/camp" />;
 
@@ -113,8 +145,21 @@ export default function SessionScreen() {
         </View>
       </View>
 
-      <ScrollView ref={scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {question ? (
+      <ScrollView
+        ref={scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={64}
+        onScroll={(e) => {
+          if (!reviewed) savedScroll.current = e.nativeEvent.contentOffset.y;
+        }}
+      >
+        {reviewed && reviewedAttempt ? (
+          <View style={{ gap: space.lg }}>
+            <ReviewBanner review={review} label="a questão" />
+            <QuestionBody question={getQuestion(reviewed.questionId)} attempt={reviewedAttempt} attemptKey={session.id} readOnly />
+          </View>
+        ) : question ? (
           <QuestionBody
             question={question}
             attempt={attempt}
@@ -124,10 +169,15 @@ export default function SessionScreen() {
         ) : null}
       </ScrollView>
 
-      {question ? (
+      {reviewed ? (
+        <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
+          <ReviewBar review={review} returnLabel="Voltar à questão atual" />
+        </View>
+      ) : question ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
           <AnswerBar
             attempt={attempt}
+            onPrevious={reviewItems.length > 0 ? openReview : undefined}
             onConfirm={() => attempt.submit(answer)}
             onContinue={onContinue}
             onSkip={onSkip}

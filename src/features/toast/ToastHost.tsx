@@ -66,6 +66,7 @@ export function ToastHost() {
 
   if (!toast) return null;
   const bonus = toast.tone === 'bonus';
+  const echo = toast.tone === 'echo';
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + space.sm }]}>
       <Animated.View
@@ -78,10 +79,10 @@ export function ToastHost() {
           accessibilityRole="alert"
           accessibilityLabel={`${toast.title}. ${toast.detail}`}
           accessibilityHint="Toque para dispensar"
-          style={[styles.toast, bonus && styles.toastBonus]}
+          style={[styles.toast, bonus && styles.toastBonus, echo && styles.toastEcho]}
         >
-          <View style={[styles.icon, bonus && styles.iconBonus]}>
-            <Icon name={bonus ? 'sparkle' : 'check'} size={18} color={colors.ink900} fill={bonus ? colors.ink900 : 'none'} strokeWidth={2.2} />
+          <View style={[styles.icon, bonus && styles.iconBonus, echo && styles.iconEcho]}>
+            <Icon name={bonus ? 'sparkle' : echo ? 'echo' : 'check'} size={18} color={colors.ink900} fill={bonus ? colors.ink900 : 'none'} strokeWidth={2.2} />
           </View>
           <View style={{ flex: 1 }}>
             <Text variant="bodyStrong">{toast.title}</Text>
@@ -113,6 +114,8 @@ const styles = StyleSheet.create({
     elevation: 14,
   },
   toastBonus: { borderColor: colors.brass },
+  toastEcho: { borderColor: colors.iris },
   icon: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.verdigris },
   iconBonus: { backgroundColor: colors.brass },
+  iconEcho: { backgroundColor: colors.iris },
 });

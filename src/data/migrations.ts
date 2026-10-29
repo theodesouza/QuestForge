@@ -105,6 +105,19 @@ export const MIGRATIONS: Migration[] = [
       ALTER TABLE campaign_progress ADD COLUMN last_score INTEGER;
     `,
   },
+  {
+    version: 4,
+    description: 'Ecos superados e dissipados',
+    sql: `
+      ALTER TABLE question_state ADD COLUMN echo_beaten INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE question_state ADD COLUMN echo_beaten_at INTEGER;
+      ALTER TABLE question_state ADD COLUMN echo_faded_at INTEGER;
+      -- Quem já redimiu Ecos antes desta versão mantém o histórico: cada redenção vira um Eco superado.
+      UPDATE question_state SET
+        echo_beaten = (SELECT COUNT(*) FROM attempts a WHERE a.question_id = question_state.question_id AND a.kind = 'redemption'),
+        echo_beaten_at = (SELECT MAX(a.created_at) FROM attempts a WHERE a.question_id = question_state.question_id AND a.kind = 'redemption');
+    `,
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

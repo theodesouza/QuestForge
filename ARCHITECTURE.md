@@ -62,13 +62,13 @@ UI (toque "Confirmar")
 - **Sessões retomáveis**: o estado da sessão ativa é gravado a cada resposta
   (`active_session`). Fechar o app no meio não perde nada; o Acampamento oferece "Retomar".
 
-## Banco local (esquema v3)
+## Banco local (esquema v4)
 
 | Tabela | Conteúdo |
 | --- | --- |
 | `profile` (1 linha) | nome, objetivo, preferências, XP total, Tinta, descanso acumulado, cosméticos equipados, datas |
 | `attempts` | log imutável de respostas: questão, escolha, acerto, confiança, dicas, tempo, XP, modo, sessão |
-| `question_state` | repetição espaçada por questão: caixa Leitner, vencimento, contadores, último XP |
+| `question_state` | repetição espaçada por questão: caixa Leitner, vencimento, contadores, último XP; v4: `echo_beaten`, `echo_beaten_at`, `echo_faded_at` (Ecos superados e dissipados; as redenções antigas viram "superados" na migração) |
 | `reward_ledger` | recompensas concedidas (chave única) |
 | `inventory` | itens possuídos + origem |
 | `campaign_progress` | nós concluídos (missões) com melhor resultado; v3: `best_score`, `best_stars`, `last_score` |
@@ -138,6 +138,28 @@ pode enviar o log e reconciliar o perfil sem mudar o domínio.
   proporcionais à raridade e oferece "Equipar agora"; espera celebrações de nível e não aparece em
   `/session` nem `/boss`. É um `Modal` (TalkBack não sai dele; Voltar fecha). No Herói, tocar um item abre a prévia "experimentar" (`TryOnSheet`).
 - **Laboratório de QA** (`/vfx-lab`, só com `EXPO_PUBLIC_QA=1`): grades de núcleos, auras e sinergias.
+
+## Ecos: superar e dissipar (`domain/learning/srs.ts`)
+
+- **Eco** = erro ainda em aberto. **Superar**: um acerto confiante (sem chute) num Eco o encerra na
+  hora — a qualquer momento, não só quando ele "volta" — e conta em `echoBeaten` ("Ecos superados").
+  Errar de novo reativa o Eco sem apagar o histórico. A **redenção** (150% de XP) continua só valendo
+  no prazo: superar antes rende o XP de treino (10%, `practice`), então errar de propósito e acertar em
+  seguida não rende nada extra (teste de anti-farm).
+- **Dissipar**: ao abrir o app (`touch`), Ecos com mais de 21 dias do erro, e os mais antigos acima de
+  40 Ecos ativos, deixam de ser Eco (`echoFadedAt`) — só a marca muda, a caixa e o vencimento da questão
+  seguem a agenda normal. O jogador recebe um aviso uma única vez.
+- **Caça aos Ecos** traz primeiro os Ecos ativos já vencidos (os mais antigos) e completa com revisões
+  vencidas; nunca um Eco que ainda não venceu. O Acampamento separa "Ecos à espreita" de "revisões".
+
+## Rever a questão anterior (`features/question/review.tsx`, `domain/game/review.ts`)
+
+Em qualquer atividade com mais de uma questão (expedição, missão, foco, Caça aos Ecos e batalha), o
+jogador pode rever as respostas anteriores — alternativa escolhida, correta e resolução — em modo
+somente leitura e voltar à questão atual exatamente como estava (seleção, dicas, rolagem; o relógio da
+resposta fica parado durante a revisão). A lista vem de `sessionReviewItems`/`battleReviewItems`
+(puras); `BattleTurn.chosen` passou a guardar a alternativa de cada golpe (golpes antigos, sem ela,
+não entram na revisão). No Android, o botão Voltar fecha a revisão antes de sair da tela.
 
 ## Atualizações e preservação do progresso
 

@@ -14,7 +14,7 @@ export interface Toast {
   id: string;
   title: string;
   detail: string;
-  tone: 'quest' | 'bonus' | 'purchase';
+  tone: 'quest' | 'bonus' | 'purchase' | 'echo';
 }
 
 /** Item recém-conquistado, esperando a cerimônia de revelação. */
@@ -71,6 +71,14 @@ export function publish(state: GameState, events: GameEvent[]) {
     if (e.type === 'rested') patch.restedNotice = e.gained;
     if (e.type === 'questComplete') {
       toasts.push({ id: `t${celebrationSeq++}`, tone: 'quest', title: 'Encomenda cumprida', detail: `${e.title} · +${e.xp} XP · +${e.ink} Tinta` });
+    }
+    if (e.type === 'echoesFaded') {
+      toasts.push({
+        id: `t${celebrationSeq++}`,
+        tone: 'echo',
+        title: e.count > 1 ? 'Ecos antigos dissipados' : 'Um Eco antigo se dissipou',
+        detail: `${e.count} Eco${e.count > 1 ? 's' : ''} muito antigo${e.count > 1 ? 's' : ''} deixou${e.count > 1 ? 'aram' : ''} de pesar — as questões seguem na sua rota.`,
+      });
     }
     if (e.type === 'questBonus') {
       toasts.push({

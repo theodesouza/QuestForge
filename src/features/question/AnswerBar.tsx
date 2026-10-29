@@ -13,12 +13,24 @@ interface Props {
   onSkip?: () => void;
   /** Rótulo do botão de confirmação (ex.: "Atacar" na batalha). */
   confirmLabel?: string;
+  /** Rever a questão anterior (só aparece quando há uma para rever). */
+  onPrevious?: () => void;
 }
 
 /** Rodapé fixo: controles antes da resposta; "Continuar" depois. */
-export function AnswerBar({ attempt, onConfirm, onContinue, continueLabel, onSkip, confirmLabel = 'Confirmar resposta' }: Props) {
+export function AnswerBar({ attempt, onConfirm, onContinue, continueLabel, onSkip, confirmLabel = 'Confirmar resposta', onPrevious }: Props) {
   if (attempt.outcome) {
-    return <Button label={continueLabel} iconRight="chevronRight" onPress={onContinue} />;
+    if (!onPrevious) return <Button label={continueLabel} iconRight="chevronRight" onPress={onContinue} />;
+    return (
+      <View style={styles.pair}>
+        <View style={{ flex: 0.85 }}>
+          <Button label="Anterior" icon="chevronLeft" variant="secondary" onPress={onPrevious} />
+        </View>
+        <View style={{ flex: 1.5 }}>
+          <Button label={continueLabel} iconRight="chevronRight" onPress={onContinue} />
+        </View>
+      </View>
+    );
   }
   return (
     <View style={styles.wrap}>
@@ -28,6 +40,7 @@ export function AnswerBar({ attempt, onConfirm, onContinue, continueLabel, onSki
         </Text>
       ) : null}
       <View style={styles.tools}>
+        {onPrevious ? <Chip label="Anterior" icon="chevronLeft" onPress={onPrevious} color={colors.mist} accessibilityLabel="Rever a questão anterior; sua resposta atual fica guardada" /> : null}
         {onSkip ? <Chip label="Pular" icon="skip" onPress={onSkip} color={colors.mist} accessibilityLabel="Pular esta questão; ela volta no fim" /> : null}
         <Chip
           label={attempt.hints >= 2 ? 'Sem dicas' : `Dica ${attempt.hints}/2`}
@@ -52,4 +65,5 @@ export function AnswerBar({ attempt, onConfirm, onContinue, continueLabel, onSki
 const styles = StyleSheet.create({
   wrap: { gap: space.sm + 2 },
   tools: { flexDirection: 'row', gap: space.sm, justifyContent: 'center', flexWrap: 'wrap' },
+  pair: { flexDirection: 'row', gap: space.sm },
 });

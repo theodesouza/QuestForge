@@ -24,6 +24,9 @@ interface QuestionStateRow {
   last_wrong_session_id: string | null;
   last_xp_at: number | null;
   echo: number;
+  echo_beaten: number;
+  echo_beaten_at: number | null;
+  echo_faded_at: number | null;
   favorite: number;
   flagged: number;
 }
@@ -43,6 +46,9 @@ function rowToQuestionState(r: QuestionStateRow): QuestionState {
     lastWrongSessionId: r.last_wrong_session_id,
     lastXpAt: r.last_xp_at,
     echo: r.echo === 1,
+    echoBeaten: r.echo_beaten,
+    echoBeatenAt: r.echo_beaten_at,
+    echoFadedAt: r.echo_faded_at,
     favorite: r.favorite === 1,
     flagged: r.flagged === 1,
   };
@@ -276,13 +282,17 @@ async function upsertQuestionState(tx: SqlExecutor, s: QuestionState) {
     s.lastWrongSessionId,
     s.lastXpAt,
     b(s.echo),
+    s.echoBeaten,
+    s.echoBeatenAt,
+    s.echoFadedAt,
     b(s.favorite),
     b(s.flagged),
   ];
   await tx.run(
     `INSERT OR REPLACE INTO question_state (question_id, box, due_at, seen, correct, wrong, guessed_correct,
-      last_answered_at, last_correct_at, last_wrong_at, last_wrong_session_id, last_xp_at, echo, favorite, flagged)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      last_answered_at, last_correct_at, last_wrong_at, last_wrong_session_id, last_xp_at, echo,
+      echo_beaten, echo_beaten_at, echo_faded_at, favorite, flagged)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     values,
   );
 }

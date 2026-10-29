@@ -17,7 +17,7 @@ import type { GameEvent, GameState, Result, SessionSummary } from '../game/types
 import { alternativeOrder, displayLetter } from '../learning/alternatives';
 import { maxUnseenMatching, planMissionRun, reuseRank, unseenCount } from '../learning/missionPlan';
 import { normalizeNodeProgress } from '../game/normalize';
-import { schedule, type QuestionState } from '../learning/srs';
+import { echoesBeatenCount, schedule, type QuestionState } from '../learning/srs';
 import { classify, sessionBonus } from '../progression/xp';
 
 const T0 = Date.UTC(2026, 9, 14, 15);
@@ -158,16 +158,35 @@ describe('planejamento: prioridades finas', () => {
   });
 });
 
-describe('Ecos: redenção só quando o Eco volta', () => {
-  it('acertar um Eco antes do prazo é treino: sem redenção, e o Eco continua', () => {
+describe('Ecos: superar vale na hora, a redenção (150% de XP) só no prazo', () => {
+  it('acertar um Eco antes do prazo o supera: XP de treino, agenda intacta, sem redenção', () => {
     const prior = schedule(undefined, 'X', 'wrong', T0, 's1');
     const base = { difficulty: 2 as Difficulty, correct: true, guessed: false, hintsUsed: 0, sessionId: 's2' };
     expect(classify({ ...base, prior, now: T0 + 60_000 })).toBe('practice');
     const after = schedule(prior, 'X', 'correct', T0 + 60_000, 's2');
-    expect(after.echo).toBe(true);
-    expect(after.dueAt).toBe(prior.dueAt);
-    expect(classify({ ...base, prior: after, now: T0 + 2 * DAY })).toBe('redemption');
-    expect(schedule(after, 'X', 'correct', T0 + 2 * DAY, 's3').echo).toBe(false);
+    expect(after).toMatchObject({ echo: false, echoBeaten: 1, echoBeatenAt: T0 + 60_000, dueAt: prior.dueAt, box: prior.box });
+    // Superado: quando a revisão vence, é uma revisão comum (60%), não mais redenção.
+    expect(classify({ ...base, prior: after, now: T0 + 2 * DAY })).toBe('review');
+  });
+
+  it('só o acerto confiante supera; o chute mantém o Eco, e errar de novo o reativa sem apagar o histórico', () => {
+    const prior = schedule(undefined, 'X', 'wrong', T0, 's1');
+    const guessed = schedule(prior, 'X', 'guess', T0 + 1000, 's2');
+    expect(guessed.echo).toBe(true);
+    expect(guessed.echoBeaten).toBe(0);
+    const beaten = schedule(guessed, 'X', 'correct', T0 + 2000, 's2');
+    expect(beaten.echo).toBe(false);
+    const again = schedule({ ...beaten, echoFadedAt: T0 }, 'X', 'wrong', T0 + 3000, 's3');
+    expect(again).toMatchObject({ echo: true, echoBeaten: 1, echoBeatenAt: T0 + 2000, echoFadedAt: null });
+  });
+
+  it('redenção no prazo continua valendo 150% e supera o Eco', () => {
+    const prior = schedule(undefined, 'X', 'wrong', T0, 's1');
+    const base = { difficulty: 2 as Difficulty, correct: true, guessed: false, hintsUsed: 0, sessionId: 's2' };
+    expect(classify({ ...base, prior, now: T0 + 2 * DAY })).toBe('redemption');
+    const after = schedule(prior, 'X', 'correct', T0 + 2 * DAY, 's2');
+    expect(after).toMatchObject({ echo: false, echoBeaten: 1, box: 2 });
+    expect(after.dueAt).toBeGreaterThan(T0 + 2 * DAY);
   });
 });
 
@@ -309,13 +328,15 @@ describe('missões repetidas no jogo', () => {
     expect(ink).toBe(0);
   });
 
-  it('anti-farm: errar de propósito e acertar na tentativa seguinte não vira redenção', () => {
+  it('anti-farm: errar de propósito e acertar na tentativa seguinte supera o Eco, mas não rende redenção nem bônus', () => {
     let s = onboarded();
     const runs = Math.ceil(missionPool(node).length / node.questionCount);
     for (let i = 0; i < runs; i++) s = runMission(s, T0 + i * 60_000).state; // esgota as inéditas
     let bonus = 0;
     let ink = 0;
     let redemptions = 0;
+    let overcame = 0;
+    let lastIds: string[] = [];
     for (let i = 0; i < 5; i++) {
       const t = T0 + DAY / 2 + i * 120_000;
       const fail = runMission(s, t, { wrong: 99 });
@@ -323,14 +344,18 @@ describe('missões repetidas no jogo', () => {
       bonus += fail.summary.bonusXp + fix.summary.bonusXp;
       ink += fix.summary.ink;
       redemptions += fix.summary.redemptions.length;
+      overcame += fix.summary.overcame.length;
       s = fix.state;
+      lastIds = fix.ids;
     }
     expect(redemptions).toBe(0);
     expect(bonus).toBe(0);
     expect(ink).toBe(0);
-    // Os Ecos continuam vivos e valem a redenção quando voltam no prazo.
-    const later = runMission(s, T0 + 3 * DAY);
-    expect(later.summary.redemptions.length).toBeGreaterThan(0);
+    // Os Ecos das questões refeitas foram superados na hora (só sobra Eco de reforço do andaime,
+    // que não voltou na tentativa), e o histórico de superados cresce.
+    expect(overcame).toBeGreaterThan(0);
+    for (const id of lastIds) expect(s.questionStates[id].echo).toBe(false);
+    expect(echoesBeatenCount(s.questionStates)).toBeGreaterThanOrEqual(overcame);
   });
 
   it('estrelas gravadas com pontuação não são recalculadas ao carregar', () => {

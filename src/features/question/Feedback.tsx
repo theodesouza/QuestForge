@@ -25,12 +25,19 @@ function scaffoldLabel(questionId: string): string {
 
 const KIND_NOTE: Record<string, string | null> = {
   first: null,
-  redemption: 'Redenção! Um Eco derrotado vale 150% de XP.',
+  redemption: 'Redenção! Um Eco superado no prazo vale 150% de XP.',
   review: 'Revisão no tempo certo: a memória fica mais firme.',
-  practice: 'Bom treino! Este Eco volta no prazo — derrotá-lo aí vale 150% de XP.',
+  practice: 'Bom treino! O XP é reduzido porque o Eco ainda não tinha voltado.',
   repeat: 'Questão já dominada — XP reduzido.',
   cooldown: 'Você acertou esta há pouco: sem XP agora, mas o treino conta.',
   wrong: null,
+};
+
+/** Mensagens de Eco superado, conforme o XP que a resposta rendeu. */
+const OVERCAME_NOTE: Partial<Record<string, string>> = {
+  redemption: 'Você superou este Eco, e no prazo: vale 150% de XP.',
+  practice: 'Você superou este Eco antes de ele voltar — o XP é reduzido, e a questão ainda volta para fixar.',
+  cooldown: 'Você superou este Eco, mas acertou esta há pouco: sem XP agora.',
 };
 
 export function Feedback({
@@ -49,17 +56,22 @@ export function Feedback({
   const { answered, scaffold } = outcome;
   const [open, setOpen] = useState(showSolutionByDefault ?? !answered.correct);
 
+  const overcame = !!answered.echoOvercome;
   const accent = answered.correct ? (answered.guessed ? colors.brass : colors.verdigris) : colors.iris;
   const title = answered.correct
     ? answered.guessed
       ? 'Acertou no chute.'
-      : pick(CORRECT_TITLES, question.id)
+      : overcame
+        ? 'Eco superado!'
+        : pick(CORRECT_TITLES, question.id)
     : 'Virou um Eco.';
   const subtitle = answered.correct
     ? answered.guessed
       ? 'Ela volta amanhã para você confirmar que sabe — sem sorte desta vez.'
-      : KIND_NOTE[answered.kind]
-    : `A resposta é ${answerLetter}. Este Eco volta amanhã — derrotá-lo vale 150% de XP.`;
+      : overcame
+        ? OVERCAME_NOTE[answered.kind] ?? 'Você superou este Eco: ele deixou de ser um erro em aberto.'
+        : KIND_NOTE[answered.kind]
+    : `A resposta é ${answerLetter}. Este Eco volta amanhã — superá-lo no prazo vale 150% de XP.`;
 
   return (
     <Animated.View entering={reduce ? undefined : FadeInDown.duration(320)} style={styles.wrap} accessibilityLiveRegion="polite">

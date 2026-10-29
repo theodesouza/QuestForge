@@ -101,6 +101,19 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await dismissCelebrations('levelup');
   await shot('feedback-correct');
   await click('Próxima questão');
+  // Rever a questão anterior: seleciona uma alternativa na atual, vai rever a 1ª e volta sem perder a seleção.
+  q = await current();
+  await page.getByRole('radio', { name: new RegExp(`^Alternativa ${q.answer}:`) }).click();
+  await click('Rever a questão anterior');
+  await page.getByText('Revendo a questão 1').waitFor({ timeout: 5000 });
+  await shot('review-previous');
+  await click('Voltar à questão atual');
+  await wait(500);
+  // A web não expõe aria-selected: a alternativa selecionada é a de borda latão (brass).
+  const radio = page.getByRole('radio', { name: new RegExp(`^Alternativa ${q.answer}:`) });
+  const border = await radio.evaluate((el) => getComputedStyle(el).borderTopColor);
+  if (border !== 'rgb(242, 181, 74)') throw new Error(`A seleção da questão atual se perdeu ao voltar da revisão (borda ${border})`);
+  await shot('review-returned');
   await answerOne(false);
   await dismissCelebrations('levelup');
   await shot('feedback-wrong');
@@ -163,6 +176,14 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     while (turns++ < 40) {
       const b = await page.evaluate(() => globalThis.__qf.store.getState().game.battle);
       if (!b || b.status !== 'active') break;
+      // Batalha: rever o golpe anterior e voltar (uma vez, no 1º chefão).
+      if (prefix === 'golem' && turns === 3) {
+        await click('Rever a questão anterior');
+        await page.getByText(/Revendo o golpe 2/).waitFor({ timeout: 5000 });
+        await shot(`${prefix}-review`);
+        await click('Voltar à questão atual');
+        await wait(400);
+      }
       await answerOne(turns !== 2, 'Atacar');
       if (turns === 1) await shot(`${prefix}-hit`);
       if (turns === 2) await shot(`${prefix}-miss`);

@@ -71,6 +71,8 @@ export interface SessionAnswer {
   questionId: string;
   chosen: AltKey | null;
   correct: boolean;
+  /** Esta resposta superou um Eco (acerto confiante numa questão que era Eco). */
+  echoOvercome?: boolean;
   guessed: boolean;
   hints: number;
   timeMs: number;
@@ -161,6 +163,8 @@ export interface SessionSummary {
   /** Questões da missão que o jogador ainda não resolveu (após esta tentativa). */
   unseenLeft: number | null;
   echoes: string[];
+  /** Ecos superados na sessão (acertos confiantes em questões que eram Eco). */
+  overcame: string[];
   redemptions: string[];
   durationMs: number;
 }
@@ -173,6 +177,8 @@ export type GameEvent =
       correct: boolean;
       guessed: boolean;
       kind: XpKind;
+      /** Acerto confiante numa questão que era Eco: o Eco foi superado. */
+      echoOvercome?: boolean;
       /** XP total concedido pela resposta (já com o bônus de descanso). */
       xp: number;
       restedBonus: number;
@@ -183,6 +189,7 @@ export type GameEvent =
   | { type: 'levelUp'; from: number; to: number; rewards: { level: number; rewards: Reward[] }[] }
   | { type: 'item'; itemId: string; source: string; autoEquipped: boolean; slot: ItemSlot }
   | { type: 'echo'; questionId: string }
+  | { type: 'echoesFaded'; count: number }
   | { type: 'redemption'; questionId: string }
   | { type: 'rested'; gained: number; pool: number }
   | { type: 'scaffold'; questionId: string; subtopic: string; conceptFrom: string }

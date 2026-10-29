@@ -108,6 +108,12 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Medir desempenho num Android intermediário físico (validado na web e por contagem de camadas/bitmaps nos testes)
 - [ ] Ativar `ANDROID_SYNCHRONOUSLY_UPDATE_UI_PROPS` do Reanimated (transform/opacity sem commit da árvore) — exige APK novo
 
+## Melhorias de uso: rever questões e Ecos ✅
+- [x] **Rever a questão anterior** em expedições, missões, foco, Caça aos Ecos e batalhas: botão "Anterior" no rodapé; a revisão é somente leitura (alternativa escolhida, correta e resolução), tem "Anterior/Próxima" e o botão grande "Voltar à questão atual", que restaura seleção, dicas e rolagem; o tempo de resposta não conta enquanto se revê; no Android, Voltar fecha a revisão
+- [x] **Eco superado**: acertar um Eco com confiança o encerra na hora (contador "Ecos superados" no Herói, selo "Eco superado" na questão, mensagem própria no feedback e no resumo); a redenção de 150% segue só no prazo (sem brecha de farm)
+- [x] **Ecos antigos se dissipam**: mais de 21 dias, ou acima de 40 ativos, ao abrir o app — com aviso único; "Ecos dissipados" no Herói; migração v4 preserva o histórico (redenções antigas viram Ecos superados)
+- [x] Caça aos Ecos separa Ecos ativos de revisões; Acampamento mostra "N Ecos à espreita" ou "N revisões prontas"
+
 ## Etapa 5 — Aprendizado adaptativo (pendente)
 - [ ] Painel de evolução (semana, assuntos fortes/fracos, tempo de estudo, gráficos)
 - [ ] Histórico de erros navegável ("por que errei")

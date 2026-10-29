@@ -4,8 +4,8 @@
  * Sem cronômetro e sem sorte — o foco continua sendo a questão.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -15,18 +15,20 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { findQuestion } from '../content/bank';
+import { findQuestion, getQuestion } from '../content/bank';
 import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
 import { activeHeadIndex, headSpans, headsFelled, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
+import { battleReviewItems } from '../domain/game/review';
 import type { GameEvent } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
 import { HeadsBar } from '../features/boss/HeadsBar';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
+import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
 import { useAttempt } from '../features/question/useAttempt';
 import { battleAnswer, beginBattle, dismissBattle, retreat } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
@@ -261,6 +263,35 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
     scroll.current?.scrollTo({ y: 0, animated: false });
   }, [shownId]);
 
+  // Rever golpes anteriores sem perder a questão atual (seleção, dicas, rolagem e tempo).
+  const reviewItems = useMemo(() => battleReviewItems(battle, !!attempt.outcome), [battle, attempt.outcome]);
+  const review = useReview(reviewItems);
+  const reviewed = review.item;
+  const savedScroll = useRef(0);
+  const { setPaused } = attempt;
+  const openReview = useCallback(() => {
+    setPaused(true);
+    review.open();
+  }, [review, setPaused]);
+  const closeReview = useCallback(() => {
+    review.close();
+    setPaused(false);
+    const y = savedScroll.current;
+    requestAnimationFrame(() => scroll.current?.scrollTo({ y, animated: false }));
+  }, [review, setPaused]);
+  const reviewedAttempt = useMemo(() => (reviewed ? reviewAttempt(reviewed) : null), [reviewed]);
+  useEffect(() => {
+    if (reviewed) scroll.current?.scrollTo({ y: 0, animated: false });
+  }, [reviewed]);
+  useEffect(() => {
+    if (!reviewed) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      closeReview();
+      return true;
+    });
+    return () => sub.remove();
+  }, [reviewed, closeReview]);
+
   const artStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shake.value }], opacity: 1 - flash.value * 0.45 }));
 
   const question = shownId ? findQuestion(shownId) : undefined;
@@ -330,13 +361,26 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
           <Hud boss={boss} battle={battle} hit={hit} line={line} />
         </View>
       </View>
-      <ScrollView ref={scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={64}
+        onScroll={(e) => {
+          if (!reviewed) savedScroll.current = e.nativeEvent.contentOffset.y;
+        }}
+      >
         <View style={styles.arena} onLayout={(e) => (feedbackOffset.current = e.nativeEvent.layout.height + space.lg)}>
           <Animated.View style={artStyle}>
             <BossArt art={boss.art} size={150} cracked={battle.armorBroken} defeated={battle.status === 'won'} headsFelled={headsFelled(boss, battle.hp)} />
           </Animated.View>
         </View>
-        {question ? (
+        {reviewed && reviewedAttempt ? (
+          <View style={{ gap: space.lg }}>
+            <ReviewBanner review={review} label="o golpe" />
+            <QuestionBody question={getQuestion(reviewed.questionId)} attempt={reviewedAttempt} attemptKey={battle.id} readOnly />
+          </View>
+        ) : question ? (
           <QuestionBody
             question={question}
             attempt={attempt}
@@ -345,10 +389,15 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
           />
         ) : null}
       </ScrollView>
-      {question ? (
+      {reviewed ? (
+        <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
+          <ReviewBar review={review} returnLabel="Voltar à questão atual" />
+        </View>
+      ) : question ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
           <AnswerBar
             attempt={attempt}
+            onPrevious={reviewItems.length > 0 ? openReview : undefined}
             confirmLabel="Atacar"
             onConfirm={() => attempt.submit(send)}
             onContinue={onContinue}

@@ -15,15 +15,17 @@ interface Props {
   onSelect: (k: AltKey) => void;
   /** Depois da correção: alternativa escolhida. */
   revealedChoice: AltKey | null;
+  /** Revisão de uma resposta antiga: sem o tremor da alternativa errada. */
+  quiet?: boolean;
 }
 
 type RowState = 'idle' | 'selected' | 'correct' | 'wrong' | 'dimmed';
 
-function Row({ k, text, state, onPress, disabled }: { k: AltKey; text: string; state: RowState; onPress: () => void; disabled: boolean }) {
+function Row({ k, text, state, onPress, disabled, quiet }: { k: AltKey; text: string; state: RowState; onPress: () => void; disabled: boolean; quiet?: boolean }) {
   const reduce = useReduceMotion();
   const shake = useSharedValue(0);
   useEffect(() => {
-    if (state === 'wrong' && !reduce) {
+    if (state === 'wrong' && !reduce && !quiet) {
       shake.set(withSequence(
         withTiming(-6, { duration: 50 }),
         withTiming(6, { duration: 60 }),
@@ -31,7 +33,7 @@ function Row({ k, text, state, onPress, disabled }: { k: AltKey; text: string; s
         withTiming(0, { duration: 60 }),
       ));
     }
-  }, [state, reduce, shake]);
+  }, [state, reduce, quiet, shake]);
   const anim = useAnimatedStyle(() => ({ transform: [{ translateX: shake.value }] }));
 
   const tone = {
@@ -79,7 +81,7 @@ function Row({ k, text, state, onPress, disabled }: { k: AltKey; text: string; s
   );
 }
 
-export function Alternatives({ question, order, selected, onSelect, revealedChoice }: Props) {
+export function Alternatives({ question, order, selected, onSelect, revealedChoice, quiet }: Props) {
   const revealed = revealedChoice !== null;
   return (
     <View style={styles.list} accessibilityRole="radiogroup">
@@ -93,7 +95,7 @@ export function Alternatives({ question, order, selected, onSelect, revealedChoi
           else state = 'dimmed';
         } else if (k === selected) state = 'selected';
         return (
-          <Row key={k} k={shown} text={question.alternatives[k]} state={state} disabled={revealed} onPress={() => onSelect(k)} />
+          <Row key={k} k={shown} text={question.alternatives[k]} state={state} disabled={revealed} quiet={quiet} onPress={() => onSelect(k)} />
         );
       })}
     </View>

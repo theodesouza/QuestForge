@@ -4,7 +4,7 @@
  * (couraça do Golem, cofre de juros do Mercador, cabeças da Quimera).
  */
 import type { BossDef, BossHead } from '../../content/bosses';
-import type { Difficulty } from '../../content/types';
+import type { AltKey, Difficulty } from '../../content/types';
 import { hintMultiplier, GUESS_MULT } from '../progression/xp';
 
 export type BattleStatus = 'active' | 'won' | 'retreated';
@@ -22,6 +22,8 @@ export interface BattleTurn {
   healed?: number;
   /** Cabeças que caíram neste turno (Quimera). Ausente nos demais chefões. */
   headsFelled?: number;
+  /** Alternativa escolhida (para rever o golpe depois). Ausente em batalhas gravadas antes. */
+  chosen?: AltKey;
 }
 
 export interface BattleState {
@@ -105,6 +107,7 @@ export function battleTarget(boss: BossDef, battle: BattleState): number {
 
 export interface BattleAnswer {
   questionId: string;
+  chosen?: AltKey;
   difficulty: Difficulty;
   correct: boolean;
   guessed: boolean;
@@ -213,7 +216,7 @@ export function missHeal(boss: BossDef, battle: BattleState): number {
 }
 
 function pick(a: BattleAnswer) {
-  return { questionId: a.questionId, correct: a.correct, guessed: a.guessed, hints: a.hints };
+  return { questionId: a.questionId, correct: a.correct, guessed: a.guessed, hints: a.hints, ...(a.chosen ? { chosen: a.chosen } : {}) };
 }
 
 export function isFlawless(battle: BattleState): boolean {

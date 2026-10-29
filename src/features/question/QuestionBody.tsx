@@ -24,9 +24,11 @@ interface Props {
   attemptKey: string;
   /** Posição vertical do feedback, para a tela rolar até ele após a resposta. */
   onFeedbackLayout?: (y: number) => void;
+  /** Revisão de uma resposta antiga (sem tremor nem animação de entrada do feedback). */
+  readOnly?: boolean;
 }
 
-export function QuestionBody({ question, attempt, attemptKey, onFeedbackLayout }: Props) {
+export function QuestionBody({ question, attempt, attemptKey, onFeedbackLayout, readOnly }: Props) {
   const reduce = useReduceMotion();
   const order = useMemo(() => alternativeOrder(question, attemptKey), [question, attemptKey]);
   const qs = useGame((g) => g.questionStates[question.id]);
@@ -44,6 +46,12 @@ export function QuestionBody({ question, attempt, attemptKey, onFeedbackLayout }
             <View style={styles.echoTag}>
               <Icon name="echo" size={13} color={colors.iris} />
               <Text variant="caption" color={colors.iris}>Eco</Text>
+            </View>
+          ) : null}
+          {!isEcho && (qs?.echoBeaten ?? 0) > 0 && !attempt.outcome ? (
+            <View style={[styles.echoTag, styles.beatenTag]} accessible accessibilityLabel="Eco superado: você já errou esta questão e depois acertou">
+              <Icon name="check" size={13} color={colors.verdigris} />
+              <Text variant="caption" color={colors.verdigris}>Eco superado</Text>
             </View>
           ) : null}
         </View>
@@ -94,6 +102,7 @@ export function QuestionBody({ question, attempt, attemptKey, onFeedbackLayout }
         selected={attempt.selected}
         onSelect={attempt.select}
         revealedChoice={attempt.outcome?.answered.chosen ?? null}
+        quiet={readOnly}
       />
 
       {attempt.outcome ? (
@@ -124,6 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.irisGlow,
   },
+  beatenTag: { backgroundColor: colors.verdigrisGlow },
   ask: { borderLeftWidth: 3, borderLeftColor: colors.brass, paddingLeft: space.md, paddingVertical: 2 },
   hints: { gap: space.sm },
   hint: {
