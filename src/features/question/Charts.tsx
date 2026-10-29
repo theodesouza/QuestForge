@@ -106,11 +106,9 @@ export function PieChart({ block }: { block: Extract<Block, { kind: 'pie' }> }) 
   const r = 84;
   const c = size / 2;
   const total = block.data.reduce((s, d) => s + d.value, 0);
-  let acc = 0;
   const slices = block.data.map((d, i) => {
-    const from = (acc / total) * 360;
-    acc += d.value;
-    return { ...d, from, to: (acc / total) * 360, color: PIE_COLORS[i % PIE_COLORS.length] };
+    const before = block.data.slice(0, i).reduce((sum, x) => sum + x.value, 0);
+    return { ...d, from: (before / total) * 360, to: ((before + d.value) / total) * 360, color: PIE_COLORS[i % PIE_COLORS.length] };
   });
   const summary = block.data.map((d) => `${d.label}${d.text ? `: ${d.text}` : ''}`).join('; ');
   return (
