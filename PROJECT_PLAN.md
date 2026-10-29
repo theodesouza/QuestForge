@@ -53,7 +53,8 @@ O avatar é um **astrolábio vivo**, desenhado em vetor, que representa a evolu�
 
 - **Anéis** ganham gravações (marcas de escala) conforme o nível sobe.
 - **Estrelas orbitais** surgem a cada patente (a cada 5 níveis).
-- **Núcleo** (gema central), **Moldura** (anel externo) e **Aura** são cosméticos equipáveis.
+- **Núcleo** (gema central), **Moldura** (anel externo), **Aura** e **Cenário** (a paisagem atrás do
+  astrolábio) são cosméticos equipáveis, além do **Título** exibido embaixo do nome.
 - **Selos de domínio** (fase posterior) aparecem gravados no anel quando o jogador domina
   um assunto — o personagem literalmente carrega o que aprendeu.
 

@@ -26,6 +26,8 @@ export interface Equipped {
   frame: string;
   core: string;
   aura: string | null;
+  /** Cenário: o pano de fundo do herói. */
+  scene: string | null;
   title: string | null;
 }
 
@@ -190,6 +192,7 @@ export type GameEvent =
   | { type: 'item'; itemId: string; source: string; autoEquipped: boolean; slot: ItemSlot }
   | { type: 'echo'; questionId: string }
   | { type: 'echoesFaded'; count: number }
+  | { type: 'news'; id: string; title: string; detail: string }
   | { type: 'redemption'; questionId: string }
   | { type: 'rested'; gained: number; pool: number }
   | { type: 'scaffold'; questionId: string; subtopic: string; conceptFrom: string }

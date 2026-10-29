@@ -259,11 +259,44 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await shot('workshop-bought');
   const after = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.ink);
   if (!(after < before)) throw new Error(`Compra não descontou Tinta: ${before} → ${after}`);
+
+  // Cenários: filtrar a vitrine, experimentar antes de comprar, comprar e ver atrás do herói.
+  await page.getByRole('button', { name: /^Cenários/ }).click();
+  await wait(500);
+  await shot('workshop-scenes');
+  const sceneBefore = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene);
+  await page.getByRole('button', { name: /^Experimentar/ }).first().click();
+  await wait(1600);
+  await shot('workshop-tryon-scene');
+  const equippedDuringTryOn = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene);
+  if (equippedDuringTryOn !== sceneBefore) throw new Error('Experimentar não pode equipar o cenário');
+  await page.getByRole('button', { name: /Fechar/ }).last().click();
+  await wait(500);
+  await page.getByRole('button', { name: /^Comprar · / }).first().click();
+  await page.getByRole('button', { name: /^Confirmar · / }).first().click();
+  await wait(1800);
+  await shot('workshop-scene-reveal');
+  await dismissReveals();
+  const sceneBought = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene);
+  if (!sceneBought) throw new Error('Cenário comprado não foi equipado');
   await page.getByRole('button', { name: 'Voltar' }).first().click();
   await wait(600);
+  await shot('camp-scene');
 
   await page.getByRole('tab', { name: 'Herói' }).click();
   await shot('hero-after');
+  // Coleção: filtros por espaço e por posse; remover e recolocar o cenário.
+  await page.getByRole('button', { name: /^Cenário \d+\/\d+/ }).click();
+  await wait(500);
+  await shot('hero-collection-scenes');
+  await page.getByRole('button', { name: 'Remover cenário' }).click();
+  await wait(500);
+  if (await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene)) throw new Error('Remover cenário não limpou o espaço');
+  await page.getByRole('button', { name: 'Bloqueados' }).click();
+  await wait(400);
+  await shot('hero-collection-locked');
+  await page.getByRole('button', { name: 'Todos' }).click();
+  await wait(300);
   // Experimentar um núcleo (prévia com transformação) — inclusive um bloqueado.
   await page.getByRole('button', { name: /^Núcleo/ }).first().click();
   await wait(500);
@@ -281,6 +314,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await shot('settings');
   const g = await page.evaluate(() => { const g = globalThis.__qf.store.getState().game; return { xp: g.profile.xp, ink: g.profile.ink, inv: Object.keys(g.inventory), bosses: g.bosses, equipped: g.profile.equipped, quests: g.quests }; });
   console.log(JSON.stringify(g));
+  for (const id of ['scene-pedreira', 'scene-mercado', 'scene-planicie']) if (!g.inv.includes(id)) throw new Error(`Feito de chefão não concedeu ${id}`);
   console.log('ERRORS', JSON.stringify(errors.slice(0, 20), null, 1));
   await browser.close();
 })().catch((e) => { console.error('FAILED', e); process.exit(1); });

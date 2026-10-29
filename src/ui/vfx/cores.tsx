@@ -7,60 +7,13 @@
  *   épico    → + feixes, ondas de energia, campo orbital
  *   lendário → + runas, objetos flutuantes, clarão de ativação periódico
  */
-import { useId, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Circle, Defs, Ellipse, G, Line, Path, Polygon, Polyline, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
-import type { ItemVisual } from '../../content/items';
 import { Breathe, C, Extra, FxExtent, Glimmer, Layer, Particles, Spin, Wave } from './engine';
 import { arc, lightning, ngon, polar, ray, star } from './geometry';
+import { Ametista, Coral, Eclipse, Esmeralda, Gelo, Jade, Obsidiana } from './cores2';
+import { Facets, GemGradient, Glow, useGid, type CoreProps } from './kit';
 import type { CoreFxId } from './rules';
-
-export interface CoreProps {
-  v: ItemVisual;
-  /** Cor refletida (o Quartzo assume a cor da aura). */
-  tint?: string | null;
-}
-
-function useGid(prefix: string) {
-  return `${prefix}${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
-}
-
-/** Gradiente de gema: brilho branco no alto à esquerda, cor, cor profunda. */
-function GemGradient({ id, c1, c2, hi = 0.95 }: { id: string; c1: string; c2: string; hi?: number }) {
-  return (
-    <RadialGradient id={id} cx="38%" cy="34%" r="70%">
-      <Stop offset="0" stopColor="#FFFFFF" stopOpacity={hi} />
-      <Stop offset="0.32" stopColor={c1} />
-      <Stop offset="1" stopColor={c2} />
-    </RadialGradient>
-  );
-}
-
-function Glow({ id, color, r, opacity = 0.45 }: { id: string; color: string; r: number; opacity?: number }) {
-  return (
-    <>
-      <Defs>
-        <RadialGradient id={id} cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor={color} stopOpacity={opacity} />
-          <Stop offset="0.55" stopColor={color} stopOpacity={opacity * 0.35} />
-          <Stop offset="1" stopColor={color} stopOpacity={0} />
-        </RadialGradient>
-      </Defs>
-      <Circle cx={C} cy={C} r={r} fill={`url(#${id})`} />
-    </>
-  );
-}
-
-/** Facetas: linhas do centro aos vértices de um polígono. */
-function Facets({ n, r, rotate = 0, color = '#FFFFFF', opacity = 0.35 }: { n: number; r: number; rotate?: number; color?: string; opacity?: number }) {
-  return (
-    <G stroke={color} strokeOpacity={opacity} strokeWidth={0.7}>
-      {Array.from({ length: n }, (_, i) => {
-        const p = polar(r, rotate + (360 / n) * i);
-        return <Line key={i} x1={C} y1={C} x2={p.x} y2={p.y} />;
-      })}
-    </G>
-  );
-}
 
 // ——————————————————————————————————————————————— comum
 
@@ -518,6 +471,13 @@ export const CORES: Record<CoreFxId, (p: CoreProps) => ReactNode> = {
   pulsar: Pulsar,
   tesouro: Tesouro,
   trindade: Trindade,
+  jade: Jade,
+  coral: Coral,
+  ametista: Ametista,
+  obsidiana: Obsidiana,
+  esmeralda: Esmeralda,
+  gelo: Gelo,
+  eclipse: Eclipse,
 };
 
 /** Raio máximo desenhado por qualquer núcleo (brilho do Tesouro respirando, feixes do Pulsar). */

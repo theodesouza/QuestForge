@@ -23,6 +23,7 @@ import { useStarter } from '../../features/useStarter';
 import { dismissRestedNotice, refreshQuests, startEchoHunt, startExpedition, startFocus, startMission } from '../../state/actions';
 import { useGame, useGameStore } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
+import { SceneStage } from '../../ui/SceneStage';
 import { Button } from '../../ui/Button';
 import { Chip } from '../../ui/Chip';
 import { useReduceMotion } from '../../ui/feedback';
@@ -138,8 +139,10 @@ export default function Camp() {
 
       {/* Herói */}
       <Animated.View entering={enter(1)} style={styles.hero}>
-        <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver herói">
-          <Astrolabe level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} />
+        <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver herói" style={{ alignSelf: 'stretch', alignItems: 'center' }}>
+          <SceneStage scene={profile.equipped.scene} height={260} animate={!reduce} paused={stagePaused}>
+            <Astrolabe level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} />
+          </SceneStage>
         </Pressable>
         <View style={styles.levelRow}>
           <Text variant="hero">Nível {progress.level}</Text>

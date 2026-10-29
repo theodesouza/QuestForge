@@ -14,7 +14,7 @@ export interface Toast {
   id: string;
   title: string;
   detail: string;
-  tone: 'quest' | 'bonus' | 'purchase' | 'echo';
+  tone: 'quest' | 'bonus' | 'purchase' | 'echo' | 'news';
 }
 
 /** Item recém-conquistado, esperando a cerimônia de revelação. */
@@ -80,6 +80,7 @@ export function publish(state: GameState, events: GameEvent[]) {
         detail: `${e.count} Eco${e.count > 1 ? 's' : ''} muito antigo${e.count > 1 ? 's' : ''} deixou${e.count > 1 ? 'aram' : ''} de pesar — as questões seguem na sua rota.`,
       });
     }
+    if (e.type === 'news') toasts.push({ id: `t${celebrationSeq++}`, tone: 'news', title: e.title, detail: e.detail });
     if (e.type === 'questBonus') {
       toasts.push({
         id: `t${celebrationSeq++}`,

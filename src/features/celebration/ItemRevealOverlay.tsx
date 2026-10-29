@@ -22,7 +22,9 @@ import { RARITY_LABEL, RARITY_TIER, SLOT_LABEL, getItem } from '../../content/it
 import { BOSSES } from '../../content/bosses';
 import { dismissReveal, equip } from '../../state/actions';
 import { useGameStore } from '../../state/store';
+import { featSourceLabel } from '../../domain/game/feats';
 import { Astrolabe, DENSITY } from '../../ui/Astrolabe';
+import { SceneStage } from '../../ui/SceneStage';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Text } from '../../ui/Text';
@@ -40,6 +42,8 @@ function sourceLabel(source: string): string {
   if (source.startsWith('level:')) return `Recompensa do nível ${source.slice(6)}`;
   if (source === 'oficina') return 'Forjado na Oficina';
   if (source === 'encomendas') return 'Prêmio da semana de encomendas';
+  const feat = featSourceLabel(source);
+  if (feat) return feat;
   if (source.startsWith('boss:')) {
     const [, id, extra] = source.split(':');
     const boss = BOSSES.find((b) => b.id === id);
@@ -151,7 +155,13 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
           {phase === 'shown' ? (
             <Animated.View entering={reduce ? FadeIn : calm.appear(0, 480 + tier * 60)} style={StyleSheet.absoluteFill}>
               <View style={styles.center}>
-                {preview ? (
+                {preview && item.slot === 'scene' ? (
+                  <View style={{ width: stage * 0.96 }}>
+                    <SceneStage scene={itemId} height={stage * 0.9} animate={!reduce}>
+                      <Astrolabe level={level} equipped={preview} size={stage * 0.68} animate={!reduce} />
+                    </SceneStage>
+                  </View>
+                ) : preview ? (
                   <Astrolabe level={level} equipped={preview} size={stage * 0.82} animate={!reduce} />
                 ) : (
                   <View style={[styles.titleBadge, { borderColor: color }]}>

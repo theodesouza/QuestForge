@@ -8,14 +8,16 @@
  */
 import { memo, useId } from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, ClipPath, Defs, G, Path, Polygon, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, ClipPath, Defs, G, Path, Polygon, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { RARITY_TIER, getItem } from '../content/items';
 import { colors, rarityColor } from './theme';
 import { AuraBack, AuraFront } from './vfx/auras';
 import { CoreFx } from './vfx/cores';
 import { C, FxProvider, STAGE } from './vfx/engine';
 import { Segments } from './Astrolabe';
+import { frameParts, isCustomFrame } from './vfx/frames';
 import { star } from './vfx/geometry';
+import { SceneArt } from './vfx/scenes';
 
 /** Janela do palco (240 × 240) mostrada na miniatura: [x, y, lado]. */
 const CORE_WINDOW = [C - 48, C - 48, 96] as const;
@@ -35,6 +37,7 @@ export const ItemGlyph = memo(function ItemGlyph({ itemId, size = 44, locked = f
   const clip = `k${uid}`;
   const live = !locked && (item.slot === 'core' || item.slot === 'aura');
   const win = item.slot === 'core' ? CORE_WINDOW : AURA_WINDOW;
+  const custom = item.slot === 'frame' && isCustomFrame(item.visual.frameStyle) ? frameParts(item.visual.frameStyle, { color: c, color2: c2, r: 12.5, w: 2.6, cx: 24, cy: 24, compact: true }) : null;
   const k = 48 / win[2];
 
   return (
@@ -51,7 +54,12 @@ export const ItemGlyph = memo(function ItemGlyph({ itemId, size = 44, locked = f
           </ClipPath>
         </Defs>
         <Circle cx={24} cy={24} r={22} fill={colors.ink850} />
-        {item.slot === 'frame' ? (
+        {custom ? (
+          <>
+            {custom.fixed}
+            {custom.moving}
+          </>
+        ) : item.slot === 'frame' ? (
           <>
             {item.visual.frameStyle === 'segmented' ? (
               <Segments color={c} color2={c2} r={14} width={3} cx={24} cy={24} />
@@ -60,6 +68,14 @@ export const ItemGlyph = memo(function ItemGlyph({ itemId, size = 44, locked = f
             )}
             {item.visual.frameStyle !== 'plain' ? <Circle cx={24} cy={24} r={10} stroke={c} strokeOpacity={0.6} strokeWidth={1.2} fill="none" /> : null}
           </>
+        ) : null}
+        {item.slot === 'scene' ? (
+          <G clipPath={`url(#${clip})`}>
+            <G transform={`scale(${(48 / 300).toFixed(4)})`}>
+              <SceneArt v={item.visual} uid={uid} />
+              {locked ? <Rect x={0} y={0} width={300} height={300} fill={colors.ink850} fillOpacity={0.78} /> : null}
+            </G>
+          </G>
         ) : null}
         {item.slot === 'title' ? (
           <Path d="M14 18 L34 18 L32 30 L24 34 L16 30 Z" fill={c} fillOpacity={0.22} stroke={c} strokeWidth={1.6} strokeLinejoin="round" />

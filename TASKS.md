@@ -70,6 +70,14 @@ Aparelho real:
   - dia/semana pelo fuso do aparelho; o quadro só avança no calendário (trocar o fuso não apaga progresso)
 - [x] **Chama da Constância**: dias de estudo da semana, sem sequência que zera
 - [x] **Oficina**: gastar Tinta em cosméticos comuns/incomuns (compra em dois toques); raros e lendários só por feitos
+- [x] **Personalização ampliada** (49 peças novas; catálogo de 39 → 88):
+  - **molduras** 11 → 19, com 7 estilos novos de anel (pérolas, corrente, ondas, sol nascente, louros, runas, cristais); **núcleos** 10 → 17 (Jade, Coral, Ametista, Obsidiana, Esmeralda, Gelo Eterno, Eclipse); **auras** 8 → 14 (Pétalas, Cinzas, Vagalumes, Neve, Elétrica, Constelações); novo elemento **Natureza** com Ressonância própria
+  - **Cenário**: quinto espaço de equipamento, a paisagem atrás do astrolábio no Herói, no Acampamento e nas prévias; 11 cenários com arte própria e camadas animadas leves (Noite Estrelada, Colinas, Mar Aberto, Dunas, Floresta, Vale de Pedra, Mercado de Âmbar, Planície dos Três Arcos, Campo Polar, Observatório, Cosmos Áureo)
+  - **títulos** 10 → 27: 6 na Oficina, 6 por nível e 5 por feitos (10 e 40 Ecos superados, 1000 respostas, 3 estrelas em 6 missões, "Lenda do Atlas")
+  - **feitos** (`feats.ts`): cada chefão rende o cenário da sua região (inclusive retroativo), e vencer todos sem errar rende o Cosmos Áureo; 30 níveis agora entregam algo (antes 17)
+  - **Oficina** reorganizada: abas por espaço, 32 peças à venda (antes 8), "Só o que posso comprar" e **Experimentar** antes de comprar
+  - **Herói**: cinco espaços, filtros Todos/Meus/Bloqueados, contagem por categoria, peças em ordem de raridade
+  - perfis antigos continuam intactos (o espaço novo nasce vazio, sem migração SQL)
 - [x] Avisos curtos (encomenda cumprida, baú) que esperam o fim da questão/batalha e da celebração, anunciados ao leitor de tela
 - [x] **Região 3 — Planícies Numéricas** (frações, MMC/MDC, potências e notação científica): 3 missões + chefão, abre após vencer o Mercador
   - **72 questões autorais novas** (`BAS-101…324`, 6 lotes de 12), pools de 26–27 por missão (≥ 20 extras além das 5 de cada tentativa); novo subassunto `potencias`

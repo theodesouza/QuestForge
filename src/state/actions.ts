@@ -5,7 +5,7 @@
 import { createRepository } from '../data/createRepository';
 import { getQuestion } from '../content/bank';
 import { findNode } from '../content/regions';
-import { getItem } from '../content/items';
+import { getItem, type OptionalSlot } from '../content/items';
 import type { AltKey, TopicId } from '../content/types';
 import { alternativeOrder, displayLetter } from '../domain/learning/alternatives';
 import * as game from '../domain/game/game';
@@ -132,7 +132,7 @@ export async function refreshQuests(): Promise<void> {
 export function dismissToast(id: string) {
   useGameStore.setState((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
 }
-export const unequip = (slot: 'aura' | 'title') => run((s) => game.unequipSlot(s, slot));
+export const unequip = (slot: OptionalSlot) => run((s) => game.unequipSlot(s, slot));
 export const toggleFavorite = (questionId: string) => run((s) => game.toggleQuestionFlag(s, questionId, 'favorite'));
 export const toggleDoubt = (questionId: string) => run((s) => game.toggleQuestionFlag(s, questionId, 'flagged'));
 export const updateSettings = (patch: Partial<Settings>) => run((s) => game.updateSettings(s, patch));

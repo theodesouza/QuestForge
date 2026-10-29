@@ -65,7 +65,7 @@ export function ToastHost() {
   }, [toast, screenReader]);
 
   if (!toast) return null;
-  const bonus = toast.tone === 'bonus';
+  const bonus = toast.tone === 'bonus' || toast.tone === 'news';
   const echo = toast.tone === 'echo';
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + space.sm }]}>

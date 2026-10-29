@@ -4,7 +4,7 @@
  */
 import { findQuestion, getQuestion, questionsFor } from '../../content/bank';
 import { getBoss, type BossDef } from '../../content/bosses';
-import { STARTER_ITEMS, getItem } from '../../content/items';
+import { STARTER_ITEMS, getItem, type OptionalSlot } from '../../content/items';
 import { REGIONS, findNode, type BossNode, type MissionNode } from '../../content/regions';
 import { TOPIC_IDS } from '../../content/topics';
 import { ALT_KEYS, type AltKey, type Question, type TopicId } from '../../content/types';
@@ -34,6 +34,8 @@ import {
 } from '../progression/xp';
 import { hashString } from '../util/random';
 import { dayKey, type QuestIncrement } from '../quests/quests';
+import { grantFeats } from './feats';
+import { announceNews, markNewsSeen } from './news';
 import { grantInk, grantItem, grantXp, once } from './grant';
 import { progressQuests, refreshQuests } from './quests';
 import { Tx } from './tx';
@@ -68,7 +70,7 @@ export function createInitialState(now: number): GameState {
     xp: 0,
     ink: 0,
     restedPool: 0,
-    equipped: { frame: STARTER_ITEMS[0], core: STARTER_ITEMS[1], aura: null, title: null },
+    equipped: { frame: STARTER_ITEMS[0], core: STARTER_ITEMS[1], aura: null, scene: null, title: null },
     targets: {},
     totals: { answered: 0, correct: 0, timeMs: 0, sessions: 0 },
     settings: DEFAULT_SETTINGS,
@@ -134,6 +136,7 @@ export function completeOnboarding(state: GameState, input: OnboardingInput, now
     targets,
     lastActiveAt: now,
   });
+  markNewsSeen(tx, now);
   refreshQuests(tx, now);
   return tx.done();
 }
@@ -159,6 +162,7 @@ export function touch(state: GameState, now: number, tzOffsetMin?: number): Resu
     for (const s of faded) tx.setQuestionState(s);
     tx.emit({ type: 'echoesFaded', count: faded.length });
   }
+  announceNews(tx, now);
   return tx.done();
 }
 
@@ -572,6 +576,8 @@ export function finishSession(state: GameState, now: number): Result {
     progressQuests(tx, { incs }, now);
   }
 
+  grantFeats(tx, now);
+
   const summary: SessionSummary = {
     sessionId: session.id,
     mode: session.mode,
@@ -731,6 +737,7 @@ export function battleAnswer(state: GameState, input: AnswerInput, now: number):
     });
     tx.patchProfile({ totals: { ...tx.profile.totals, sessions: tx.profile.totals.sessions + 1 } });
     progressQuests(tx, { incs: [{ metric: 'bossWins', amount: 1 }, { metric: 'sessions', amount: 1 }] }, now);
+    grantFeats(tx, now);
     tx.emit({ type: 'bossDefeated', bossId: boss.id, first, flawless });
   } else if (next.status === 'retreated') {
     tx.setBossProgress({ ...prev, failedSinceWin: prev.failedSinceWin + 1 });
@@ -771,8 +778,8 @@ export function equipItem(state: GameState, itemId: string): Result {
   return tx.done();
 }
 
-/** Aura e título podem ser removidos; moldura e núcleo são obrigatórios. */
-export function unequipSlot(state: GameState, slot: 'aura' | 'title'): Result {
+/** Aura, cenário e título podem ser removidos; moldura e núcleo são obrigatórios. */
+export function unequipSlot(state: GameState, slot: OptionalSlot): Result {
   const tx = new Tx(state);
   tx.patchProfile({ equipped: { ...tx.profile.equipped, [slot]: null } });
   return tx.done();

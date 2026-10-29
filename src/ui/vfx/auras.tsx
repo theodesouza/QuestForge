@@ -10,43 +10,12 @@
  *   Zênite     (lendário) coroa celeste, raios, órbitas com cometas, chuva de luz
  * `Back` fica atrás do disco do astrolábio; `Front`, na frente.
  */
-import { useId, type ReactNode } from 'react';
 import { Circle, Defs, Ellipse, G, Path, Polygon, Polyline, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
-import type { ItemVisual } from '../../content/items';
 import { Breathe, C, Extra, Glimmer, Layer, Particles, Spin, Sway, Wave } from './engine';
 import { crescent, curtain, flame, goldenSpiral, lightning, ngon, polar, ray, spiral, star, wavyCircle } from './geometry';
+import { Cinzas, Constelacao, Eletrica, Neve, Petalas, Vagalumes } from './auras2';
+import { HaloRing, useGid, type AuraFx, type AuraProps } from './kit';
 import type { AuraFxId } from './rules';
-
-export interface AuraProps {
-  v: ItemVisual;
-}
-
-interface AuraFx {
-  Back: (p: AuraProps) => ReactNode;
-  Front?: (p: AuraProps) => ReactNode;
-}
-
-function useGid(prefix: string) {
-  return `${prefix}${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
-}
-
-/** Anel de brilho radial entre r0 e r1. */
-function HaloRing({ id, color, color2, r0, r1, opacity }: { id: string; color: string; color2?: string; r0: number; r1: number; opacity: number }) {
-  const k = r0 / r1;
-  return (
-    <>
-      <Defs>
-        <RadialGradient id={id} cx="50%" cy="50%" r="50%">
-          <Stop offset={k * 0.92} stopColor={color} stopOpacity={0} />
-          <Stop offset={k + (1 - k) * 0.25} stopColor={color} stopOpacity={opacity} />
-          <Stop offset={k + (1 - k) * 0.6} stopColor={color2 ?? color} stopOpacity={opacity * 0.45} />
-          <Stop offset="1" stopColor={color2 ?? color} stopOpacity={0} />
-        </RadialGradient>
-      </Defs>
-      <Circle cx={C} cy={C} r={r1} fill={`url(#${id})`} />
-    </>
-  );
-}
 
 // ——————————————————————————————————————————————— comum
 
@@ -433,6 +402,12 @@ export const AURAS: Record<AuraFxId, AuraFx> = {
   nebulosa: Nebulosa,
   aurea: Aurea,
   zenite: Zenite,
+  petalas: Petalas,
+  cinzas: Cinzas,
+  vagalumes: Vagalumes,
+  neve: Neve,
+  eletrica: Eletrica,
+  constelacao: Constelacao,
 };
 
 export function AuraBack({ v }: AuraProps) {

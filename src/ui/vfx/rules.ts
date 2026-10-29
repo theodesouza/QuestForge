@@ -8,10 +8,18 @@ import { ELEMENT_LABEL, RARITY_TIER, getItem, type FxElement } from '../../conte
 import type { Equipped } from '../../domain/game/types';
 import { MYTHIC_COLOR } from '../theme';
 
-export const CORE_FX = ['prisma', 'ambar', 'rubi', 'verdete', 'iris', 'safira', 'solar', 'pulsar', 'tesouro', 'trindade'] as const;
-export const AURA_FX = ['brasa', 'nevoa', 'mare', 'lunar', 'boreal', 'nebulosa', 'aurea', 'zenite'] as const;
+export const CORE_FX = [
+  'prisma', 'ambar', 'rubi', 'verdete', 'iris', 'safira', 'solar', 'pulsar', 'tesouro', 'trindade',
+  'jade', 'coral', 'ametista', 'obsidiana', 'esmeralda', 'gelo', 'eclipse',
+] as const;
+export const AURA_FX = [
+  'brasa', 'nevoa', 'mare', 'lunar', 'boreal', 'nebulosa', 'aurea', 'zenite',
+  'petalas', 'cinzas', 'vagalumes', 'neve', 'eletrica', 'constelacao',
+] as const;
+export const SCENE_FX = ['noite', 'colinas', 'mar', 'dunas', 'floresta', 'pedreira', 'mercado', 'planicie', 'polar', 'observatorio', 'cosmos'] as const;
 export type CoreFxId = (typeof CORE_FX)[number];
 export type AuraFxId = (typeof AURA_FX)[number];
+export type SceneFxId = (typeof SCENE_FX)[number];
 
 export type Synergy =
   | { kind: 'resonance'; element: FxElement; strength: number; color: string; color2: string; label: string }
@@ -38,5 +46,5 @@ export function resolveSynergy(equipped: Pick<Equipped, 'core' | 'aura'>): Syner
 }
 
 function resonanceName(e: FxElement): string {
-  return e === 'fogo' ? 'de Fogo' : e === 'mare' ? 'das Marés' : e === 'lunar' ? 'Lunar' : e === 'tempestade' ? 'da Tempestade' : e === 'astral' ? 'Astral' : e === 'aureo' ? 'Áurea' : ELEMENT_LABEL[e];
+  return e === 'fogo' ? 'de Fogo' : e === 'mare' ? 'das Marés' : e === 'lunar' ? 'Lunar' : e === 'tempestade' ? 'da Tempestade' : e === 'astral' ? 'Astral' : e === 'aureo' ? 'Áurea' : e === 'natureza' ? 'da Natureza' : ELEMENT_LABEL[e];
 }

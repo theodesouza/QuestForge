@@ -3,7 +3,9 @@
  * vendidos por dinheiro real. Raros e lendários vêm de feitos, nunca de sorte.
  */
 
-export type ItemSlot = 'frame' | 'core' | 'aura' | 'title';
+import { MORE_ITEMS } from './cosmetics';
+
+export type ItemSlot = 'frame' | 'core' | 'aura' | 'scene' | 'title';
 export type Rarity = 'comum' | 'incomum' | 'raro' | 'epico' | 'lendario';
 /** Hierarquia visual: quanto maior, mais camadas, movimento e presença o efeito tem. */
 export const RARITY_TIER: Record<Rarity, 0 | 1 | 2 | 3 | 4> = { comum: 0, incomum: 1, raro: 2, epico: 3, lendario: 4 };
@@ -20,7 +22,7 @@ export const RARITY_LABEL: Record<Rarity, string> = {
  * Elemento de núcleos e auras. Núcleo e aura do mesmo elemento entram em
  * Ressonância (efeito combinado); dois lendários juntos despertam a Forma Mítica.
  */
-export type FxElement = 'cristal' | 'fogo' | 'mare' | 'lunar' | 'tempestade' | 'astral' | 'aureo';
+export type FxElement = 'cristal' | 'fogo' | 'mare' | 'lunar' | 'tempestade' | 'astral' | 'aureo' | 'natureza';
 export const ELEMENT_LABEL: Record<FxElement, string> = {
   cristal: 'Cristal',
   fogo: 'Fogo',
@@ -29,14 +31,29 @@ export const ELEMENT_LABEL: Record<FxElement, string> = {
   tempestade: 'Tempestade',
   astral: 'Astral',
   aureo: 'Áureo',
+  natureza: 'Natureza',
 };
 
 export const SLOT_LABEL: Record<ItemSlot, string> = {
   frame: 'Moldura',
   core: 'Núcleo',
   aura: 'Aura',
+  scene: 'Cenário',
   title: 'Título',
 };
+
+/** Ordem em que os espaços aparecem nas telas (Herói e Oficina). */
+export const SLOT_ORDER: readonly ItemSlot[] = ['frame', 'core', 'aura', 'scene', 'title'];
+/** Espaços que podem ficar vazios (moldura e núcleo são obrigatórios). */
+export const OPTIONAL_SLOTS = ['aura', 'scene', 'title'] as const;
+export type OptionalSlot = (typeof OPTIONAL_SLOTS)[number];
+
+/** Estilos de moldura — cada um desenha o anel do astrolábio de um jeito (src/ui/vfx/frames.tsx). */
+export const LEGACY_FRAME_STYLES = ['plain', 'double', 'notched', 'armillary', 'segmented'] as const;
+export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards'] as const;
+export const FRAME_STYLES = [...LEGACY_FRAME_STYLES, ...CUSTOM_FRAME_STYLES] as const;
+export type FrameStyle = (typeof FRAME_STYLES)[number];
+export type CustomFrameStyle = (typeof CUSTOM_FRAME_STYLES)[number];
 
 /** Parâmetros visuais interpretados pelo componente Astrolabe. */
 export interface ItemVisual {
@@ -45,10 +62,10 @@ export interface ItemVisual {
   /** Segunda cor (aura em gradiente, brilho do núcleo). */
   color2?: string;
   /** Estilo da moldura. */
-  frameStyle?: 'plain' | 'double' | 'notched' | 'armillary' | 'segmented';
+  frameStyle?: FrameStyle;
   /** Núcleos e auras: elemento (sinergias). */
   element?: FxElement;
-  /** Núcleos e auras: qual efeito desenha o item (src/ui/vfx). */
+  /** Núcleos, auras e cenários: qual efeito desenha o item (src/ui/vfx). */
   fx?: string;
 }
 
@@ -65,7 +82,7 @@ export interface ItemDef {
   price?: number;
 }
 
-export const ITEMS: ItemDef[] = [
+const BASE_ITEMS: ItemDef[] = [
   // ——— Molduras ———
   {
     id: 'frame-cobre',
@@ -434,6 +451,9 @@ export const ITEMS: ItemDef[] = [
     price: 120,
   },
 ];
+
+/** Catálogo completo: o conjunto original mais as peças de personalização (cosmetics.ts). */
+export const ITEMS: ItemDef[] = [...BASE_ITEMS, ...MORE_ITEMS];
 
 const BY_ID = new Map(ITEMS.map((i) => [i.id, i]));
 

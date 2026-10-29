@@ -56,7 +56,8 @@ describe('recompensas por nível', () => {
   });
   it('próxima recompensa com item', () => {
     expect(nextItemLevel(1)).toEqual({ level: 2, itemIds: ['frame-bronze'] });
-    expect(nextItemLevel(4)?.level).toBe(6);
+    expect(nextItemLevel(4)?.level).toBe(5);
+    expect(nextItemLevel(5)?.level).toBe(6);
     expect(nextItemLevel(50)).toBeNull();
   });
 });

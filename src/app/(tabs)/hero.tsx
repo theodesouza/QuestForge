@@ -5,7 +5,7 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ITEMS, RARITY_LABEL, SLOT_LABEL, getItem, type ItemSlot } from '../../content/items';
+import { ITEMS, OPTIONAL_SLOTS, RARITY_LABEL, RARITY_TIER, SLOT_LABEL, SLOT_ORDER, getItem, type ItemSlot, type OptionalSlot } from '../../content/items';
 import { ECHO_MAX_AGE_DAYS, echoCount, echoesBeatenCount, echoesFadedCount } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { rewardsForLevel } from '../../domain/progression/rewards';
@@ -19,13 +19,17 @@ import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Icon } from '../../ui/Icon';
 import { ItemGlyph } from '../../ui/ItemGlyph';
 import { Panel } from '../../ui/Panel';
+import { SceneStage } from '../../ui/SceneStage';
 import { Screen } from '../../ui/Screen';
 import { Text } from '../../ui/Text';
 import { MYTHIC_COLOR, TAB_BAR_SPACE, colors, radius, rarityColor, space } from '../../ui/theme';
 import { resolveSynergy } from '../../ui/vfx/synergy';
 
-const SLOTS: ItemSlot[] = ['frame', 'core', 'aura', 'title'];
+const SLOTS = SLOT_ORDER;
 const MIN_FOR_ACCURACY = 10;
+type View_ = 'todos' | 'meus' | 'bloqueados';
+const VIEW_LABEL: Record<View_, string> = { todos: 'Todos', meus: 'Meus', bloqueados: 'Bloqueados' };
+const isOptional = (s: ItemSlot): s is OptionalSlot => (OPTIONAL_SLOTS as readonly string[]).includes(s);
 
 function formatTime(ms: number): string {
   const min = Math.round(ms / 60000);
@@ -57,6 +61,7 @@ export default function Hero() {
   const inventory = useGame((g) => g.inventory);
   const questionStates = useGame((g) => g.questionStates);
   const [slot, setSlot] = useState<ItemSlot>('frame');
+  const [view, setView] = useState<View_>('todos');
   const [trying, setTrying] = useState<string | null>(null);
   const synergy = useMemo(() => resolveSynergy(profile.equipped), [profile.equipped]);
   const progress = levelProgress(profile.xp);
@@ -84,14 +89,33 @@ export default function Hero() {
     return list;
   }, [progress.level]);
 
-  const items = ITEMS.filter((i) => i.slot === slot);
+  // Do mais simples ao mais raro; dentro da mesma raridade, na ordem do catálogo.
+  const items = useMemo(
+    () =>
+      ITEMS.filter((i) => i.slot === slot)
+        .map((item, order) => ({ item, order }))
+        .sort((a, b) => RARITY_TIER[a.item.rarity] - RARITY_TIER[b.item.rarity] || a.order - b.order)
+        .map((x) => x.item)
+        .filter((i) => view === 'todos' || (view === 'meus' ? !!inventory[i.id] : !inventory[i.id])),
+    [slot, view, inventory],
+  );
+  const counts = useMemo(() => {
+    const out = {} as Record<ItemSlot, { owned: number; total: number }>;
+    for (const s of SLOTS) {
+      const all = ITEMS.filter((i) => i.slot === s);
+      out[s] = { owned: all.filter((i) => inventory[i.id]).length, total: all.length };
+    }
+    return out;
+  }, [inventory]);
   const equippedId = profile.equipped[slot];
 
   return (
     <Screen bottomInset={TAB_BAR_SPACE}>
       <Text variant="title">Herói</Text>
       <View style={styles.hero}>
-        <Astrolabe level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} paused={stagePaused || !!trying} />
+        <SceneStage scene={profile.equipped.scene} height={336} animate={!reduce} paused={stagePaused || !!trying} reserve>
+          <Astrolabe level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} paused={stagePaused || !!trying} />
+        </SceneStage>
         <Text variant="heading" align="center">
           {profile.name || 'Cartógrafo sem nome'}
         </Text>
@@ -161,17 +185,22 @@ export default function Hero() {
           <View>
             <Text variant="subheading">Coleção</Text>
             <Text variant="caption" color={colors.mist}>
-              {owned} de {ITEMS.length} itens
+              {owned} de {ITEMS.length} peças
             </Text>
           </View>
           <Chip label={`Oficina · ${profile.ink} Tinta`} icon="ink" color={colors.iris} onPress={() => router.push('/workshop')} />
         </View>
         <View style={styles.filters}>
           {SLOTS.map((s) => (
-            <Chip key={s} label={SLOT_LABEL[s]} selected={slot === s} onPress={() => setSlot(s)} />
+            <Chip key={s} label={`${SLOT_LABEL[s]} ${counts[s].owned}/${counts[s].total}`} selected={slot === s} onPress={() => setSlot(s)} />
           ))}
         </View>
-        {(slot === 'aura' || slot === 'title') && equippedId ? (
+        <View style={styles.filters}>
+          {(Object.keys(VIEW_LABEL) as View_[]).map((v) => (
+            <Chip key={v} label={VIEW_LABEL[v]} selected={view === v} onPress={() => setView(v)} />
+          ))}
+        </View>
+        {isOptional(slot) && equippedId ? (
           <Pressable
             style={styles.none}
             onPress={() => unequip(slot)}
@@ -183,6 +212,11 @@ export default function Hero() {
               Remover {SLOT_LABEL[slot].toLowerCase()}
             </Text>
           </Pressable>
+        ) : null}
+        {items.length === 0 ? (
+          <Text variant="caption" color={colors.mist}>
+            {view === 'meus' ? 'Você ainda não tem peças nesta categoria.' : 'Você já tem todas as peças desta categoria.'}
+          </Text>
         ) : null}
         {items.map((item) => {
           const has = !!inventory[item.id];
@@ -276,8 +310,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lineSoft,
   },
-  slots: { flexDirection: 'row', justifyContent: 'space-between' },
-  slot: { alignItems: 'center', gap: 6, padding: space.sm, borderRadius: radius.md, borderWidth: 1, borderColor: 'transparent', minWidth: 68 },
+  slots: { flexDirection: 'row', gap: 2 },
+  slot: { flex: 1, alignItems: 'center', gap: 6, paddingVertical: space.sm, paddingHorizontal: 2, borderRadius: radius.md, borderWidth: 1, borderColor: 'transparent' },
   slotActive: { borderColor: colors.line, backgroundColor: colors.ink850 },
   emptySlot: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.ink500 },
   collectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },

@@ -12,6 +12,7 @@ import { ELEMENT_LABEL, RARITY_LABEL, SLOT_LABEL, getItem } from '../../content/
 import type { Equipped } from '../../domain/game/types';
 import { equip } from '../../state/actions';
 import { Astrolabe } from '../../ui/Astrolabe';
+import { SceneStage } from '../../ui/SceneStage';
 import { Button } from '../../ui/Button';
 import { calm } from '../../ui/calm';
 import { haptic, useReduceMotion } from '../../ui/feedback';
@@ -25,20 +26,22 @@ interface Props {
   owned: boolean;
   level: number;
   equipped: Equipped;
+  /** Texto no lugar de "Ainda bloqueado" para peças que dá para comprar (Oficina). */
+  lockedNote?: string;
   onClose: () => void;
 }
 
 const TRY_DELAY_MS = 420;
 
-export function TryOnSheet({ itemId, owned, level, equipped, onClose }: Props) {
+export function TryOnSheet({ itemId, owned, level, equipped, lockedNote, onClose }: Props) {
   return (
     <Modal visible={!!itemId} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
-      {itemId ? <Sheet key={itemId} itemId={itemId} owned={owned} level={level} equipped={equipped} onClose={onClose} /> : null}
+      {itemId ? <Sheet key={itemId} itemId={itemId} owned={owned} level={level} equipped={equipped} lockedNote={lockedNote} onClose={onClose} /> : null}
     </Modal>
   );
 }
 
-function Sheet({ itemId, owned, level, equipped, onClose }: Omit<Props, 'itemId'> & { itemId: string }) {
+function Sheet({ itemId, owned, level, equipped, lockedNote, onClose }: Omit<Props, 'itemId'> & { itemId: string }) {
   const reduce = useReduceMotion();
   const insets = useSafeAreaInsets();
   const item = getItem(itemId);
@@ -70,7 +73,9 @@ function Sheet({ itemId, owned, level, equipped, onClose }: Omit<Props, 'itemId'
       >
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.handle} />
-          <Astrolabe level={level} equipped={shown} size={280} animate={!reduce} />
+          <SceneStage scene={shown.scene} height={304} animate={!reduce} reserve={item.slot === 'scene'}>
+            <Astrolabe level={level} equipped={shown} size={item.slot === 'scene' ? 250 : 280} animate={!reduce} />
+          </SceneStage>
           <View style={styles.center}>
             <Text variant="label" color={color} style={{ letterSpacing: 2 }}>
               {RARITY_LABEL[item.rarity]} · {SLOT_LABEL[item.slot]}
@@ -93,6 +98,11 @@ function Sheet({ itemId, owned, level, equipped, onClose }: Omit<Props, 'itemId'
             {item.slot === 'title' ? (
               <Text variant="caption" color={colors.mist} align="center">
                 Títulos aparecem embaixo do seu nome no Acampamento e no Herói.
+              </Text>
+            ) : null}
+            {item.slot === 'scene' ? (
+              <Text variant="caption" color={colors.mist} align="center">
+                O Cenário fica atrás do astrolábio no Acampamento e no Herói.
               </Text>
             ) : null}
           </View>
@@ -118,7 +128,7 @@ function Sheet({ itemId, owned, level, equipped, onClose }: Omit<Props, 'itemId'
               <View style={styles.locked}>
                 <Icon name="lock" size={16} color={colors.mist} />
                 <Text variant="caption" color={colors.mist} style={{ flex: 1 }}>
-                  Ainda bloqueado — esta é só uma prévia.
+                  {lockedNote ?? 'Ainda bloqueado — esta é só uma prévia.'}
                 </Text>
               </View>
             ) : null}

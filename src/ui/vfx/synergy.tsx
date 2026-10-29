@@ -8,7 +8,7 @@
  *   levitação. É o topo da hierarquia visual.
  */
 import { useId } from 'react';
-import { Circle, Defs, G, LinearGradient, Path, Polygon, Polyline, Rect, Stop } from 'react-native-svg';
+import { Circle, Defs, Ellipse, G, LinearGradient, Path, Polygon, Polyline, Rect, Stop } from 'react-native-svg';
 import { RuneRing } from './cores';
 import { Breathe, C, Extra, FxExtent, Glimmer, Particles, Spin, Wave } from './engine';
 import { flame, lightning, polar, ray, star } from './geometry';
@@ -82,6 +82,22 @@ function Resonance({ s }: { s: Extract<Synergy, { kind: 'resonance' }> }) {
       );
     case 'astral':
       return <Constellation s={s} />;
+    case 'natureza':
+      return (
+        <>
+          <Spin period={50000} opacity={0.55 + 0.45 * k}>
+            <G fill={s.color} fillOpacity={0.75} stroke={s.color2} strokeOpacity={0.6} strokeWidth={0.6}>
+              {Array.from({ length: 8 }, (_, i) => {
+                const deg = i * 45;
+                const p = polar(60, deg);
+                return <Ellipse key={i} cx={p.x} cy={p.y} rx={8} ry={3.2} transform={`rotate(${deg - 90} ${p.x} ${p.y})`} />;
+              })}
+            </G>
+            <Circle cx={C} cy={C} r={60} stroke={s.color2} strokeOpacity={0.3} strokeWidth={0.8} fill="none" />
+          </Spin>
+          <Particles mode="rise" count={Math.round(3 + 4 * k)} period={4200} colors={[s.color, s.color2, '#F4FFD0']} size={[2.2, 3.2]} radius={[34, 78]} travel={30} sparkle seed={231} />
+        </>
+      );
     case 'aureo':
       return (
         <Breathe period={3400} opacity={[0.45 * k, 0.95 * k]}>

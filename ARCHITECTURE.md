@@ -124,9 +124,22 @@ pode enviar o log e reconciliar o perfil sem mudar o domínio.
     prévia "experimentar" congelam os relógios; ao voltar, continuam de onde pararam;
   - pior caso medido (núcleo e aura lendários + moldura épica): 21 camadas somando 13,5 palcos de
     bitmap (antes 26), 25 relógios (antes 36).
-- **Núcleos** (`cores.tsx`) e **auras** (`auras.tsx`, camadas de fundo e de frente): cada um tem
-  forma e movimento próprios — não são recolorações. Elementos: cristal, fogo, maré, lunar,
-  tempestade, astral e áureo.
+- **Núcleos** (`cores.tsx` + `cores2.tsx`) e **auras** (`auras.tsx` + `auras2.tsx`, camadas de fundo
+  e de frente): cada um tem forma e movimento próprios — não são recolorações (um teste garante um
+  desenho único por peça e nenhum efeito órfão). Elementos: cristal, fogo, maré, lunar, tempestade,
+  astral, áureo e natureza. Peças auxiliares compartilhadas ficam em `kit.tsx`.
+- **Molduras** (`frames.tsx`): 12 estilos de anel. Cada estilo novo devolve `fixed` (desenhado no SVG
+  do disco) e, se houver, `moving` + `motion` (giro ou respiração) — o Astrolabe embrulha o que se
+  mexe numa camada animada e a miniatura o desenha parado. Medidas proporcionais à espessura do anel
+  (`w`), então o mesmo desenho serve no astrolábio (raio 84) e na miniatura; o registro
+  `BUILDERS: Record<CustomFrameStyle, …>` faz o compilador exigir um desenho por estilo.
+- **Cenários** (`scenes.tsx` + `SceneStage.tsx`): quinto espaço de equipamento (`Equipped.scene`,
+  opcional, como aura e título). Cada cenário é uma paisagem de 300×300 unidades: `Art` (SVG estático,
+  também usado nas miniaturas) + `Live` (estrelas, névoa, vaga-lumes, ondas, auroras — todas por
+  `transform`/`opacity`, no mesmo relógio do motor: respeitam Intensidade, movimento reduzido e pausa).
+  O `SceneStage` desenha a paisagem num quadrado do tamanho do maior lado do palco, centrado, para o
+  recorte e as camadas animadas casarem em qualquer largura. Sem cenário equipado, o palco some.
+  Perfis antigos ganham `scene: null` em `normalizeProfile` (sem migração SQL: o equipamento é JSON).
 - **Raridade** (`RARITY_TIER` 0–4: comum → incomum → raro → épico → lendário) aumenta camadas,
   brilho, runas, órbitas e moldura (gemas, anéis armilares), e é reconhecível sem ler o rótulo
   (borda dos ícones da coleção cresce por nível).
@@ -137,7 +150,22 @@ pode enviar o log e reconciliar o perfil sem mudar o domínio.
 - **Cerimônias**: `ItemRevealOverlay` (fila `reveals` no store) revela itens com carga e efeitos
   proporcionais à raridade e oferece "Equipar agora"; espera celebrações de nível e não aparece em
   `/session` nem `/boss`. É um `Modal` (TalkBack não sai dele; Voltar fecha). No Herói, tocar um item abre a prévia "experimentar" (`TryOnSheet`).
-- **Laboratório de QA** (`/vfx-lab`, só com `EXPO_PUBLIC_QA=1`): grades de núcleos, auras e sinergias.
+- **Laboratório de QA** (`/vfx-lab`, só com `EXPO_PUBLIC_QA=1`): grades de núcleos, auras, molduras,
+  cenários, sinergias e miniaturas (`?grid=cores|auras|frames|scenes|synergy`, `?glyphs=1|frame|…`).
+
+## Cosméticos: de onde vem cada peça (`content/items.ts`, `content/cosmetics.ts`)
+
+- Catálogo: `ITEMS` = `BASE_ITEMS` + `MORE_ITEMS`. Cada peça tem **exatamente uma origem**, e um teste
+  (`cosmetics.test.ts`) garante isso: inicial · Oficina (`price`, só comum/incomum) · recompensa de
+  nível (`LEVEL_ITEMS`) · chefão (`rewards`) · encomendas · **feito** (`domain/game/feats.ts`).
+- **Feitos** concedem itens uma única vez (`feat:<id>` no registro) e valem retroativamente: ao fim
+  de cada sessão e de cada batalha vencida, `grantFeats` confere os marcos (Ecos superados, estrelas,
+  respostas, chefões, "todos os chefões sem errar") — nunca no meio de uma questão. Quem já cumpriu o
+  marco antes de o feito existir recebe o item na próxima verificação.
+- Equipar: `equipItem`/`unequipSlot` (aura, cenário e título podem ficar vazios; moldura e núcleo, não).
+  `grantItem` só equipa sozinho quando o espaço está vazio ou com peça inicial.
+- **Oficina** (`app/workshop.tsx`): abas por espaço, seções com contagem, "Só o que posso comprar",
+  **Experimentar** (o mesmo `TryOnSheet` do Herói) antes de comprar; compra em dois toques.
 
 ## Ecos: superar e dissipar (`domain/learning/srs.ts`)
 

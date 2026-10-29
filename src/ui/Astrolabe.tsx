@@ -24,6 +24,7 @@ import { colors } from './theme';
 import { AuraBack, AuraFront } from './vfx/auras';
 import { CoreFx } from './vfx/cores';
 import { Breathe, C, FxExtent, FxProvider, Layer, STAGE, Spin } from './vfx/engine';
+import { frameParts, isCustomFrame, type FrameParts } from './vfx/frames';
 import { arc, ngon, polar, star } from './vfx/geometry';
 import { MythicBack, SynergyFx, resolveSynergy } from './vfx/synergy';
 
@@ -116,6 +117,10 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
 
   const tint = core.element === 'cristal' && auraItem ? auraItem.visual.color : null;
   const studColor = frame.color2 ?? frame.color;
+  const custom = useMemo(
+    () => (isCustomFrame(frame.frameStyle) ? frameParts(frame.frameStyle, { color: frame.color, color2: frame.color2 ?? frame.color, r: DISC, w: 3.2 }) : null),
+    [frame.frameStyle, frame.color, frame.color2],
+  );
 
   const body = (
     <>
@@ -134,6 +139,8 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
           <Circle cx={C} cy={C} r={DISC} fill={`url(#disc${uid})`} />
           {frame.frameStyle === 'segmented' ? (
             <Segments color={frame.color} color2={frame.color2 ?? frame.color} r={DISC} width={3.4} />
+          ) : custom ? (
+            custom.fixed
           ) : (
             <Circle cx={C} cy={C} r={DISC} stroke={frame.color} strokeWidth={3} fill="none" />
           )}
@@ -182,6 +189,12 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
           </>
         ) : null}
       </FxExtent>
+
+      {custom?.moving ? (
+        <FxExtent r={104}>
+          <FrameMotion parts={custom} />
+        </FxExtent>
+      ) : null}
 
       {/* Anel de escala (gira devagar) */}
       <FxExtent r={78}>
@@ -248,6 +261,21 @@ export const Astrolabe = memo(function Astrolabe({ level, equipped, size = 240, 
     </View>
   );
 });
+
+/** A parte que se mexe das molduras de estilo próprio (frames.tsx): gira ou respira. */
+function FrameMotion({ parts }: { parts: FrameParts }) {
+  const m = parts.motion;
+  if (!m) return <Layer>{parts.moving}</Layer>;
+  return m.kind === 'spin' ? (
+    <Spin period={m.period} reverse={m.reverse}>
+      {parts.moving}
+    </Spin>
+  ) : (
+    <Breathe period={m.period} opacity={m.opacity}>
+      {parts.moving}
+    </Breathe>
+  );
+}
 
 /** Sem aura: só um halo discreto (o astrolábio "nu"). */
 function IdleHalo({ uid }: { uid: string }) {
