@@ -7,7 +7,7 @@
  */
 import { StyleSheet, View } from 'react-native';
 import type { BossDef } from '../../content/bosses';
-import { concreteLayers, facetHitsOf, scalesOf, turnsToRiddle, type BattleState } from '../../domain/boss/battle';
+import { concreteLayers, facetHitsOf, hydraHeadsOf, hydraRegen, scalesOf, turnsToRiddle, type BattleState } from '../../domain/boss/battle';
 import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
 import { colors, radius } from '../../ui/theme';
@@ -88,6 +88,32 @@ export function ScalesTag({ boss, battle }: { boss: BossDef; battle: BattleState
   );
 }
 
+/** Hidra das Funções: cabeças novas (cada uma regenera a Hidra) e a regeneração total por golpe. */
+export function HydraTag({ boss, battle }: { boss: BossDef; battle: BattleState }) {
+  if (boss.trait.kind !== 'hydra') return null;
+  const { maxHeads } = boss.trait;
+  const heads = hydraHeadsOf(battle);
+  const regen = hydraRegen(boss, battle);
+  const dry = battle.armorBroken;
+  return (
+    <View
+      style={styles.tag}
+      accessible
+      accessibilityLabel={dry ? 'Pescoços secos: a Hidra não regenera mais' : `Cabeças novas: ${heads} de ${maxHeads}. A Hidra regenera ${regen} de vida por golpe`}
+    >
+      <Icon name="flame" size={13} color={dry ? colors.ink500 : heads > 0 ? colors.ember : colors.mist} />
+      <Text variant="caption" color={dry ? colors.ink500 : heads > 0 ? colors.ember : colors.mist}>
+        {dry ? 'secou' : heads > 0 ? `+${regen}/golpe` : 'cabeças'}
+      </Text>
+      <View style={styles.pips}>
+        {Array.from({ length: maxHeads }, (_, i) => (
+          <View key={i} style={[styles.head, i < heads && !dry && styles.headOn]} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
 /** Esfinge do Acaso: quantos golpes faltam para o próximo Enigma (e aviso quando ele é o golpe atual). */
 export function RiddleTag({ boss, battle, now, pending }: { boss: BossDef; battle: BattleState; now: boolean; pending: boolean }) {
   if (boss.trait.kind !== 'riddle') return null;
@@ -114,6 +140,8 @@ const styles = StyleSheet.create({
   pip: { width: 7, height: 7, borderRadius: 4, borderWidth: 1.2 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, height: 24, borderRadius: radius.pill, backgroundColor: colors.ink800 },
   tagRiddle: { backgroundColor: colors.brassGlow },
+  head: { width: 9, height: 9, borderRadius: 5, borderWidth: 1.2, borderColor: colors.ink500 },
+  headOn: { backgroundColor: colors.ember, borderColor: colors.ember },
   scale: { width: 9, height: 9, borderRadius: 5, borderWidth: 1.2, borderColor: colors.ink500 },
   scaleOn: { backgroundColor: colors.verdigris, borderColor: '#7FF3FF' },
   layer: { width: 9, height: 9, borderRadius: 2, borderWidth: 1.2, borderColor: colors.ink500 },

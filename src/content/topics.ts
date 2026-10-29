@@ -58,6 +58,7 @@ export const TOPICS: Topic[] = [
     enemWeight: 3,
     subtopics: [
       { id: 'equacao-1grau', label: 'Equações do 1º grau' },
+      { id: 'equacao-2grau', label: 'Equações do 2º grau' },
       { id: 'sistemas', label: 'Sistemas lineares' },
     ],
   },
@@ -70,6 +71,7 @@ export const TOPICS: Topic[] = [
       { id: 'funcao-afim', label: 'Função afim' },
       { id: 'funcao-quadratica', label: 'Função quadrática' },
       { id: 'funcao-exponencial', label: 'Função exponencial' },
+      { id: 'progressoes', label: 'Progressões aritméticas e geométricas' },
     ],
   },
   {

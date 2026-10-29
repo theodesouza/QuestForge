@@ -3,6 +3,7 @@ import { ArquitetoArt } from './ArquitetoArt';
 import { ColossoArt } from './ColossoArt';
 import { EsfingeArt } from './EsfingeArt';
 import { GolemArt } from './GolemArt';
+import { HidraArt } from './HidraArt';
 import { LeviataArt } from './LeviataArt';
 import { MercadorArt } from './MercadorArt';
 import { QuimeraArt } from './QuimeraArt';
@@ -24,10 +25,12 @@ interface Props {
   maxScales?: number;
   /** Esfinge do Acaso: o golpe atual é um Enigma. */
   riddle?: boolean;
+  /** Hidra das Funções: cabeças novas. */
+  hydraHeads?: number;
 }
 
 /** Registro das artes de chefão: cada BossDef aponta para uma delas. */
-export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers, scales, maxScales, riddle }: Props) {
+export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers, scales, maxScales, riddle, hydraHeads }: Props) {
   switch (art) {
     case 'golem':
       return <GolemArt size={size} cracked={cracked} defeated={defeated} />;
@@ -39,6 +42,8 @@ export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, 
       return <ColossoArt size={size} cracked={cracked} defeated={defeated} facetHits={facetHits} hitsToCrack={hitsToCrack} />;
     case 'arquiteto':
       return <ArquitetoArt size={size} cracked={cracked} defeated={defeated} layers={layers} />;
+    case 'hidra':
+      return <HidraArt size={size} cracked={cracked} defeated={defeated} heads={hydraHeads} />;
     case 'esfinge':
       return <EsfingeArt size={size} cracked={cracked} defeated={defeated} riddle={riddle} />;
     case 'leviata':

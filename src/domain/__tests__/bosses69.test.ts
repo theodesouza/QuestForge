@@ -1,7 +1,7 @@
 import { getBoss } from '../../content/bosses';
 import { getRegion } from '../../content/regions';
 import { getTopic } from '../../content/topics';
-import { applyBattleAnswer, battleTarget, createBattle, isRiddleTurn, riddleEvery, scalesMultiplier, scalesOf, turnsToRiddle, type BattleState, type BattleTurn } from '../boss/battle';
+import { applyBattleAnswer, battleTarget, createBattle, hydraHeadsOf, hydraRegen, isRiddleTurn, riddleEvery, scalesMultiplier, scalesOf, turnsToRiddle, type BattleState, type BattleTurn } from '../boss/battle';
 import { nodeStatus } from '../campaign/campaign';
 
 const T0 = Date.UTC(2026, 9, 30, 15);
@@ -13,6 +13,7 @@ describe('Atlas: Regiões 6 a 9 (estrutura)', () => {
   const regions = [
     { id: 'observatorio-dados', index: 6, prefix: 'r6', boss: 'leviata-dos-graficos', after: 'r5-boss' },
     { id: 'labirinto-acaso', index: 7, prefix: 'r7', boss: 'esfinge-do-acaso', after: 'r6-boss' },
+    { id: 'cordilheira-funcoes', index: 8, prefix: 'r8', boss: 'hidra-das-funcoes', after: 'r7-boss' },
   ];
   it.each(regions)('região $index: três missões em cadeia, chefão só depois delas', ({ id, index, prefix, boss, after }) => {
     const region = getRegion(id);
@@ -198,5 +199,96 @@ describe('Esfinge do Acaso: Enigma', () => {
     const r = hit(at(3, { combo: 2 }), 3); // 3º acerto seguido: Técnica, combo ×1,3
     expect(r.turn.technique).toBe(true);
     expect(r.turn.damage).toBe(Math.round(38 * 1.3 * 1.5) + boss.technique.bonus);
+  });
+});
+
+// ———————————————————————————————————————————————— Hidra das Funções
+
+describe('Hidra das Funções: Cabeças que Renascem', () => {
+  const boss = getBoss('hidra-das-funcoes');
+  const fresh = (extra: Partial<BattleState> = {}): BattleState => ({ ...createBattle(boss, 'c', T0, 0), currentQuestionId: 'Q', ...extra });
+  const hit = (b: BattleState, difficulty: 1 | 2 | 3 | 4 = 3) => applyBattleAnswer(boss, { ...b, currentQuestionId: 'Q' }, { questionId: 'Q', difficulty, correct: true, guessed: false, hints: 0 });
+  const miss = (b: BattleState) => applyBattleAnswer(boss, { ...b, currentQuestionId: 'Q' }, { questionId: 'Q', difficulty: 2, correct: false, guessed: false, hints: 0 });
+  const regen = boss.trait.kind === 'hydra' ? boss.trait.regenPerHead : 0;
+
+  it('começa sem cabeças novas; outros chefões não têm cabeças de Hidra', () => {
+    expect(boss.trait.kind).toBe('hydra');
+    expect(fresh().hydraHeads).toBe(0);
+    expect(createBattle(getBoss('golem-proporcional'), 'x', T0, 0).hydraHeads).toBeUndefined();
+    expect(hydraRegen(getBoss('golem-proporcional'), fresh())).toBe(0);
+    const { hydraHeads: _omit, ...old } = fresh();
+    expect(hydraHeadsOf(old as BattleState)).toBe(0);
+  });
+
+  it('o 1º erro faz nascer uma cabeça, que já regenera a Hidra no mesmo golpe', () => {
+    const b = fresh({ hp: 300 });
+    const m = miss(b);
+    expect(m.battle.hydraHeads).toBe(1);
+    expect(m.turn.headGrown).toBe(true);
+    expect(m.turn.healed).toBe(regen);
+    expect(m.battle.hp).toBe(300 + regen);
+    expect(m.battle.resolve).toBe(boss.resolve - 1);
+  });
+
+  it('as cabeças se acumulam até o máximo e a regeneração cresce com elas', () => {
+    let b = fresh({ hp: 300, resolve: 9, maxResolve: 9 });
+    const seen: number[] = [];
+    for (let i = 0; i < 5; i++) {
+      const r = miss(b);
+      b = r.battle;
+      seen.push(r.battle.hydraHeads ?? -1);
+    }
+    expect(seen).toEqual([1, 2, 3, 3, 3]);
+    expect(hydraRegen(boss, b)).toBe(3 * regen);
+  });
+
+  it('cada acerto sem Técnica deixa as cabeças regenerarem a Hidra', () => {
+    const b = fresh({ hp: 300, hydraHeads: 2 });
+    const r = hit(b, 3);
+    expect(r.turn.technique).toBe(false);
+    expect(r.turn.damage).toBe(38);
+    expect(r.turn.healed).toBe(2 * regen);
+    expect(r.battle.hp).toBe(300 - 38 + 2 * regen);
+    expect(r.battle.hydraHeads).toBe(2);
+  });
+
+  it('a Técnica cauteriza uma cabeça antes da regeneração', () => {
+    const b = fresh({ hp: 300, hydraHeads: 2, combo: 2 });
+    const r = hit(b, 3);
+    expect(r.turn.technique).toBe(true);
+    expect(r.turn.headCut).toBe(true);
+    expect(r.battle.hydraHeads).toBe(1);
+    expect(r.turn.healed).toBe(regen);
+    const none = hit(fresh({ hp: 300, hydraHeads: 0, combo: 2 }), 3);
+    expect(none.turn.headCut).toBeUndefined();
+    expect(none.turn.healed).toBe(0);
+  });
+
+  it('a regeneração nunca passa da vida máxima', () => {
+    const r = miss(fresh({ hp: boss.maxHp - 3, hydraHeads: 2 }));
+    expect(r.battle.hp).toBe(boss.maxHp);
+    expect(r.turn.healed).toBe(3);
+  });
+
+  it('o acerto final termina a batalha sem regeneração', () => {
+    const r = hit(fresh({ hp: 10, hydraHeads: 3 }), 3);
+    expect(r.battle.hp).toBe(0);
+    expect(r.battle.status).toBe('won');
+    expect(r.turn.healed).toBe(0);
+  });
+
+  it('com a vida abaixo de 40% os pescoços secam: sem cabeças, sem regeneração e sem novas cabeças', () => {
+    const b = fresh({ hp: Math.round(boss.maxHp * 0.4) + 10, hydraHeads: 3 });
+    const r = hit(b, 3);
+    expect(r.battle.hp).toBeLessThanOrEqual(boss.maxHp * 0.4);
+    expect(r.turn.armorBroke).toBe(true);
+    expect(r.battle.hydraHeads).toBe(0);
+    expect(r.turn.healed).toBe(0);
+    expect(r.battle.hp).toBe(Math.round(boss.maxHp * 0.4) + 10 - 38);
+    const m = miss(r.battle);
+    expect(m.battle.hydraHeads).toBe(0);
+    expect(m.turn.healed).toBe(0);
+    expect(m.turn.headGrown).toBeUndefined();
+    expect(hydraRegen(boss, r.battle)).toBe(0);
   });
 });

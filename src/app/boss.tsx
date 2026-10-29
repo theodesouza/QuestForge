@@ -20,13 +20,13 @@ import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
-import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, isRiddleTurn, scalesOf, type BattleState } from '../domain/boss/battle';
+import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, hydraHeadsOf, isRiddleTurn, scalesOf, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import { battleReviewItems } from '../domain/game/review';
 import type { GameEvent } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
 import { HeadsBar } from '../features/boss/HeadsBar';
-import { ConcreteTag, FacetsBar, RiddleTag, ScalesTag } from '../features/boss/TraitMeters';
+import { ConcreteTag, FacetsBar, HydraTag, RiddleTag, ScalesTag } from '../features/boss/TraitMeters';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
@@ -46,7 +46,7 @@ import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
 import { colors, radius, rarityColor, space } from '../ui/theme';
 
-function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' | 'dice' {
+function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' | 'dice' | 'flame' {
   switch (boss.trait.kind) {
     case 'armor':
     case 'concrete':
@@ -58,6 +58,8 @@ function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' | 'dice
       return 'star';
     case 'riddle':
       return 'dice';
+    case 'hydra':
+      return 'flame';
     default:
       return 'lock';
   }
@@ -227,7 +229,7 @@ function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { b
           {hit && hit.healed > 0 ? (
             <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
               <Text variant="number" color={colors.ember}>
-                +{hit.healed} {boss.trait.kind === 'heads' ? 'regenera' : 'juros'}
+                +{hit.healed} {boss.trait.kind === 'heads' || boss.trait.kind === 'hydra' ? 'regenera' : 'juros'}
               </Text>
             </Animated.View>
           ) : null}
@@ -260,6 +262,8 @@ function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { b
             <ConcreteTag boss={boss} battle={battle} />
           ) : boss.trait.kind === 'scales' ? (
             <ScalesTag boss={boss} battle={battle} />
+          ) : boss.trait.kind === 'hydra' ? (
+            <HydraTag boss={boss} battle={battle} />
           ) : boss.trait.kind === 'riddle' ? (
             <RiddleTag boss={boss} battle={battle} now={riddleNow} pending={pending} />
           ) : boss.trait.kind === 'facets' ? (
@@ -355,7 +359,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
     if (after && turn) {
       if (turn.correct) {
         haptic(turn.technique ? 'heavy' : 'impact');
-        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: 0, riddle: !!turn.riddle });
+        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: turn.healed ?? 0, riddle: !!turn.riddle });
         if (!reduce) {
           shake.set(withSequence(withTiming(10, { duration: 60 }), withTiming(-8, { duration: 70 }), withTiming(0, { duration: 80 })));
           flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
@@ -449,6 +453,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
               scales={scalesOf(boss, battle)}
               maxScales={boss.trait.kind === 'scales' ? boss.trait.maxScales : undefined}
               riddle={shownRiddle}
+              hydraHeads={hydraHeadsOf(battle)}
             />
           </Animated.View>
         </View>
@@ -544,13 +549,14 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
           art={boss.art}
           size={190}
           defeated={won}
-          cracked={boss.trait.kind === 'facets' || boss.trait.kind === 'concrete' || boss.trait.kind === 'scales' ? battle.armorBroken : true}
+          cracked={boss.trait.kind === 'facets' || boss.trait.kind === 'concrete' || boss.trait.kind === 'scales' || boss.trait.kind === 'riddle' || boss.trait.kind === 'hydra' ? battle.armorBroken : true}
           headsFelled={headsFelled(boss, battle.hp)}
           facetHits={facetHitsOf(battle)}
           hitsToCrack={boss.trait.kind === 'facets' ? boss.trait.hitsToCrack : undefined}
           layers={concreteLayers(battle)}
           scales={scalesOf(boss, battle)}
           maxScales={boss.trait.kind === 'scales' ? boss.trait.maxScales : undefined}
+          hydraHeads={hydraHeadsOf(battle)}
         />
       </Animated.View>
       <View style={styles.center}>

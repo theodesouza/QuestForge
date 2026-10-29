@@ -46,6 +46,7 @@ const BUILDERS: Record<CustomFrameStyle, (o: FrameOpts) => FrameParts> = {
   cubes,
   axes,
   maze,
+  peaks,
 };
 
 export const isCustomFrame = (s: FrameStyle | undefined): s is CustomFrameStyle => !!s && (CUSTOM_FRAME_STYLES as readonly string[]).includes(s);
@@ -499,6 +500,45 @@ function maze(o: FrameOpts): FrameParts {
       </>
     ),
     motion: { kind: 'spin', period: 13000 },
+  };
+}
+
+/**
+ * Cordilheira: picos de alturas diferentes em volta do anel, com cume nevado, e uma onda de
+ * função que corre por dentro do anel (no astrolábio).
+ */
+function peaks(o: FrameOpts): FrameParts {
+  const { r, w, color, color2 } = o;
+  const cx = o.cx ?? C;
+  const cy = o.cy ?? C;
+  const n = o.compact ? 8 : 16;
+  const heights = [0.65, 1, 0.8, 0.95, 0.7, 1, 0.75, 0.9];
+  const max = o.compact ? w * 3.4 : 17;
+  const half = 360 / n / 2;
+  return {
+    fixed: (
+      <>
+        {ring(o, w * 0.8)}
+        {Array.from({ length: n }, (_, i) => {
+          const a = (360 / n) * i;
+          const hgt = (0.45 + 0.55 * heights[i % heights.length]) * max;
+          const l = polar(r + w * 0.3, a - half * 0.92, cx, cy);
+          const t = polar(r + w * 0.3 + hgt, a, cx, cy);
+          const rt = polar(r + w * 0.3, a + half * 0.92, cx, cy);
+          const capH = hgt * 0.62;
+          const cl = polar(r + w * 0.3 + capH, a - half * 0.92 * (1 - capH / hgt), cx, cy);
+          const cr = polar(r + w * 0.3 + capH, a + half * 0.92 * (1 - capH / hgt), cx, cy);
+          return (
+            <G key={i}>
+              <Polygon points={`${f(l.x)},${f(l.y)} ${f(t.x)},${f(t.y)} ${f(rt.x)},${f(rt.y)}`} fill={color} stroke={color} strokeWidth={Math.max(0.3, w * 0.2)} strokeLinejoin="round" />
+              <Polygon points={`${f(cl.x)},${f(cl.y)} ${f(t.x)},${f(t.y)} ${f(cr.x)},${f(cr.y)}`} fill={color2} />
+            </G>
+          );
+        })}
+      </>
+    ),
+    moving: o.compact ? undefined : <Path d={wavyCircle(r - w * 3.4, 2.4, 12)} stroke={color2} strokeOpacity={0.7} strokeWidth={w * 0.35} fill="none" />,
+    motion: { kind: 'spin', period: 38000, reverse: true },
   };
 }
 

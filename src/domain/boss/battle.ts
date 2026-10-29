@@ -35,6 +35,12 @@ export interface BattleTurn {
   layers?: number;
   /** Esfinge do Acaso: este turno foi um Enigma. */
   riddle?: boolean;
+  /** Hidra das Funções: cabeças novas depois deste turno. */
+  hydraHeads?: number;
+  /** Hidra: nasceu uma cabeça nova (erro). */
+  headGrown?: boolean;
+  /** Hidra: a Técnica cauterizou uma cabeça. */
+  headCut?: boolean;
   /** Leviatã dos Gráficos: escamas depois deste turno. */
   scales?: number;
   /** Leviatã: escamas arrancadas por este acerto. */
@@ -72,6 +78,8 @@ export interface BattleState {
   layers?: number;
   /** Leviatã dos Gráficos: escamas atuais. Ausente nos demais. */
   scales?: number;
+  /** Hidra das Funções: cabeças novas atuais. Ausente nos demais. */
+  hydraHeads?: number;
 }
 
 export const KNOWLEDGE_PER_ATTEMPT = 0.1;
@@ -103,6 +111,7 @@ export function createBattle(
     ...(boss.trait.kind === 'facets' ? { facetHits: {} } : {}),
     ...(boss.trait.kind === 'concrete' ? { layers: 0 } : {}),
     ...(boss.trait.kind === 'scales' ? { scales: boss.trait.maxScales } : {}),
+    ...(boss.trait.kind === 'hydra' ? { hydraHeads: 0 } : {}),
   };
 }
 
@@ -202,6 +211,19 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
     }
     if (armorBroke) next.armorBroken = true;
     turn.armorBroke = armorBroke;
+    if (trait.kind === 'hydra') {
+      // A Técnica cauteriza uma cabeça; na fase 2 elas secam. As que restam regeneram a Hidra (se ela ainda vive).
+      const before = hydraHeadsOf(battle);
+      const after = armorBroke ? 0 : Math.max(0, before - (technique ? 1 : 0));
+      next.hydraHeads = after;
+      turn.hydraHeads = after;
+      if (technique && before > after) turn.headCut = true;
+      if (next.hp > 0 && !next.armorBroken) {
+        const regen = Math.max(0, Math.min(boss.maxHp - next.hp, after * trait.regenPerHead));
+        next.hp += regen;
+        turn.healed = regen;
+      }
+    }
     if (trait.kind === 'heads') turn.headsFelled = headsFelled(boss, next.hp) - headsFelled(boss, battle.hp);
     if (trait.kind === 'concrete') {
       const before = concreteLayers(battle);
@@ -231,6 +253,19 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
           next.facetHits = { ...facetHitsOf(battle), [facet.id]: hits - 1 };
           turn.facetRepaired = true;
         }
+      }
+    }
+    if (trait.kind === 'hydra') {
+      // Cada erro faz nascer uma cabeça (até o máximo); com as cabeças, a Hidra regenera.
+      const before = hydraHeadsOf(battle);
+      const after = battle.armorBroken ? 0 : Math.min(trait.maxHeads, before + 1);
+      next.hydraHeads = after;
+      turn.hydraHeads = after;
+      if (after > before) turn.headGrown = true;
+      if (!battle.armorBroken) {
+        const regen = Math.max(0, Math.min(boss.maxHp - next.hp, after * trait.regenPerHead));
+        next.hp += regen;
+        turn.healed = regen;
       }
     }
     if (trait.kind === 'scales') {
@@ -351,6 +386,18 @@ export function facetMultiplier(boss: BossDef, battle: BattleState, subtopic?: s
   if (allFacetsCracked(boss, battle)) return boss.trait.exposedMultiplier;
   const facet = facetOf(boss, subtopic);
   return facet && !isFacetCracked(boss, battle, facet.id) ? boss.trait.intactMultiplier : 1;
+}
+
+// ———————————————————————————————————————————————— Hidra das Funções: cabeças que renascem
+
+/** Cabeças novas atuais (zero em chefões sem Hidra e em batalhas gravadas antes). */
+export function hydraHeadsOf(battle: BattleState): number {
+  return battle.hydraHeads ?? 0;
+}
+
+/** Vida que as cabeças novas regeneram por golpe, no estado atual (zero na fase 2). */
+export function hydraRegen(boss: BossDef, battle: BattleState): number {
+  return boss.trait.kind === 'hydra' && !battle.armorBroken ? hydraHeadsOf(battle) * boss.trait.regenPerHead : 0;
 }
 
 // ———————————————————————————————————————————————— Esfinge do Acaso: Enigma

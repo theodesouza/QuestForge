@@ -49,6 +49,12 @@ import { MISSAO_R7M2_A } from './questions/missoes/r7-m2-a';
 import { MISSAO_R7M2_B } from './questions/missoes/r7-m2-b';
 import { MISSAO_R7M3_A } from './questions/missoes/r7-m3-a';
 import { MISSAO_R7M3_B } from './questions/missoes/r7-m3-b';
+import { MISSAO_R8M1_A } from './questions/missoes/r8-m1-a';
+import { MISSAO_R8M1_B } from './questions/missoes/r8-m1-b';
+import { MISSAO_R8M2_A } from './questions/missoes/r8-m2-a';
+import { MISSAO_R8M2_B } from './questions/missoes/r8-m2-b';
+import { MISSAO_R8M3_A } from './questions/missoes/r8-m3-a';
+import { MISSAO_R8M3_B } from './questions/missoes/r8-m3-b';
 import { ESTATISTICA } from './questions/estatistica';
 import { FUNCOES } from './questions/funcoes';
 import { GEOMETRIA } from './questions/geometria';
@@ -115,6 +121,12 @@ export const QUESTIONS: readonly Question[] = [
   ...MISSAO_R7M2_B,
   ...MISSAO_R7M3_A,
   ...MISSAO_R7M3_B,
+  ...MISSAO_R8M1_A,
+  ...MISSAO_R8M1_B,
+  ...MISSAO_R8M2_A,
+  ...MISSAO_R8M2_B,
+  ...MISSAO_R8M3_A,
+  ...MISSAO_R8M3_B,
 ];
 
 const BY_ID = new Map(QUESTIONS.map((q) => [q.id, q]));

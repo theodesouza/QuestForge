@@ -995,6 +995,49 @@ const Labirinto: SceneFx = {
   ),
 };
 
+const RIDGE_BACK = 'M0 300 L0 196 L34 168 L58 186 L96 142 L128 172 L160 150 L198 186 L232 156 L266 182 L300 164 L300 300 Z';
+const RIDGE_MID = 'M0 300 L0 224 L44 196 L84 226 L126 188 L170 230 L214 200 L262 232 L300 210 L300 300 Z';
+const RIDGE_FRONT = 'M0 300 L0 262 L52 240 L96 266 L150 244 L204 268 L252 246 L300 262 L300 300 Z';
+
+const Cordilheira: SceneFx = {
+  Art: ({ uid }) => (
+    <>
+      <Sky id={`sk${uid}`} stops={[[0, '#3A1F5E'], [0.35, '#B8456E'], [0.65, '#FF8A55'], [1, '#FFD38A']]} />
+      <Glow id={`sg${uid}`} x={228} y={186} r={110} color="#FFD36B" opacity={0.5} />
+      <Circle cx={228} cy={188} r={30} fill="#FFF0C0" />
+      <Stars seed={171} n={22} box={[0, 0, 300, 110]} />
+      {/* parábola de luz no céu, com o vértice no alto */}
+      <Path d="M20 150 Q150 -10 280 150" stroke="#FFF3C4" strokeOpacity={0.55} strokeWidth={1.6} strokeDasharray="1 6" strokeLinecap="round" fill="none" />
+      <Circle cx={150} cy={70} r={3.2} fill="#FFF3C4" />
+      <Path d={RIDGE_BACK} fill="#6E3A7A" />
+      <Path d="M96 142 L110 160 L84 160 Z M160 150 L172 166 L148 166 Z M232 156 L244 170 L220 170 Z" fill="#FFE9E0" fillOpacity={0.85} />
+      <Path d={RIDGE_MID} fill="#4A2A66" />
+      <Path d={RIDGE_FRONT} fill="#2A1646" />
+      {/* trilha reta subindo a montanha */}
+      <Path d="M12 296 L96 262 L132 226" stroke="#FFD36B" strokeOpacity={0.6} strokeWidth={1.6} strokeDasharray="4 5" strokeLinecap="round" fill="none" />
+    </>
+  ),
+  Live: () => (
+    <>
+      <Pulse period={6400} opacity={[0.35, 1]}>
+        <Glow id="cdg" x={228} y={186} r={92} color="#FFE08A" opacity={0.5} />
+      </Pulse>
+      <Drift period={36000} amp={26}>
+        <Ellipse cx={78} cy={74} rx={34} ry={7} fill="#FFE9E0" fillOpacity={0.3} />
+        <Ellipse cx={104} cy={68} rx={22} ry={5} fill="#FFE9E0" fillOpacity={0.26} />
+      </Drift>
+      <Drift period={46000} amp={20} phase={0.4}>
+        <Ellipse cx={226} cy={104} rx={30} ry={6} fill="#FFE9E0" fillOpacity={0.24} />
+      </Drift>
+      <Pulse period={4600} opacity={[0.2, 0.9]} phase={0.3}>
+        <Circle cx={150} cy={70} r={4.6} fill="#FFFFFF" />
+      </Pulse>
+      <Twinkles count={7} seed={172} box={[10, 6, 290, 100]} colors={['#FFFFFF', '#FFE9A8']} />
+      <Motes count={8} seed={173} box={[0, 180, 300, 296]} colors={['#FFE9E0', '#FFD36B']} size={[1.6, 2.6]} period={8400} travel={60} sway={16} />
+    </>
+  ),
+};
+
 export const SCENES: Record<SceneFxId, SceneFx> = {
   noite: Noite,
   colinas: Colinas,
@@ -1011,6 +1054,7 @@ export const SCENES: Record<SceneFxId, SceneFx> = {
   cavernas: Cavernas,
   mirante: Mirante,
   labirinto: Labirinto,
+  cordilheira: Cordilheira,
 };
 
 /** Arte estática do cenário (também usada nas miniaturas), em coordenadas 300 × 300. */

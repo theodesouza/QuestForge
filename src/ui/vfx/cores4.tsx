@@ -2,6 +2,7 @@
  * Núcleos lendários das Regiões 6 a 9 — os corações dos chefões da segunda metade do Atlas.
  *   Histograma → barras, linha e rosca de setores (Leviatã dos Gráficos).
  *   Dado       → um d20 e dados menores em órbita (Esfinge do Acaso).
+ *   Curvas     → um plano cartesiano com reta, parábola e exponencial (Hidra das Funções).
  * Mesma escada dos outros lendários: runas, objetos flutuantes e um clarão periódico.
  */
 import { Circle, Defs, G, Line, Path, Polygon, Polyline, Rect, Text as SvgText } from 'react-native-svg';
@@ -136,6 +137,75 @@ export function Dado({ v }: CoreProps) {
         <Particles mode="orbit" count={2} period={12400} colors={[c2]} size={[2.6, 3.4]} radius={[47, 47]} tilt={0.45} plane={34} reverse glow seed={82} />
       </Extra>
       <Particles mode="rise" count={5} period={3800} colors={['#FFF3C4', '#FFFFFF']} size={[2.2, 3.4]} radius={[8, 28]} arc={[-120, 120]} travel={30} sparkle seed={83} />
+    </>
+  );
+}
+
+const AXES = ['f', 'x', 'y', 'a', 'b', 'c', 'Δ', '√'] as const;
+const PLANE_R = 29;
+
+/** Trechos de uma curva y = fn(x) que cabem dentro do disco do plano, em coordenadas do palco. */
+function curvePath(fn: (x: number) => number): string {
+  let d = '';
+  let open = false;
+  for (let x = -PLANE_R; x <= PLANE_R; x += 1) {
+    const y = fn(x);
+    if (Math.hypot(x, y) <= PLANE_R - 0.5) {
+      d += `${open ? 'L' : 'M'}${(C + x).toFixed(1)} ${(C - y).toFixed(1)} `;
+      open = true;
+    } else {
+      open = false;
+    }
+  }
+  return d;
+}
+
+const LINE_PATH = curvePath((x) => 0.55 * x + 2);
+const PARABOLA_PATH = curvePath((x) => -0.034 * x * x + 15);
+const EXPONENTIAL_PATH = curvePath((x) => 3 * 2 ** (x / 9) - 15);
+
+/** Núcleo das Curvas: um plano cartesiano em brasa com uma reta, uma parábola e uma exponencial. */
+export function Curvas({ v }: CoreProps) {
+  const h = useGid('ch');
+  const c2 = v.color2 ?? v.color;
+  return (
+    <>
+      <Breathe period={3600} scale={[0.93, 1.08]} opacity={[0.55, 1]}>
+        <Glow id={h} color={v.color} r={50} opacity={0.5} />
+      </Breathe>
+      <Wave period={6400} from={14} to={56} drawnAt={42} peak={0.85} hold={0.55}>
+        <Circle cx={C} cy={C} r={42} stroke="#FFE7D6" strokeWidth={2.2} fill="none" />
+        <Circle cx={C} cy={C} r={38} stroke={c2} strokeWidth={1} fill="none" />
+      </Wave>
+      <Spin period={34000} reverse>
+        <GreekRing r={37} color="#FFD9B8" size={7} glyphs={AXES} />
+      </Spin>
+      <Breathe period={4800} scale={[0.98, 1.03]}>
+        <Circle cx={C} cy={C} r={PLANE_R} fill="#2A0F05" fillOpacity={0.6} stroke={c2} strokeWidth={1.2} />
+        <G stroke="#FFFFFF" strokeOpacity={0.14} strokeWidth={0.7}>
+          {[-20, -10, 10, 20].map((k) => (
+            <G key={k}>
+              <Line x1={C + k} y1={C - Math.sqrt(PLANE_R ** 2 - k ** 2)} x2={C + k} y2={C + Math.sqrt(PLANE_R ** 2 - k ** 2)} />
+              <Line x1={C - Math.sqrt(PLANE_R ** 2 - k ** 2)} y1={C + k} x2={C + Math.sqrt(PLANE_R ** 2 - k ** 2)} y2={C + k} />
+            </G>
+          ))}
+        </G>
+        <G stroke="#FFFFFF" strokeOpacity={0.6} strokeWidth={1}>
+          <Line x1={C - PLANE_R} y1={C} x2={C + PLANE_R} y2={C} />
+          <Line x1={C} y1={C - PLANE_R} x2={C} y2={C + PLANE_R} />
+        </G>
+        <G fill="none" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <Path d={LINE_PATH} stroke="#FFFFFF" />
+          <Path d={PARABOLA_PATH} stroke={c2} />
+          <Path d={EXPONENTIAL_PATH} stroke="#FF6A55" />
+        </G>
+        <Circle cx={C} cy={C - 15} r={2.4} fill={c2} stroke="#FFFFFF" strokeWidth={0.8} />
+      </Breathe>
+      <Particles mode="orbit" count={2} period={7800} colors={['#FFFFFF', v.color]} size={[3, 4]} radius={[47, 47]} tilt={0.45} plane={-24} glow seed={91} />
+      <Extra>
+        <Particles mode="orbit" count={2} period={12000} colors={[c2]} size={[2.6, 3.4]} radius={[47, 47]} tilt={0.45} plane={34} reverse glow seed={92} />
+      </Extra>
+      <Particles mode="rise" count={6} period={3600} colors={['#FFE7D6', '#FFD36B']} size={[2.2, 3.4]} radius={[8, 28]} arc={[-120, 120]} travel={32} sparkle seed={93} />
     </>
   );
 }

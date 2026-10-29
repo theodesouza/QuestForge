@@ -50,7 +50,7 @@ export type OptionalSlot = (typeof OPTIONAL_SLOTS)[number];
 
 /** Estilos de moldura — cada um desenha o anel do astrolábio de um jeito (src/ui/vfx/frames.tsx). */
 export const LEGACY_FRAME_STYLES = ['plain', 'double', 'notched', 'armillary', 'segmented'] as const;
-export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes', 'axes', 'maze'] as const;
+export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes', 'axes', 'maze', 'peaks'] as const;
 export const FRAME_STYLES = [...LEGACY_FRAME_STYLES, ...CUSTOM_FRAME_STYLES] as const;
 export type FrameStyle = (typeof FRAME_STYLES)[number];
 export type CustomFrameStyle = (typeof CUSTOM_FRAME_STYLES)[number];
@@ -470,6 +470,34 @@ const BASE_ITEMS: ItemDef[] = [
     description: 'O coração da Esfinge: um dado de vinte faces que sempre cai onde a conta mandou — e dados menores orbitando em volta, contando as chances.',
     howToGet: 'Derrote a Esfinge do Acaso sem erros e sem usar dicas.',
     visual: { color: '#FFD36B', color2: '#FF8FD1', element: 'tempestade', fx: 'dado' },
+  },
+  // ——— Região 8: Cordilheira das Funções ———
+  {
+    id: 'frame-cordilheira',
+    slot: 'frame',
+    name: 'Moldura da Cordilheira',
+    rarity: 'raro',
+    description: 'Picos nevados em volta do anel e uma onda de função que corre por dentro, sem nunca cruzar a rocha.',
+    howToGet: 'Derrote a Hidra das Funções.',
+    visual: { color: '#FF8A55', color2: '#FFF3E0', frameStyle: 'peaks' },
+  },
+  {
+    id: 'title-domador-curvas',
+    slot: 'title',
+    name: 'Domador de Curvas',
+    rarity: 'raro',
+    description: 'Retas, parábolas e exponenciais: todas obedecem a quem sabe onde fica o vértice.',
+    howToGet: 'Derrote a Hidra das Funções.',
+    visual: { color: '#FF8A55' },
+  },
+  {
+    id: 'core-curvas',
+    slot: 'core',
+    name: 'Núcleo das Curvas',
+    rarity: 'lendario',
+    description: 'O coração da Hidra: um plano cartesiano em brasa, com uma reta, uma parábola e uma exponencial traçando-se sem parar.',
+    howToGet: 'Derrote a Hidra das Funções sem erros e sem usar dicas.',
+    visual: { color: '#FF8A55', color2: '#FFD36B', element: 'fogo', fx: 'curvas' },
   },
   // ——— Encomendas ———
   {

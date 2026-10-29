@@ -333,6 +333,15 @@ export const MORE_ITEMS: ItemDef[] = [
     visual: { color: '#FF8FD1', color2: '#FFD36B', fx: 'labirinto' },
   },
   {
+    id: 'scene-cordilheira',
+    slot: 'scene',
+    name: 'Cordilheira ao Amanhecer',
+    rarity: 'raro',
+    description: 'Picos em camadas sob um sol nascente, com uma parábola de luz riscando o céu.',
+    howToGet: 'Derrote a Hidra das Funções.',
+    visual: { color: '#FF8A55', color2: '#FFD36B', fx: 'cordilheira' },
+  },
+  {
     id: 'scene-polar',
     slot: 'scene',
     name: 'Campo Polar',

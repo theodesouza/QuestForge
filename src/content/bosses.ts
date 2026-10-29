@@ -50,6 +50,10 @@ export interface BossFacet {
  *   Acertar o Enigma multiplica o dano por `damageMultiplier`; errar custa `missResolve` pontos de
  *   Determinação em vez de um. Com a vida abaixo de `breaksAtHpRatio` (fase 2), o Enigma passa a vir
  *   a cada `phase2Every` golpes.
+ * - hydra: cada erro faz nascer uma cabeça nova (até `maxHeads`). A cada golpe dado, cada cabeça
+ *   nova regenera `regenPerHead` de vida da Hidra; a Técnica (acertos seguidos) cauteriza uma cabeça.
+ *   Com a vida abaixo de `breaksAtHpRatio` (fase 2), os pescoços secam: as cabeças somem e a
+ *   regeneração acaba.
  * - concrete: cada erro faz o Arquiteto despejar uma camada de concreto (até `maxLayers`),
  *   e cada camada reduz o dano dos golpes seguintes. Uma Técnica (acertos seguidos) ignora
  *   as camadas e quebra todas. Com a vida abaixo de `breaksAtHpRatio`, o concreto racha e para
@@ -125,6 +129,16 @@ export type BossTrait =
       failedLine: string;
     }
   | {
+      kind: 'hydra';
+      name: string;
+      description: string;
+      breaksAtHpRatio: number;
+      /** Máximo de cabeças novas ao mesmo tempo. */
+      maxHeads: number;
+      /** Vida que cada cabeça nova regenera por golpe. */
+      regenPerHead: number;
+    }
+  | {
       kind: 'concrete';
       name: string;
       description: string;
@@ -136,7 +150,7 @@ export type BossTrait =
     };
 
 /** Arte vetorial registrada na UI (src/features/boss/art). */
-export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto' | 'leviata' | 'esfinge';
+export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto' | 'leviata' | 'esfinge' | 'hidra';
 
 export interface BossDef {
   id: string;
@@ -594,6 +608,64 @@ export const BOSSES: BossDef[] = [
       firstItems: ['frame-labirinto', 'title-mestre-acaso'],
       flawlessItem: 'core-dado',
       repeatXp: 90,
+    },
+  },
+  {
+    id: 'hidra-das-funcoes',
+    name: 'Hidra das Funções',
+    epithet: 'Guardiã da Cordilheira das Funções',
+    regionId: 'cordilheira-funcoes',
+    art: 'hidra',
+    accent: '#FF8A55',
+    topics: ['funcoes', 'equacoes'],
+    subtopics: [],
+    maxHp: 460,
+    resolve: 3,
+    damage: { 1: 20, 2: 28, 3: 38, 4: 50 },
+    startTarget: 2,
+    targetStep: 0.25,
+    trait: {
+      kind: 'hydra',
+      name: 'Cabeças que Renascem',
+      description:
+        'Cada erro faz nascer uma cabeça nova (até 3). A cada golpe, cada cabeça nova faz a Hidra regenerar 12 de vida. A Técnica — três acertos seguidos — cauteriza uma cabeça. Com a vida abaixo de 40%, os pescoços secam: as cabeças somem e a regeneração acaba.',
+      breaksAtHpRatio: 0.4,
+      maxHeads: 3,
+      regenPerHead: 12,
+    },
+    technique: {
+      name: 'Derivada Certeira',
+      every: 3,
+      bonus: 34,
+      line: 'Três acertos seguidos! A Derivada Certeira corta um pescoço e cauteriza a ferida.',
+    },
+    lines: {
+      intro: [
+        'Corte uma cabeça, e duas voltam. Já aprendeu a fazer esse gráfico?',
+        'Cada erro seu faz nascer uma cabeça nova — e cada cabeça me cura.',
+        'Acerte três seguidos para cauterizar o pescoço. Do contrário, eu me refaço.',
+      ],
+      phase2: 'Meus pescoços secaram?! Nenhuma curva me sustenta mais.',
+      playerHit: [
+        'A função fecha — e um pescoço da Hidra tomba.',
+        'O gráfico acerta o ponto: a Hidra rosna.',
+        'A rocha treme sob o peso da Hidra.',
+        'Raiz encontrada, golpe certeiro.',
+      ],
+      bossHit: [
+        'Uma cabeça nova brota do pescoço ferido.',
+        'A Hidra sorri com todas as cabeças — e se cura.',
+        'O erro alimenta a Hidra. Revise a resolução e siga.',
+      ],
+      defeat: 'A última cabeça tombou, Cartógrafo. A Cordilheira é sua — função por função.',
+      retreat: 'Volte quando souber traçar cada curva. A Hidra espera.',
+    },
+    rewards: {
+      firstXp: 500,
+      firstInk: 200,
+      firstItems: ['frame-cordilheira', 'title-domador-curvas'],
+      flawlessItem: 'core-curvas',
+      repeatXp: 100,
     },
   },
 ];
