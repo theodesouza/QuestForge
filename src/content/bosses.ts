@@ -17,14 +17,35 @@ export interface BossHead {
 }
 
 /**
- * Mecânica própria de cada chefão. Todas "quebram" quando a vida cai abaixo de
- * `breaksAtHpRatio` (fase 2), recompensando quem mantém a pressão.
+ * Uma face do Colosso: cobra uma matéria e racha depois de alguns acertos nela.
+ */
+export interface BossFacet {
+  id: string;
+  name: string;
+  /** Subassuntos das perguntas feitas enquanto esta face está intacta. */
+  subtopics: string[];
+  color: string;
+  /** Fala quando esta face racha. */
+  crack: string;
+}
+
+/**
+ * Mecânica própria de cada chefão. As de vida (couraça, cofre, concreto) "quebram" quando a
+ * vida cai abaixo de `breaksAtHpRatio` (fase 2), recompensando quem mantém a pressão.
  * - armor: enquanto inteira, questões fáceis causam dano reduzido.
  * - interest: enquanto o cofre estiver cheio, cada erro devolve vida ao chefão
  *   ("cobra juros"), e a cobrança cresce a cada erro seguido.
  * - heads: a vida é a soma de cabeças, cada uma com a sua matéria. Um erro faz a
  *   cabeça que está de pé se regenerar um pouco — nunca além do topo dela: uma cabeça
  *   derrubada não volta.
+ * - facets: o Colosso tem faces (uma matéria cada), que as perguntas percorrem em rodízio.
+ *   Enquanto a face da pergunta está intacta, o dano é reduzido; `hitsToCrack` acertos nela a
+ *   racham (para sempre) e um erro a "reajusta" (perde um acerto, se ainda não rachou). Com
+ *   todas as faces rachadas o Colosso fica exposto: fase 2 e dano ampliado.
+ * - concrete: cada erro faz o Arquiteto despejar uma camada de concreto (até `maxLayers`),
+ *   e cada camada reduz o dano dos golpes seguintes. Uma Técnica (acertos seguidos) ignora
+ *   as camadas e quebra todas. Com a vida abaixo de `breaksAtHpRatio`, o concreto racha e para
+ *   de se formar.
  */
 export type BossTrait =
   | {
@@ -50,10 +71,34 @@ export type BossTrait =
       /** Fração da vida máxima que a cabeça de pé recupera por erro (limitada ao topo dela). */
       healRatio: number;
       heads: BossHead[];
+    }
+  | {
+      kind: 'facets';
+      name: string;
+      description: string;
+      /** Não usado: a fase 2 vem de todas as faces rachadas, não da vida. */
+      breaksAtHpRatio: number;
+      /** Acertos numa face para rachá-la. */
+      hitsToCrack: number;
+      /** Multiplicador de dano enquanto a face da pergunta está intacta. */
+      intactMultiplier: number;
+      /** Multiplicador de dano com todas as faces rachadas (Colosso exposto). */
+      exposedMultiplier: number;
+      facets: BossFacet[];
+    }
+  | {
+      kind: 'concrete';
+      name: string;
+      description: string;
+      breaksAtHpRatio: number;
+      /** Máximo de camadas de concreto acumuladas. */
+      maxLayers: number;
+      /** Fração do dano perdida por camada. */
+      layerPenalty: number;
     };
 
 /** Arte vetorial registrada na UI (src/features/boss/art). */
-export type BossArt = 'golem' | 'mercador' | 'quimera';
+export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto';
 
 export interface BossDef {
   id: string;
@@ -267,6 +312,128 @@ export const BOSSES: BossDef[] = [
       firstItems: ['frame-tres-arcos', 'title-soma-inteira'],
       flawlessItem: 'core-trindade',
       repeatXp: 50,
+    },
+  },
+  {
+    id: 'colosso-euclidiano',
+    name: 'Colosso Euclidiano',
+    epithet: 'Guardião das Torres Euclidianas',
+    regionId: 'torres-euclidianas',
+    art: 'colosso',
+    accent: '#7FB6FF',
+    topics: ['geo-plana'],
+    subtopics: [],
+    maxHp: 260,
+    resolve: 3,
+    damage: { 1: 20, 2: 28, 3: 38, 4: 50 },
+    startTarget: 2,
+    targetStep: 0.25,
+    trait: {
+      kind: 'facets',
+      name: 'Três Vértices',
+      description:
+        'O Colosso tem três vértices — Áreas, Triângulos e Círculos — e as perguntas percorrem um de cada vez. Enquanto o vértice da pergunta está intacto, seus golpes causam 40% menos dano. Dois acertos num vértice o racham para sempre; um erro o reajusta (tira um acerto, se ainda não rachou). Com os três rachados, o Colosso fica exposto: +40% de dano.',
+      breaksAtHpRatio: 0,
+      hitsToCrack: 2,
+      intactMultiplier: 0.6,
+      exposedMultiplier: 1.4,
+      facets: [
+        { id: 'areas', name: 'Áreas', subtopics: ['areas', 'areas-compostas'], color: '#F2B54A', crack: 'O vértice das Áreas racha: a pedra perde a medida.' },
+        { id: 'triangulos', name: 'Triângulos', subtopics: ['pitagoras', 'semelhanca'], color: '#7FB6FF', crack: 'O vértice dos Triângulos se parte: a hipotenusa desaba sobre os catetos.' },
+        { id: 'circulos', name: 'Círculos', subtopics: ['circulo', 'angulos'], color: '#FF8FD1', crack: 'O vértice dos Círculos estala: a roda perde o centro.' },
+      ],
+    },
+    technique: {
+      name: 'Teorema Demonstrado',
+      every: 3,
+      bonus: 26,
+      line: 'Três acertos seguidos! O Teorema está demonstrado — e o Colosso estremece.',
+    },
+    lines: {
+      intro: [
+        'Régua, compasso e paciência: foi assim que me ergueram.',
+        'Tenho três vértices, e nenhum cede sem demonstração.',
+        'Rache os três — Áreas, Triângulos e Círculos — e eu ficarei sem esquadro.',
+      ],
+      phase2: 'Os três vértices racharam?! Sem eles, a minha geometria não se sustenta.',
+      playerHit: [
+        'A demonstração fecha — e a pedra estala.',
+        'Uma reta no ponto certo: o Colosso recua.',
+        'Lascas de pedra clara voam das torres.',
+        'Q.E.D.: o golpe acerta em cheio.',
+      ],
+      bossHit: [
+        'O Colosso reajusta o vértice: a rachadura se fecha um pouco.',
+        'Um ângulo mal medido — e a pedra se realinha.',
+        'Ele traça uma perpendicular no chão. Revise a resolução e siga.',
+      ],
+      defeat: 'Q.E.D. As Torres são suas, Cartógrafo — com demonstração e tudo.',
+      retreat: 'Volte quando seus ângulos estiverem em ordem. Eu não me movo.',
+    },
+    rewards: {
+      firstXp: 300,
+      firstInk: 120,
+      firstItems: ['frame-torres', 'title-geometra'],
+      flawlessItem: 'core-euclides',
+      repeatXp: 60,
+    },
+  },
+  {
+    id: 'arquiteto-dos-solidos',
+    name: 'Arquiteto dos Sólidos',
+    epithet: 'Guardião das Cavernas Volumétricas',
+    regionId: 'cavernas-volumetricas',
+    art: 'arquiteto',
+    accent: '#9B87FF',
+    topics: ['geo-espacial'],
+    subtopics: [],
+    maxHp: 280,
+    resolve: 3,
+    damage: { 1: 20, 2: 28, 3: 38, 4: 50 },
+    startTarget: 2,
+    targetStep: 0.25,
+    trait: {
+      kind: 'concrete',
+      name: 'Concreto Fresco',
+      description:
+        'Cada erro faz o Arquiteto despejar uma camada de concreto (até 3). Cada camada tira 20% do dano dos seus golpes. Os acertos sozinhos não a removem: é preciso a Técnica — três acertos seguidos — para quebrar todo o concreto de uma vez, com golpe cheio. Com a vida abaixo de 50%, o concreto racha e para de se formar.',
+      breaksAtHpRatio: 0.5,
+      maxLayers: 3,
+      layerPenalty: 0.2,
+    },
+    technique: {
+      name: 'Prumo e Esquadro',
+      every: 3,
+      bonus: 28,
+      line: 'Três acertos seguidos! Prumo e Esquadro partem o concreto de cima a baixo.',
+    },
+    lines: {
+      intro: [
+        'Todo espaço tem um volume, e todo volume tem um dono.',
+        'Cada erro seu é mais uma camada de concreto na minha obra.',
+        'Acerte três seguidos e eu desabo — ou fique soterrado em planta baixa.',
+      ],
+      phase2: 'O concreto rachou?! Que obra mal calculada… a minha.',
+      playerHit: [
+        'O golpe entra pelo prumo: o concreto estala.',
+        'Pó de pedra enche a galeria.',
+        'Uma coluna do Arquiteto cede.',
+        'Volume exato, dano exato.',
+      ],
+      bossHit: [
+        'O Arquiteto despeja mais uma camada de concreto.',
+        'Massa fresca escorre pela parede: seus golpes pesam menos.',
+        'Mais concreto, menos dano. Três acertos seguidos quebram tudo.',
+      ],
+      defeat: 'A obra desabou — e o espaço, enfim, está livre. As Cavernas são suas.',
+      retreat: 'Volte com as fórmulas na ponta do lápis. A obra espera.',
+    },
+    rewards: {
+      firstXp: 350,
+      firstInk: 140,
+      firstItems: ['frame-geodo', 'title-volumetra'],
+      flawlessItem: 'core-poliedro',
+      repeatXp: 70,
     },
   },
 ];

@@ -119,8 +119,11 @@ export const TOPICS: Topic[] = [
     enemWeight: 5,
     subtopics: [
       { id: 'areas', label: 'Áreas e perímetros' },
+      { id: 'areas-compostas', label: 'Áreas de figuras compostas' },
       { id: 'pitagoras', label: 'Teorema de Pitágoras' },
+      { id: 'semelhanca', label: 'Semelhança e Teorema de Tales' },
       { id: 'circulo', label: 'Círculo e circunferência' },
+      { id: 'angulos', label: 'Ângulos e polígonos regulares' },
     ],
   },
   {
@@ -130,7 +133,11 @@ export const TOPICS: Topic[] = [
     enemWeight: 4,
     subtopics: [
       { id: 'volumes', label: 'Volumes' },
+      { id: 'capacidade', label: 'Capacidade e unidades de volume' },
       { id: 'cilindro', label: 'Cilindros' },
+      { id: 'cone-esfera', label: 'Cones, pirâmides e esferas' },
+      { id: 'superficie', label: 'Área da superfície e planificações' },
+      { id: 'solidos-compostos', label: 'Sólidos compostos e escala de volumes' },
     ],
   },
   {

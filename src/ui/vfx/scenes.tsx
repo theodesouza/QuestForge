@@ -673,6 +673,158 @@ const Cosmos: SceneFx = {
   ),
 };
 
+/** Torre de pedra com telhado triangular; as janelas são desenhadas à parte (acendem na animação). */
+function Tower({ x, w, top, base = 300, roof, body, trim }: { x: number; w: number; top: number; base?: number; roof: string; body: string; trim: string }) {
+  return (
+    <G>
+      <Rect x={x} y={top} width={w} height={base - top} fill={body} />
+      <Rect x={x - 3} y={top - 3} width={w + 6} height={6} fill={trim} />
+      <Polygon points={`${x - 3},${top - 3} ${x + w / 2},${top - 3 - w * 0.9} ${x + w + 3},${top - 3}`} fill={roof} />
+      <Path d={`M${x} ${top + 40} H${x + w} M${x} ${top + 84} H${x + w}`} stroke={trim} strokeOpacity={0.5} strokeWidth={1} />
+    </G>
+  );
+}
+
+const TOWER_WINDOWS = [
+  [26, 190],
+  [40, 232],
+  [246, 150],
+  [262, 196],
+  [250, 244],
+];
+
+const Torres: SceneFx = {
+  Art: ({ uid }) => (
+    <>
+      <Sky id={`sk${uid}`} stops={[[0, '#141B46'], [0.5, '#34408F'], [0.82, '#8A6FA8'], [1, '#E0A070']]} />
+      <Stars seed={131} n={30} box={[0, 0, 300, 140]} />
+      <Glow id={`tg${uid}`} x={232} y={58} r={70} color="#F2B54A" opacity={0.28} />
+      <Circle cx={232} cy={58} r={26} fill="#FFE9A8" fillOpacity={0.5} />
+      <Polygon points="232,32 254.5,71 209.5,71" fill="none" stroke="#FFF3C4" strokeOpacity={0.7} strokeWidth={1.2} strokeLinejoin="round" />
+      {/* Bissetriz com régua e compasso: dois círculos que se cortam e a reta pelos pontos de encontro. */}
+      <G fill="none" stroke="#F2B54A" strokeOpacity={0.4} strokeWidth={1.1}>
+        <Circle cx={62} cy={64} r={38} />
+        <Circle cx={100} cy={64} r={38} />
+        <Line x1={81} y1={31} x2={81} y2={97} />
+        <Line x1={62} y1={64} x2={100} y2={64} strokeDasharray="3 3" />
+      </G>
+      <Tower x={104} w={26} top={190} roof="#46508F" body="#3A4278" trim="#6C77B8" />
+      <Tower x={146} w={32} top={168} roof="#46508F" body="#3A4278" trim="#6C77B8" />
+      <Tower x={14} w={44} top={128} roof="#2A3166" body="#232A58" trim="#4E5A9C" />
+      <Tower x={236} w={50} top={96} roof="#2A3166" body="#232A58" trim="#4E5A9C" />
+      <Path d="M0 300 L0 262 L300 262 L300 300 Z" fill="#161B3E" />
+      <Path d="M0 262 H300 M0 280 H300" stroke="#4E5A9C" strokeOpacity={0.6} strokeWidth={1} />
+      <Path d="M50 262 V300 M110 262 V300 M170 262 V300 M230 262 V300 M80 280 V300 M140 280 V300 M200 280 V300 M260 280 V300" stroke="#4E5A9C" strokeOpacity={0.4} strokeWidth={1} />
+      <G fill="#F2B54A" fillOpacity={0.55}>
+        {TOWER_WINDOWS.map(([wx, wy]) => (
+          <Rect key={`${wx}-${wy}`} x={wx} y={wy} width={7} height={11} rx={3.5} />
+        ))}
+      </G>
+    </>
+  ),
+  Live: () => (
+    <>
+      <Rotate period={90000} cx={232} cy={58}>
+        <Circle cx={232} cy={58} r={36} stroke="#FFF3C4" strokeOpacity={0.55} strokeWidth={1} strokeDasharray="1.5 5" strokeLinecap="round" fill="none" />
+        <Polygon points="232,22 263.2,76 200.8,76" fill="none" stroke="#FFF3C4" strokeOpacity={0.45} strokeWidth={1} strokeLinejoin="round" />
+      </Rotate>
+      <Pulse period={5200} opacity={[0.25, 1]}>
+        <G fill="#FFD36B">
+          {TOWER_WINDOWS.map(([wx, wy]) => (
+            <Rect key={`${wx}-${wy}`} x={wx} y={wy} width={7} height={11} rx={3.5} />
+          ))}
+        </G>
+      </Pulse>
+      <Pulse period={7400} opacity={[0.15, 0.75]} phase={0.3}>
+        <G fill="none" stroke="#F2B54A" strokeWidth={1.4}>
+          <Circle cx={62} cy={64} r={38} />
+          <Circle cx={100} cy={64} r={38} />
+          <Line x1={81} y1={31} x2={81} y2={97} />
+        </G>
+      </Pulse>
+      <Twinkles count={10} seed={132} box={[6, 6, 294, 140]} colors={['#FFFFFF', '#FFE9A8']} />
+      <Motes count={6} seed={133} box={[0, 210, 300, 296]} colors={['#FFE9A8', '#C9D1F0']} size={[1.6, 2.6]} period={8200} travel={46} sway={12} />
+    </>
+  ),
+};
+
+/** Cristal prismático: corpo de duas faces e ponta facetada. */
+function Crystal({ x, base, w, h, tilt = 0, left, right, tip }: { x: number; base: number; w: number; h: number; tilt?: number; left: string; right: string; tip: string }) {
+  const hw = w / 2;
+  const shoulder = base - h * 0.78;
+  const top = base - h;
+  return (
+    <G transform={`rotate(${tilt} ${x} ${base})`} strokeLinejoin="round" stroke="#0B1020" strokeOpacity={0.5} strokeWidth={0.9}>
+      <Polygon points={`${x - hw},${base} ${x - hw},${shoulder} ${x},${shoulder + 3} ${x},${base}`} fill={left} />
+      <Polygon points={`${x},${base} ${x},${shoulder + 3} ${x + hw},${shoulder} ${x + hw},${base}`} fill={right} />
+      <Polygon points={`${x - hw},${shoulder} ${x},${top} ${x + hw},${shoulder} ${x},${shoulder + 3}`} fill={tip} />
+    </G>
+  );
+}
+
+const STALACTITES: [number, number, number][] = [
+  [0, 38, 52], [38, 32, 26], [70, 36, 64], [106, 30, 34], [136, 40, 48], [176, 34, 70], [210, 32, 30], [242, 34, 58], [276, 30, 44], [296, 8, 20],
+];
+
+const CRYSTALS = [
+  { x: 36, base: 292, w: 22, h: 92, tilt: -8, left: '#2C9DB0', right: '#1A6C8C', tip: '#7FF3FF' },
+  { x: 62, base: 296, w: 16, h: 58, tilt: 10, left: '#6C55C8', right: '#47359A', tip: '#B79CFF' },
+  { x: 262, base: 292, w: 24, h: 104, tilt: 7, left: '#2C9DB0', right: '#1A6C8C', tip: '#7FF3FF' },
+  { x: 236, base: 296, w: 16, h: 64, tilt: -11, left: '#6C55C8', right: '#47359A', tip: '#B79CFF' },
+  { x: 122, base: 300, w: 14, h: 40, tilt: -6, left: '#2C9DB0', right: '#1A6C8C', tip: '#BFFBFF' },
+  { x: 178, base: 300, w: 14, h: 46, tilt: 9, left: '#6C55C8', right: '#47359A', tip: '#D8C8FF' },
+];
+
+const CAVE_GLOWS = [
+  { x: 36, y: 230, r: 62, c: '#7FF3FF', p: 5400, ph: 0 },
+  { x: 262, y: 224, r: 66, c: '#7FF3FF', p: 6200, ph: 0.4 },
+  { x: 62, y: 262, r: 40, c: '#B79CFF', p: 4800, ph: 0.7 },
+  { x: 236, y: 266, r: 42, c: '#B79CFF', p: 5800, ph: 0.2 },
+];
+
+const Cavernas: SceneFx = {
+  Art: ({ uid }) => (
+    <>
+      <Sky id={`sk${uid}`} stops={[[0, '#070A1E'], [0.55, '#15153A'], [1, '#271E5E']]} />
+      <Glow id={`cg${uid}`} x={150} y={250} r={150} color="#7FF3FF" opacity={0.16} />
+      {CAVE_GLOWS.map((g, i) => (
+        <Glow key={i} id={`cx${i}${uid}`} x={g.x} y={g.y} r={g.r} color={g.c} opacity={0.24} />
+      ))}
+      <G fill="#0C0F2C">
+        {STALACTITES.map(([x, w, h]) => (
+          <Polygon key={x} points={`${x},-4 ${x + w},-4 ${x + w * 0.5},${h}`} />
+        ))}
+      </G>
+      <Path d="M0 0 L0 120 Q18 150 12 210 L0 240 Z" fill="#0F1334" />
+      <Path d="M300 0 L300 110 Q282 150 290 214 L300 240 Z" fill="#0F1334" />
+      <Path d="M0 300 L0 272 Q60 258 120 276 T240 270 T300 274 L300 300 Z" fill="#0A0D26" />
+      {CRYSTALS.map((c, i) => (
+        <Crystal key={i} {...c} />
+      ))}
+      {/* Cubo de geodo no chão: três faces à vista. */}
+      <G strokeLinejoin="round" stroke="#0B1020" strokeOpacity={0.5} strokeWidth={0.9}>
+        <Polygon points="150,262 168,272 150,282 132,272" fill="#E8FFFF" fillOpacity={0.55} />
+        <Polygon points="132,272 150,282 150,298 132,288" fill="#2C9DB0" />
+        <Polygon points="150,282 168,272 168,288 150,298" fill="#47359A" />
+      </G>
+    </>
+  ),
+  Live: () => (
+    <>
+      {CAVE_GLOWS.map((g, i) => (
+        <Pulse key={i} period={g.p} opacity={[0.15, 1]} phase={g.ph}>
+          <Glow id={`cvg${i}`} x={g.x} y={g.y} r={g.r} color={g.c} opacity={0.4} />
+        </Pulse>
+      ))}
+      <Pulse period={4200} opacity={[0.2, 0.9]} phase={0.5}>
+        <Polygon points="150,262 168,272 150,282 132,272" fill="#FFFFFF" fillOpacity={0.55} />
+      </Pulse>
+      <Twinkles count={9} seed={142} box={[16, 150, 284, 290]} colors={['#E8FFFF', '#D8C8FF']} />
+      <Motes count={9} seed={143} box={[10, 170, 290, 296]} colors={['#7FF3FF', '#B79CFF']} size={[1.8, 3]} period={9200} travel={90} sway={16} glow />
+    </>
+  ),
+};
+
 export const SCENES: Record<SceneFxId, SceneFx> = {
   noite: Noite,
   colinas: Colinas,
@@ -685,6 +837,8 @@ export const SCENES: Record<SceneFxId, SceneFx> = {
   polar: Polar,
   observatorio: Observatorio,
   cosmos: Cosmos,
+  torres: Torres,
+  cavernas: Cavernas,
 };
 
 /** Arte estática do cenário (também usada nas miniaturas), em coordenadas 300 × 300. */

@@ -72,9 +72,9 @@ describe('feitos', () => {
     expect(r.state.profile.equipped.scene).toBe('scene-pedreira');
   });
 
-  it('os três chefões, cada um com o seu cenário', () => {
+  it('os cinco chefões, cada um com o seu cenário', () => {
     const scenes = FEATS.filter((f) => f.id.startsWith('scene:')).flatMap((f) => f.itemIds);
-    expect(scenes.sort()).toEqual(['scene-mercado', 'scene-pedreira', 'scene-planicie']);
+    expect(scenes.sort()).toEqual(['scene-cavernas', 'scene-mercado', 'scene-pedreira', 'scene-planicie', 'scene-torres']);
     for (const b of BOSSES) expect(FEATS.some((f) => f.id === `scene:${b.id}`)).toBe(true);
   });
 

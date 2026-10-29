@@ -12,6 +12,7 @@ import { Circle, Defs, Ellipse, G, Line, Path, Polygon, Polyline, RadialGradient
 import { Breathe, C, Extra, FxExtent, Glimmer, Layer, Particles, Spin, Wave } from './engine';
 import { arc, lightning, ngon, polar, ray, star } from './geometry';
 import { Ametista, Coral, Eclipse, Esmeralda, Gelo, Jade, Obsidiana } from './cores2';
+import { Euclides, Poliedro } from './cores3';
 import { Facets, GemGradient, Glow, useGid, type CoreProps } from './kit';
 import type { CoreFxId } from './rules';
 
@@ -478,6 +479,8 @@ export const CORES: Record<CoreFxId, (p: CoreProps) => ReactNode> = {
   esmeralda: Esmeralda,
   gelo: Gelo,
   eclipse: Eclipse,
+  euclides: Euclides,
+  poliedro: Poliedro,
 };
 
 /** Raio máximo desenhado por qualquer núcleo (brilho do Tesouro respirando, feixes do Pulsar). */

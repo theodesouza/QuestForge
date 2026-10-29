@@ -5,6 +5,7 @@
  */
 import { Redirect, useGlobalSearchParams } from 'expo-router';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import type { BossArt as BossArtId } from '../content/bosses';
 import { ITEMS, RARITY_LABEL, getItem } from '../content/items';
 import type { EffectsLevel, Equipped } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
@@ -44,12 +45,24 @@ export default function VfxLab() {
   const base: Equipped = { frame: p.frame ?? 'frame-bronze', core: p.core ?? 'core-quartzo', aura: p.aura ?? null, scene: p.scene ?? null, title: null };
 
   if (p.boss) {
+    const art = p.boss as BossArtId;
+    // Quatro estados de progresso (0 a 3) e o chefão derrotado: cabeças caídas, vértices rachados, camadas de concreto.
+    const hits = (n: number) => ({ areas: n >= 1 ? 2 : 0, triangulos: n >= 2 ? 2 : n >= 1 ? 1 : 0, circulos: n >= 3 ? 2 : n >= 2 ? 1 : 0 });
     return (
       <ScrollView style={styles.root} contentContainerStyle={styles.grid}>
-        {[0, 1, 2, 3].map((n) => (
+        {[0, 1, 2, 3, 4].map((n) => (
           <View key={n} style={styles.cell}>
-            <BossArt art={p.boss as 'golem' | 'mercador' | 'quimera'} size={170} headsFelled={n} cracked={n >= 1} defeated={n >= 3} />
-            <Text variant="caption" color={colors.mist}>{`${n} cabeça(s) caída(s)`}</Text>
+            <BossArt
+              art={art}
+              size={170}
+              headsFelled={Math.min(n, 3)}
+              cracked={art === 'colosso' || art === 'arquiteto' ? n >= 3 : n >= 1}
+              defeated={n >= (art === 'quimera' ? 3 : 4)}
+              facetHits={hits(n)}
+              hitsToCrack={2}
+              layers={Math.min(n, 3)}
+            />
+            <Text variant="caption" color={colors.mist}>{n === 4 ? 'derrotado' : `estado ${n}`}</Text>
           </View>
         ))}
       </ScrollView>
@@ -108,6 +121,9 @@ export default function VfxLab() {
         ['core-esmeralda', 'aura-vagalumes'],
         ['core-gelo', 'aura-neve'],
         ['core-eclipse', 'aura-lunar'],
+        ['core-euclides', 'aura-constelacao'],
+        ['core-poliedro', 'aura-neve'],
+        ['core-euclides', 'aura-zenite'],
       ];
       for (const [core, aura] of pairs) {
         const s = resolveSynergy({ core, aura });

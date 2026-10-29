@@ -42,6 +42,8 @@ const BUILDERS: Record<CustomFrameStyle, (o: FrameOpts) => FrameParts> = {
   laurel,
   runic,
   shards,
+  polygon,
+  cubes,
 };
 
 export const isCustomFrame = (s: FrameStyle | undefined): s is CustomFrameStyle => !!s && (CUSTOM_FRAME_STYLES as readonly string[]).includes(s);
@@ -317,6 +319,95 @@ function shards(o: FrameOpts): FrameParts {
       </>
     ),
     motion: { kind: 'spin', period: 12000 },
+  };
+}
+
+/** Pontos de um polígono regular de n lados inscrito no raio r, com um vértice voltado para cima. */
+function regular(n: number, r: number, cx: number, cy: number): string {
+  return Array.from({ length: n }, (_, i) => {
+    const p = polar(r, (360 / n) * i, cx, cy);
+    return `${f(p.x)},${f(p.y)}`;
+  }).join(' ');
+}
+
+/**
+ * Torres: anel firme com um octógono por fora (um rebite em cada vértice) e, no astrolábio,
+ * um triângulo e um quadrado inscritos numa circunferência pontilhada, girando devagar —
+ * régua e compasso do Colosso Euclidiano.
+ */
+function polygon(o: FrameOpts): FrameParts {
+  const { r, w, color, color2 } = o;
+  const cx = o.cx ?? C;
+  const cy = o.cy ?? C;
+  const n = o.compact ? 6 : 8;
+  const R = r + w * 1.3;
+  const rivet = o.compact ? w * 0.5 : w * 0.62;
+  const rr = r + w * 3.6;
+  return {
+    fixed: (
+      <>
+        {ring(o, w * 0.75)}
+        <Polygon points={regular(n, R, cx, cy)} stroke={color} strokeWidth={w * 0.55} strokeLinejoin="round" fill="none" />
+        <G fill={color2}>
+          {Array.from({ length: n }, (_, i) => {
+            const p = polar(R, (360 / n) * i, cx, cy);
+            return <Circle key={i} cx={p.x} cy={p.y} r={rivet} />;
+          })}
+        </G>
+      </>
+    ),
+    moving: o.compact ? undefined : (
+      <G stroke={color2} strokeOpacity={0.75} strokeWidth={w * 0.3} strokeLinejoin="round" fill="none">
+        <Circle cx={cx} cy={cy} r={rr} strokeDasharray="1.5 4" strokeLinecap="round" />
+        <Polygon points={regular(3, rr, cx, cy)} />
+        <Polygon points={regular(4, rr, cx, cy)} />
+      </G>
+    ),
+    motion: { kind: 'spin', period: 70000 },
+  };
+}
+
+/** Geodo: uma coroa de cubos isométricos (três faces à vista) em volta do anel; os topos brilham em ondas. */
+function cubes(o: FrameOpts): FrameParts {
+  const { r, w, color, color2 } = o;
+  const cx = o.cx ?? C;
+  const cy = o.cy ?? C;
+  const n = o.compact ? 6 : 12;
+  const s = o.compact ? w * 1.1 : w * 2.1;
+  const k = 0.866;
+  const at = (i: number) => polar(r + w * 0.9, (360 / n) * i + 360 / n / 2, cx, cy);
+  const hex = (p: { x: number; y: number }, pts: [number, number][]) => pts.map(([dx, dy]) => `${f(p.x + dx * s)},${f(p.y + dy * s)}`).join(' ');
+  const top: [number, number][] = [[0, -1], [k, -0.5], [0, 0], [-k, -0.5]];
+  const left: [number, number][] = [[-k, -0.5], [0, 0], [0, 1], [-k, 0.5]];
+  const right: [number, number][] = [[0, 0], [k, -0.5], [k, 0.5], [0, 1]];
+  const edge = Math.max(0.3, w * 0.18);
+  return {
+    fixed: (
+      <>
+        {ring(o, w * 0.7)}
+        {Array.from({ length: n }, (_, i) => {
+          const p = at(i);
+          return (
+            <G key={i}>
+              <Polygon points={hex(p, left)} fill={color} fillOpacity={0.9} stroke="#0B1020" strokeOpacity={0.55} strokeWidth={edge} strokeLinejoin="round" />
+              <Polygon points={hex(p, right)} fill={color2} fillOpacity={0.75} stroke="#0B1020" strokeOpacity={0.55} strokeWidth={edge} strokeLinejoin="round" />
+              <Polygon points={hex(p, right)} fill="#0B1020" fillOpacity={0.3} />
+              <Polygon points={hex(p, top)} fill="#FFFFFF" fillOpacity={0.55} stroke="#0B1020" strokeOpacity={0.55} strokeWidth={edge} strokeLinejoin="round" />
+            </G>
+          );
+        })}
+      </>
+    ),
+    moving: o.compact ? undefined : (
+      <G fill="#FFFFFF">
+        {Array.from({ length: n }, (_, i) => i)
+          .filter((i) => i % 3 === 0)
+          .map((i) => (
+            <Polygon key={i} points={hex(at(i), top)} fillOpacity={0.85} />
+          ))}
+      </G>
+    ),
+    motion: { kind: 'breathe', period: 3600, opacity: [0.05, 0.9] },
   };
 }
 

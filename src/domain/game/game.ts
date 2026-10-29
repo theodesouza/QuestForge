@@ -15,6 +15,7 @@ import {
   headSpans,
   createBattle,
   isFlawless,
+  nextFacet,
   type BattleState,
 } from '../boss/battle';
 import { nodeStatus, type BossProgress } from '../campaign/campaign';
@@ -636,11 +637,19 @@ function findBossNode(bossId: string): BossNode | null {
   return null;
 }
 
-/** Questões do chefão; na Quimera, só as da matéria da cabeça que está de pé. */
+/**
+ * Questões do chefão: na Quimera, só as da matéria da cabeça que está de pé; no Colosso, as do
+ * vértice da vez (rodízio entre os que ainda não racharam).
+ */
 function bossPool(boss: BossDef, battle?: BattleState) {
   if (boss.trait.kind === 'heads' && battle) {
     const span = headSpans(boss)[activeHeadIndex(boss, battle.hp)];
     const pool = questionsFor({ topics: boss.topics, subtopics: span.head.subtopics });
+    if (pool.length > 0) return pool;
+  }
+  if (boss.trait.kind === 'facets' && battle) {
+    const facet = nextFacet(boss, battle);
+    const pool = facet ? questionsFor({ topics: boss.topics, subtopics: facet.subtopics }) : [];
     if (pool.length > 0) return pool;
   }
   return questionsFor({ topics: boss.topics, subtopics: boss.subtopics });
@@ -706,6 +715,7 @@ export function battleAnswer(state: GameState, input: AnswerInput, now: number):
     correct,
     guessed: correct && input.guessed,
     hints: input.hints,
+    subtopic: q.subtopic,
   });
   const next: BattleState = { ...after, xpEarned: battle.xpEarned + granted };
 

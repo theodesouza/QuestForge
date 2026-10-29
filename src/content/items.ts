@@ -50,7 +50,7 @@ export type OptionalSlot = (typeof OPTIONAL_SLOTS)[number];
 
 /** Estilos de moldura — cada um desenha o anel do astrolábio de um jeito (src/ui/vfx/frames.tsx). */
 export const LEGACY_FRAME_STYLES = ['plain', 'double', 'notched', 'armillary', 'segmented'] as const;
-export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards'] as const;
+export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes'] as const;
 export const FRAME_STYLES = [...LEGACY_FRAME_STYLES, ...CUSTOM_FRAME_STYLES] as const;
 export type FrameStyle = (typeof FRAME_STYLES)[number];
 export type CustomFrameStyle = (typeof CUSTOM_FRAME_STYLES)[number];
@@ -358,6 +358,62 @@ const BASE_ITEMS: ItemDef[] = [
     description: 'O coração da Quimera: três gemas — leão, cabra e serpente — que só brilham juntas, em frações exatas.',
     howToGet: 'Derrote a Quimera Fracionária sem erros e sem usar dicas.',
     visual: { color: '#5FD38D', color2: '#F2B54A', element: 'astral', fx: 'trindade' },
+  },
+  // ——— Região 4: Torres Euclidianas ———
+  {
+    id: 'frame-torres',
+    slot: 'frame',
+    name: 'Moldura das Torres',
+    rarity: 'raro',
+    description: 'Um polígono regular inscrito no círculo, com régua e compasso: cada vértice, uma demonstração.',
+    howToGet: 'Derrote o Colosso Euclidiano.',
+    visual: { color: '#7FB6FF', color2: '#F2B54A', frameStyle: 'polygon' },
+  },
+  {
+    id: 'title-geometra',
+    slot: 'title',
+    name: 'Geômetra',
+    rarity: 'raro',
+    description: 'Mede a torre pela sombra, o triângulo pelo lado e o círculo pelo raio.',
+    howToGet: 'Derrote o Colosso Euclidiano.',
+    visual: { color: '#7FB6FF' },
+  },
+  {
+    id: 'core-euclides',
+    slot: 'core',
+    name: 'Núcleo de Euclides',
+    rarity: 'lendario',
+    description: 'O coração do Colosso: um triângulo 3-4-5 com seus três quadrados, 9 + 16 = 25, ainda sob o compasso.',
+    howToGet: 'Derrote o Colosso Euclidiano sem erros e sem usar dicas.',
+    visual: { color: '#F2B54A', color2: '#7FB6FF', element: 'astral', fx: 'euclides' },
+  },
+  // ——— Região 5: Cavernas Volumétricas ———
+  {
+    id: 'frame-geodo',
+    slot: 'frame',
+    name: 'Moldura de Geodo',
+    rarity: 'raro',
+    description: 'Cubos de cristal empilhados em volta do anel, cada um com três faces à vista.',
+    howToGet: 'Derrote o Arquiteto dos Sólidos.',
+    visual: { color: '#7FF3FF', color2: '#9B87FF', frameStyle: 'cubes' },
+  },
+  {
+    id: 'title-volumetra',
+    slot: 'title',
+    name: 'Volumetra',
+    rarity: 'raro',
+    description: 'Enche qualquer sólido de contas — e sabe quanto cabe dentro.',
+    howToGet: 'Derrote o Arquiteto dos Sólidos.',
+    visual: { color: '#7FF3FF' },
+  },
+  {
+    id: 'core-poliedro',
+    slot: 'core',
+    name: 'Núcleo do Poliedro',
+    rarity: 'lendario',
+    description: 'O coração do Arquiteto: sólidos de Platão encaixados uns nos outros, girando sem nunca se tocar.',
+    howToGet: 'Derrote o Arquiteto dos Sólidos sem erros e sem usar dicas.',
+    visual: { color: '#7FF3FF', color2: '#B79CFF', element: 'lunar', fx: 'poliedro' },
   },
   // ——— Encomendas ———
   {

@@ -20,12 +20,13 @@ import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
-import { activeHeadIndex, headSpans, headsFelled, type BattleState } from '../domain/boss/battle';
+import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import { battleReviewItems } from '../domain/game/review';
 import type { GameEvent } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
 import { HeadsBar } from '../features/boss/HeadsBar';
+import { ConcreteTag, FacetsBar } from '../features/boss/TraitMeters';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
@@ -45,9 +46,22 @@ import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
 import { colors, radius, rarityColor, space } from '../ui/theme';
 
-function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' {
-  return boss.trait.kind === 'armor' ? 'shield' : boss.trait.kind === 'heads' ? 'target' : 'lock';
+function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' {
+  switch (boss.trait.kind) {
+    case 'armor':
+    case 'concrete':
+      return 'shield';
+    case 'heads':
+      return 'target';
+    case 'facets':
+      return 'star';
+    default:
+      return 'lock';
+  }
 }
+
+/** Erro do Arquiteto sem espaço para mais uma camada (no limite, ou com o concreto já rachado). */
+const CONCRETE_FULL = 'O concreto não cresce mais — mas o erro custou Determinação.';
 
 function pickLine(lines: string[], n: number) {
   return lines[n % lines.length];
@@ -143,6 +157,20 @@ function Intro({ boss }: { boss: BossDef }) {
               </View>
             ))
           : null}
+        {boss.trait.kind === 'facets'
+          ? boss.trait.facets.map((f) => (
+              <View key={f.id} style={styles.headRow} accessible accessibilityLabel={`Vértice ${f.name}: ${f.subtopics.map((s) => subtopicLabel(boss.topics[0], s)).join(', ')}.`}>
+                <View style={[styles.headDot, { backgroundColor: f.color }]} />
+                <Text variant="caption" color={colors.parchment} style={{ flex: 1 }}>
+                  <Text variant="caption" color={f.color}>
+                    {f.name}
+                  </Text>
+                  {'  '}
+                  {f.subtopics.map((s) => subtopicLabel(boss.topics[0], s)).join(' · ')}
+                </Text>
+              </View>
+            ))
+          : null}
         <View style={styles.rule}>
           <Icon name="sparkle" size={20} color={colors.brass} fill={colors.brassGlow} />
           <View style={{ flex: 1 }}>
@@ -175,7 +203,7 @@ function Intro({ boss }: { boss: BossDef }) {
 
 type Hit = { id: number; damage: number; technique: boolean; healed: number };
 
-function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; hit: Hit | null; line: string }) {
+function Hud({ boss, battle, hit, line, activeFacetId }: { boss: BossDef; battle: BattleState; hit: Hit | null; line: string; activeFacetId: string | null }) {
   const reduce = useReduceMotion();
   return (
     <View style={styles.hud}>
@@ -209,6 +237,7 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
       ) : (
         <ProgressBar value={battle.hp / battle.maxHp} color={colors.ember} height={10} accessibilityLabel={`Vida de ${boss.name}: ${battle.hp} de ${battle.maxHp}`} />
       )}
+      {boss.trait.kind === 'facets' ? <FacetsBar boss={boss} battle={battle} activeFacetId={activeFacetId} /> : null}
       <View style={styles.hudRow}>
         <View style={styles.resolve} accessible accessibilityLabel={`Determinação: ${battle.resolve} de ${battle.maxResolve}`}>
           {Array.from({ length: battle.maxResolve }, (_, i) => (
@@ -223,6 +252,17 @@ function Hud({ boss, battle, hit, line }: { boss: BossDef; battle: BattleState; 
                 {headSpans(boss)[activeHeadIndex(boss, battle.hp)].head.name}
               </Text>
             </View>
+          ) : boss.trait.kind === 'concrete' ? (
+            <ConcreteTag boss={boss} battle={battle} />
+          ) : boss.trait.kind === 'facets' ? (
+            battle.armorBroken ? (
+              <View style={styles.tag} accessible accessibilityLabel="Colosso exposto: dano ampliado">
+                <Icon name="star" size={13} color={colors.ember} />
+                <Text variant="caption" color={colors.ember}>
+                  exposto
+                </Text>
+              </View>
+            ) : null
           ) : !battle.armorBroken ? (
             <View style={styles.tag} accessible accessibilityLabel={`${boss.trait.name} ativa`}>
               <Icon name={traitIcon(boss)} size={13} color={colors.mist} />
@@ -295,6 +335,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
   const artStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shake.value }], opacity: 1 - flash.value * 0.45 }));
 
   const question = shownId ? findQuestion(shownId) : undefined;
+  const activeFacetId = facetOf(boss, question?.subtopic)?.id ?? null;
 
   const send = async (input: Parameters<typeof battleAnswer>[0]) => {
     const events = await battleAnswer(input);
@@ -309,11 +350,14 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
           flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
         }
         const felled = boss.trait.kind === 'heads' && (turn.headsFelled ?? 0) > 0 ? boss.trait.heads[headsFelled(boss, after.hp) - 1] : null;
+        const cracked = boss.trait.kind === 'facets' && turn.facetCracked ? boss.trait.facets.find((f) => f.id === turn.facetCracked) : null;
         setLine(
           felled && after.status !== 'won'
             ? felled.fall
             : turn.armorBroke
             ? boss.lines.phase2
+            : cracked && after.status !== 'won'
+            ? cracked.crack
             : turn.technique
               ? boss.technique.line
               : after.status === 'won'
@@ -322,7 +366,13 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
         );
       } else {
         setHit((turn.healed ?? 0) > 0 ? { id: after.turns.length, damage: 0, technique: false, healed: turn.healed ?? 0 } : null);
-        setLine(after.status === 'retreated' ? boss.lines.retreat : pickLine(boss.lines.bossHit, after.turns.length));
+        setLine(
+          after.status === 'retreated'
+            ? boss.lines.retreat
+            : boss.trait.kind === 'concrete' && !turn.layerAdded
+              ? CONCRETE_FULL
+              : pickLine(boss.lines.bossHit, after.turns.length),
+        );
       }
       if (after.status !== 'active') finalEvents.current = events;
     }
@@ -358,7 +408,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
       <View style={[styles.top, { paddingTop: insets.top + space.xs }]}>
         <IconButton icon="close" label="Pausar ou recuar" onPress={onClose} color={colors.parchment} />
         <View style={{ flex: 1 }}>
-          <Hud boss={boss} battle={battle} hit={hit} line={line} />
+          <Hud boss={boss} battle={battle} hit={hit} line={line} activeFacetId={activeFacetId} />
         </View>
       </View>
       <ScrollView
@@ -372,7 +422,16 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
       >
         <View style={styles.arena} onLayout={(e) => (feedbackOffset.current = e.nativeEvent.layout.height + space.lg)}>
           <Animated.View style={artStyle}>
-            <BossArt art={boss.art} size={150} cracked={battle.armorBroken} defeated={battle.status === 'won'} headsFelled={headsFelled(boss, battle.hp)} />
+            <BossArt
+              art={boss.art}
+              size={150}
+              cracked={battle.armorBroken}
+              defeated={battle.status === 'won'}
+              headsFelled={headsFelled(boss, battle.hp)}
+              facetHits={facetHitsOf(battle)}
+              hitsToCrack={boss.trait.kind === 'facets' ? boss.trait.hitsToCrack : undefined}
+              layers={concreteLayers(battle)}
+            />
           </Animated.View>
         </View>
         {reviewed && reviewedAttempt ? (
@@ -448,7 +507,16 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
       }
     >
       <Animated.View entering={reduce ? undefined : FadeIn.duration(500)} style={styles.introArt}>
-        <BossArt art={boss.art} size={190} defeated={won} cracked headsFelled={headsFelled(boss, battle.hp)} />
+        <BossArt
+          art={boss.art}
+          size={190}
+          defeated={won}
+          cracked={boss.trait.kind === 'facets' || boss.trait.kind === 'concrete' ? battle.armorBroken : true}
+          headsFelled={headsFelled(boss, battle.hp)}
+          facetHits={facetHitsOf(battle)}
+          hitsToCrack={boss.trait.kind === 'facets' ? boss.trait.hitsToCrack : undefined}
+          layers={concreteLayers(battle)}
+        />
       </Animated.View>
       <View style={styles.center}>
         <Text variant="label" color={won ? colors.brass : colors.mist}>
