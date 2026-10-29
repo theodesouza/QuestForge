@@ -1,7 +1,7 @@
 import { getBoss } from '../../content/bosses';
 import { getRegion } from '../../content/regions';
 import { getTopic } from '../../content/topics';
-import { applyBattleAnswer, createBattle, scalesMultiplier, scalesOf, type BattleState } from '../boss/battle';
+import { applyBattleAnswer, battleTarget, createBattle, isRiddleTurn, riddleEvery, scalesMultiplier, scalesOf, turnsToRiddle, type BattleState, type BattleTurn } from '../boss/battle';
 import { nodeStatus } from '../campaign/campaign';
 
 const T0 = Date.UTC(2026, 9, 30, 15);
@@ -12,6 +12,7 @@ const done = (ids: string[]) => Object.fromEntries(ids.map((id) => [id, { nodeId
 describe('Atlas: Regiões 6 a 9 (estrutura)', () => {
   const regions = [
     { id: 'observatorio-dados', index: 6, prefix: 'r6', boss: 'leviata-dos-graficos', after: 'r5-boss' },
+    { id: 'labirinto-acaso', index: 7, prefix: 'r7', boss: 'esfinge-do-acaso', after: 'r6-boss' },
   ];
   it.each(regions)('região $index: três missões em cadeia, chefão só depois delas', ({ id, index, prefix, boss, after }) => {
     const region = getRegion(id);
@@ -124,5 +125,78 @@ describe('Leviatã dos Gráficos: Escamas de Dados', () => {
     const r = hit(b, 3);
     expect(r.battle.hp).toBe(0);
     expect(r.battle.status).toBe('won');
+  });
+});
+
+// ———————————————————————————————————————————————— Esfinge do Acaso
+
+describe('Esfinge do Acaso: Enigma', () => {
+  const boss = getBoss('esfinge-do-acaso');
+  const filler = (n: number): BattleTurn[] =>
+    Array.from({ length: n }, (_, i) => ({ questionId: `q${i}`, correct: true, guessed: false, hints: 0, damage: 10, technique: false, armorBroke: false }));
+  /** Batalha parada no golpe n + 1 (n golpes já dados), sem combo. */
+  const at = (n: number, extra: Partial<BattleState> = {}): BattleState => ({ ...createBattle(boss, 'c', T0, 0), currentQuestionId: 'Q', turns: filler(n), ...extra });
+  const hit = (b: BattleState, difficulty: 1 | 2 | 3 | 4 = 3) => applyBattleAnswer(boss, b, { questionId: 'Q', difficulty, correct: true, guessed: false, hints: 0 });
+  const miss = (b: BattleState) => applyBattleAnswer(boss, b, { questionId: 'Q', difficulty: 2, correct: false, guessed: false, hints: 0 });
+
+  it('o Enigma vem a cada 4 golpes e, na fase 2, a cada 3', () => {
+    expect(boss.trait.kind).toBe('riddle');
+    expect([0, 1, 2, 3, 4, 5, 6, 7].map((n) => isRiddleTurn(boss, at(n)))).toEqual([false, false, false, true, false, false, false, true]);
+    expect(riddleEvery(boss, at(0))).toBe(4);
+    expect(riddleEvery(boss, at(0, { armorBroken: true }))).toBe(3);
+    expect([0, 1, 2, 3, 4, 5].map((n) => isRiddleTurn(boss, at(n, { armorBroken: true })))).toEqual([false, false, true, false, false, true]);
+    expect([0, 1, 2, 3, 4].map((n) => turnsToRiddle(boss, at(n)))).toEqual([3, 2, 1, 0, 3]);
+    expect(isRiddleTurn(getBoss('golem-proporcional'), at(3))).toBe(false);
+    expect(turnsToRiddle(getBoss('golem-proporcional'), at(3))).toBe(0);
+  });
+
+  it('o Enigma pede uma questão um nível mais difícil (até 4)', () => {
+    expect(battleTarget(boss, at(0))).toBe(2);
+    expect(battleTarget(boss, at(3))).toBe(boss.startTarget + 3 * boss.targetStep + 1);
+    expect(battleTarget(boss, at(31))).toBe(4);
+  });
+
+  it('acertar o Enigma amplia o dano em 50%; um golpe comum não muda', () => {
+    const normal = hit(at(2), 3);
+    expect(normal.turn.damage).toBe(38);
+    expect(normal.turn.riddle).toBeUndefined();
+    const enigma = hit(at(3), 3);
+    expect(enigma.turn.damage).toBe(57);
+    expect(enigma.turn.riddle).toBe(true);
+    expect(enigma.battle.resolve).toBe(boss.resolve);
+  });
+
+  it('errar o Enigma custa 2 de Determinação; um erro comum, 1', () => {
+    const normal = miss(at(1));
+    expect(normal.battle.resolve).toBe(boss.resolve - 1);
+    expect(normal.turn.riddle).toBeUndefined();
+    const enigma = miss(at(3));
+    expect(enigma.battle.resolve).toBe(boss.resolve - 2);
+    expect(enigma.turn.riddle).toBe(true);
+    expect(enigma.turn.healed).toBe(0);
+    expect(enigma.battle.status).toBe('active');
+  });
+
+  it('errar o Enigma com 1 ponto de Determinação encerra a batalha, sem passar de zero', () => {
+    const r = miss(at(3, { resolve: 1 }));
+    expect(r.battle.resolve).toBe(0);
+    expect(r.battle.status).toBe('retreated');
+    const last = miss(at(3, { resolve: 2 }));
+    expect(last.battle.resolve).toBe(0);
+    expect(last.battle.status).toBe('retreated');
+  });
+
+  it('a fase 2 começa com a vida abaixo de 50% e antecipa o Enigma', () => {
+    const b = at(1, { hp: Math.round(boss.maxHp * 0.5) + 10 });
+    const r = hit(b, 3);
+    expect(r.battle.hp).toBeLessThanOrEqual(boss.maxHp * 0.5);
+    expect(r.turn.armorBroke).toBe(true);
+    expect(isRiddleTurn(boss, r.battle)).toBe(true); // 2 golpes dados, 3º golpe com período 3
+  });
+
+  it('a Técnica no Enigma soma o bônus depois da ampliação', () => {
+    const r = hit(at(3, { combo: 2 }), 3); // 3º acerto seguido: Técnica, combo ×1,3
+    expect(r.turn.technique).toBe(true);
+    expect(r.turn.damage).toBe(Math.round(38 * 1.3 * 1.5) + boss.technique.bonus);
   });
 });

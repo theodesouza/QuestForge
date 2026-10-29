@@ -50,7 +50,7 @@ export type OptionalSlot = (typeof OPTIONAL_SLOTS)[number];
 
 /** Estilos de moldura — cada um desenha o anel do astrolábio de um jeito (src/ui/vfx/frames.tsx). */
 export const LEGACY_FRAME_STYLES = ['plain', 'double', 'notched', 'armillary', 'segmented'] as const;
-export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes', 'axes'] as const;
+export const CUSTOM_FRAME_STYLES = ['beaded', 'chain', 'scalloped', 'rays', 'laurel', 'runic', 'shards', 'polygon', 'cubes', 'axes', 'maze'] as const;
 export const FRAME_STYLES = [...LEGACY_FRAME_STYLES, ...CUSTOM_FRAME_STYLES] as const;
 export type FrameStyle = (typeof FRAME_STYLES)[number];
 export type CustomFrameStyle = (typeof CUSTOM_FRAME_STYLES)[number];
@@ -442,6 +442,34 @@ const BASE_ITEMS: ItemDef[] = [
     description: 'O coração do Leviatã: barras que sobem e descem, uma linha que as une e uma rosca de setores que gira sem nunca errar a escala.',
     howToGet: 'Derrote o Leviatã dos Gráficos sem erros e sem usar dicas.',
     visual: { color: '#38D6B0', color2: '#7FF3FF', element: 'mare', fx: 'histograma' },
+  },
+  // ——— Região 7: Labirinto do Acaso ———
+  {
+    id: 'frame-labirinto',
+    slot: 'frame',
+    name: 'Moldura do Labirinto',
+    rarity: 'raro',
+    description: 'Muralhas em greca em volta do anel, com um ponto de luz que percorre o labirinto sem nunca se perder.',
+    howToGet: 'Derrote a Esfinge do Acaso.',
+    visual: { color: '#FF8FD1', color2: '#FFD36B', frameStyle: 'maze' },
+  },
+  {
+    id: 'title-mestre-acaso',
+    slot: 'title',
+    name: 'Mestre do Acaso',
+    rarity: 'raro',
+    description: 'Conta todos os caminhos antes de dar o primeiro passo.',
+    howToGet: 'Derrote a Esfinge do Acaso.',
+    visual: { color: '#FF8FD1' },
+  },
+  {
+    id: 'core-dado',
+    slot: 'core',
+    name: 'Núcleo do Dado Perfeito',
+    rarity: 'lendario',
+    description: 'O coração da Esfinge: um dado de vinte faces que sempre cai onde a conta mandou — e dados menores orbitando em volta, contando as chances.',
+    howToGet: 'Derrote a Esfinge do Acaso sem erros e sem usar dicas.',
+    visual: { color: '#FFD36B', color2: '#FF8FD1', element: 'tempestade', fx: 'dado' },
   },
   // ——— Encomendas ———
   {

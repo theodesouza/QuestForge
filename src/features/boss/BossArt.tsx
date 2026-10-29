@@ -1,6 +1,7 @@
 import type { BossArt as BossArtId } from '../../content/bosses';
 import { ArquitetoArt } from './ArquitetoArt';
 import { ColossoArt } from './ColossoArt';
+import { EsfingeArt } from './EsfingeArt';
 import { GolemArt } from './GolemArt';
 import { LeviataArt } from './LeviataArt';
 import { MercadorArt } from './MercadorArt';
@@ -21,10 +22,12 @@ interface Props {
   /** Leviatã dos Gráficos: escamas que ainda cobrem o corpo. */
   scales?: number;
   maxScales?: number;
+  /** Esfinge do Acaso: o golpe atual é um Enigma. */
+  riddle?: boolean;
 }
 
 /** Registro das artes de chefão: cada BossDef aponta para uma delas. */
-export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers, scales, maxScales }: Props) {
+export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers, scales, maxScales, riddle }: Props) {
   switch (art) {
     case 'golem':
       return <GolemArt size={size} cracked={cracked} defeated={defeated} />;
@@ -36,6 +39,8 @@ export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, 
       return <ColossoArt size={size} cracked={cracked} defeated={defeated} facetHits={facetHits} hitsToCrack={hitsToCrack} />;
     case 'arquiteto':
       return <ArquitetoArt size={size} cracked={cracked} defeated={defeated} layers={layers} />;
+    case 'esfinge':
+      return <EsfingeArt size={size} cracked={cracked} defeated={defeated} riddle={riddle} />;
     case 'leviata':
       return <LeviataArt size={size} cracked={cracked} defeated={defeated} scales={scales} maxScales={maxScales} />;
   }

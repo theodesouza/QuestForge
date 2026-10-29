@@ -33,6 +33,8 @@ export interface BattleTurn {
   facetRepaired?: boolean;
   /** Arquiteto: camadas de concreto depois deste turno. */
   layers?: number;
+  /** Esfinge do Acaso: este turno foi um Enigma. */
+  riddle?: boolean;
   /** Leviatã dos Gráficos: escamas depois deste turno. */
   scales?: number;
   /** Leviatã: escamas arrancadas por este acerto. */
@@ -128,6 +130,7 @@ export function computeDamage(boss: BossDef, battle: BattleState, input: DamageI
   dmg *= 1 + battle.knowledgeBonus;
   dmg *= facetMultiplier(boss, battle, input.subtopic);
   dmg *= scalesMultiplier(boss, battle);
+  if (boss.trait.kind === 'riddle' && isRiddleTurn(boss, battle)) dmg *= boss.trait.damageMultiplier;
   // A Técnica ignora o concreto (e o quebra); os golpes comuns pagam o preço das camadas.
   if (!technique) dmg *= concreteMultiplier(boss, battle);
   const total = Math.round(dmg) + (technique ? boss.technique.bonus : 0);
@@ -136,7 +139,8 @@ export function computeDamage(boss: BossDef, battle: BattleState, input: DamageI
 
 /** Escalada da dificuldade-alvo a cada turno. */
 export function battleTarget(boss: BossDef, battle: BattleState): number {
-  return Math.min(4, boss.startTarget + battle.turns.length * boss.targetStep);
+  // O Enigma da Esfinge é sempre um nível mais difícil.
+  return Math.min(4, boss.startTarget + battle.turns.length * boss.targetStep + (isRiddleTurn(boss, battle) ? 1 : 0));
 }
 
 export interface BattleAnswer {
@@ -171,6 +175,7 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
     next.combo = battle.combo + 1;
     next.maxCombo = Math.max(battle.maxCombo, next.combo);
     turn = { ...pick(answer), damage, technique, armorBroke: false, healed: 0 };
+    if (trait.kind === 'riddle' && isRiddleTurn(boss, battle)) turn.riddle = true;
     let armorBroke: boolean;
     if (trait.kind === 'facets') {
       // Cada acerto num vértice intacto o aproxima da rachadura; com os três rachados, o Colosso fica exposto.
@@ -210,10 +215,12 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
     if (next.hp === 0) next.status = 'won';
   } else {
     next.combo = 0;
-    next.resolve = battle.resolve - 1;
+    const riddle = trait.kind === 'riddle' && isRiddleTurn(boss, battle);
+    next.resolve = Math.max(0, battle.resolve - (trait.kind === 'riddle' && riddle ? trait.missResolve : 1));
     const healed = missHeal(boss, battle);
     next.hp = Math.min(boss.maxHp, battle.hp + healed);
     turn = { ...pick(answer), damage: 0, technique: false, armorBroke: false, healed };
+    if (riddle) turn.riddle = true;
     if (trait.kind === 'facets') {
       // O Colosso reajusta o vértice atingido: perde um acerto, se ainda não tinha rachado.
       const facet = facetOf(boss, answer.subtopic);
@@ -344,6 +351,25 @@ export function facetMultiplier(boss: BossDef, battle: BattleState, subtopic?: s
   if (allFacetsCracked(boss, battle)) return boss.trait.exposedMultiplier;
   const facet = facetOf(boss, subtopic);
   return facet && !isFacetCracked(boss, battle, facet.id) ? boss.trait.intactMultiplier : 1;
+}
+
+// ———————————————————————————————————————————————— Esfinge do Acaso: Enigma
+
+/** De quantos em quantos golpes vem o Enigma agora (0 em chefões sem Enigma). */
+export function riddleEvery(boss: BossDef, battle: BattleState): number {
+  return boss.trait.kind === 'riddle' ? (battle.armorBroken ? boss.trait.phase2Every : boss.trait.every) : 0;
+}
+
+/** O golpe que está para ser dado (o da pergunta atual) é um Enigma? */
+export function isRiddleTurn(boss: BossDef, battle: BattleState): boolean {
+  const every = riddleEvery(boss, battle);
+  return every > 0 && (battle.turns.length + 1) % every === 0;
+}
+
+/** Quantos golpes faltam para o próximo Enigma (0 = o golpe atual). */
+export function turnsToRiddle(boss: BossDef, battle: BattleState): number {
+  const every = riddleEvery(boss, battle);
+  return every > 0 ? (every - ((battle.turns.length + 1) % every)) % every : 0;
 }
 
 // ———————————————————————————————————————————————— Leviatã dos Gráficos: escamas

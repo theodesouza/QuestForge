@@ -10,13 +10,13 @@ import { MYTHIC_COLOR } from '../theme';
 
 export const CORE_FX = [
   'prisma', 'ambar', 'rubi', 'verdete', 'iris', 'safira', 'solar', 'pulsar', 'tesouro', 'trindade',
-  'jade', 'coral', 'ametista', 'obsidiana', 'esmeralda', 'gelo', 'eclipse', 'euclides', 'poliedro', 'histograma',
+  'jade', 'coral', 'ametista', 'obsidiana', 'esmeralda', 'gelo', 'eclipse', 'euclides', 'poliedro', 'histograma', 'dado',
 ] as const;
 export const AURA_FX = [
   'brasa', 'nevoa', 'mare', 'lunar', 'boreal', 'nebulosa', 'aurea', 'zenite',
   'petalas', 'cinzas', 'vagalumes', 'neve', 'eletrica', 'constelacao',
 ] as const;
-export const SCENE_FX = ['noite', 'colinas', 'mar', 'dunas', 'floresta', 'pedreira', 'mercado', 'planicie', 'polar', 'observatorio', 'cosmos', 'torres', 'cavernas', 'mirante'] as const;
+export const SCENE_FX = ['noite', 'colinas', 'mar', 'dunas', 'floresta', 'pedreira', 'mercado', 'planicie', 'polar', 'observatorio', 'cosmos', 'torres', 'cavernas', 'mirante', 'labirinto'] as const;
 export type CoreFxId = (typeof CORE_FX)[number];
 export type AuraFxId = (typeof AURA_FX)[number];
 export type SceneFxId = (typeof SCENE_FX)[number];

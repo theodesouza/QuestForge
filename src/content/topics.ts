@@ -111,7 +111,9 @@ export const TOPICS: Topic[] = [
     enemWeight: 3,
     subtopics: [
       { id: 'principio-multiplicativo', label: 'Princípio multiplicativo' },
+      { id: 'permutacao', label: 'Permutações e arranjos' },
       { id: 'combinacao', label: 'Combinações' },
+      { id: 'contagem-restricoes', label: 'Contagem com restrições' },
     ],
   },
   {

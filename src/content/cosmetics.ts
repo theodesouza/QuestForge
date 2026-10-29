@@ -324,6 +324,15 @@ export const MORE_ITEMS: ItemDef[] = [
     visual: { color: '#38D6B0', color2: '#9B87FF', fx: 'mirante' },
   },
   {
+    id: 'scene-labirinto',
+    slot: 'scene',
+    name: 'Corredores do Labirinto',
+    rarity: 'raro',
+    description: 'Muralhas em degraus, tochas acesas e dados flutuando no ar: cada corredor é uma possibilidade.',
+    howToGet: 'Derrote a Esfinge do Acaso.',
+    visual: { color: '#FF8FD1', color2: '#FFD36B', fx: 'labirinto' },
+  },
+  {
     id: 'scene-polar',
     slot: 'scene',
     name: 'Campo Polar',

@@ -46,6 +46,10 @@ export interface BossFacet {
  *   (`scaledMultiplier`); cada acerto arranca uma escama (a Técnica arranca duas) e cada erro faz
  *   `regrow` escamas crescerem de volta. Sem escamas o Leviatã fica exposto (`exposedMultiplier`);
  *   a primeira vez que isso acontece é a fase 2.
+ * - riddle: a cada `every` golpes a Esfinge propõe um Enigma — uma questão um nível mais difícil.
+ *   Acertar o Enigma multiplica o dano por `damageMultiplier`; errar custa `missResolve` pontos de
+ *   Determinação em vez de um. Com a vida abaixo de `breaksAtHpRatio` (fase 2), o Enigma passa a vir
+ *   a cada `phase2Every` golpes.
  * - concrete: cada erro faz o Arquiteto despejar uma camada de concreto (até `maxLayers`),
  *   e cada camada reduz o dano dos golpes seguintes. Uma Técnica (acertos seguidos) ignora
  *   as camadas e quebra todas. Com a vida abaixo de `breaksAtHpRatio`, o concreto racha e para
@@ -105,6 +109,22 @@ export type BossTrait =
       exposedMultiplier: number;
     }
   | {
+      kind: 'riddle';
+      name: string;
+      description: string;
+      breaksAtHpRatio: number;
+      /** De quantos em quantos golpes vem o Enigma (golpes 4, 8, 12…). */
+      every: number;
+      /** Na fase 2 o Enigma vem mais depressa. */
+      phase2Every: number;
+      /** Multiplicador de dano ao decifrar o Enigma. */
+      damageMultiplier: number;
+      /** Determinação perdida ao errar o Enigma. */
+      missResolve: number;
+      solvedLine: string;
+      failedLine: string;
+    }
+  | {
       kind: 'concrete';
       name: string;
       description: string;
@@ -116,7 +136,7 @@ export type BossTrait =
     };
 
 /** Arte vetorial registrada na UI (src/features/boss/art). */
-export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto' | 'leviata';
+export type BossArt = 'golem' | 'mercador' | 'quimera' | 'colosso' | 'arquiteto' | 'leviata' | 'esfinge';
 
 export interface BossDef {
   id: string;
@@ -512,6 +532,68 @@ export const BOSSES: BossDef[] = [
       firstItems: ['frame-observatorio', 'title-analista'],
       flawlessItem: 'core-histograma',
       repeatXp: 80,
+    },
+  },
+  {
+    id: 'esfinge-do-acaso',
+    name: 'Esfinge do Acaso',
+    epithet: 'Guardiã do Labirinto do Acaso',
+    regionId: 'labirinto-acaso',
+    art: 'esfinge',
+    accent: '#FF8FD1',
+    topics: ['combinatoria', 'probabilidade'],
+    subtopics: [],
+    maxHp: 440,
+    resolve: 3,
+    damage: { 1: 20, 2: 28, 3: 38, 4: 50 },
+    startTarget: 2,
+    targetStep: 0.25,
+    trait: {
+      kind: 'riddle',
+      name: 'Enigma da Esfinge',
+      description:
+        'A cada 4 golpes a Esfinge propõe um Enigma: uma questão um nível mais difícil. Decifrá-lo vale 50% a mais de dano — mas um erro nele custa 2 pontos de Determinação, em vez de 1. Com a vida abaixo de 50%, ela perde a paciência e os Enigmas passam a vir a cada 3 golpes.',
+      breaksAtHpRatio: 0.5,
+      every: 4,
+      phase2Every: 3,
+      damageMultiplier: 1.5,
+      missResolve: 2,
+      solvedLine: 'Enigma decifrado! A Esfinge recua um passo, e o golpe vale mais.',
+      failedLine: 'O Enigma não perdoa: dois pontos de Determinação se foram.',
+    },
+    technique: {
+      name: 'Sorte Calculada',
+      every: 3,
+      bonus: 32,
+      line: 'Três acertos seguidos! A Sorte Calculada vira o jogo — e não foi sorte.',
+    },
+    lines: {
+      intro: [
+        'Tudo o que pode acontecer, acontece. Quantas vezes? Conte.',
+        'A cada quatro passos eu faço uma pergunta: acerte e eu tremo; erre e você paga caro.',
+        'Mostre que sabe contar as possibilidades — e medir as chances.',
+      ],
+      phase2: 'Perdi a paciência! Agora os Enigmas virão mais depressa.',
+      playerHit: [
+        'O caminho se abre: a conta fechou.',
+        'A areia do labirinto estremece.',
+        'Casos favoráveis, casos possíveis: o golpe acerta.',
+        'Uma possibilidade a menos para a Esfinge.',
+      ],
+      bossHit: [
+        'A Esfinge sorri: o acaso favorece quem não o calcula.',
+        'Um caso esquecido — e o labirinto se fecha um pouco.',
+        'Ela baralha as possibilidades. Revise a resolução e siga.',
+      ],
+      defeat: 'Você contou todos os caminhos, Cartógrafo. O Labirinto é seu — e nada foi por acaso.',
+      retreat: 'Volte quando souber contar. O acaso espera.',
+    },
+    rewards: {
+      firstXp: 450,
+      firstInk: 180,
+      firstItems: ['frame-labirinto', 'title-mestre-acaso'],
+      flawlessItem: 'core-dado',
+      repeatXp: 90,
     },
   },
 ];

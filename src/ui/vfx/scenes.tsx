@@ -917,6 +917,84 @@ const Mirante: SceneFx = {
   ),
 };
 
+const LAB_TORCHES = [
+  { x: 34, y: 150 },
+  { x: 266, y: 150 },
+] as const;
+const LAB_DICE = [
+  { x: 40, y: 56, rot: -14 },
+  { x: 258, y: 78, rot: 12 },
+  { x: 214, y: 34, rot: -8 },
+] as const;
+
+/** Dado visto de frente, com três pontos em diagonal. */
+function LabDie({ x, y, rot, s = 13 }: { x: number; y: number; rot: number; s?: number }) {
+  return (
+    <G transform={`rotate(${rot} ${x} ${y})`}>
+      <Rect x={x - s / 2} y={y - s / 2} width={s} height={s} rx={3} fill="#F4ECDC" stroke="#2A1550" strokeWidth={1.4} />
+      <G fill="#FF5FA8">
+        <Circle cx={x - s * 0.22} cy={y - s * 0.22} r={s * 0.09} />
+        <Circle cx={x} cy={y} r={s * 0.09} />
+        <Circle cx={x + s * 0.22} cy={y + s * 0.22} r={s * 0.09} />
+      </G>
+    </G>
+  );
+}
+
+const Labirinto: SceneFx = {
+  Art: ({ uid }) => (
+    <>
+      <Sky id={`sk${uid}`} stops={[[0, '#1A0E33'], [0.5, '#3A1A5E'], [1, '#7A2E6E']]} />
+      <Glow id={`lg${uid}`} x={150} y={150} r={130} color="#FF8FD1" opacity={0.22} />
+      {/* corredor em perspectiva: paredes, fundo e chão */}
+      <Path d="M0 0 L96 72 L96 228 L0 300 Z" fill="#26134A" />
+      <Path d="M300 0 L204 72 L204 228 L300 300 Z" fill="#26134A" />
+      <Rect x={96} y={72} width={108} height={156} fill="#341A5E" />
+      <Path d="M0 300 L96 228 L204 228 L300 300 Z" fill="#4A2070" />
+      <G stroke="#8B54C8" strokeOpacity={0.45} strokeWidth={1}>
+        <Path d="M0 60 L96 100 M0 120 L96 130 M0 180 L96 160 M0 240 L96 194" />
+        <Path d="M300 60 L204 100 M300 120 L204 130 M300 180 L204 160 M300 240 L204 194" />
+        <Path d="M150 228 L150 300 M100 228 L40 300 M200 228 L260 300 M60 228 L-40 300 M240 228 L340 300" />
+        <Path d="M96 228 H204 M70 250 H230 M40 272 H260" />
+      </G>
+      {/* porta no fundo: arco com um ponto de interrogação */}
+      <Path d="M126 228 V150 Q126 118 150 118 Q174 118 174 150 V228 Z" fill="#FFD36B" fillOpacity={0.35} stroke="#FFD36B" strokeOpacity={0.7} strokeWidth={1.4} />
+      <Path d="M150 190 V186 Q150 178 158 174 Q166 170 164 160 Q162 150 150 150 Q140 150 138 160" stroke="#FFF3C4" strokeWidth={3.4} strokeLinecap="round" fill="none" />
+      <Circle cx={150} cy={200} r={2.6} fill="#FFF3C4" />
+      {/* tochas */}
+      {LAB_TORCHES.map((t) => (
+        <G key={t.x}>
+          <Rect x={t.x - 2} y={t.y} width={4} height={26} rx={1.5} fill="#5A3A22" />
+          <Path d={`M${t.x - 7} ${t.y + 2} Q${t.x} ${t.y - 22} ${t.x + 7} ${t.y + 2} Z`} fill="#FF8A55" />
+          <Path d={`M${t.x - 3.5} ${t.y + 2} Q${t.x} ${t.y - 10} ${t.x + 3.5} ${t.y + 2} Z`} fill="#FFE08A" />
+        </G>
+      ))}
+      {LAB_DICE.map((d) => (
+        <LabDie key={d.x} {...d} />
+      ))}
+    </>
+  ),
+  Live: () => (
+    <>
+      {LAB_TORCHES.map((t, i) => (
+        <Pulse key={t.x} period={1800 + i * 500} opacity={[0.35, 1]} phase={i * 0.4}>
+          <Glow id={`lt${i}`} x={t.x} y={t.y - 6} r={46} color="#FFB648" opacity={0.5} />
+        </Pulse>
+      ))}
+      <Pulse period={5200} opacity={[0.15, 0.8]}>
+        <Glow id="ldr" x={150} y={170} r={60} color="#FFD36B" opacity={0.55} />
+      </Pulse>
+      {LAB_DICE.map((d, i) => (
+        <Drift key={d.x} period={6200 + i * 1500} amp={5 + i * 2} phase={i * 0.3}>
+          <LabDie {...d} />
+        </Drift>
+      ))}
+      <Twinkles count={8} seed={162} box={[20, 10, 280, 120]} colors={['#FFE7F2', '#FFD36B']} />
+      <Motes count={8} seed={163} box={[10, 160, 290, 296]} colors={['#FFB648', '#FF8FD1']} size={[1.6, 2.6]} period={7600} travel={64} sway={14} glow />
+    </>
+  ),
+};
+
 export const SCENES: Record<SceneFxId, SceneFx> = {
   noite: Noite,
   colinas: Colinas,
@@ -932,6 +1010,7 @@ export const SCENES: Record<SceneFxId, SceneFx> = {
   torres: Torres,
   cavernas: Cavernas,
   mirante: Mirante,
+  labirinto: Labirinto,
 };
 
 /** Arte estática do cenário (também usada nas miniaturas), em coordenadas 300 × 300. */

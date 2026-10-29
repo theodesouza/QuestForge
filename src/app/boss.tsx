@@ -20,13 +20,13 @@ import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
 import { getItem, RARITY_LABEL } from '../content/items';
-import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, scalesOf, type BattleState } from '../domain/boss/battle';
+import { activeHeadIndex, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, isRiddleTurn, scalesOf, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import { battleReviewItems } from '../domain/game/review';
 import type { GameEvent } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
 import { HeadsBar } from '../features/boss/HeadsBar';
-import { ConcreteTag, FacetsBar, ScalesTag } from '../features/boss/TraitMeters';
+import { ConcreteTag, FacetsBar, RiddleTag, ScalesTag } from '../features/boss/TraitMeters';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
@@ -46,7 +46,7 @@ import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
 import { colors, radius, rarityColor, space } from '../ui/theme';
 
-function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' {
+function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' | 'dice' {
   switch (boss.trait.kind) {
     case 'armor':
     case 'concrete':
@@ -56,6 +56,8 @@ function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' {
       return 'target';
     case 'facets':
       return 'star';
+    case 'riddle':
+      return 'dice';
     default:
       return 'lock';
   }
@@ -202,9 +204,9 @@ function Intro({ boss }: { boss: BossDef }) {
 
 // ——————————————————————————————————————————————— batalha
 
-type Hit = { id: number; damage: number; technique: boolean; healed: number };
+type Hit = { id: number; damage: number; technique: boolean; healed: number; riddle?: boolean };
 
-function Hud({ boss, battle, hit, line, activeFacetId }: { boss: BossDef; battle: BattleState; hit: Hit | null; line: string; activeFacetId: string | null }) {
+function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { boss: BossDef; battle: BattleState; hit: Hit | null; line: string; activeFacetId: string | null; riddleNow: boolean; pending: boolean }) {
   const reduce = useReduceMotion();
   return (
     <View style={styles.hud}>
@@ -218,6 +220,7 @@ function Hud({ boss, battle, hit, line, activeFacetId }: { boss: BossDef; battle
               <Text variant="number" color={hit.technique ? colors.brass : colors.parchment}>
                 −{hit.damage}
                 {hit.technique ? ' · técnica!' : ''}
+                {hit.riddle ? ' · enigma!' : ''}
               </Text>
             </Animated.View>
           ) : null}
@@ -257,6 +260,8 @@ function Hud({ boss, battle, hit, line, activeFacetId }: { boss: BossDef; battle
             <ConcreteTag boss={boss} battle={battle} />
           ) : boss.trait.kind === 'scales' ? (
             <ScalesTag boss={boss} battle={battle} />
+          ) : boss.trait.kind === 'riddle' ? (
+            <RiddleTag boss={boss} battle={battle} now={riddleNow} pending={pending} />
           ) : boss.trait.kind === 'facets' ? (
             battle.armorBroken ? (
               <View style={styles.tag} accessible accessibilityLabel="Colosso exposto: dano ampliado">
@@ -339,6 +344,9 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
 
   const question = shownId ? findQuestion(shownId) : undefined;
   const activeFacetId = facetOf(boss, question?.subtopic)?.id ?? null;
+  // O golpe mostrado é um Enigma? Antes da resposta vale o estado atual; depois, o registro do golpe dado.
+  const pendingFeedback = !!shownId && shownId !== battle.currentQuestionId;
+  const shownRiddle = boss.trait.kind === 'riddle' && (pendingFeedback ? !!battle.turns[battle.turns.length - 1]?.riddle : isRiddleTurn(boss, battle));
 
   const send = async (input: Parameters<typeof battleAnswer>[0]) => {
     const events = await battleAnswer(input);
@@ -347,7 +355,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
     if (after && turn) {
       if (turn.correct) {
         haptic(turn.technique ? 'heavy' : 'impact');
-        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: 0 });
+        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: 0, riddle: !!turn.riddle });
         if (!reduce) {
           shake.set(withSequence(withTiming(10, { duration: 60 }), withTiming(-8, { duration: 70 }), withTiming(0, { duration: 80 })));
           flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
@@ -361,6 +369,8 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
             ? boss.lines.phase2
             : cracked && after.status !== 'won'
             ? cracked.crack
+            : turn.riddle && boss.trait.kind === 'riddle' && after.status !== 'won' && !turn.technique
+            ? boss.trait.solvedLine
             : turn.technique
               ? boss.technique.line
               : after.status === 'won'
@@ -372,7 +382,9 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
         setLine(
           after.status === 'retreated'
             ? boss.lines.retreat
-            : boss.trait.kind === 'concrete' && !turn.layerAdded
+            : turn.riddle && boss.trait.kind === 'riddle'
+              ? boss.trait.failedLine
+              : boss.trait.kind === 'concrete' && !turn.layerAdded
               ? CONCRETE_FULL
               : pickLine(boss.lines.bossHit, after.turns.length),
         );
@@ -411,7 +423,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
       <View style={[styles.top, { paddingTop: insets.top + space.xs }]}>
         <IconButton icon="close" label="Pausar ou recuar" onPress={onClose} color={colors.parchment} />
         <View style={{ flex: 1 }}>
-          <Hud boss={boss} battle={battle} hit={hit} line={line} activeFacetId={activeFacetId} />
+          <Hud boss={boss} battle={battle} hit={hit} line={line} activeFacetId={activeFacetId} riddleNow={shownRiddle} pending={pendingFeedback} />
         </View>
       </View>
       <ScrollView
@@ -436,6 +448,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
               layers={concreteLayers(battle)}
               scales={scalesOf(boss, battle)}
               maxScales={boss.trait.kind === 'scales' ? boss.trait.maxScales : undefined}
+              riddle={shownRiddle}
             />
           </Animated.View>
         </View>
@@ -445,12 +458,27 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
             <QuestionBody question={getQuestion(reviewed.questionId)} attempt={reviewedAttempt} attemptKey={battle.id} readOnly />
           </View>
         ) : question ? (
+          <>
+            {shownRiddle && boss.trait.kind === 'riddle' ? (
+              <Panel accent={boss.accent}>
+                <View style={styles.rule}>
+                  <Icon name="dice" size={20} color={colors.brass} />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="subheading">Golpe do Enigma</Text>
+                    <Text variant="caption" color={colors.parchmentDim}>
+                      Questão mais difícil: acertar vale +{Math.round((boss.trait.damageMultiplier - 1) * 100)}% de dano; errar custa {boss.trait.missResolve} pontos de Determinação.
+                    </Text>
+                  </View>
+                </View>
+              </Panel>
+            ) : null}
           <QuestionBody
             question={question}
             attempt={attempt}
             attemptKey={battle.id}
             onFeedbackLayout={(y) => scroll.current?.scrollTo({ y: Math.max(0, y + feedbackOffset.current - 140), animated: !reduce })}
           />
+          </>
         ) : null}
       </ScrollView>
       {reviewed ? (
@@ -462,7 +490,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
           <AnswerBar
             attempt={attempt}
             onPrevious={reviewItems.length > 0 ? openReview : undefined}
-            confirmLabel="Atacar"
+            confirmLabel={shownRiddle ? 'Decifrar o Enigma' : 'Atacar'}
             onConfirm={() => attempt.submit(send)}
             onContinue={onContinue}
             continueLabel={ended ? 'Ver resultado' : 'Próximo golpe'}

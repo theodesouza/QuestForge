@@ -73,7 +73,8 @@ export default function VfxLab() {
               art={art}
               size={170}
               headsFelled={Math.min(n, 3)}
-              cracked={art === 'colosso' || art === 'arquiteto' ? n >= 3 : n >= 1}
+              cracked={['colosso', 'arquiteto', 'leviata', 'esfinge'].includes(art) ? n >= 3 : n >= 1}
+              riddle={n === 1 || n === 3}
               defeated={n >= (art === 'quimera' ? 3 : 4)}
               facetHits={hits(n)}
               hitsToCrack={2}
@@ -143,6 +144,7 @@ export default function VfxLab() {
         ['core-poliedro', 'aura-neve'],
         ['core-euclides', 'aura-zenite'],
         ['core-histograma', 'aura-mare'],
+        ['core-dado', 'aura-eletrica'],
       ];
       for (const [core, aura] of pairs) {
         const s = resolveSynergy({ core, aura });

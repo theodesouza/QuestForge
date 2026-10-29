@@ -7,7 +7,7 @@
  */
 import { StyleSheet, View } from 'react-native';
 import type { BossDef } from '../../content/bosses';
-import { concreteLayers, facetHitsOf, scalesOf, type BattleState } from '../../domain/boss/battle';
+import { concreteLayers, facetHitsOf, scalesOf, turnsToRiddle, type BattleState } from '../../domain/boss/battle';
 import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
 import { colors, radius } from '../../ui/theme';
@@ -88,6 +88,22 @@ export function ScalesTag({ boss, battle }: { boss: BossDef; battle: BattleState
   );
 }
 
+/** Esfinge do Acaso: quantos golpes faltam para o próximo Enigma (e aviso quando ele é o golpe atual). */
+export function RiddleTag({ boss, battle, now, pending }: { boss: BossDef; battle: BattleState; now: boolean; pending: boolean }) {
+  if (boss.trait.kind !== 'riddle') return null;
+  // `pending`: o golpe mostrado já foi respondido (o placar já aponta para o seguinte).
+  const away = now ? 0 : turnsToRiddle(boss, battle) + (pending ? 1 : 0);
+  const label = now ? 'Enigma agora' : away === 1 ? 'Enigma no próximo' : `Enigma em ${away}`;
+  return (
+    <View style={[styles.tag, now && styles.tagRiddle]} accessible accessibilityLabel={now ? 'O golpe atual é um Enigma' : `Próximo Enigma em ${away} golpes`}>
+      <Icon name="dice" size={13} color={now ? colors.brass : colors.mist} />
+      <Text variant="caption" color={now ? colors.brass : colors.mist}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 6 },
   chip: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 4, paddingHorizontal: 8, height: 26, borderRadius: radius.pill, backgroundColor: colors.ink800, borderWidth: 1, borderColor: 'transparent' },
@@ -97,6 +113,7 @@ const styles = StyleSheet.create({
   pips: { flexDirection: 'row', gap: 3 },
   pip: { width: 7, height: 7, borderRadius: 4, borderWidth: 1.2 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, height: 24, borderRadius: radius.pill, backgroundColor: colors.ink800 },
+  tagRiddle: { backgroundColor: colors.brassGlow },
   scale: { width: 9, height: 9, borderRadius: 5, borderWidth: 1.2, borderColor: colors.ink500 },
   scaleOn: { backgroundColor: colors.verdigris, borderColor: '#7FF3FF' },
   layer: { width: 9, height: 9, borderRadius: 2, borderWidth: 1.2, borderColor: colors.ink500 },

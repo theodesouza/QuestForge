@@ -45,6 +45,7 @@ const BUILDERS: Record<CustomFrameStyle, (o: FrameOpts) => FrameParts> = {
   polygon,
   cubes,
   axes,
+  maze,
 };
 
 export const isCustomFrame = (s: FrameStyle | undefined): s is CustomFrameStyle => !!s && (CUSTOM_FRAME_STYLES as readonly string[]).includes(s);
@@ -451,6 +452,53 @@ function axes(o: FrameOpts): FrameParts {
       </>
     ),
     motion: { kind: 'spin', period: 9000 },
+  };
+}
+
+/**
+ * Labirinto: muralhas em greca (degraus que sobem e descem) em volta do anel e, no
+ * astrolábio, um ponto de luz que percorre o traçado sem se perder.
+ */
+function maze(o: FrameOpts): FrameParts {
+  const { r, w, color, color2 } = o;
+  const cx = o.cx ?? C;
+  const cy = o.cy ?? C;
+  const n = o.compact ? 8 : 18;
+  const r1 = r + w * 1.1;
+  const r2 = r + w * (o.compact ? 2.8 : 3.4);
+  const p = (rad: number, deg: number) => polar(rad, deg, cx, cy);
+  const pt = (rad: number, deg: number) => {
+    const q = p(rad, deg);
+    return `${f(q.x)} ${f(q.y)}`;
+  };
+  let d = `M${pt(r1, 0)} `;
+  for (let i = 0; i < n; i++) {
+    const a0 = (360 / n) * i;
+    const a1 = a0 + 360 / n / 2;
+    const a2 = a0 + 360 / n;
+    d += `L${pt(r2, a0)} A${f(r2)} ${f(r2)} 0 0 1 ${pt(r2, a1)} L${pt(r1, a1)} A${f(r1)} ${f(r1)} 0 0 1 ${pt(r1, a2)} `;
+  }
+  const dot = p((r1 + r2) / 2, 0);
+  return {
+    fixed: (
+      <>
+        {ring(o, w * 0.7)}
+        <Path d={d} stroke={color} strokeWidth={w * 0.6} strokeLinejoin="miter" fill="none" />
+        <G fill={color2}>
+          {Array.from({ length: n }, (_, i) => {
+            const q = p(r2 + w * 0.9, (360 / n) * i + 360 / n / 4);
+            return <Circle key={i} cx={q.x} cy={q.y} r={w * 0.38} />;
+          })}
+        </G>
+      </>
+    ),
+    moving: o.compact ? undefined : (
+      <>
+        <Circle cx={dot.x} cy={dot.y} r={w * 0.95} fill="#FFFFFF" />
+        <Path d={arc((r1 + r2) / 2, -26, -2, cx, cy)} stroke="#FFFFFF" strokeOpacity={0.5} strokeWidth={w * 0.5} strokeLinecap="round" fill="none" />
+      </>
+    ),
+    motion: { kind: 'spin', period: 13000 },
   };
 }
 
