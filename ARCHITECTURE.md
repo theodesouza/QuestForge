@@ -194,6 +194,21 @@ sem mudar o domínio — veja [docs/CLOUD_SYNC.md](docs/CLOUD_SYNC.md). O `quest
 - **Caça aos Ecos** traz primeiro os Ecos ativos já vencidos (os mais antigos) e completa com revisões
   vencidas; nunca um Eco que ainda não venceu. O Acampamento separa "Ecos à espreita" de "revisões".
 
+## Interface do app: diálogos, abas, vibração e fluidez
+- **Diálogos** (`features/dialog/`): `appAlert(título, mensagem, botões)` tem a assinatura do `Alert.alert` e desenha um painel do app
+  (`DialogHost`, montado na raiz). Nada do app usa o `Alert` do sistema; o `Switch` do sistema virou `ui/Toggle`.
+- **Abas com deslize** (`features/tabs/slide.ts`, `app/(tabs)/_layout.tsx`): todas as telas de aba (`<Screen tab>`) leem o mesmo
+  deslocamento `tabSlide`. Arrastar para o lado move a tela com o dedo; ao soltar, ela sai, a aba muda (`animation: 'none'`) e a nova entra
+  pelo lado oposto. A barra de abas usa o mesmo movimento (`goToTab`). Nas pontas o arrasto só resiste; movimento reduzido troca direto.
+  Sem biblioteca nativa nova: usa Gesture Handler + Reanimated (o `GestureHandlerRootView` fica na raiz).
+- **Vibração** (`ui/feedback.ts`): no Android usa `performAndroidHapticsAsync` (canal de feedback ao toque do sistema, que vale até no
+  modo silencioso) e cai para o vibrador; Ajustes tem "Testar vibração".
+- **Vigia de quadros** (`ui/perf.ts`): nas cerimônias de efeitos (revelação de item, subida de nível) mede o intervalo entre quadros; se o
+  aparelho engasgar, a tela se simplifica na hora e a Intensidade dos efeitos cai para Baixa (`lowerEffectsForSpeed`). A revelação nunca
+  passa da intensidade Média. O padrão para perfis novos é Média.
+- **Avisos da nuvem** (`state/session.ts → surfaceNotice`): restauração, fusão e reinício viram um toast curto e saem da pendência do
+  motor; "Sincronizar agora" diz o que aconteceu e, em erro, mostra o código e o texto técnico (`SyncStatus.errorDetail`).
+
 ## Rever a questão anterior (`features/question/review.tsx`, `domain/game/review.ts`)
 
 Em qualquer atividade com mais de uma questão (expedição, missão, foco, Caça aos Ecos e batalha), o

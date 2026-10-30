@@ -40,6 +40,11 @@ function reduced(): boolean {
   return pref === 'always' || (pref === 'system' && systemReduce);
 }
 
+/** Rede de segurança: se o app voltou de uma interrupção no meio de um arrasto, a tela não fica deslocada. */
+export function resetSlide(): void {
+  if (!busy) tabSlide.set(0);
+}
+
 /** Largura de referência do deslize. */
 export const slideWidth = () => Dimensions.get('window').width;
 

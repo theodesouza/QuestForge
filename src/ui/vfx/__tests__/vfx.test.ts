@@ -50,9 +50,9 @@ describe('sinergias', () => {
 });
 
 describe('ajuste de intensidade dos efeitos', () => {
-  it('começa em Alta e saves antigos (sem o campo) também', () => {
-    expect(createInitialState(0).profile.settings.effects).toBe('alto');
+  it('começa em Média (mais leve em celulares intermediários) e saves antigos sem o campo também', () => {
+    expect(createInitialState(0).profile.settings.effects).toBe('medio');
     const old = { ...createInitialState(0).profile, settings: { haptics: true, reduceMotion: 'system' } };
-    expect(normalizeProfile(old, 0).settings).toEqual({ haptics: true, reduceMotion: 'system', effects: 'alto' });
+    expect(normalizeProfile(old, 0).settings).toEqual({ haptics: true, reduceMotion: 'system', effects: 'medio' });
   });
 });

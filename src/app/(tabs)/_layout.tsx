@@ -1,11 +1,11 @@
 import { usePathname } from 'expo-router';
 import { Tabs, type BottomTabBarProps } from 'expo-router/tabs';
 import { useEffect, useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { AppState, Pressable, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useReducedMotion, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { TAB_ORDER, goToTab, setSystemReduceMotion, slideWidth, tabIndexOf, tabSlide } from '../../features/tabs/slide';
+import { TAB_ORDER, goToTab, resetSlide, setSystemReduceMotion, slideWidth, tabIndexOf, tabSlide } from '../../features/tabs/slide';
 import { EASE_OUT } from '../../ui/calm';
 import { Icon, type IconName } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
@@ -88,6 +88,12 @@ export default function TabsLayout() {
   const swipe = useSwipe(index);
   const reduceSystem = useReducedMotion();
   useEffect(() => setSystemReduceMotion(reduceSystem), [reduceSystem]);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') resetSlide();
+    });
+    return () => sub.remove();
+  }, []);
   return (
     <GestureDetector gesture={swipe}>
       <View style={styles.fill}>

@@ -56,7 +56,7 @@ import type {
 
 // ————————————————————————————————————————————————————————— estado inicial
 
-export const DEFAULT_SETTINGS: Settings = { haptics: true, reduceMotion: 'system', effects: 'alto' };
+export const DEFAULT_SETTINGS: Settings = { haptics: true, reduceMotion: 'system', effects: 'medio' };
 /** Horário de Brasília (UTC−3), até o aparelho informar o fuso real. */
 export const DEFAULT_TZ_OFFSET_MIN = 180;
 
