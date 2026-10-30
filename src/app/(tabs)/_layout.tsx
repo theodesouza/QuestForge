@@ -1,6 +1,12 @@
+import { usePathname } from 'expo-router';
 import { Tabs, type BottomTabBarProps } from 'expo-router/tabs';
+import { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { haptic } from '../../ui/feedback';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useReducedMotion, withTiming } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
+import { TAB_ORDER, goToTab, setSystemReduceMotion, slideWidth, tabIndexOf, tabSlide } from '../../features/tabs/slide';
+import { EASE_OUT } from '../../ui/calm';
 import { Icon, type IconName } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
 import { colors, radius, space } from '../../ui/theme';
@@ -28,10 +34,7 @@ function TabBar({ state, navigation, insets }: BottomTabBarProps) {
               accessibilityLabel={meta.label}
               onPress={() => {
                 const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-                if (!focused && !event.defaultPrevented) {
-                  haptic('select');
-                  navigation.navigate(route.name);
-                }
+                if (!focused && !event.defaultPrevented) goToTab(state.index, index);
               }}
               style={styles.item}
             >
@@ -49,21 +52,61 @@ function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   );
 }
 
+/** Arrastar a tela para o lado troca de aba; nas pontas, o arrasto só "resiste". */
+function useSwipe(index: number) {
+  return useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(index >= 0)
+        .activeOffsetX([-18, 18])
+        .failOffsetY([-14, 14])
+        .onUpdate((e) => {
+          'worklet';
+          const edge = (e.translationX > 0 && index === 0) || (e.translationX < 0 && index === TAB_ORDER.length - 1);
+          tabSlide.set(edge ? e.translationX * 0.2 : e.translationX);
+        })
+        .onEnd((e) => {
+          'worklet';
+          const w = slideWidth();
+          const far = Math.abs(e.translationX) > w * 0.25;
+          const fast = Math.abs(e.velocityX) > 650 && Math.abs(e.translationX) > 24;
+          const toNext = e.translationX < 0;
+          const target = index + (toNext ? 1 : -1);
+          if ((far || fast) && target >= 0 && target < TAB_ORDER.length) {
+            scheduleOnRN(goToTab, index, target, e.translationX, e.velocityX);
+          } else {
+            tabSlide.set(withTiming(0, { duration: 220, easing: EASE_OUT }));
+          }
+        }),
+    [index],
+  );
+}
+
 export default function TabsLayout() {
+  const pathname = usePathname();
+  const index = tabIndexOf(pathname);
+  const swipe = useSwipe(index);
+  const reduceSystem = useReducedMotion();
+  useEffect(() => setSystemReduceMotion(reduceSystem), [reduceSystem]);
   return (
-    <Tabs
-      tabBar={(props) => <TabBar {...props} />}
-      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.ink900 } }}
-    >
-      <Tabs.Screen name="camp" />
-      <Tabs.Screen name="atlas" />
-      <Tabs.Screen name="academy" />
-      <Tabs.Screen name="hero" />
-    </Tabs>
+    <GestureDetector gesture={swipe}>
+      <View style={styles.fill}>
+        <Tabs
+          tabBar={(props) => <TabBar {...props} />}
+          screenOptions={{ headerShown: false, animation: 'none', sceneStyle: { backgroundColor: colors.ink900 } }}
+        >
+          <Tabs.Screen name="camp" />
+          <Tabs.Screen name="atlas" />
+          <Tabs.Screen name="academy" />
+          <Tabs.Screen name="hero" />
+        </Tabs>
+      </View>
+    </GestureDetector>
   );
 }
 
 const styles = StyleSheet.create({
+  fill: { flex: 1 },
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: space.lg },
   bar: {
     flexDirection: 'row',

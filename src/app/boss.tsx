@@ -3,9 +3,10 @@
  * dano (maior em questões difíceis e em combo), erros custam Determinação.
  * Sem cronômetro e sem sorte — o foco continua sendo a questão.
  */
+import { appAlert } from '../features/dialog/dialog';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -98,7 +99,7 @@ function Intro({ boss }: { boss: BossDef }) {
     try {
       await beginBattle(boss.id);
     } catch (e) {
-      Alert.alert('A batalha não começou', e instanceof Error ? e.message : String(e));
+      appAlert('A batalha não começou', e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
@@ -447,7 +448,7 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
   };
 
   const onClose = () => {
-    Alert.alert('Recuar da batalha?', 'Você pode retomar depois — a batalha fica salva. Recuar agora conta como retirada.', [
+    appAlert('Recuar da batalha?', 'Você pode retomar depois — a batalha fica salva. Recuar agora conta como retirada.', [
       { text: 'Continuar lutando', style: 'cancel' },
       { text: 'Pausar e sair', onPress: () => router.back() },
       {

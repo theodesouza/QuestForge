@@ -1,6 +1,7 @@
+import { appAlert } from './dialog/dialog';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert } from 'react-native';
+
 
 /** Inicia uma atividade e navega; evita toques duplos e mostra erros amigáveis. */
 export function useStarter() {
@@ -18,7 +19,7 @@ export function useStarter() {
       if (opts.replace) router.replace(to);
       else router.push(to);
     } catch (e) {
-      Alert.alert('Não deu para começar', e instanceof Error ? e.message : String(e));
+      appAlert('Não deu para começar', e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(null);
     }

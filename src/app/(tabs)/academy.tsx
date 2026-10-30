@@ -54,7 +54,7 @@ export default function Academy() {
   const evidenceBased = recs.some((r) => r.reason === 'dificuldade' || r.reason === 'atencao' || r.reason === 'erros-recentes');
 
   return (
-    <Screen bottomInset={TAB_BAR_SPACE}>
+    <Screen tab bottomInset={TAB_BAR_SPACE}>
       <View>
         <Text variant="caption" color={colors.mist}>
           Aprenda no seu ritmo — qualquer etapa, a qualquer momento

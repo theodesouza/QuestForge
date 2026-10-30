@@ -117,7 +117,7 @@ export default function Hero() {
   const equippedId = profile.equipped[slot];
 
   return (
-    <Screen bottomInset={TAB_BAR_SPACE}>
+    <Screen tab bottomInset={TAB_BAR_SPACE}>
       <Text variant="title">Herói</Text>
       <View style={styles.hero}>
         <SceneStage scene={profile.equipped.scene} height={336} animate={!reduce} paused={stagePaused || !!trying} reserve>

@@ -90,7 +90,7 @@ export default function Camp() {
       : null;
 
   return (
-    <Screen bottomInset={TAB_BAR_SPACE}>
+    <Screen tab bottomInset={TAB_BAR_SPACE}>
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <Text variant="caption" color={colors.mist}>

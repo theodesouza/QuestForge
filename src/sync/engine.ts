@@ -308,7 +308,7 @@ export class SyncEngine {
       } while (this.again);
       this.failures = 0;
       const meta = await this.meta();
-      this.setStatus({ phase: 'idle', error: null, lastSyncedAt: meta.lastSyncedAt, pendingChanges: await this.isDirty(), notice: meta.notice });
+      this.setStatus({ phase: 'idle', error: null, errorDetail: null, lastSyncedAt: meta.lastSyncedAt, pendingChanges: await this.isDirty(), notice: meta.notice });
       return outcome;
     } catch (e) {
       const err = toSyncError(e);
@@ -317,6 +317,7 @@ export class SyncEngine {
       this.setStatus({
         phase: !retryable ? 'blocked' : err.code === 'offline' || err.code === 'timeout' ? 'offline' : 'error',
         error: err.code,
+        errorDetail: err.message.slice(0, 300),
         // Se não der para saber, assume que há o que enviar (o aviso certo é o mais cauteloso).
         pendingChanges: await this.isDirty().catch(() => true),
       });

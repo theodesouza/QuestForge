@@ -1,6 +1,7 @@
+import { appAlert } from '../features/dialog/dialog';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { QUESTIONS } from '../content/bank';
 import { bankReport } from '../content/validation/validate';
 import { AccountPanel } from '../features/auth/AccountPanel';
@@ -11,10 +12,12 @@ import { resetProgress, updateProfile, updateSettings } from '../state/actions';
 import { useGame } from '../state/store';
 import { Button } from '../ui/Button';
 import { Chip } from '../ui/Chip';
+import { playHaptic } from '../ui/feedback';
 import { IconButton } from '../ui/IconButton';
 import { Panel } from '../ui/Panel';
 import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
+import { Toggle } from '../ui/Toggle';
 import { colors, fonts, radius, space } from '../ui/theme';
 
 const EFFECTS: { id: EffectsLevel; label: string }[] = [
@@ -39,7 +42,7 @@ export default function Settings() {
   const info = versionInfo();
 
   const confirmReset = () =>
-    Alert.alert('Apagar todo o progresso?', 'Nível, itens, histórico e revisões serão apagados deste aparelho e da nuvem (em todos os aparelhos desta conta). Isso não pode ser desfeito.', [
+    appAlert('Apagar todo o progresso?', 'Nível, itens, histórico e revisões serão apagados deste aparelho e da nuvem (em todos os aparelhos desta conta). Isso não pode ser desfeito.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Apagar tudo',
@@ -93,16 +96,16 @@ export default function Settings() {
               Vibrações curtas ao responder e em golpes.
             </Text>
           </View>
-          <Switch
-            value={profile.settings.haptics}
-            onValueChange={(v) => {
-              updateSettings({ haptics: v });
-            }}
-            trackColor={{ true: colors.brass, false: colors.ink600 }}
-            thumbColor={colors.parchment}
-            accessibilityLabel="Feedback tátil"
-          />
+          <Toggle value={profile.settings.haptics} onValueChange={(v) => updateSettings({ haptics: v })} accessibilityLabel="Feedback tátil" />
         </View>
+        {profile.settings.haptics ? (
+          <>
+            <Button label="Testar vibração" variant="secondary" size="md" onPress={() => void playHaptic('success')} style={styles.gap} />
+            <Text variant="caption" color={colors.mist}>
+              Se nada vibrar, ligue a vibração ao toque nos ajustes do Android (Som e vibração → Feedback tátil) e tire o aparelho do modo silencioso.
+            </Text>
+          </>
+        ) : null}
         <Text variant="bodyStrong" style={styles.gap}>
           Animações
         </Text>

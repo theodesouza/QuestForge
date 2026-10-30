@@ -2,9 +2,10 @@
  * Onboarding curto: 4 toques e o jogador já está resolvendo a primeira questão.
  * Tudo é opcional e ajustável depois — personalização progressiva.
  */
+import { appAlert } from '../features/dialog/dialog';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeIn, FadeInRight } from 'react-native-reanimated';
 import type { Goal, SelfLevel } from '../domain/game/types';
 import { finishOnboarding, startExpedition } from '../state/actions';
@@ -75,7 +76,7 @@ export default function Onboarding() {
       router.push('/session');
     } catch (e) {
       setBusy(false);
-      Alert.alert('Algo deu errado', e instanceof Error ? e.message : String(e));
+      appAlert('Algo deu errado', e instanceof Error ? e.message : String(e));
     }
   };
 

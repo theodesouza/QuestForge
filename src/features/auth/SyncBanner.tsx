@@ -1,11 +1,10 @@
 /**
  * Aviso discreto no Acampamento: só aparece quando há algo que a pessoa precisa saber —
- * fusão de aparelhos, restauração concluída, sincronização pausada ou pendente sem conexão.
+ * sincronização pausada ou pendente sem conexão. (Restauração e fusão viram um aviso curto no topo.)
  */
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { SYNC_ERROR_MESSAGES, noticeText } from '../../sync/messages';
-import { dismissSyncNotice } from '../../state/session';
+import { SYNC_ERROR_MESSAGES } from '../../sync/messages';
 import { useGameStore } from '../../state/store';
 import { Icon } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
@@ -15,16 +14,6 @@ export function SyncBanner() {
   const sync = useGameStore((s) => s.sync);
   if (!sync) return null;
 
-  if (sync.notice) {
-    return (
-      <Pressable onPress={dismissSyncNotice} accessibilityRole="button" accessibilityHint="Toque para dispensar" style={[styles.box, styles.good]}>
-        <Icon name="sparkle" size={20} color={colors.verdigris} />
-        <Text variant="caption" color={colors.parchment} style={styles.text}>
-          {noticeText(sync.notice)}
-        </Text>
-      </Pressable>
-    );
-  }
   if (sync.phase === 'blocked' && sync.error) {
     return (
       <Pressable onPress={() => router.push('/settings')} accessibilityRole="button" style={[styles.box, styles.bad]}>

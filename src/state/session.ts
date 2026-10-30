@@ -21,7 +21,8 @@ import { createPlatform } from '../platform';
 import type { Platform } from '../platform/types';
 import { buildExport } from '../sync/export';
 import { SyncEngine, toSyncError } from '../sync/engine';
-import { RESTORE_ERROR_MESSAGES, SYNC_ERROR_MESSAGES } from '../sync/messages';
+import { RESTORE_ERROR_MESSAGES, SYNC_ERROR_MESSAGES, noticeText } from '../sync/messages';
+import type { SyncNotice, SyncStatus } from '../sync/types';
 import { GameController } from './controller';
 import { saveTextFile, shareFile } from './share';
 import { publish, useGameStore } from './store';
@@ -133,14 +134,41 @@ async function restoreFromCloud(): Promise<void> {
 function finishOpen() {
   const eng = engine;
   if (eng) {
-    cleanups.push(eng.subscribe((s) => set({ sync: s })));
-    set({ sync: eng.getStatus() });
+    const onStatus = (s: SyncStatus) => {
+      set({ sync: s });
+      surfaceNotice(eng, s);
+    };
+    cleanups.push(eng.subscribe(onStatus));
+    onStatus(eng.getStatus());
     void eng.refreshStatus();
     cleanups.push(watchAppState(eng));
     lastForegroundPull = Date.now();
     eng.syncNow().catch(() => undefined); // atualização em segundo plano; erros ficam no status
   }
   set({ status: 'ready', error: null, restoreError: null, authBusy: false });
+}
+
+/** Avisos da nuvem (restauração, fusão, reinício) viram um aviso curto no topo e já saem da pendência. */
+const shownNotices = new Set<string>();
+const NOTICE_TITLES: Record<SyncNotice['kind'], string> = {
+  restored: 'Progresso restaurado da nuvem',
+  merged: 'Progresso de dois aparelhos combinado',
+  'reset-adopted': 'Progresso reiniciado em outro aparelho',
+};
+function surfaceNotice(eng: SyncEngine, s: SyncStatus) {
+  const n = s.notice;
+  if (!n) return;
+  const key = `${n.kind}:${n.at}`;
+  if (shownNotices.has(key)) return;
+  shownNotices.add(key);
+  const detail =
+    n.kind === 'restored'
+      ? `Nível ${n.stats.level}, ${n.stats.xp} XP, ${n.stats.nodes} missão(ões) concluída(s).`
+      : noticeText(n);
+  useGameStore.setState((st) => ({
+    toasts: [...st.toasts, { id: `sync${key}`, tone: 'news', title: NOTICE_TITLES[n.kind], detail, ms: 6000 }],
+  }));
+  void eng.dismissNotice();
 }
 
 function watchAppState(eng: SyncEngine): () => void {
@@ -245,8 +273,22 @@ export async function signOut(): Promise<void> {
   }
 }
 
-export async function syncNow(): Promise<void> {
-  await engine?.syncNow({ force: true });
+/** Sincroniza já e devolve uma frase em português dizendo o que aconteceu (ou lança o erro). */
+export async function syncNow(): Promise<string> {
+  if (!engine) return 'A nuvem não está disponível neste ambiente.';
+  const outcome = await engine.syncNow({ force: true });
+  switch (outcome.kind) {
+    case 'pushed':
+    case 'created':
+    case 'merged':
+      return 'Progresso enviado à nuvem.';
+    case 'pulled':
+      return 'Progresso mais novo baixado da nuvem.';
+    case 'reset-adopted':
+      return 'Este aparelho acompanhou o reinício feito em outro aparelho.';
+    default:
+      return 'Tudo já estava na nuvem.';
+  }
 }
 
 export function dismissSyncNotice() {

@@ -18,6 +18,8 @@ export interface Toast {
   title: string;
   detail: string;
   tone: 'quest' | 'bonus' | 'purchase' | 'echo' | 'news';
+  /** Quanto tempo fica na tela (ms); sem valor, o tempo padrão. */
+  ms?: number;
 }
 
 /** Item recém-conquistado, esperando a cerimônia de revelação. */

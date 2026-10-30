@@ -2,9 +2,10 @@
  * Atlas — a campanha como um mapa que você redesenha. Caminho em zigue-zague,
  * nós como medalhões; regiões vencidas continuam abertas para revisão.
  */
+import { appAlert } from '../../features/dialog/dialog';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 import { lessonsFor } from '../../content/academy/catalog';
@@ -86,7 +87,7 @@ export default function Atlas() {
   const open = (node: CampaignNode, status: NodeStatus) => {
     if (status === 'locked') {
       const req = node.requires.map((id) => findNode(id)?.node.title).filter(Boolean).join(', ');
-      Alert.alert('Ainda envolto em névoa', `Conclua primeiro: ${req}.`);
+      appAlert('Ainda envolto em névoa', `Conclua primeiro: ${req}.`);
       return;
     }
     if (node.kind === 'boss') router.push(`/boss?id=${node.bossId}`);
@@ -94,7 +95,7 @@ export default function Atlas() {
   };
 
   return (
-    <Screen bottomInset={TAB_BAR_SPACE}>
+    <Screen tab bottomInset={TAB_BAR_SPACE}>
       <Text variant="title">Atlas</Text>
       {REGIONS.map((region) => {
         const done = regionCompletion(region, view);

@@ -2,9 +2,10 @@
  * Tela de questão — a mais usada do app. Leitura confortável, toque fácil,
  * feedback imediato e explicação clara. Efeitos só depois da resposta.
  */
+import { appAlert } from '../features/dialog/dialog';
 import { Redirect, router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { findQuestion, getQuestion } from '../content/bank';
 import { findNode } from '../content/regions';
@@ -93,7 +94,7 @@ export default function SessionScreen() {
       router.replace('/summary');
     } catch (e) {
       setLeaving(false);
-      Alert.alert('Não foi possível concluir', e instanceof Error ? e.message : String(e));
+      appAlert('Não foi possível concluir', e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -123,13 +124,13 @@ export default function SessionScreen() {
       const s = latestSession();
       setShownId(s ? currentQuestionId(s) : null);
     } catch (e) {
-      Alert.alert('Não foi possível pular', e instanceof Error ? e.message : String(e));
+      appAlert('Não foi possível pular', e instanceof Error ? e.message : String(e));
     }
   };
 
   const onClose = () => {
     const answered = session.answers.filter((a) => a.kind !== 'skipped').length;
-    Alert.alert('Pausar a expedição?', 'Suas respostas já estão salvas. Você pode retomar do mesmo ponto pelo Acampamento.', [
+    appAlert('Pausar a expedição?', 'Suas respostas já estão salvas. Você pode retomar do mesmo ponto pelo Acampamento.', [
       { text: 'Continuar estudando', style: 'cancel' },
       { text: 'Pausar e sair', onPress: () => router.back() },
       answered > 0

@@ -146,6 +146,8 @@ export type SyncPhase = 'idle' | 'syncing' | 'offline' | 'error' | 'blocked';
 export interface SyncStatus {
   phase: SyncPhase;
   error: SyncErrorCode | null;
+  /** Texto técnico do último erro (para o jogador poder reportar); só junto de `error`. */
+  errorDetail?: string | null;
   lastSyncedAt: number | null;
   /** Há alterações locais que a nuvem ainda não confirmou. */
   pendingChanges: boolean;

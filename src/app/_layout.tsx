@@ -11,9 +11,11 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ItemRevealOverlay } from '../features/celebration/ItemRevealOverlay';
 import { LevelUpOverlay } from '../features/celebration/LevelUpOverlay';
+import { DialogHost } from '../features/dialog/DialogHost';
 import { ToastHost } from '../features/toast/ToastHost';
 import { LoginScreen } from '../features/auth/LoginScreen';
 import { RestoreScreen } from '../features/auth/RestoreScreen';
@@ -50,6 +52,7 @@ export default function RootLayout() {
   if (!ready) return <View style={styles.root} />;
 
   return (
+    <GestureHandlerRootView style={styles.root}>
     <SafeAreaProvider>
       <StatusBar style="light" />
       <View style={styles.root}>
@@ -90,8 +93,10 @@ export default function RootLayout() {
             <ItemRevealOverlay />
           </>
         )}
+        <DialogHost />
       </View>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

@@ -60,7 +60,7 @@ export function ToastHost() {
       haptic('success');
       AccessibilityInfo.announceForAccessibility(`${toast.title}. ${toast.detail}`);
     }
-    const t = setTimeout(() => dismissToast(toast.id), screenReader ? VISIBLE_SCREEN_READER_MS : VISIBLE_MS);
+    const t = setTimeout(() => dismissToast(toast.id), screenReader ? Math.max(VISIBLE_SCREEN_READER_MS, toast.ms ?? 0) : (toast.ms ?? VISIBLE_MS));
     return () => clearTimeout(t);
   }, [toast, screenReader]);
 

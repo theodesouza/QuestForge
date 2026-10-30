@@ -1,7 +1,8 @@
 /** Exercita a mesma arena e o mesmo motor do jogo; disponível apenas no laboratório QA. */
 import { useState } from 'react';
 import { router } from 'expo-router';
-import { Alert, Platform, ScrollView, View } from 'react-native';
+import { Platform, ScrollView, View } from 'react-native';
+import { appAlert } from '../dialog/dialog';
 import { BOSSES } from '../../content/bosses';
 import { questionsFor } from '../../content/bank';
 import { applyBattleAnswer, createBattle, knowledgeSeals } from '../../domain/boss/battle';
@@ -29,7 +30,7 @@ export function BossLab() {
         return { ...next, delta: fullDelta(next.state) };
       });
       router.push({ pathname: '/boss', params: { id: boss.id } });
-    } catch (error) { Alert.alert('Falha no teste', String(error)); }
+    } catch (error) { appAlert('Falha no teste', String(error)); }
   };
   const hit = (correct: boolean) => {
     const pool = questionsFor({ topics: boss.topics, subtopics: boss.subtopics });

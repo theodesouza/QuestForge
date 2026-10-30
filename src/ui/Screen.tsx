@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { slideWidth, tabSlide } from '../features/tabs/slide';
 import { MapBackdrop } from './MapBackdrop';
 import { space } from './theme';
 
@@ -13,16 +15,23 @@ interface Props {
   glow?: string;
   /** Espaço extra no fim do scroll (ex.: barra de abas). */
   bottomInset?: number;
+  /** Tela de aba: acompanha o deslize de troca de abas. */
+  tab?: boolean;
 }
 
-export function Screen({ children, scroll = true, footer, contentStyle, glow, bottomInset = 0 }: Props) {
+export function Screen({ children, scroll = true, footer, contentStyle, glow, bottomInset = 0, tab = false }: Props) {
   const insets = useSafeAreaInsets();
+  const slide = useAnimatedStyle(() => {
+    const x = tab ? tabSlide.get() : 0;
+    return { transform: [{ translateX: x }], opacity: 1 - Math.min(0.4, (Math.abs(x) / slideWidth()) * 0.4) };
+  });
   const padding = {
     paddingTop: insets.top + space.md,
     paddingBottom: (footer ? space.lg : insets.bottom + space.xxl) + bottomInset,
   };
+  const Root = tab ? Animated.View : View;
   return (
-    <View style={styles.root}>
+    <Root style={tab ? [styles.root, slide] : styles.root}>
       <MapBackdrop glow={glow} />
       {scroll ? (
         <ScrollView
@@ -36,7 +45,7 @@ export function Screen({ children, scroll = true, footer, contentStyle, glow, bo
         <View style={[styles.content, styles.fill, padding, contentStyle]}>{children}</View>
       )}
       {footer ? <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>{footer}</View> : null}
-    </View>
+    </Root>
   );
 }
 

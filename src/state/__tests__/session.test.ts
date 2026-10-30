@@ -184,7 +184,8 @@ describe('abertura e login', () => {
     await app.session.signIn();
     expect(app.state().status).toBe('ready');
     expect(app.state().game!.profile).toMatchObject({ name: 'Ana', onboarded: true, xp });
-    expect(app.state().sync?.notice?.kind).toBe('restored');
+    // O aviso da restauração vira um toast curto (e sai da pendência da nuvem).
+    expect(app.state().toasts.map((t) => t.title)).toContain('Progresso restaurado da nuvem');
     expect(hw.cloud.saves.get(ANA.uid)!.rev).toBe(revBefore); // restaurar não grava nada na nuvem
   });
 

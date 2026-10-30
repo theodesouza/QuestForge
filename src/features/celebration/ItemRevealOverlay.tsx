@@ -20,16 +20,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Circle, Polygon } from 'react-native-svg';
 import { RARITY_LABEL, RARITY_TIER, SLOT_LABEL, getItem } from '../../content/items';
 import { BOSSES } from '../../content/bosses';
-import { dismissReveal, equip } from '../../state/actions';
+import { dismissReveal, equip, lowerEffectsForSpeed } from '../../state/actions';
 import { useGameStore } from '../../state/store';
 import { featSourceLabel } from '../../domain/game/feats';
 import { Astrolabe, DENSITY } from '../../ui/Astrolabe';
 import { SceneStage } from '../../ui/SceneStage';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
+import { useSlowFrames } from '../../ui/perf';
 import { Text } from '../../ui/Text';
 import { colors, fonts, radius, rarityColor, space } from '../../ui/theme';
 import { resolveSynergy } from '../../ui/vfx/synergy';
+import type { EffectsLevel } from '../../domain/game/types';
 import { levelForXp } from '../../domain/progression/levels';
 import { C, FxProvider, Particles, Spin, Wave } from '../../ui/vfx/engine';
 import { ray } from '../../ui/vfx/geometry';
@@ -72,7 +74,16 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
   const tier = RARITY_TIER[item.rarity];
   const color = rarityColor[item.rarity];
   const equipped = useGameStore((s) => s.game?.profile.equipped);
-  const density = DENSITY[useGameStore((s) => s.game?.profile.settings.effects ?? 'alto')];
+  const setting = useGameStore((s) => s.game?.profile.settings.effects ?? 'alto');
+  // A cerimônia tem o palco grande: nunca passa da intensidade Média. Se o aparelho engasgar, simplifica na hora.
+  const [lite, setLite] = useState(false);
+  useSlowFrames(!reduce && !lite, () => {
+    setLite(true);
+    void lowerEffectsForSpeed();
+  });
+  const animateFx = !reduce && !lite;
+  const effects: EffectsLevel = lite ? 'baixo' : setting === 'alto' ? 'medio' : setting;
+  const density = DENSITY[effects];
   const [phase, setPhase] = useState<'charge' | 'shown'>(reduce || CHARGE_MS[tier] === 0 ? 'shown' : 'charge');
   const [busy, setBusy] = useState(false);
   const announced = useRef(false);
@@ -114,7 +125,7 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
     >
       <View style={[styles.content, { paddingTop: insets.top + space.lg, paddingBottom: insets.bottom + space.lg }]}>
         <View style={{ width: stage, height: stage, alignItems: 'center', justifyContent: 'center' }}>
-          <FxProvider value={{ animate: !reduce, density, px: stage }}>
+          <FxProvider value={{ animate: animateFx, density, px: stage }}>
             {phase === 'charge' ? (
               <>
                 <Particles mode="converge" count={6 + tier * 4} period={Math.max(700, CHARGE_MS[tier])} colors={[color, '#FFFFFF']} size={[3, 5]} radius={[20, 118]} glow={tier >= 3} seed={7} />
@@ -124,28 +135,28 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
               </>
             ) : (
               <>
-                {tier >= 2 && !reduce ? (
+                {tier >= 2 && animateFx ? (
                   <Spin period={tier >= 4 ? 28000 : 18000} opacity={tier >= 4 ? 0.55 : 0.4}>
                     {Array.from({ length: tier >= 4 ? 24 : 12 }, (_, i) => (
                       <Polygon key={i} points={ray(i * (tier >= 4 ? 15 : 30), 40, 120, tier >= 4 ? 2.4 : 3.5)} fill={color} />
                     ))}
                   </Spin>
                 ) : null}
-                {tier >= 3 && !reduce ? (
+                {tier >= 3 && animateFx ? (
                   <Spin period={20000} reverse opacity={0.35}>
                     {Array.from({ length: 12 }, (_, i) => (
                       <Polygon key={i} points={ray(i * 30 + 15, 50, 110, 1.8)} fill="#FFFFFF" />
                     ))}
                   </Spin>
                 ) : null}
-                {tier >= 1 && !reduce
+                {tier >= 1 && animateFx
                   ? Array.from({ length: Math.min(3, tier) }, (_, i) => (
                       <Wave key={i} period={1800 + tier * 300} phase={i / 3} from={70} to={120} drawnAt={100} peak={0.5} hold={0.3}>
                         <Circle cx={C} cy={C} r={100} stroke={color} strokeWidth={2} fill="none" />
                       </Wave>
                     ))
                   : null}
-                {tier >= 1 && !reduce ? (
+                {tier >= 1 && animateFx ? (
                   <Particles mode="radial" count={4 + tier * 3} period={2200} colors={[color, '#FFFFFF']} size={[2.5, 4]} radius={[60, 118]} sparkle glow={tier >= 4} seed={13} />
                 ) : null}
               </>
@@ -157,12 +168,12 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
               <View style={styles.center}>
                 {preview && item.slot === 'scene' ? (
                   <View style={{ width: stage * 0.96 }}>
-                    <SceneStage scene={itemId} height={stage * 0.9} animate={!reduce}>
-                      <Astrolabe level={level} equipped={preview} size={stage * 0.68} animate={!reduce} />
+                    <SceneStage scene={itemId} height={stage * 0.9} animate={animateFx} effects={effects}>
+                      <Astrolabe level={level} equipped={preview} size={stage * 0.68} animate={animateFx} effects={effects} />
                     </SceneStage>
                   </View>
                 ) : preview ? (
-                  <Astrolabe level={level} equipped={preview} size={stage * 0.82} animate={!reduce} />
+                  <Astrolabe level={level} equipped={preview} size={stage * 0.82} animate={animateFx} effects={effects} />
                 ) : (
                   <View style={[styles.titleBadge, { borderColor: color }]}>
                     <Text variant="label" color={colors.mist}>

@@ -1,9 +1,11 @@
 /** Ajustes → conta Google, estado da nuvem, exportação e exclusão de conta. */
+import { appAlert } from '../dialog/dialog';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { AuthError } from '../../auth/types';
-import { SYNC_ERROR_MESSAGES, noticeText, syncHeadline } from '../../sync/messages';
-import { deleteAccount, dismissSyncNotice, exportMyData, signOut, syncNow } from '../../state/session';
+import { SyncError } from '../../sync/types';
+import { SYNC_ERROR_MESSAGES, syncHeadline } from '../../sync/messages';
+import { deleteAccount, exportMyData, signOut, syncNow } from '../../state/session';
 import { useGameStore } from '../../state/store';
 import { Button } from '../../ui/Button';
 import { Panel } from '../../ui/Panel';
@@ -15,7 +17,7 @@ export function AccountPanel() {
   const sync = useGameStore((s) => s.sync);
   const cloudEnabled = useGameStore((s) => s.cloudEnabled);
   const [busy, setBusy] = useState<'sync' | 'export' | 'delete' | 'out' | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
 
   const guard = async (kind: NonNullable<typeof busy>, job: () => Promise<void>) => {
     setBusy(kind);
@@ -23,14 +25,22 @@ export function AccountPanel() {
     try {
       await job();
     } catch (e) {
-      setMessage(e instanceof AuthError ? e.message : e instanceof Error ? e.message : 'Algo deu errado. Tente de novo.');
+      const text =
+        e instanceof SyncError
+          ? `${SYNC_ERROR_MESSAGES[e.code]} (${e.code}: ${e.message})`
+          : e instanceof AuthError
+            ? e.message
+            : e instanceof Error
+              ? e.message
+              : 'Algo deu errado. Tente de novo.';
+      setMessage({ text, ok: false });
     } finally {
       setBusy(null);
     }
   };
 
   const confirmSignOut = () =>
-    Alert.alert(
+    appAlert(
       'Sair da conta?',
       sync?.pendingChanges
         ? 'Há alterações ainda não enviadas à nuvem. Elas continuam guardadas neste aparelho e serão enviadas quando você entrar de novo com a mesma conta.'
@@ -42,7 +52,7 @@ export function AccountPanel() {
     );
 
   const confirmDelete = () =>
-    Alert.alert(
+    appAlert(
       'Excluir conta e dados?',
       'Isto apaga o seu progresso na nuvem, a sua conta no QuestForge e os dados deste aparelho. Não dá para desfazer. Vamos pedir que você confirme com o Google.',
       [
@@ -72,9 +82,9 @@ export function AccountPanel() {
             {SYNC_ERROR_MESSAGES[sync.error]}
           </Text>
         ) : null}
-        {sync?.notice ? (
-          <Text variant="caption" color={colors.verdigris} onPress={dismissSyncNotice}>
-            {noticeText(sync.notice)} (toque para dispensar)
+        {sync?.error && sync.errorDetail ? (
+          <Text variant="caption" color={colors.mistDim} selectable>
+            Detalhe: {sync.errorDetail}
           </Text>
         ) : null}
       </View>
@@ -89,7 +99,7 @@ export function AccountPanel() {
           variant="secondary"
           size="md"
           loading={busy === 'sync'}
-          onPress={() => guard('sync', syncNow)}
+          onPress={() => guard('sync', async () => setMessage({ text: await syncNow(), ok: true }))}
           style={styles.gap}
         />
       ) : null}
@@ -97,8 +107,8 @@ export function AccountPanel() {
       <Button label="Sair da conta" variant="ghost" size="md" loading={busy === 'out'} onPress={confirmSignOut} style={styles.tight} />
       <Button label="Excluir conta e dados" variant="danger" size="md" loading={busy === 'delete'} onPress={confirmDelete} style={styles.tight} />
       {message ? (
-        <Text variant="caption" color={colors.ember} style={styles.gap} accessibilityLiveRegion="polite">
-          {message}
+        <Text variant="caption" color={message.ok ? colors.verdigris : colors.ember} style={styles.gap} accessibilityLiveRegion="polite">
+          {message.text}
         </Text>
       ) : null}
     </Panel>

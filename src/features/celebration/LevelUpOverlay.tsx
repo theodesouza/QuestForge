@@ -2,18 +2,19 @@
  * Subida de nível: momento especial, curto e pulável com um toque.
  * Com "reduzir movimento", vira um simples fade.
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { calm } from '../../ui/calm';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getItem, RARITY_LABEL, SLOT_LABEL } from '../../content/items';
 import { rankFor } from '../../domain/progression/levels';
-import { dismissCelebration } from '../../state/actions';
+import { dismissCelebration, lowerEffectsForSpeed } from '../../state/actions';
 import { useGameStore } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
+import { useSlowFrames } from '../../ui/perf';
 import { Icon } from '../../ui/Icon';
 import { ItemGlyph } from '../../ui/ItemGlyph';
 import { Text } from '../../ui/Text';
@@ -28,6 +29,11 @@ export function LevelUpOverlay() {
   useEffect(() => {
     if (celebration) haptic('heavy');
   }, [celebration]);
+  const [lite, setLite] = useState(false);
+  useSlowFrames(!!celebration && !reduce && !lite, () => {
+    setLite(true);
+    void lowerEffectsForSpeed();
+  });
 
   if (!celebration || !equipped) return null;
   const rankChanged = rankFor(celebration.to).index > rankFor(celebration.from).index;
@@ -48,7 +54,7 @@ export function LevelUpOverlay() {
       <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Fechar celebração" />
       <View style={[styles.content, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.xl }]} pointerEvents="box-none">
         <Animated.View entering={reduce ? undefined : calm.appear(0, 480)}>
-          <Astrolabe level={celebration.to} equipped={equipped} size={264} animate={!reduce} />
+          <Astrolabe level={celebration.to} equipped={equipped} size={264} animate={!reduce && !lite} />
         </Animated.View>
         <View style={styles.center} accessible accessibilityRole="header">
           <Text variant="label" color={colors.brass}>

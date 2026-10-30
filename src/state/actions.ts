@@ -156,6 +156,22 @@ export const unequip = (slot: OptionalSlot) => run((s) => game.unequipSlot(s, sl
 export const toggleFavorite = (questionId: string) => run((s) => game.toggleQuestionFlag(s, questionId, 'favorite'));
 export const toggleDoubt = (questionId: string) => run((s) => game.toggleQuestionFlag(s, questionId, 'flagged'));
 export const updateSettings = (patch: Partial<Settings>) => run((s) => game.updateSettings(s, patch));
+
+/**
+ * O aparelho não deu conta dos efeitos (quadros lentos numa tela cheia deles): baixa a Intensidade
+ * para "Baixa" e avisa, uma vez. A pessoa pode subir de novo nos Ajustes.
+ */
+export async function lowerEffectsForSpeed(): Promise<void> {
+  const st = useGameStore.getState();
+  if (!st.game || st.game.profile.settings.effects === 'baixo') return;
+  await updateSettings({ effects: 'baixo' });
+  useGameStore.setState((cur) => ({
+    toasts: [
+      ...cur.toasts,
+      { id: `perf${Date.now()}`, tone: 'news', title: 'Efeitos reduzidos', detail: 'O aparelho engasgou nas animações, então deixamos a intensidade em Baixa. Dá para mudar em Ajustes.', ms: 6000 },
+    ],
+  }));
+}
 export const updateProfile = (patch: Parameters<typeof game.updateProfileBasics>[1]) =>
   run((s) => game.updateProfileBasics(s, patch));
 
