@@ -1,8 +1,7 @@
 import { QUESTIONS } from '../../content/bank';
 import { createInitialState, startSession } from '../../domain/game/game';
 import { useGameStore } from '../../state/store';
-import { useDialogStore } from '../dialog/dialog';
-import { closeDialog } from '../dialog/dialog';
+import { closeDialog, useDialogStore } from '../dialog/dialog';
 import { guardBattle, guardStart } from '../startGuard';
 
 const mockRouter = { push: jest.fn(), replace: jest.fn() };
