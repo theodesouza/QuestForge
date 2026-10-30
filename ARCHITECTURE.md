@@ -206,6 +206,9 @@ sem mudar o domínio — veja [docs/CLOUD_SYNC.md](docs/CLOUD_SYNC.md). O `quest
 - **Vigia de quadros** (`ui/perf.ts`): nas cerimônias de efeitos (revelação de item, subida de nível) mede o intervalo entre quadros; se o
   aparelho engasgar, a tela se simplifica na hora e a Intensidade dos efeitos cai para Baixa (`lowerEffectsForSpeed`). A revelação nunca
   passa da intensidade Média. O padrão para perfis novos é Média.
+- **Atividade já aberta** (`features/startGuard.ts`, usado pelo `useStarter`): a mesma missão (ou expedição de mesma duração) pausada é
+  retomada em vez de recriada; outra atividade pergunta se a atual deve ser terminada antes (ou descartada — o que já foi respondido
+  continua gravado); chefões pedem o mesmo antes de lutar, e uma batalha ativa oferece voltar a ela.
 - **Avisos da nuvem** (`state/session.ts → surfaceNotice`): restauração, fusão e reinício viram um toast curto e saem da pendência do
   motor; "Sincronizar agora" diz o que aconteceu e, em erro, mostra o código e o texto técnico (`SyncStatus.errorDetail`).
 

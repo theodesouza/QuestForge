@@ -222,5 +222,6 @@ Implementado e testado em Node/emuladores (detalhes em `docs/CLOUD_SYNC.md`):
 - [x] Vibração pelo canal de toque do Android (vale no silencioso) com recurso ao vibrador; botão "Testar vibração" nos Ajustes
 - [x] Aviso "Progresso restaurado da nuvem" (e fusão/reinício) vira toast que some; "Sincronizar agora" informa o resultado e mostra o detalhe do erro
 - [x] Vigia de quadros nas cerimônias de efeitos (revelação e nível): simplifica e baixa a intensidade se o aparelho engasgar; padrão de efeitos passou a Média
+- [x] Expedição pausada reabre a mesma ao tocar de novo (mesma missão ou mesma duração); começar outra atividade pergunta se quer terminar a atual antes; testado no navegador (retomar, cancelar, descartar) e em testes de unidade
 - [ ] Chave de assinatura própria para publicação na Play Store
 - [x] Abertura simples: apenas QuestForge em branco sobre fundo escuro, sem ilustração ou espera artificial. APK 0.2.2/versionCode 6 gerado em 19/10/2026 às 20h07 de Brasília (build `cf33019c-173f-4686-ac4a-ff6521e807d3`, código `1ad811b`), com pacote e assinatura iguais aos anteriores. Assinatura criptográfica, versão/runtime, fundo nativo e imagem extraída do APK conferidos. Tipos, lint, configuração Expo e área segura da imagem passaram. Nenhuma alteração em dados ou fluxo de carregamento; aparência em aparelho físico ainda pendente.
