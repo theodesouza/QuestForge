@@ -218,7 +218,7 @@ export default function Camp() {
               onPress={() => {
                 const node = next.node;
                 if (node.kind === 'boss') router.push(`/boss?id=${node.bossId}`);
-                else start('mission', () => startMission(node.id));
+                else start('mission', () => startMission(node.id), { identity: { mode: 'mission', nodeId: node.id, minutes: null } });
               }}
               style={{ marginTop: space.sm }}
             />
@@ -257,7 +257,7 @@ export default function Camp() {
               icon={m === profile.dailyMinutes ? 'clock' : undefined}
               selected={busy === `exp${m}`}
               accessibilityLabel={`Expedição de ${m} minutos, ${EXPEDITION_SIZES[m]} questões`}
-              onPress={() => start(`exp${m}`, () => startExpedition(m))}
+              onPress={() => start(`exp${m}`, () => startExpedition(m), { identity: { mode: 'expedition', nodeId: null, minutes: m } })}
             />
           ))}
         </View>

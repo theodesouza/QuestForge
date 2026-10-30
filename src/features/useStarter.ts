@@ -1,6 +1,7 @@
 import { appAlert } from './dialog/dialog';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { guardStart, type StartIdentity } from './startGuard';
 
 
 /** Inicia uma atividade e navega; evita toques duplos e mostra erros amigáveis. */
@@ -9,11 +10,13 @@ export function useStarter() {
   const start = async (
     key: string,
     fn: () => Promise<unknown>,
-    opts: { to?: '/session' | '/boss'; replace?: boolean } = {},
+    opts: { to?: '/session' | '/boss'; replace?: boolean; identity?: StartIdentity } = {},
   ) => {
     if (busy) return;
     setBusy(key);
     try {
+      // Já há algo aberto? Retoma a mesma atividade ou pergunta antes de criar outra.
+      if ((await guardStart(opts.identity, opts.replace)) !== 'start') return;
       await fn();
       const to = opts.to ?? '/session';
       if (opts.replace) router.replace(to);

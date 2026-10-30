@@ -120,7 +120,7 @@ export default function Summary() {
       const f = focus;
       return { label: `Treinar ${inlineLabel(subtopicLabel(f.topic, f.subtopic))}`, detail: '5 questões no ponto que mais vai render agora.', action: () => start('focus', () => startFocus(f.topic, f.subtopic), { replace: true }) };
     }
-    return { label: 'Mais uma expedição de 5 min', detail: 'Rápida e adaptada a você.', action: () => start('exp', () => startExpedition(5), { replace: true }) };
+    return { label: 'Mais uma expedição de 5 min', detail: 'Rápida e adaptada a você.', action: () => start('exp', () => startExpedition(5), { replace: true, identity: { mode: 'expedition', nodeId: null, minutes: 5 } }) };
   })();
 
   return (

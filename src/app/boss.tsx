@@ -32,6 +32,7 @@ import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
 import { useAttempt } from '../features/question/useAttempt';
+import { guardBattle } from '../features/startGuard';
 import { useStarter } from '../features/useStarter';
 import { battleAnswer, beginBattle, dismissBattle, retreat, startStageDrill } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
@@ -97,6 +98,7 @@ function Intro({ boss }: { boss: BossDef }) {
   const fight = async () => {
     setBusy(true);
     try {
+      if ((await guardBattle()) !== 'start') return;
       await beginBattle(boss.id);
     } catch (e) {
       appAlert('A batalha não começou', e instanceof Error ? e.message : String(e));

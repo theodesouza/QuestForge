@@ -189,6 +189,34 @@ describe('abertura e login', () => {
     expect(hw.cloud.saves.get(ANA.uid)!.rev).toBe(revBefore); // restaurar não grava nada na nuvem
   });
 
+  it('depois de restaurar, estudar e tocar em "Sincronizar agora" leva o progresso novo à nuvem', async () => {
+    const hw = makeHardware();
+    const other = await makeDevice({ uid: ANA.uid, name: 'Outro', cloud: hw.cloud });
+    await other.engine.syncNow();
+    await other.onboard('Ana');
+    await other.expedition(QUESTIONS.slice(0, 8).map((q) => q.id), true);
+    await other.engine.syncNow({ force: true });
+    const revBefore = hw.cloud.saves.get(ANA.uid)!.rev;
+    other.close();
+
+    const app = open();
+    await app.session.boot();
+    await app.session.signIn();
+    const xpBefore = app.state().game!.profile.xp;
+    await study(app);
+    const xpAfter = app.state().game!.profile.xp;
+    expect(xpAfter).toBeGreaterThan(xpBefore);
+
+    const message = await app.session.syncNow();
+    expect(message).toBe('Progresso enviado à nuvem.');
+    const doc = hw.cloud.saves.get(ANA.uid)!;
+    expect(doc.rev).toBeGreaterThan(revBefore);
+    expect(decodeSyncState(doc.data).profile.xp).toBe(xpAfter);
+    expect(app.state().sync).toMatchObject({ phase: 'idle', pendingChanges: false, error: null });
+    // Sem nada novo, o segundo toque diz que já está tudo lá.
+    expect(await app.session.syncNow()).toBe('Tudo já estava na nuvem.');
+  });
+
   it('sem internet no primeiro acesso: fica em "restaurando" com mensagem clara e se recupera ao tentar de novo', async () => {
     const hw = makeHardware();
     hw.cloud.down = 'offline';

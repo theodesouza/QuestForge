@@ -91,7 +91,7 @@ export default function Atlas() {
       return;
     }
     if (node.kind === 'boss') router.push(`/boss?id=${node.bossId}`);
-    else start(node.id, () => startMission(node.id));
+    else start(node.id, () => startMission(node.id), { identity: { mode: 'mission', nodeId: node.id, minutes: null } });
   };
 
   return (
