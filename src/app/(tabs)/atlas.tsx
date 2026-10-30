@@ -7,7 +7,9 @@ import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
-import { REGIONS, findNode, type CampaignNode } from '../../content/regions';
+import { lessonsFor } from '../../content/academy/catalog';
+import type { Lesson } from '../../content/academy/types';
+import { REGIONS, findNode, type CampaignNode, type Region } from '../../content/regions';
 import { nodeStatus, regionCompletion, type NodeStatus } from '../../domain/campaign/campaign';
 import { missionPool } from '../../domain/game/game';
 import { unseenCount } from '../../domain/learning/missionPlan';
@@ -24,6 +26,16 @@ import { Text } from '../../ui/Text';
 import { TAB_BAR_SPACE, colors, space } from '../../ui/theme';
 
 const MEDAL = 66;
+
+/** Aulas da Academia que preparam para as missões de uma região. */
+function regionLessons(region: Region): Lesson[] {
+  const out = new Map<string, Lesson>();
+  for (const node of region.nodes) {
+    if (node.kind !== 'mission') continue;
+    for (const topic of node.topics) for (const sub of node.subtopics) for (const l of lessonsFor(topic, sub)) out.set(l.id, l);
+  }
+  return [...out.values()];
+}
 
 function Medallion({ node, status }: { node: CampaignNode; status: NodeStatus }) {
   const boss = node.kind === 'boss';
@@ -105,6 +117,29 @@ export default function Atlas() {
                   {done.done} de {done.total} marcos redesenhados
                 </Text>
               </View>
+              {regionLessons(region).length ? (
+                <View style={styles.study}>
+                  <Text variant="label" color={colors.verdigris}>
+                    Estude para esta região
+                  </Text>
+                  <View style={styles.studyChips}>
+                    {regionLessons(region).map((l) => (
+                      <Pressable
+                        key={l.id}
+                        onPress={() => router.push(`/lesson?id=${l.id}`)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Aula ${l.title} na Academia`}
+                        style={styles.studyChip}
+                      >
+                        <Icon name="scroll" size={13} color={colors.verdigris} />
+                        <Text variant="caption" color={colors.parchment}>
+                          {l.title}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              ) : null}
             </Panel>
 
             <View onLayout={onLayout}>
@@ -190,6 +225,19 @@ export default function Atlas() {
 
 const styles = StyleSheet.create({
   regionProgress: { marginTop: space.md, gap: 6 },
+  study: { marginTop: space.md, gap: space.xs },
+  studyChips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  studyChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    minHeight: 32,
+    paddingHorizontal: space.sm,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(56, 214, 176, 0.35)',
+    backgroundColor: colors.ink850,
+  },
   nodeRow: { alignItems: 'center', minHeight: 84 },
   medalSlot: { alignItems: 'center' },
   medal: { alignItems: 'center', justifyContent: 'center', borderWidth: 2 },

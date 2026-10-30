@@ -3,8 +3,8 @@
 Legenda: `[x]` implementado **e** testado/verificado · `[~]` parcial · `[ ]` pendente.
 Este arquivo registra o estado real — nada é marcado como feito só por parecer pronto.
 
-Como verificar: `npm test` (179 testes), `npm run typecheck`, `npm run lint`,
-`npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
+Como verificar: `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:rules` (emuladores Firebase),
+`npm run verify:no-legacy`, `npx expo export --platform android` e o roteiro ponta a ponta `scripts/e2e-web.js`.
 
 ## Etapa 1 — Planejamento ✅
 - [x] `PROJECT_PLAN.md` (visão, mecânicas, direção de arte, roteiro)
@@ -149,13 +149,29 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [x] Caça aos Ecos separa Ecos ativos de revisões; Acampamento mostra "N Ecos à espreita" ou "N revisões prontas"
 
 ## Etapa 5 — Aprendizado adaptativo (pendente)
-- [ ] Painel de evolução (semana, assuntos fortes/fracos, tempo de estudo, gráficos)
-- [ ] Histórico de erros navegável ("por que errei")
+- [x] Folha de resolução nas 314 questões: raciocínio numerado, operações em destaque, frações numéricas diagramadas e resposta final; abre após erro, disponível no histórico e no reforço guiado. Mais de 60 resoluções com desenvolvimento adicional. Texto nativo para leitura offline e fonte acessível, sem serviço de IA ou nova dependência. 198 testes, lint e tipos passaram; leitura de todo o catálogo em 320 px sem corte lateral e fluxo de revisão/andaime sem alterar progresso verificados na web. Aparelho físico e TalkBack pendentes.
+- [~] Painel de evolução: atividade semanal com gráfico por dia, acertos (percentual só após 10 respostas), acertos sem chute, dias de prática, domínio por subassunto e próximo treino; acesso no Acampamento e no Herói. Tempo de estudo e comparação entre semanas continuam pendentes.
+- [x] Histórico de erros navegável: 20 tentativas por página, data, assunto, enunciado, alternativas com resposta marcada, resolução e conceito. Consultar não altera XP nem o prazo do Eco; Voltar do Android retorna ao histórico.
+- [x] Consultas de aprendizado testadas em SQLite real e memória; calendário semanal/fuso e amostra mínima testados. Roteiro web verifica expedição → evolução → histórico → resolução e exige progresso inalterado e nenhum erro de console (`--learning-only`). Exportações web/Android, lint e tipos conferidos; aparelho físico ainda pendente.
 - [ ] Caça aos Ecos como modo dedicado com progressão própria
-- [ ] Andaime completo com exemplo resolvido dedicado
+- [~] Andaime com exemplo resolvido: dois erros seguidos podem abrir uma etapa de leitura (conceito, enunciado e resolução de outro item validado), depois uma questão de base mais acessível e retorno ao treino. Exemplo no mesmo subassunto do reforço, nunca acima do nível da questão errada; não revela itens planejados nem volta como reforço avaliado na mesma sessão. Leitura salva e retomável, sem tentativa/XP/domínio. Quando não há exemplo separado adequado, mantém o reforço anterior. Conteúdo didático autoral específico para todos os subassuntos ainda pendente.
 - [ ] Simulados (por assunto, dificuldade, personalizado, completo 45 q) + histórico + comparação
 - [ ] Lembretes opcionais com horário de silêncio
 - [ ] Pausa saudável após 25 min contínuos
+
+## Academia QuestForge ✅ (pendências no fim)
+- [x] Modelo curso → aula → etapa, com etapas Descoberta, Fundamentos, Interpretação, Aplicações, Aprofundamento e Maestria, todas abertas desde o início; modos Aprender, Praticar e Desafiar em cada etapa
+- [x] **13 cursos, 40 aulas e 197 etapas** cobrindo os 38 subassuntos: 143 laboratórios com missão, 3 simulações, 230 exemplos guiados (escolher o próximo passo), 212 verificações, 1.074 geradores de exercícios; 7 tipos de exercício (escolha, número, ordenar, achar o erro, selecionar, classificar, lacunas)
+- [x] Feedback que explica cada erro previsível; dicas graduais na prática; Desafio sem ajuda; nenhum erro tira XP, Tinta ou domínio
+- [x] Progresso vista → estudada → dominada, revisão espaçada das etapas dominadas (3/7/16/35 dias), recompensas por marco (uma vez cada), insígnias de domínio por aula e 4 títulos
+- [x] Integração: as 644 questões ligadas à etapa do seu subassunto; as 2.576 alternativas erradas com nota explicativa no feedback; "Rever na Academia"; recomendações em resumos, Acampamento e Atlas; preparo para chefões (+15% de dano no máximo, visível no HUD); treino dirigido com questões do Atlas; diagnóstico por etapa sem veredito com poucos dados
+- [x] Persistência (migração 5), nuvem (snapshot schema 2 com merge por etapa), normalização e testes de atualização
+- [x] Validador de conteúdo (estrutura, contas, variedade dos geradores, missões alcançáveis, feedback) e testes de cobertura total; revisão dos itens de Maestria/Aprofundamento e varreduras mecânicas (resposta presente na resolução em 86 mil instâncias; concordância)
+- [x] `scripts/e2e-academy.js`: fluxo da Academia no navegador com capturas, sem erros de console; e2e principal, tipos, lint, 622 testes e exportação Android conferidos
+- [ ] Testar em Android físico e com TalkBack
+- [ ] Revisão pedagógica por professor externo e teste com estudantes
+- [x] Publicada por EAS Update em 28/10/2026 (código `fc454cf`, Android, runtime 0.3.0, sem novo APK): `preview` grupo `e999ba50-7c75-444f-99c9-7b86370ad660`, `production` grupo `25e682c0-ca23-49b3-9dae-adefb399ea1d`; manifestos servidos conferidos nos dois canais. Reversão: grupos de 22/10 (`3de15c8f-626e-43ec-a87a-385756ca0441` e `1e8a3a63-9125-46e7-aa10-201dcf3f49da`)
+- [ ] Atualizar os patches indicados pelo `expo-doctor` (expo 57.0.31, expo-router 57.0.29, expo-sharing 57.0.24), anteriores a este trabalho
 
 ## Etapa 6 — Conteúdo (pendente)
 - [x] Expandir para 500 questões validadas, em lotes por assunto — **748 hoje** (91 do MVP + 25 de financeira + 126 de missões das regiões 1–2 + 72 da Região 3 + 72 + 73 das Regiões 4 e 5 + 72 + 72 + 72 + 73 das Regiões 6 a 9); toda questão de missão recalcula o gabarito (`verify()`)
@@ -164,6 +180,21 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [ ] Sons (desativáveis)
 - [ ] Testes de componentes e testes em aparelho intermediário (performance)
 - [ ] Revisão de acessibilidade com leitor de tela real
+
+## Etapa 7.5 — Contas Google e progresso na nuvem (v0.3.0)
+Implementado e testado em Node/emuladores (detalhes em `docs/CLOUD_SYNC.md`):
+- [x] Login **apenas com Google** (Credential Manager) → Firebase Auth; sessão no cofre do sistema; restauração ao reabrir (inclusive offline); sair; erros claros; exclusão de conta (reconfirma com o Google)
+- [x] **Banco local por conta** (`questforge-<uid>.db`, esquema v4): sair/trocar de conta nunca apaga nada; Backup Automático do Android desligado
+- [x] **Nuvem**: um documento-snapshot versionado por conta + lotes de tentativas; regras de segurança (dono + Google, `rev = anterior + 1`, geração e schema nunca regridem)
+- [x] **Sincronização em lote** (90 s de debounce, teto de 5 min, marcos imediatos), pendências duráveis, envio idempotente (`nonce` + linhagem), prazo/cancelamento, espera crescente
+- [x] **Merge de 3 vias** sem perder nem duplicar (contadores, união, recordes, estorno de recompensa única paga em dois aparelhos, liquidação de encomendas)
+- [x] Reinício do progresso por geração (`epoch`); exportação de dados (LGPD); painel *Conta e nuvem*; avisos de sincronização
+- [x] **Migração única do progresso legado** (somente leitura, backup verificável, idempotente, conferida por releitura) — **preparada, NÃO executada**; fora do bundle de produção (`npm run verify:no-legacy`)
+- [x] 120+ testes novos (sessão, motor, merge, migração, regras e motor no Firestore real via emulador)
+- [ ] Teste do login Google e da sincronização em **aparelho real** com o projeto Firebase (depende da configuração em `docs/CLOUD_SETUP.md`)
+- [ ] Executar a migração única no celular (`docs/LEGACY_MIGRATION.md`) e confirmar
+- [ ] Publicar política de privacidade e página de exclusão de conta (`docs/PRIVACY.md`); App Check e alertas de orçamento antes de crescer
+- [ ] Compactar lotes de tentativas se um usuário acumular milhares (restauração lê ~1 documento por lote)
 
 ## Etapa 8 — Entrega (parcial)
 - [x] Instruções para Android no `README.md` (Expo Go, build local e APK via EAS) e `eas.json`
@@ -174,11 +205,16 @@ Efeitos visuais (`src/ui/vfx/`, verificado no laboratório `/vfx-lab` e no rotei
 - [x] Primeira atualização publicada no canal `preview` (runtime 0.2.0); manifesto e bundle conferidos como o app os baixa
 - [x] Atualização da expansão (missões rejogáveis + efeitos do herói) publicada no canal `preview` (runtime 0.2.0, sem mudança nativa); manifesto, hash do bundle e textos novos conferidos
 - [x] Atualização da Região 3 (Planícies Numéricas, Quimera Fracionária e itens) publicada no canal `preview` (runtime 0.2.0, sem mudança nativa — o APK versionCode 4 já a recebe); manifesto, hash do bundle e textos novos conferidos
+- [x] Atualização de evolução e histórico publicada em 19/10/2026 (`391ad47`, grupo `60495e32-9990-401e-839e-18976055c016`, Android, canal `preview`, runtime `0.2.0`): manifesto servido ao APK, download, hash e textos das telas conferidos; gancho de QA ausente. Reversão preparada para o grupo anterior da Região 3 (`21bf9c7d-cdf1-4aea-b9ac-0e12b62c11e0`), sem migração ou reinstalação.
+- [x] Reforço guiado publicado em 19/10/2026 (`0bec7e1`, grupo `a2b4a350-6a36-4267-a788-33cfa74660d1`, Android, canal `preview`, runtime `0.2.0`): manifesto, download, hash e textos novos conferidos; gancho de QA ausente. Ponto de retorno: evolução e histórico (`60495e32-9990-401e-839e-18976055c016`). Sem migração SQL ou mudança nativa. 194 testes, lint, tipos, compilação Android e fluxo de exemplo/retomada no navegador verificados.
+- [x] Folhas de resolução publicadas em 19/10/2026 às 15h16 de Brasília (`4efea8a`, grupo `7c181e15-f117-4da2-b32e-ec12992a7e93`, Android, canal `preview`, runtime `0.2.0`): manifesto servido, download do bundle de 4.425.532 bytes, hash e textos novos conferidos; gancho de QA ausente. Reversão para o reforço guiado (`a2b4a350-6a36-4267-a788-33cfa74660d1`). Sem migração ou mudança nativa. 198 testes, lint, tipos, compilação Android, todas as 314 folhas offline em 320 px e fluxo de erro/histórico/reforço verificados na web.
 - [x] Atualização "rever questão anterior + Ecos superados/dissipados" publicada no canal `preview` (runtime 0.2.0, grupo `a3abb373`, sem mudança nativa): e2e completo sem erros (61 capturas), hash do bundle igual ao do manifesto e textos novos presentes no bundle
 - [x] Atualização da personalização ampliada (Cenários, 49 peças novas, feitos, Oficina maior) publicada no canal `preview` (runtime 0.2.0, grupo `f1fb3515`, sem mudança nativa): e2e completo sem erros (67 capturas, com compra de Cenário, prévia, remoção e feitos de chefão), hash do bundle igual ao do manifesto e textos novos presentes
 - [x] Atualização das Regiões 4 e 5 (Torres Euclidianas, Cavernas Volumétricas, Colosso Euclidiano, Arquiteto dos Sólidos, 8 peças novas e aviso de novidade) publicada no canal `preview` (runtime 0.2.0, grupo `38d25005`, update `01a188f7`, sem mudança nativa): e2e completo sem erros (91 capturas, as duas regiões jogadas até os chefões), hash do bundle igual ao do manifesto e textos novos presentes
 - [x] Atualização das Regiões 6 a 9 (Observatório dos Dados, Labirinto do Acaso, Cordilheira das Funções, Ilhas da Medida, 4 chefões de mecânica própria, 289 questões e 16 peças novas) publicada no canal `preview` (runtime 0.2.0, grupo `cc6062bd`, update `01a18a18`, sem mudança nativa): e2e completo sem erros (143 capturas, as nove regiões jogadas até os chefões, com asserções das mecânicas novas), hash do bundle igual ao do manifesto e textos novos presentes
 - [x] Ícone do app (espada, livro e símbolos), splash e ícone monocromático do Android 13 gerados a partir da arte oficial (APK v0.2.0, versionCode 3)
+- [x] Novo ícone fornecido pelo usuário: livro, estrela, caminho e montanhas; fundo externo removido, PNG transparente, variantes adaptativas e temática monocromática, favicon. APK 0.2.1/versionCode 5 gerado no EAS em 19/10/2026 (build `1da63e0d-71bb-49fa-95d2-a1e541c7ccb8`, código `1c81fcc`), com pacote e certificado iguais aos anteriores. Assinatura criptográfica, versão, runtime 0.2.1, cor de fundo nativa e ícone extraído do APK conferidos. Tipos, lint, transparência/tamanhos das imagens e 19 testes de persistência/atualização passaram. Instalação e aparência em celular físico ainda pendentes. A tela de abertura mantém a arte anterior.
 - [x] APK com a expansão (EAS, perfil `preview`): versionCode 4, versão 0.2.0, mesmo certificado da v0.1.0 (instala por cima), canal `preview` e runtime 0.2.0 conferidos com `apksigner`/`aapt2`; bundle embutido já traz missões e efeitos novos
 - [x] APK v0.3.0 (Regiões 1–9 embutidas): versão 0.3.0, versionCode 5, runtime 0.3.0, EAS perfil `preview` com a mesma chave da v0.1.0 (instala por cima); build `31603e08` conferido: `aapt2` mostra pacote `com.questforge.app`, versionCode 5, versão 0.3.0, minSdk 24; certificado idêntico ao da v0.1.0/v0.2.0 (SHA-256 `fac61745…3b9c`); bundle embutido já traz as Regiões 6–9 (`QuestForge-0.3.0-arm64.apk` local, ignorado pelo git)
 - [ ] Chave de assinatura própria para publicação na Play Store
+- [x] Abertura simples: apenas QuestForge em branco sobre fundo escuro, sem ilustração ou espera artificial. APK 0.2.2/versionCode 6 gerado em 19/10/2026 às 20h07 de Brasília (build `cf33019c-173f-4686-ac4a-ff6521e807d3`, código `1ad811b`), com pacote e assinatura iguais aos anteriores. Assinatura criptográfica, versão/runtime, fundo nativo e imagem extraída do APK conferidos. Tipos, lint, configuração Expo e área segura da imagem passaram. Nenhuma alteração em dados ou fluxo de carregamento; aparência em aparelho físico ainda pendente.

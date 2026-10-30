@@ -32,7 +32,16 @@ export type IconName =
   | 'sparkle'
   | 'play'
   | 'book'
-  | 'target';
+  | 'target'
+  | 'scroll'
+  | 'flask'
+  | 'bulb'
+  | 'alert'
+  | 'seal'
+  | 'eye'
+  | 'list'
+  | 'route'
+  | 'refresh';
 
 interface Props {
   name: IconName;
@@ -195,6 +204,80 @@ function Glyph({ name, color, fill }: { name: IconName; color: string; fill: str
           <Circle cx="12" cy="12" r="8.5" />
           <Circle cx="12" cy="12" r="4.5" />
           <Circle cx="12" cy="12" r="1.2" fill={color} />
+        </>
+      );
+    case 'scroll':
+      return (
+        <>
+          <Path d="M7 4 L18 4 A2 2 0 0 1 20 6 L20 7 L17 7" />
+          <Path d="M7 4 A2 2 0 0 0 5 6 L5 18 A2 2 0 0 0 7 20 L16 20 A2 2 0 0 0 18 18 L18 7" />
+          <Line x1="8.5" y1="9" x2="14.5" y2="9" />
+          <Line x1="8.5" y1="12.5" x2="14.5" y2="12.5" />
+          <Line x1="8.5" y1="16" x2="12" y2="16" />
+        </>
+      );
+    case 'flask':
+      return (
+        <>
+          <Path d="M9.5 3 L14.5 3" />
+          <Path d="M10.5 3 L10.5 9 L5 19 A1.5 1.5 0 0 0 6.3 21 L17.7 21 A1.5 1.5 0 0 0 19 19 L13.5 9 L13.5 3" />
+          <Path d="M7.6 15 L16.4 15" fill={fill} />
+        </>
+      );
+    case 'bulb':
+      return (
+        <>
+          <Path d="M9 17 C9 14.5 6 13.5 6 9.5 A6 6 0 0 1 18 9.5 C18 13.5 15 14.5 15 17 Z" fill={fill} />
+          <Line x1="9.5" y1="20" x2="14.5" y2="20" />
+          <Line x1="10.5" y1="22.5" x2="13.5" y2="22.5" />
+        </>
+      );
+    case 'alert':
+      return (
+        <>
+          <Path d="M12 3.5 L21.5 20 L2.5 20 Z" fill={fill} />
+          <Line x1="12" y1="9.5" x2="12" y2="14" />
+          <Circle cx="12" cy="17" r="0.9" fill={color} />
+        </>
+      );
+    case 'seal':
+      return (
+        <>
+          <Path d="M12 2.5 L14.2 4.6 L17.2 4.2 L17.8 7.2 L20.4 8.7 L19.2 11.5 L20.4 14.3 L17.8 15.8 L17.2 18.8 L14.2 18.4 L12 20.5 L9.8 18.4 L6.8 18.8 L6.2 15.8 L3.6 14.3 L4.8 11.5 L3.6 8.7 L6.2 7.2 L6.8 4.2 L9.8 4.6 Z" fill={fill} />
+          <Polyline points="8.8,11.6 11,13.8 15.2,9.4" />
+        </>
+      );
+    case 'eye':
+      return (
+        <>
+          <Path d="M2.5 12 C5 7 8.5 5 12 5 C15.5 5 19 7 21.5 12 C19 17 15.5 19 12 19 C8.5 19 5 17 2.5 12 Z" />
+          <Circle cx="12" cy="12" r="3" fill={fill} />
+        </>
+      );
+    case 'list':
+      return (
+        <>
+          <Line x1="9" y1="6.5" x2="20" y2="6.5" />
+          <Line x1="9" y1="12" x2="20" y2="12" />
+          <Line x1="9" y1="17.5" x2="20" y2="17.5" />
+          <Circle cx="5" cy="6.5" r="1.1" fill={color} />
+          <Circle cx="5" cy="12" r="1.1" fill={color} />
+          <Circle cx="5" cy="17.5" r="1.1" fill={color} />
+        </>
+      );
+    case 'route':
+      return (
+        <>
+          <Circle cx="6" cy="18" r="2.2" />
+          <Circle cx="18" cy="6" r="2.2" fill={fill} />
+          <Path d="M8 17 C14 16 9 10 15 8" strokeDasharray="2 3" />
+        </>
+      );
+    case 'refresh':
+      return (
+        <>
+          <Path d="M19.5 12 A7.5 7.5 0 1 1 16.8 6.2" />
+          <Polyline points="17.5,2.5 17.5,6.8 13.2,6.8" />
         </>
       );
   }

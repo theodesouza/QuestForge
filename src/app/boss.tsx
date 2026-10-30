@@ -9,32 +9,32 @@ import { Alert, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { findQuestion, getQuestion } from '../content/bank';
 import { BOSSES, getBoss, type BossDef } from '../content/bosses';
 import { getRegion } from '../content/regions';
 import { subtopicLabel } from '../content/topics';
+import { num } from '../content/academy/kit/format';
 import { getItem, RARITY_LABEL } from '../content/items';
-import { activeHeadIndex, bandsOf, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, hydraHeadsOf, isRiddleTurn, scalesOf, type BattleState } from '../domain/boss/battle';
+import { bossPrepBonus, preparationFor, recommendStages } from '../domain/academy/recommend';
+import { activeHeadIndex, bandsOf, CONVERGENCE_BONUS, concreteLayers, facetHitsOf, facetOf, headSpans, headsFelled, hydraHeadsOf, isRiddleTurn, knowledgeSeals, scalesOf, type BattleState } from '../domain/boss/battle';
 import { bossNodeStatus } from '../domain/game/game';
 import { battleReviewItems } from '../domain/game/review';
 import type { GameEvent } from '../domain/game/types';
+import { RecCard } from '../features/academy/bits';
 import { BossArt } from '../features/boss/BossArt';
+import { BossStage } from '../features/boss/BossStage';
 import { HeadsBar } from '../features/boss/HeadsBar';
 import { ConcreteTag, FacetsBar, HydraTag, RiddleTag, ScalesTag } from '../features/boss/TraitMeters';
 import { AnswerBar } from '../features/question/AnswerBar';
 import { QuestionBody } from '../features/question/QuestionBody';
 import { ReviewBanner, ReviewBar, reviewAttempt, useReview } from '../features/question/review';
 import { useAttempt } from '../features/question/useAttempt';
-import { battleAnswer, beginBattle, dismissBattle, retreat } from '../state/actions';
+import { useStarter } from '../features/useStarter';
+import { battleAnswer, beginBattle, dismissBattle, retreat, startStageDrill } from '../state/actions';
 import { useGame, useGameStore } from '../state/store';
 import { Button } from '../ui/Button';
-import { calm } from '../ui/calm';
 import { haptic, useReduceMotion } from '../ui/feedback';
 import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
@@ -89,6 +89,9 @@ function Intro({ boss }: { boss: BossDef }) {
   const status = useGame((g) => bossNodeStatus(g, boss.id));
   const [busy, setBusy] = useState(false);
   const knowledge = Math.min(30, (progress?.failedSinceWin ?? 0) * 10);
+  const academy = useGame((g) => g.academy);
+  const prep = preparationFor(boss.topics, boss.subtopics, academy);
+  const prepBonus = bossPrepBonus(boss.id, academy) * 100;
 
   const fight = async () => {
     setBusy(true);
@@ -203,7 +206,37 @@ function Intro({ boss }: { boss: BossDef }) {
             </Text>
           </View>
         </View>
+        <View style={styles.rule}>
+          <Icon name="sparkle" size={20} color={colors.verdigris} />
+          <View style={{ flex: 1 }}>
+            <Text variant="subheading">Selos de Conhecimento</Text>
+            <Text variant="caption" color={colors.parchmentDim}>
+              Acerte sem dicas nem chute em três subassuntos diferentes para formar uma constelação e liberar a Convergência: +{CONVERGENCE_BONUS} de dano. Os erros não apagam seus selos.
+            </Text>
+          </View>
+        </View>
       </Panel>
+      {prep.stages > 0 ? (
+        <Panel accent={colors.verdigris} tone="sunken">
+          <View style={styles.rule}>
+            <Icon name="scroll" size={20} color={colors.verdigris} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text variant="subheading">Preparo na Academia</Text>
+              <Text variant="caption" color={colors.parchmentDim}>
+                {prep.mastered} de {prep.stages} etapas dominadas nas aulas deste chefão ({prep.studied} {prep.studied === 1 ? 'estudada' : 'estudadas'}).{' '}
+                {prepBonus > 0 ? `Seu preparo rende +${num(prepBonus, 1)}% de dano nesta batalha.` : 'Cada etapa dominada aumenta o seu dano (até +15%).'}
+              </Text>
+            </View>
+          </View>
+          <Button
+            label="Estudar para esta batalha"
+            size="md"
+            variant="secondary"
+            icon="scroll"
+            onPress={() => router.push(boss.topics.length === 1 ? `/course?topic=${boss.topics[0]}` : '/academy')}
+          />
+        </Panel>
+      ) : null}
       {progress && (progress.wins > 0 || knowledge > 0) ? (
         <Text variant="caption" color={colors.mist} align="center">
           {progress.wins > 0 ? `Vitórias: ${progress.wins}${progress.flawless ? ' · já venceu sem erros' : ''}` : `Conhecimento do Inimigo: +${knowledge}% de dano`}
@@ -215,7 +248,7 @@ function Intro({ boss }: { boss: BossDef }) {
 
 // ——————————————————————————————————————————————— batalha
 
-type Hit = { id: number; damage: number; technique: boolean; healed: number; riddle?: boolean };
+type Hit = { id: number; damage: number; technique: boolean; healed: number; riddle?: boolean; convergence?: boolean };
 
 function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { boss: BossDef; battle: BattleState; hit: Hit | null; line: string; activeFacetId: string | null; riddleNow: boolean; pending: boolean }) {
   const reduce = useReduceMotion();
@@ -227,16 +260,16 @@ function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { b
         </Text>
         <View style={styles.hpRow}>
           {hit && hit.damage > 0 ? (
-            <Animated.View key={hit.id} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
+            <Animated.View key={hit.id} entering={reduce ? FadeIn : FadeInDown.duration(320)} style={styles.hit} accessibilityLiveRegion="polite">
               <Text variant="number" color={hit.technique ? colors.brass : colors.parchment}>
                 −{hit.damage}
-                {hit.technique ? ' · técnica!' : ''}
+                {hit.convergence ? ' · convergência!' : hit.technique ? ' · técnica!' : ''}
                 {hit.riddle ? ' · enigma!' : ''}
               </Text>
             </Animated.View>
           ) : null}
           {hit && hit.healed > 0 ? (
-            <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : calm.rise()} accessibilityLiveRegion="polite">
+            <Animated.View key={`h${hit.id}`} entering={reduce ? FadeIn : FadeInDown.duration(320)} style={styles.hit} accessibilityLiveRegion="polite">
               <Text variant="number" color={colors.ember}>
                 +{hit.healed} {boss.trait.kind === 'heads' || boss.trait.kind === 'hydra' ? 'regenera' : 'juros'}
               </Text>
@@ -292,6 +325,12 @@ function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { b
               </Text>
             </View>
           ) : null}
+          {(battle.prepBonus ?? 0) > 0 ? (
+            <View style={[styles.tag, { backgroundColor: colors.verdigrisGlow }]} accessible accessibilityLabel={`Preparo na Academia: mais ${num((battle.prepBonus ?? 0) * 100, 1)}% de dano`}>
+              <Icon name="scroll" size={13} color={colors.verdigris} />
+              <Text variant="caption" color={colors.verdigris}>preparo +{num((battle.prepBonus ?? 0) * 100, 1)}%</Text>
+            </View>
+          ) : null}
           {battle.combo > 0 ? (
             <View style={[styles.tag, { backgroundColor: colors.brassGlow }]}>
               <Icon name="bolt" size={13} color={colors.brass} fill={colors.brass} strokeWidth={1} />
@@ -300,7 +339,7 @@ function Hud({ boss, battle, hit, line, activeFacetId, riddleNow, pending }: { b
           ) : null}
         </View>
       </View>
-      <Text variant="caption" color={colors.parchmentDim} numberOfLines={2} style={styles.narration}>
+      <Text variant="caption" color={colors.parchmentDim} style={styles.narration} accessibilityLiveRegion="polite">
         {line}
       </Text>
     </View>
@@ -314,8 +353,6 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
   const attempt = useAttempt(shownId);
   const scroll = useRef<ScrollView>(null);
   const feedbackOffset = useRef(0);
-  const shake = useSharedValue(0);
-  const flash = useSharedValue(0);
   const [hit, setHit] = useState<Hit | null>(null);
   const [line, setLine] = useState<string>(boss.lines.intro[2]);
   const finalEvents = useRef<GameEvent[]>([]);
@@ -353,8 +390,6 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
     return () => sub.remove();
   }, [reviewed, closeReview]);
 
-  const artStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shake.value }], opacity: 1 - flash.value * 0.45 }));
-
   const question = shownId ? findQuestion(shownId) : undefined;
   const activeFacetId = facetOf(boss, question?.subtopic)?.id ?? null;
   // O golpe mostrado é um Enigma? Antes da resposta vale o estado atual; depois, o registro do golpe dado.
@@ -367,28 +402,26 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
     const turn = after?.turns[after.turns.length - 1];
     if (after && turn) {
       if (turn.correct) {
-        haptic(turn.technique ? 'heavy' : 'impact');
-        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: turn.healed ?? 0, riddle: !!turn.riddle });
-        if (!reduce) {
-          shake.set(withSequence(withTiming(10, { duration: 60 }), withTiming(-8, { duration: 70 }), withTiming(0, { duration: 80 })));
-          flash.set(withSequence(withTiming(1, { duration: 80 }), withTiming(0, { duration: 260 })));
-        }
+        haptic(turn.technique || turn.convergence ? 'heavy' : 'impact');
+        setHit({ id: after.turns.length, damage: turn.damage, technique: turn.technique, healed: turn.healed ?? 0, riddle: !!turn.riddle, convergence: turn.convergence });
         const felled = (boss.trait.kind === 'heads' || boss.trait.kind === 'phases') && (turn.headsFelled ?? 0) > 0 ? bandsOf(boss)[headsFelled(boss, after.hp) - 1] : null;
         const cracked = boss.trait.kind === 'facets' && turn.facetCracked ? boss.trait.facets.find((f) => f.id === turn.facetCracked) : null;
         setLine(
-          felled && after.status !== 'won'
+          after.status === 'won'
+            ? boss.lines.defeat
+            : turn.convergence
+              ? 'Convergência! Seus três selos se uniram: o conhecimento atravessa a Névoa.'
+            : felled
             ? felled.fall
             : turn.armorBroke
             ? boss.lines.phase2
-            : cracked && after.status !== 'won'
+            : cracked
             ? cracked.crack
-            : turn.riddle && boss.trait.kind === 'riddle' && after.status !== 'won' && !turn.technique
+            : turn.riddle && boss.trait.kind === 'riddle' && !turn.technique
             ? boss.trait.solvedLine
             : turn.technique
               ? boss.technique.line
-              : after.status === 'won'
-                ? boss.lines.defeat
-                : pickLine(boss.lines.playerHit, after.turns.length),
+              : pickLine(boss.lines.playerHit, after.turns.length),
         );
       } else {
         setHit((turn.healed ?? 0) > 0 ? { id: after.turns.length, damage: 0, technique: false, healed: turn.healed ?? 0 } : null);
@@ -449,22 +482,11 @@ function Battle({ boss, battle, onFinished }: { boss: BossDef; battle: BattleSta
         }}
       >
         <View style={styles.arena} onLayout={(e) => (feedbackOffset.current = e.nativeEvent.layout.height + space.lg)}>
-          <Animated.View style={artStyle}>
-            <BossArt
-              art={boss.art}
-              size={150}
-              cracked={battle.armorBroken}
-              defeated={battle.status === 'won'}
-              headsFelled={headsFelled(boss, battle.hp)}
-              facetHits={facetHitsOf(battle)}
-              hitsToCrack={boss.trait.kind === 'facets' ? boss.trait.hitsToCrack : undefined}
-              layers={concreteLayers(battle)}
-              scales={scalesOf(boss, battle)}
-              maxScales={boss.trait.kind === 'scales' ? boss.trait.maxScales : undefined}
-              riddle={shownRiddle}
-              hydraHeads={hydraHeadsOf(battle)}
-            />
-          </Animated.View>
+          <BossStage boss={boss} battle={battle} riddle={shownRiddle} />
+          <View style={styles.seals} accessible accessibilityLiveRegion="polite" accessibilityLabel={`Selos de Conhecimento: ${knowledgeSeals(battle).length} de 3. ${battle.turns[battle.turns.length - 1]?.convergence ? 'Convergência liberada!' : 'Acerte subassuntos diferentes sem dicas nem chute.'}`}>
+            {[0, 1, 2].map(i => <Icon key={i} name="sparkle" size={16} color={i < knowledgeSeals(battle).length ? colors.brass : colors.mist} fill={i < knowledgeSeals(battle).length ? colors.brassGlow : 'none'} />)}
+            <Text variant="caption" color={colors.parchmentDim}>Selos {knowledgeSeals(battle).length}/3 · {battle.turns[battle.turns.length - 1]?.convergence ? 'Convergência!' : 'una saberes'}</Text>
+          </View>
         </View>
         {reviewed && reviewedAttempt ? (
           <View style={{ gap: space.lg }}>
@@ -524,6 +546,18 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
   const items = events.filter((e): e is Extract<GameEvent, { type: 'item' }> => e.type === 'item' && e.source.startsWith('boss:'));
   const correct = battle.turns.filter((t) => t.correct).length;
   const [busy, setBusy] = useState(false);
+  const questionStates = useGame((g) => g.questionStates);
+  const academy = useGame((g) => g.academy);
+  const campaign = useGame((g) => g.campaign);
+  const bossesProgress = useGame((g) => g.bosses);
+  const now = useGameStore((s) => s.now);
+  const drill = useStarter();
+  const wrongIds = battle.turns.filter((t) => !t.correct).map((t) => t.questionId);
+  const reinforcement = wrongIds.length
+    ? recommendStages({ questionStates, academy, campaign, bosses: bossesProgress }, now, { wrongIds, where: 'nesta batalha', limit: 2 }).filter(
+        (r) => r.reason === 'erros-recentes',
+      )
+    : [];
 
   const leave = async () => {
     await dismissBattle();
@@ -618,6 +652,17 @@ function Result({ boss, battle, events }: { boss: BossDef; battle: BattleState; 
         </View>
       ) : null}
 
+      {reinforcement.length > 0 ? (
+        <View style={{ gap: space.sm }}>
+          <Text variant="label" color={colors.verdigris}>
+            {won ? 'Para fixar o que escapou' : 'Estude o que faltou na Academia'}
+          </Text>
+          {reinforcement.map((r) => (
+            <RecCard key={r.ref} rec={r} onTest={(ref) => drill.start('drill', () => startStageDrill(ref))} />
+          ))}
+        </View>
+      ) : null}
+
       {!won ? (
         <Panel accent={colors.iris}>
           <Text variant="subheading">Como voltar mais forte</Text>
@@ -685,14 +730,16 @@ const styles = StyleSheet.create({
   rule: { flexDirection: 'row', gap: space.md, paddingVertical: space.sm },
   top: { flexDirection: 'row', alignItems: 'flex-start', gap: space.xs, paddingHorizontal: space.sm, paddingBottom: space.sm },
   hud: { gap: 6, paddingRight: space.md, paddingTop: 4 },
-  hudRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  hudRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
   hudName: { flexShrink: 1 },
   hudTags: { flexDirection: 'row', gap: space.xs },
   resolve: { flexDirection: 'row', gap: 4 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, height: 24, borderRadius: radius.pill, backgroundColor: colors.ink800 },
   content: { paddingHorizontal: space.xl, paddingBottom: space.xxxl, gap: space.lg },
-  arena: { alignItems: 'center' },
-  hpRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexShrink: 0 },
+  arena: { alignItems: 'center', gap: space.sm },
+  seals: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: space.sm },
+  hpRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: space.sm, flexShrink: 1, maxWidth: '100%' },
+  hit: { flexShrink: 1, maxWidth: '100%' },
   narration: { fontStyle: 'italic' },
   footer: { paddingHorizontal: space.xl, paddingTop: space.md, backgroundColor: colors.ink900, borderTopWidth: 1, borderTopColor: colors.lineSoft },
   resultStats: { flexDirection: 'row', gap: space.sm },

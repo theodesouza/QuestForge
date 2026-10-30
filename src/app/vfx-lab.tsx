@@ -11,6 +11,7 @@ import { ITEMS, RARITY_LABEL, getItem } from '../content/items';
 import type { EffectsLevel, Equipped } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
 import { StemBlocks } from '../features/question/StemBlocks';
+import { BossLab } from '../features/boss/BossLab';
 import { Astrolabe } from '../ui/Astrolabe';
 import { SceneStage } from '../ui/SceneStage';
 import { ItemGlyph } from '../ui/ItemGlyph';
@@ -42,6 +43,7 @@ export default function VfxLab() {
       ? (Object.fromEntries(new URLSearchParams(window.location.search)) as typeof routed)
       : routed;
   if (!QA) return <Redirect href="/" />;
+  if (p.grid === 'bosses') return <BossLab />;
   const level = Number(p.level ?? 20);
   const effects = (p.fx as EffectsLevel) ?? undefined;
   const base: Equipped = { frame: p.frame ?? 'frame-bronze', core: p.core ?? 'core-quartzo', aura: p.aura ?? null, scene: p.scene ?? null, title: null };

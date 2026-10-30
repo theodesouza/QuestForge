@@ -53,6 +53,9 @@ export interface BattleTurn {
   layerAdded?: boolean;
   /** Arquiteto: camadas que a Técnica (ou a fase 2) quebrou neste turno. */
   layersBroken?: number;
+  /** Subassunto dominado sem dicas/chute; opcional para saves antigos. */
+  seal?: string;
+  convergence?: boolean;
 }
 
 export interface BattleState {
@@ -69,6 +72,8 @@ export interface BattleState {
   maxCombo: number;
   /** +10% de dano por tentativa anterior sem vitória (até +30%). */
   knowledgeBonus: number;
+  /** Preparo na Academia: etapas dominadas das aulas do chefão (até +15%). Ausente em batalhas antigas. */
+  prepBonus?: number;
   currentQuestionId: string | null;
   usedQuestionIds: string[];
   turns: BattleTurn[];
@@ -86,12 +91,24 @@ export interface BattleState {
 
 export const KNOWLEDGE_PER_ATTEMPT = 0.1;
 export const KNOWLEDGE_CAP = 0.3;
+export const CONVERGENCE_BONUS = 18;
+
+/** Os turnos já são persistidos: retomar não precisa de estado paralelo ou migração. */
+export function knowledgeSeals(battle: BattleState): string[] {
+  const seals = new Set<string>();
+  for (const turn of battle.turns) {
+    if (turn.seal) seals.add(turn.seal);
+    if (turn.convergence) seals.clear();
+  }
+  return [...seals];
+}
 
 export function createBattle(
   boss: BossDef,
   id: string,
   now: number,
   previousFailedAttempts: number,
+  prepBonus = 0,
 ): BattleState {
   return {
     id,
@@ -105,6 +122,7 @@ export function createBattle(
     combo: 0,
     maxCombo: 0,
     knowledgeBonus: Math.min(KNOWLEDGE_CAP, Math.max(0, previousFailedAttempts) * KNOWLEDGE_PER_ATTEMPT),
+    prepBonus: Math.max(0, prepBonus),
     currentQuestionId: null,
     usedQuestionIds: [],
     turns: [],
@@ -138,7 +156,7 @@ export function computeDamage(boss: BossDef, battle: BattleState, input: DamageI
   dmg *= comboMultiplier(comboAfter);
   dmg *= hintMultiplier(input.hints);
   if (input.guessed) dmg *= GUESS_MULT;
-  dmg *= 1 + battle.knowledgeBonus;
+  dmg *= 1 + battle.knowledgeBonus + (battle.prepBonus ?? 0);
   dmg *= facetMultiplier(boss, battle, input.subtopic);
   dmg *= scalesMultiplier(boss, battle);
   if (boss.trait.kind === 'riddle' && isRiddleTurn(boss, battle)) dmg *= boss.trait.damageMultiplier;
@@ -163,6 +181,7 @@ export interface BattleAnswer {
   hints: number;
   /** Subassunto da pergunta: necessário para o Colosso saber qual vértice foi atingido. */
   subtopic?: string;
+  knowledgeKey?: string;
 }
 
 export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: BattleAnswer) {
@@ -181,11 +200,17 @@ export function applyBattleAnswer(boss: BossDef, battle: BattleState, answer: Ba
 
   const trait = boss.trait;
   if (answer.correct) {
-    const { damage, technique } = computeDamage(boss, battle, answer);
+    const base = computeDamage(boss, battle, answer);
+    const seals = knowledgeSeals(battle);
+    const seal = !answer.guessed && answer.hints === 0 && answer.knowledgeKey && !seals.includes(answer.knowledgeKey)
+      ? answer.knowledgeKey : undefined;
+    const convergence = !!seal && seals.length === 2;
+    const damage = base.damage + (convergence ? CONVERGENCE_BONUS : 0);
+    const technique = base.technique;
     next.hp = Math.max(0, battle.hp - damage);
     next.combo = battle.combo + 1;
     next.maxCombo = Math.max(battle.maxCombo, next.combo);
-    turn = { ...pick(answer), damage, technique, armorBroke: false, healed: 0 };
+    turn = { ...pick(answer), damage, technique, armorBroke: false, healed: 0, seal, convergence };
     if (trait.kind === 'riddle' && isRiddleTurn(boss, battle)) turn.riddle = true;
     let armorBroke: boolean;
     if (trait.kind === 'facets') {

@@ -1,3 +1,4 @@
+import type { SharedValue } from 'react-native-reanimated';
 import type { BossArt as BossArtId } from '../../content/bosses';
 import { ArquitetoArt } from './ArquitetoArt';
 import { ColossoArt } from './ColossoArt';
@@ -28,17 +29,20 @@ interface Props {
   riddle?: boolean;
   /** Hidra das Funções: cabeças novas. */
   hydraHeads?: number;
+  /** Golem, Mercador e Quimera: animação de ataque e pulso das juntas. */
+  attacking?: boolean;
+  pulse?: SharedValue<number>;
 }
 
 /** Registro das artes de chefão: cada BossDef aponta para uma delas. */
-export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers, scales, maxScales, riddle, hydraHeads }: Props) {
+export function BossArt({ art, size, cracked, defeated, headsFelled, facetHits, hitsToCrack, layers, scales, maxScales, riddle, hydraHeads, attacking, pulse }: Props) {
   switch (art) {
     case 'golem':
-      return <GolemArt size={size} cracked={cracked} defeated={defeated} />;
+      return <GolemArt size={size} cracked={cracked} defeated={defeated} attacking={attacking} pulse={pulse} />;
     case 'mercador':
-      return <MercadorArt size={size} cracked={cracked} defeated={defeated} />;
+      return <MercadorArt size={size} cracked={cracked} defeated={defeated} attacking={attacking} pulse={pulse} />;
     case 'quimera':
-      return <QuimeraArt size={size} cracked={cracked} defeated={defeated} headsFelled={headsFelled} />;
+      return <QuimeraArt size={size} cracked={cracked} defeated={defeated} headsFelled={headsFelled} attacking={attacking} pulse={pulse} />;
     case 'colosso':
       return <ColossoArt size={size} cracked={cracked} defeated={defeated} facetHits={facetHits} hitsToCrack={hitsToCrack} />;
     case 'arquiteto':

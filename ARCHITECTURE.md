@@ -7,13 +7,16 @@
 | **Expo SDK 57 + React Native 0.86 + TypeScript (strict)** | App nativo real (Android/iOS) com build gerenciado (EAS) e sem manter pastas nativas à mão (CNG). |
 | **Expo Router** (`src/app/`) | Rotas por arquivo, deep links e tipagem. Barra de abas customizada para identidade visual própria. |
 | **expo-sqlite** | Persistência local transacional, offline, com migrações versionadas (`PRAGMA user_version`). |
+| **Firebase Auth + Cloud Firestore** (SDK JS) | Contas Google e progresso na nuvem com regras de segurança no servidor, sem backend próprio. Sessão no cofre do sistema (`expo-secure-store`); login pelo Credential Manager (`react-native-nitro-google-signin`). |
 | **Zustand** | Store mínima e tipada para o *snapshot* do jogo; sem boilerplate, seletores evitam re-render. |
 | **Reanimated 4 + react-native-svg** | Animações na UI thread (fluidas em aparelhos intermediários) e arte vetorial (astrolábio, chefões, ícones, gráficos) sem imagens pesadas. |
 | **expo-haptics** | Feedback tátil, desativável. |
 | **Bricolage Grotesque + Inter** (`@expo-google-fonts`) | Fontes empacotadas no app (offline). |
 | **Jest (jest-expo)** | Testes do domínio puro, do validador de conteúdo e da persistência real em SQLite (via `node:sqlite` nos testes). |
 
-Sem conta, sem backend e sem telemetria na v1.
+**Conta Google obrigatória e progresso na nuvem a partir da v0.3.0** (Firebase Auth + Cloud Firestore; ver
+[docs/CLOUD_SYNC.md](docs/CLOUD_SYNC.md)). O jogo continua local-primeiro e funciona offline; a nuvem é o backup e a
+ponte entre aparelhos. Sem anúncios e sem telemetria.
 
 ## Camadas
 
@@ -22,16 +25,23 @@ src/
 ├── app/            Rotas (telas finas). Só compõem features; nenhuma regra de jogo aqui.
 ├── ui/             Design system: tokens, tipografia, ícones SVG, componentes base, Astrolábio.
 ├── features/       Composição de telas por funcionalidade (session, boss, home, hero, atlas…).
-├── state/          Store Zustand + "actions" que orquestram domínio → persistência → store.
+├── state/          Store Zustand + "actions" que orquestram domínio → persistência → store;
+│                   `session.ts`: conta → banco da conta → restauração/sincronização → jogo.
+├── auth/           Login Google (Credential Manager) → Firebase Auth; sessão no SecureStore; erros traduzidos.
+├── sync/           Snapshot canônico, merge de 3 vias, motor de sincronização (portas: nuvem, repositório, controlador).
+├── platform/       Android (SQLite por conta + Firebase) × web de pré-visualização (memória, sem login real).
+├── legacy/         Migração única do progresso antigo — só em builds com EXPO_PUBLIC_LEGACY_MIGRATION=1.
 ├── domain/         TypeScript PURO (sem React/RN). Regras do jogo e do aprendizado.
 │   ├── progression/  XP, níveis, patentes, recompensas por nível, descanso do viajante
 │   ├── learning/     repetição espaçada, domínio, seleção adaptativa de questões
 │   ├── boss/         motor de batalha determinístico
 │   ├── campaign/     regiões, nós, desbloqueios
 │   ├── session/      planejamento e estado de sessões (expedições)
+│   ├── academy/      Academia: correção, progresso por etapa, desafio, recompensas, recomendação, diagnóstico
 │   └── game/         GameState + reducer `applyAnswer`/`completeSession`/... → (estado, eventos, delta)
 ├── content/        Conteúdo educacional versionado (questões, assuntos, regiões, chefões, itens)
-│   └── validation/   validador estrutural + matemático (roda nos testes e em `npm run validate:content`)
+│   ├── validation/   validador estrutural + matemático (roda nos testes e em `npm run validate:content`)
+│   └── academy/      aulas da Academia, mapa questão → etapa, notas das alternativas e validador próprio
 └── data/           Persistência
     ├── sql/          driver SQL mínimo (interface) + implementação expo-sqlite
     ├── migrations.ts migrações versionadas
@@ -62,26 +72,30 @@ UI (toque "Confirmar")
 - **Sessões retomáveis**: o estado da sessão ativa é gravado a cada resposta
   (`active_session`). Fechar o app no meio não perde nada; o Acampamento oferece "Retomar".
 
-## Banco local (esquema v4)
+## Banco local (esquema v6, um por conta: `questforge-<uid>.db`)
 
 | Tabela | Conteúdo |
 | --- | --- |
 | `profile` (1 linha) | nome, objetivo, preferências, XP total, Tinta, descanso acumulado, cosméticos equipados, datas |
 | `attempts` | log imutável de respostas: questão, escolha, acerto, confiança, dicas, tempo, XP, modo, sessão |
-| `question_state` | repetição espaçada por questão: caixa Leitner, vencimento, contadores, último XP; v4: `echo_beaten`, `echo_beaten_at`, `echo_faded_at` (Ecos superados e dissipados; as redenções antigas viram "superados" na migração) |
+| `question_state` | repetição espaçada por questão: caixa Leitner, vencimento, contadores, último XP; v6: `echo_beaten`, `echo_beaten_at`, `echo_faded_at` (Ecos superados e dissipados; as redenções antigas viram "superados" na migração) |
 | `reward_ledger` | recompensas concedidas (chave única) |
 | `inventory` | itens possuídos + origem |
 | `campaign_progress` | nós concluídos (missões) com melhor resultado; v3: `best_score`, `best_stars`, `last_score` |
 | `boss_progress` | tentativas, vitórias, melhor desempenho por chefão |
 | `active_run` | sessão e batalha em andamento serializadas (retomada) |
 | `quest_board` (v2) | quadros de encomendas do dia e da semana (metas, progresso, dias de estudo) |
+| `sync_kv` (v4) | metadados de sincronização: base (último estado na nuvem), envios pendentes, cursor de tentativas, aviso |
+| `academy_progress` (v5) | progresso por etapa da Academia (`aula/etapa` → JSON: vista, estudada, dominada, prática, desafio, caixa de revisão) |
+| `academy_answers` (v5) | respostas dadas nas aulas: etapa, exercício, modo, acerto, dicas usadas |
 
 Migrações em `src/data/migrations.ts`: lista ordenada; cada uma roda numa transação e
 incrementa `PRAGMA user_version`. Nunca editar uma migração publicada — sempre criar outra.
 
-**Preparação para nuvem**: todas as entidades usam IDs estáveis (texto) e carimbos de tempo
-em milissegundos desde a época (UTC); `attempts` é *append-only* (fácil de sincronizar por log). Um futuro `SyncService`
-pode enviar o log e reconciliar o perfil sem mudar o domínio.
+**Nuvem:** todas as entidades têm IDs estáveis e carimbos de tempo em ms (UTC); `attempts` é *append-only*.
+O `SyncEngine` (`src/sync/`) envia um snapshot versionado por conta e resolve divergências com merge de 3 vias,
+sem mudar o domínio — veja [docs/CLOUD_SYNC.md](docs/CLOUD_SYNC.md). O `questforge.db` anterior às contas
+(esquema v3) nunca é alterado: só a migração única o lê, em modo somente leitura.
 
 ## Missões rejogáveis (`domain/learning/missionPlan.ts`, `domain/campaign/score.ts`)
 
@@ -191,7 +205,7 @@ não entram na revisão). No Android, o botão Voltar fecha a revisão antes de 
 
 ## Atualizações e preservação do progresso
 
-O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualização. Regras:
+O progresso vive no SQLite da conta (e é sincronizado com a nuvem) e **nunca** é apagado por uma atualização. Regras:
 
 1. **Atualização pela internet (EAS Update, canal `preview`)** troca só o código JavaScript. O app
    verifica ao abrir e ao voltar do segundo plano (no máximo a cada 30 min), baixa em segundo plano
@@ -205,8 +219,11 @@ O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualizaç
    padrão do React Native (SHA-256 `fa:c6:17:45:dc:09:03:78:6f:b9:ed:e6:2a:96:2b:39:9f:73:48:f0:bb:6f:89:9b:83:32:66:75:91:03:3b:9c`).
    A chave fica versionada em `credentials/` e o perfil `preview` da EAS a usa
    (`credentialsSource: "local"` + `credentials.json`), então um APK gerado na nuvem também instala
-   por cima. Trocar essa chave obrigaria a desinstalar e apagaria o progresso — antes de publicar na
-   Play Store, planejar a migração (exportar/importar progresso ou sincronização em nuvem).
+   por cima. Trocar essa chave obriga a desinstalar e apagaria o progresso **local** — com a
+   sincronização em nuvem, o progresso volta ao entrar com a mesma conta. Antes de trocar a chave (Play Store),
+   conclua e confira a migração do progresso legado e guarde o backup JSON fora do celular
+   ([docs/LEGACY_MIGRATION.md](docs/LEGACY_MIGRATION.md)). Versão 0.3.0 / `versionCode` 5: o JS novo exige módulos
+   nativos novos, então um APK 0.2.0 não recebe esse código por atualização pela internet.
 4. **Estados antigos são normalizados** em `domain/game/normalize.ts`: campos que surgiram depois
    recebem padrão e nada existente é alterado. Migrações nunca são editadas depois de publicadas.
 5. **Teste de atualização real**: `src/data/__tests__/fixtures/` guarda bancos SQLite gravados pelo
@@ -216,6 +233,34 @@ O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualizaç
 
 ## Conteúdo
 
+### Reforço guiado
+
+Após o gatilho de andaime, `domain/learning/scaffold.ts` busca um exemplo do mesmo
+subassunto da prática de base, até a dificuldade da questão errada. Exclui a fila
+inteira e todos os exemplos já reservados na sessão. O exemplo não entra na fila,
+tentativas, domínio ou recompensas; seus IDs também ficam excluídos de reforços
+avaliados posteriores. Sem candidato, o andaime anterior permanece funcional.
+
+`ActiveSession.scaffoldLesson` guarda origem, exemplo e prática; `scaffoldExampleIds`
+registra os exemplos reservados. Campos opcionais no JSON já persistido em
+`active_run`, sem migração SQL ou mudança nativa. `acknowledgeScaffold` só limpa a
+etapa pendente após commit, é idempotente e ignora toques antigos. Sessões antigas
+continuam compatíveis. A tela mostra o exemplo antes da prática e só inicia o
+contador da tentativa ao sair da leitura; encerrar o app mantém a etapa pendente.
+
+### Consultas de aprendizado
+
+`GameRepository.activitySince` lê a atividade desde o começo da semana local;
+`mistakeHistory` pagina só tentativas incorretas por data e ID decrescentes. Ambas
+passam pela fila do controlador para respeitar gravações pendentes, sem alterar o
+estado do jogo ou exigir migração. `domain/learning/progress.ts` aplica o calendário
+local, descarta registros futuros e só mostra precisão com pelo menos 10 respostas.
+O domínio por subassunto usa o motor de domínio existente e o histórico completo.
+O histórico identifica a resposta pelo texto da alternativa canônica, sem atribuir
+letras que podem ter mudado entre versões antigas e o embaralhamento atual.
+Enunciados e resoluções são os do banco atual (não há cópia versionada por tentativa).
+Tempo de estudo não entra neste painel enquanto o contador não descontar pausas.
+
 - Questões em TypeScript tipado (`src/content/questions/<assunto>.ts`), uma constante por
   lote. IDs estáveis no formato `<ASSUNTO>-<NNN>` (ex.: `PCT-004`). Nunca reutilizar IDs.
 - Cada questão traz: enunciado em blocos (parágrafo, tabela, gráfico de barras, fórmula,
@@ -223,17 +268,45 @@ O progresso vive no SQLite do aparelho e **nunca** é apagado por uma atualizaç
   assunto/subassunto, dificuldade 1–4, habilidades da Matriz de Referência do ENEM (H1–H30),
   tempo estimado, fonte (`autoral` ou `enem` com ano) e — quando numérica — uma função
   `verify()` que **recalcula a resposta** a partir dos dados do enunciado.
+- Cada passo da resolução pode ser texto explicativo ou `{ explanation, calculation: string[] }`.
+  As linhas matemáticas são escritas pelo autor; a UI não resolve nem infere contas.
+  `SolutionSheet` é compartilhada pelo feedback, pelo histórico e pelo reforço guiado.
+  Frações numéricas explícitas são diagramadas com traço; unidades, potências e frações
+  algébricas preservam a notação original. Texto nativo mantém leitura offline e escala
+  da fonte. A validação exige passos preenchidos e contas em todas as questões do banco.
 - O validador (`src/content/validation`) garante: IDs únicos e bem formados, 5 alternativas
   distintas, gabarito válido, campos obrigatórios, habilidades válidas, e que o valor de
   `verify()` coincide com a alternativa correta **e com nenhuma outra**.
 - Questões oficiais só entram com fonte/ano e verificação de direitos; as da v1 são
   **autorais**, inspiradas nas competências do ENEM, e assim identificadas na interface.
 
+## Academia
+
+Guia completo em [docs/ACADEMIA.md](docs/ACADEMIA.md). Em resumo:
+
+- **Conteúdo** (`src/content/academy/`): curso → aula → etapa, com o corpo de cada etapa montado
+  sob demanda (`learn`, `practice`, `challenge`, `recap`). Exercícios fixos ou **geradores**
+  determinísticos por semente (`instantiate(def, seed)`), o que mantém a correção reprodutível
+  e a sincronização leve (só ids e sementes viajam).
+- **Validador** (`validation.ts`): estrutura, contas (incluindo `verify()` das alternativas
+  numéricas), variedade dos geradores em 120 sementes, missões de laboratório alcançáveis,
+  feedback e dicas presentes. Os testes também exigem cobertura total: todo subassunto com aula,
+  toda questão do banco ligada a uma etapa do seu subassunto e toda alternativa errada explicada.
+- **Domínio** (`src/domain/academy/` e `domain/game/academy.ts`): o reducer registra estudo,
+  prática, desafio e revisões e devolve eventos e recompensas, como no resto do jogo. Marcos
+  pagam uma vez (registro `academy:*`); erros não tiram nada.
+- **Integrações**: feedback das questões (nota da alternativa + etapa), recomendações em
+  resumos, Acampamento e Atlas, preparo para chefões (`bossPrepBonus`, até +15% de dano,
+  aplicado em `createBattle`) e treino dirigido com questões do Atlas.
+- **Persistência e nuvem**: migração 5 (tabelas acima) e campo `aca` do snapshot (schema 2). O
+  desafio em andamento não é sincronizado, como a batalha.
+
 ## Web
 
-A build web existe só para pré-visualização e capturas de tela de design. Nela, o
-repositório é o `MemoryGameRepository` (arquivo `.web.ts`), porque o foco do produto é nativo.
-Com `EXPO_PUBLIC_QA=1`, o app expõe `globalThis.__qf` (somente leitura do estado) para o teste
+A build web existe só para pré-visualização e capturas de tela de design. Nela, a plataforma
+(`platform/index.web.ts`) usa o `MemoryGameRepository`, um "usuário de pré-visualização" e nenhuma nuvem, porque o
+foco do produto é nativo.
+Com `EXPO_PUBLIC_QA=1`, o app expõe `globalThis.__qf` para inspecionar e simular cenários no teste
 ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativo.
 
 ## Decisões registradas
@@ -302,4 +375,9 @@ ponta a ponta `scripts/e2e-web.js`; builds normais não incluem esse gancho ativ
   desbloqueios, rejogabilidade, pontuação, sinergias), validador de conteúdo e persistência real (migrações, commit, recarga,
   idempotência) usando `node:sqlite`.
 - `npm run lint` — ESLint (config Expo).
+- `npm run test:rules` — regras de segurança do Firestore e o motor de sincronização contra os emuladores
+  reais do Firebase (Auth + Firestore; exige Java).
+- `npm run verify:no-legacy` — gera o bundle de produção com o cache limpo e confirma que a ferramenta de
+  migração única não está nele.
 - `npx expo export --platform android` — garante que o bundle nativo compila.
+- `node scripts/e2e-academy.js` — fluxo da Academia no navegador (ver [docs/ACADEMIA.md](docs/ACADEMIA.md)).

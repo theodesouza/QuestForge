@@ -537,6 +537,43 @@ const BASE_ITEMS: ItemDef[] = [
     howToGet: 'Cumpra todas as encomendas de uma semana.',
     visual: { color: '#38D6B0' },
   },
+  // ——— Academia ———
+  {
+    id: 'title-aprendiz',
+    slot: 'title',
+    name: 'Aprendiz da Academia',
+    rarity: 'comum',
+    description: 'A primeira etapa dominada sem ajuda: o mapa começa a fazer sentido.',
+    howToGet: 'Domine uma etapa na Academia (resolva o desafio sem dicas).',
+    visual: { color: '#38D6B0' },
+  },
+  {
+    id: 'title-estudioso',
+    slot: 'title',
+    name: 'Estudioso',
+    rarity: 'incomum',
+    description: 'Quinze etapas dominadas. Estudar virou parte da jornada.',
+    howToGet: 'Domine 15 etapas na Academia.',
+    visual: { color: '#6FA8FF' },
+  },
+  {
+    id: 'title-erudito',
+    slot: 'title',
+    name: 'Erudito',
+    rarity: 'raro',
+    description: 'Cinco aulas dominadas por inteiro, da descoberta à maestria.',
+    howToGet: 'Conquiste 5 insígnias de domínio na Academia (todas as etapas de 5 aulas).',
+    visual: { color: '#9B87FF' },
+  },
+  {
+    id: 'title-sabio',
+    slot: 'title',
+    name: 'Sábio do Atlas',
+    rarity: 'lendario',
+    description: 'Todas as aulas da Academia dominadas por inteiro. Nenhum conteúdo escapou ao seu mapa.',
+    howToGet: 'Conquiste a insígnia de domínio de todas as aulas da Academia.',
+    visual: { color: '#FFD36B' },
+  },
   // ——— Oficina (compráveis com Tinta) ———
   {
     id: 'frame-ferro',

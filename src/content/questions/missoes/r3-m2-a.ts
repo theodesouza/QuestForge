@@ -33,7 +33,7 @@ export const MISSAO_R3M2_A = batch([
     ],
     solution: [
       'Os ônibus saem juntos quando o tempo decorrido é múltiplo de 12 e de 20 ao mesmo tempo. A primeira vez depois das 6 h corresponde ao menor múltiplo comum positivo: MMC(12, 20).',
-      'Fatorando: 12 = 2² × 3 e 20 = 2² × 5. O MMC usa cada fator primo com o maior expoente: 2² × 3 × 5 = 60.',
+      { explanation: 'Fatore os períodos. No MMC, use o maior expoente de cada primo.', calculation: ['12 = 2² × 3', '20 = 2² × 5', 'MMC(12, 20) = 2² × 3 × 5', '= 4 × 3 × 5', '= 60 min'] },
       'Conferência: 60 ÷ 12 = 5 e 60 ÷ 20 = 3. Em 60 minutos, a linha Centro sai 5 vezes e a Industrial, 3 vezes, e as duas saídas finais coincidem (às 7 h).',
       'Armadilhas: 240 é o produto 12 × 20, um múltiplo comum, mas não o menor; 32 é a soma dos intervalos; 4 é o MDC(12, 20), que é o maior divisor comum, e não o menor múltiplo; 120 também é múltiplo de 12 e de 20, mas é o dobro do primeiro encontro (60).',
     ],
@@ -65,7 +65,7 @@ export const MISSAO_R3M2_A = batch([
     solution: [
       'Contadas a partir das 6 h 30 min, as doses do analgésico caem 4, 8, 12, 16... horas depois e as do antibiótico, 6, 12, 18... horas depois.',
       'O primeiro número que aparece nas duas listas é 12, ou seja, MMC(4, 6) = 12 (4 = 2² e 6 = 2 × 3, logo MMC = 2² × 3 = 12). Os dois medicamentos coincidem 12 horas depois.',
-      'Horário: 6 h 30 min + 12 h = 18 h 30 min.',
+      { explanation: 'Horário.', calculation: ['6 h 30 min + 12 h = 18 h 30 min'] },
       'Armadilhas: 12 h é o valor do MMC, mas é uma duração, e não um horário (falta somar às 6 h 30 min); 8 h 30 min vem de usar o MDC (2 h) em vez do MMC; 16 h 30 min vem de somar os intervalos (4 + 6 = 10 h); 10 h 30 min é só a segunda dose do analgésico (6 h 30 min + 4 h), que não coincide com nenhuma dose do antibiótico.',
     ],
     concept:
@@ -108,7 +108,7 @@ export const MISSAO_R3M2_A = batch([
     ],
     solution: [
       'Os três só coincidem quando o número de dias é múltiplo de 15, 18 e 20. O primeiro valor positivo é o MMC(15, 18, 20).',
-      'Fatorando: 15 = 3 × 5; 18 = 2 × 3²; 20 = 2² × 5.',
+      { explanation: 'Fatorando.', calculation: ['15 = 3 × 5', '18 = 2 × 3²', '20 = 2² × 5'] },
       'MMC = (maior expoente de 2) × (maior expoente de 3) × (maior expoente de 5) = 2² × 3² × 5 = 4 × 9 × 5 = 180.',
       'Conferência: 180 ÷ 15 = 12, 180 ÷ 18 = 10 e 180 ÷ 20 = 9, todas divisões exatas. Daqui a 180 dias.',
       'Armadilhas: 60 é o MMC(15, 20) e 90 é o MMC(15, 18), em que um dos prestadores foi esquecido (60 não é múltiplo de 18 e 90 não é múltiplo de 20); 270 = 15 × 18 não é múltiplo de 20; 360 = 18 × 20 é múltiplo comum dos três, mas é o dobro do menor (180).',
@@ -140,8 +140,8 @@ export const MISSAO_R3M2_A = batch([
     ],
     solution: [
       'Plantões de Cláudio: dias 2, 8, 14, 20, 26... Plantões de Denise: dias 2, 10, 18, 26...',
-      'O intervalo entre dois encontros é o MMC(6, 8): 6 = 2 × 3 e 8 = 2³, logo MMC = 2³ × 3 = 24 dias.',
-      'Data: 2 + 24 = dia 26 de março (março tem 31 dias, então não há mudança de mês).',
+      { explanation: 'O intervalo entre encontros é o menor múltiplo comum dos dois períodos.', calculation: ['6 = 2 × 3', '8 = 2³', 'MMC(6, 8) = 2³ × 3', '= 8 × 3', '= 24 dias'] },
+      { explanation: 'Some o intervalo à data inicial. O resultado ainda pertence a março, que tem 31 dias.', calculation: ['2 + 24 = 26 de março'] },
       'Armadilhas: o dia 4 vem de somar o MDC (2 dias) ao dia 2; o dia 16 vem de somar os intervalos (6 + 8 = 14 dias); os dias 8 e 10 são apenas o próximo plantão de Cláudio e o de Denise, respectivamente, e cada um deles não coincide com o do outro.',
     ],
     concept:
@@ -171,7 +171,7 @@ export const MISSAO_R3M2_A = batch([
     ],
     solution: [
       'Múltiplos de 10: 10, 20, 30, 40... Múltiplos de 15: 15, 30, 45... O primeiro número comum às duas listas é 30.',
-      'Pela fatoração: 10 = 2 × 5 e 15 = 3 × 5, logo MMC(10, 15) = 2 × 3 × 5 = 30.',
+      { explanation: 'Fatore os períodos e reúna cada primo com seu maior expoente.', calculation: ['10 = 2 × 5', '15 = 3 × 5', 'MMC(10, 15) = 2 × 3 × 5', '= 30 s'] },
       'Conferência: em 30 segundos, a primeira boia pisca 3 vezes (30 ÷ 10) e a segunda, 2 vezes (30 ÷ 15), e as últimas piscadas coincidem.',
       'Armadilhas: 150 é o produto 10 × 15, que é um múltiplo comum, mas não o menor; 25 é a soma dos intervalos; 5 é o MDC(10, 15); 60 é múltiplo comum, mas é o dobro do primeiro encontro (30).',
     ],
@@ -201,9 +201,9 @@ export const MISSAO_R3M2_A = batch([
       'Converta as 4 horas para minutos e calcule o MMC(15, 9).',
     ],
     solution: [
-      'As sirenes tocam juntas quando o tempo é múltiplo de 15 e de 9. Como 15 = 3 × 5 e 9 = 3², o MMC é 3² × 5 = 45 minutos.',
+      { explanation: 'As sirenes voltam a coincidir a cada MMC dos períodos.', calculation: ['15 = 3 × 5', '9 = 3²', 'MMC(15, 9) = 3² × 5 = 45 min'] },
       'O turno dura 4 h = 240 min. Os toques simultâneos ocorrem, em minutos após as 8 h, em 0, 45, 90, 135, 180 e 225. O próximo (270 min) já passa do fim do turno.',
-      'Por conta: 240 ÷ 45 = 5, com resto 15. Cabem 5 intervalos completos depois das 8 h, e ainda há o toque inicial: 5 + 1 = 6 vezes.',
+      { explanation: 'Conte os intervalos completos e inclua o toque inicial das 8 h.', calculation: ['4 × 60 = 240 min', '240 = 5 × 45 + 15', '5 + 1 = 6 toques simultâneos'] },
       'Armadilhas: 5 esquece o toque simultâneo das 8 h; 7 arredonda 5,3 para 6 e ainda soma o toque inicial; 16 = 240 ÷ 15 conta apenas os toques da sirene de 15 minutos; 80 = 240 ÷ 3 vem de usar o MDC (3) no lugar do MMC.',
     ],
     concept:
@@ -233,8 +233,8 @@ export const MISSAO_R3M2_A = batch([
     ],
     solution: [
       'Fatorando: 24 = 2³ × 3 e 32 = 2⁵. O MMC usa o maior expoente de cada fator: 2⁵ × 3 = 96 minutos.',
-      'Conversão: 96 min = 60 min + 36 min = 1 h 36 min.',
-      'Horário: 6 h + 1 h 36 min = 7 h 36 min.',
+      { explanation: 'Conversão.', calculation: ['96 min = 60 min + 36 min', '= 1 h 36 min'] },
+      { explanation: 'Horário.', calculation: ['6 h + 1 h 36 min = 7 h 36 min'] },
       'Conferência: da Linha Norte saem barcas às 6 h 24, 6 h 48, 7 h 12 e 7 h 36; da Linha Sul, às 6 h 32, 7 h 04 e 7 h 36. O primeiro horário em comum é 7 h 36 min.',
       'Armadilhas: 1 h 36 min é a duração (96 min), e não o horário, pois esquece-se de somar às 6 h; 6 h 8 min vem de usar o MDC (8 min); 6 h 56 min vem de somar os intervalos (24 + 32 = 56 min); 6 h 48 min é uma saída da Linha Norte (2 × 24 min) que não coincide com nenhuma da Linha Sul.',
     ],
@@ -277,7 +277,7 @@ export const MISSAO_R3M2_A = batch([
       'O MMC(6, 8, 9) = 72 só daria o instante correto se os sensores começassem juntos, o que não é o caso.',
       'Instantes de C que também são de A (múltiplos de 6): 12, 30, 48, 66... (de 18 em 18).',
       'Entre eles, procuramos o primeiro que B também lê. B lê em 2, 10, 18, 26, 34, 42, 50, 58, 66...: o 12, o 30 e o 48 não aparecem na lista de B, mas o 66 aparece.',
-      'Conferência: 66 ÷ 6 = 11; (66 − 2) ÷ 8 = 8; (66 − 3) ÷ 9 = 7, todas divisões exatas. Isso corresponde às 9 h 06 min.',
+      { explanation: 'Confira o instante de 66 minutos descontando os atrasos de início de cada sensor. As divisões são exatas.', calculation: ['A: 66 ÷ 6 = 11', 'B: (66 − 2) ÷ 8 = 64 ÷ 8 = 8', 'C: (66 − 3) ÷ 9 = 63 ÷ 9 = 7', '8 h + 66 min = 9 h 06 min'] },
       'Armadilhas: 12 é o primeiro instante comum de A e C apenas, e 18 é o primeiro de A e B apenas; 72 é o MMC(6, 8, 9) sem considerar a defasagem do início, e nesse instante B e C não fazem leitura; 74 soma o atraso de B ao MMC, e nesse instante A não faz leitura.',
     ],
     concept:
@@ -314,8 +314,8 @@ export const MISSAO_R3M2_A = batch([
     ],
     solution: [
       'Colocando tudo em horas: 4 dias = 4 × 24 = 96 horas. Os intervalos são 36 h e 96 h.',
-      'Fatorando: 36 = 2² × 3² e 96 = 2⁵ × 3. MMC(36, 96) = 2⁵ × 3² = 288 horas.',
-      'Convertendo para dias: 288 ÷ 24 = 12 dias.',
+      { explanation: 'Com ambos os intervalos em horas, calcule o MMC usando os maiores expoentes.', calculation: ['36 = 2² × 3²', '96 = 2⁵ × 3', 'MMC(36, 96) = 2⁵ × 3²', '= 32 × 9', '= 288 h'] },
+      { explanation: 'Divida por 24 para transformar horas em dias.', calculation: ['288 ÷ 24 = 12 dias'] },
       'Conferência: 288 ÷ 36 = 8 entregas do fornecedor de frutas e 288 ÷ 96 = 3 entregas do de laticínios, ambas chegando às 8 h do 12º dia.',
       'Armadilhas: 36 e 144 vêm de misturar horas e dias (MMC(36, 4) = 36 e 36 × 4 = 144); 288 é o resultado em horas, sem converter para dias; 6 vem de multiplicar 1,5 dia por 4 dias, sem dividir pelo fator comum.',
     ],
@@ -346,7 +346,7 @@ export const MISSAO_R3M2_A = batch([
     ],
     solution: [
       'Múltiplos de 6: 6, 12, 18, 24... Múltiplos de 9: 9, 18, 27... O primeiro comum às duas listas é 18.',
-      'Pela fatoração: 6 = 2 × 3 e 9 = 3², logo MMC(6, 9) = 2 × 3² = 18.',
+      { explanation: 'O primeiro encontro corresponde ao menor múltiplo comum positivo.', calculation: ['6 = 2 × 3', '9 = 3²', 'MMC(6, 9) = 2 × 3²', '= 18 dias'] },
       'Conferência: 18 ÷ 6 = 3 e 18 ÷ 9 = 2, ou seja, em 18 dias chegam 3 remessas do primeiro sítio e 2 do segundo.',
       'Armadilhas: 54 = 6 × 9 é múltiplo comum, mas não o menor (como 6 e 9 têm o fator 3 em comum, o produto é 3 vezes o MMC); 15 é a soma dos intervalos; 3 é o MDC(6, 9); 27 é múltiplo de 9, mas não de 6.',
     ],
@@ -380,7 +380,7 @@ export const MISSAO_R3M2_A = batch([
       'Decomponha 90 e 15 em fatores primos e veja quais fatores o intervalo de B precisa ter para que o MMC chegue a 90.',
     ],
     solution: [
-      'Sabemos que MMC(15, n) = 90. Fatorando: 90 = 2 × 3² × 5 e 15 = 3 × 5.',
+      { explanation: 'Sabemos que MMC(15, n) = 90. Fatorando.', calculation: ['90 = 2 × 3² × 5', '15 = 3 × 5'] },
       'O MMC reúne o maior expoente de cada primo. O 15 só contribui com 3¹ e 5; logo o fator 2 e o fator 3² precisam vir de n. Assim, n é múltiplo de 2 × 3² = 18.',
       'Como n não passa de 30, o único valor possível é n = 18 (o múltiplo seguinte, 36, passa de 30).',
       'Conferência: 15 = 3 × 5 e 18 = 2 × 3², logo MMC(15, 18) = 2 × 3² × 5 = 90.',
@@ -417,8 +417,8 @@ export const MISSAO_R3M2_A = batch([
       'Calcule o MMC(24, 40), em minutos, e depois divida esse tempo pela duração de uma volta de Rita.',
     ],
     solution: [
-      'Fatorando: 24 = 2³ × 3 e 40 = 2³ × 5. MMC(24, 40) = 2³ × 3 × 5 = 120 minutos.',
-      'Rita completa 120 ÷ 24 = 5 voltas e Bruno, 120 ÷ 40 = 3 voltas. Os dois chegam juntos ao portão, cada um com um número inteiro de voltas.',
+      { explanation: 'Calcule o primeiro intervalo em que os dois completam voltas inteiras.', calculation: ['24 = 2³ × 3', '40 = 2³ × 5', 'MMC(24, 40) = 2³ × 3 × 5', '= 120 min'] },
+      { explanation: 'Divida o tempo comum pela duração da volta de cada pessoa. A pergunta pede as voltas de Rita.', calculation: ['Rita: 120 ÷ 24 = 5 voltas', 'Bruno: 120 ÷ 40 = 3 voltas'] },
       'Observação: Rita e Bruno também se cruzam na pista em outros instantes (por exemplo, aos 60 minutos), mas a pergunta se refere ao portão de entrada.',
       'Armadilhas: 3 é o número de voltas de Bruno, e não o de Rita; 8 vem de somar as voltas (5 + 3) ou do MDC(24, 40) = 8; 15 multiplica as voltas (5 × 3); 120 é o tempo em minutos, e não o número de voltas.',
     ],

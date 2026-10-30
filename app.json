@@ -14,14 +14,15 @@
     },
     "android": {
       "package": "com.questforge.app",
+      "icon": "./assets/app-icon-cutout.png",
       "adaptiveIcon": {
-        "backgroundColor": "#0B1020",
+        "backgroundColor": "#071038",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "versionCode": 5
+      "versionCode": 7,
+      "allowBackup": false
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -37,7 +38,10 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 200
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-sharing",
+      "react-native-nitro-google-signin"
     ],
     "experiments": {
       "typedRoutes": false

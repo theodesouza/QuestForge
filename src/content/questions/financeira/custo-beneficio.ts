@@ -24,7 +24,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
     solution: [
       'Cinco pacotes de 1 kg custam 5 × 6,20 = R$ 31,00.',
       'Um pacote de 5 kg custa R$ 27,50.',
-      'Economia: 31,00 − 27,50 = R$ 3,50.',
+      { explanation: 'Economia.', calculation: ['31,00 − 27,50 = R$ 3,50'] },
       'Conferindo pelo preço por quilo: 27,50 ÷ 5 = R$ 5,50 o quilo, isto é, R$ 0,70 a menos por quilo; em 5 kg, 5 × 0,70 = R$ 3,50.',
     ],
     concept:
@@ -66,9 +66,9 @@ export const FIN_CUSTO_BENEFICIO = batch([
     ],
     solution: [
       'Mercado Ipê: 6 pacotes formam 2 grupos de 3; em cada grupo pagam-se 2 pacotes, logo Kenji paga 2 × 2 = 4 pacotes.',
-      'Gasto no Mercado Ipê: 4 × 21,00 = R$ 84,00.',
+      { explanation: 'Gasto no Mercado Ipê.', calculation: ['4 × 21,00 = R$ 84,00'] },
       'Mercado Jatobá: cada pacote sai por 19,00 × 0,75 = R$ 14,25.',
-      'Gasto no Mercado Jatobá: 6 × 14,25 = R$ 85,50.',
+      { explanation: 'Gasto no Mercado Jatobá.', calculation: ['6 × 14,25 = R$ 85,50'] },
       'O menor gasto é o do Mercado Ipê: R$ 84,00.',
       'Observação: "leve 3, pague 2" equivale a um desconto de 1/3 ≈ 33,3%, mas só quando a quantidade comprada é múltipla de 3.',
     ],
@@ -114,7 +114,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
       'Calcule o rendimento com etanol (70% de 12 km/L) e quantos litros de cada combustível a viagem exige.',
     ],
     solution: [
-      'Rendimento com etanol: 0,7 × 12 = 8,4 km/L.',
+      { explanation: 'Rendimento com etanol.', calculation: ['0,7 × 12 = 8,4 km/L'] },
       'Gasolina: 420 ÷ 12 = 35 L, que custam 35 × 6,20 = R$ 217,00.',
       'Etanol: 420 ÷ 8,4 = 50 L, que custam 50 × 4,50 = R$ 225,00.',
       'A gasolina é mais vantajosa, com economia de 225,00 − 217,00 = R$ 8,00.',
@@ -166,7 +166,7 @@ export const FIN_CUSTO_BENEFICIO = batch([
       'Calcule quanto o Básico pode cobrar em GB adicionais antes de alcançar a mensalidade do Plus: 59,90 − 39,90.',
     ],
     solution: [
-      'Diferença entre as mensalidades: 59,90 − 39,90 = R$ 20,00.',
+      { explanation: 'Diferença entre as mensalidades.', calculation: ['59,90 − 39,90 = R$ 20,00'] },
       'No Básico, cada GB acima de 8 GB custa R$ 6,00; os custos se igualariam com 20 ÷ 6 ≈ 3,33 GB adicionais.',
       'Com 11 GB (3 adicionais), o Básico custa 39,90 + 3 × 6,00 = R$ 57,90, ainda mais barato que o Plus.',
       'Com 12 GB (4 adicionais), o Básico custa 39,90 + 4 × 6,00 = R$ 63,90, mais caro que o Plus (R$ 59,90).',
@@ -222,10 +222,10 @@ export const FIN_CUSTO_BENEFICIO = batch([
       'Comece calculando a conta para 28 m³: 10 m³ na 1ª faixa, 10 m³ na 2ª e 8 m³ na 3ª.',
     ],
     solution: [
-      'Conta com 28 m³: 10 × 4,50 + 10 × 7,20 + 8 × 11,40 = 45,00 + 72,00 + 91,20 = R$ 208,20.',
-      'Conta com 18 m³: 10 × 4,50 + 8 × 7,20 = 45,00 + 57,60 = R$ 102,60.',
-      'Redução no valor: 208,20 − 102,60 = R$ 105,60.',
-      'Redução percentual em relação à conta original: 105,60 ÷ 208,20 ≈ 0,507 ≈ 51%.',
+      { explanation: 'Conta com 28 m³.', calculation: ['10 × 4,50 + 10 × 7,20 + 8 × 11,40 = 45,00 + 72,00 + 91,20', '= R$ 208,20'] },
+      { explanation: 'Conta com 18 m³.', calculation: ['10 × 4,50 + 8 × 7,20 = 45,00 + 57,60', '= R$ 102,60'] },
+      { explanation: 'Redução no valor.', calculation: ['208,20 − 102,60 = R$ 105,60'] },
+      { explanation: 'Redução percentual em relação à conta original.', calculation: ['105,60 ÷ 208,20 ≈ 0,507', '≈ 51%'] },
       'Armadilhas: o consumo caiu só 10 ÷ 28 ≈ 36%, mas a conta caiu mais porque os metros cúbicos economizados eram os mais caros; e 102,60 ÷ 208,20 ≈ 49% é a fração da conta que ainda se paga, não a redução.',
     ],
     concept:

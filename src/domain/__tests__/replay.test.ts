@@ -271,6 +271,17 @@ function runMission(state: GameState, now: number, opts: { wrong?: number; hints
   return { state: fin.state, ids, summary };
 }
 
+function exhaustMissionPool() {
+  let state = onboarded();
+  const pool = missionPool(node);
+  // Itens nível 4 só cabem nas vagas finais: tamanho/5 não garante esgotamento.
+  for (let i = 0; i < pool.length && unseenCount(pool, state.questionStates) > 0; i++) {
+    state = runMission(state, T0 + i * 60_000).state;
+  }
+  expect(unseenCount(pool, state.questionStates)).toBe(0);
+  return state;
+}
+
 describe('missões repetidas no jogo', () => {
   it('a segunda tentativa traz questões inéditas da missão', () => {
     const s0 = onboarded();
@@ -309,9 +320,7 @@ describe('missões repetidas no jogo', () => {
   });
 
   it('anti-farm: repetir sem parar questões já resolvidas não rende bônus nem XP', () => {
-    let s = onboarded();
-    const runs = Math.ceil(missionPool(node).length / node.questionCount);
-    for (let i = 0; i < runs; i++) s = runMission(s, T0 + i * 60_000).state; // esgota as inéditas
+    let s = exhaustMissionPool();
     // (Encomendas do dia podem ser cumpridas aqui: são recompensas únicas por dia, não farm.)
     let bonusTotal = 0;
     let answerXp = 0;
@@ -329,9 +338,7 @@ describe('missões repetidas no jogo', () => {
   });
 
   it('anti-farm: errar de propósito e acertar na tentativa seguinte supera o Eco, mas não rende redenção nem bônus', () => {
-    let s = onboarded();
-    const runs = Math.ceil(missionPool(node).length / node.questionCount);
-    for (let i = 0; i < runs; i++) s = runMission(s, T0 + i * 60_000).state; // esgota as inéditas
+    let s = exhaustMissionPool();
     let bonus = 0;
     let ink = 0;
     let redemptions = 0;

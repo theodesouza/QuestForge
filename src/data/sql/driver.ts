@@ -14,4 +14,6 @@ export interface SqlExecutor {
 export interface SqlDriver extends SqlExecutor {
   /** Executa `fn` numa transação exclusiva: tudo ou nada. */
   transaction(fn: (tx: SqlExecutor) => Promise<void>): Promise<void>;
+  /** Fecha o banco (necessário antes de apagá-lo). */
+  close?(): Promise<void> | void;
 }

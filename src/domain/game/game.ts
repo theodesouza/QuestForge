@@ -18,11 +18,13 @@ import {
   nextFacet,
   type BattleState,
 } from '../boss/battle';
+import { bossPrepBonus } from '../academy/recommend';
 import { nodeStatus, type BossProgress } from '../campaign/campaign';
 import { STAR_REWARDS, missionScore, missionStars, type ScoredAnswer } from '../campaign/score';
 import { planMissionRun, unseenCount } from '../learning/missionPlan';
-import { DEFAULT_TARGET, adjustTarget, selectQuestions } from '../learning/selection';
+import { DEFAULT_TARGET, adjustTarget, selectBossQuestion, selectQuestions } from '../learning/selection';
 import { dueEchoIds, dueReviewIds, emptyQuestionState, retireOldEchoes, schedule } from '../learning/srs';
+import { scaffoldExample } from '../learning/scaffold';
 import { accrueRested } from '../progression/rested';
 import {
   MISSION_FIRST_INK,
@@ -89,6 +91,7 @@ export function createInitialState(now: number): GameState {
     session: null,
     battle: null,
     quests: { daily: null, weekly: null },
+    academy: {},
   };
 }
 
@@ -105,6 +108,8 @@ export function fullDelta(state: GameState): Result['delta'] {
     session: true,
     battle: true,
     quests: true,
+    academy: Object.keys(state.academy),
+    academyAnswers: [],
   };
 }
 
@@ -407,6 +412,7 @@ export function answerCurrent(state: GameState, input: AnswerInput, now: number)
 
   const next: ActiveSession = {
     ...session,
+    ...(session.scaffoldLesson ? { scaffoldLesson: null } : {}),
     queue: session.queue.slice(),
     answers: [
       ...session.answers,
@@ -434,16 +440,32 @@ export function answerCurrent(state: GameState, input: AnswerInput, now: number)
     const prev = [...session.answers].reverse().find((a) => a.kind !== 'skipped');
     const prevQ = prev ? findQuestion(prev.questionId) : undefined;
     if (prev && !prev.correct && prevQ && prevQ.subtopic === q.subtopic) {
-      const easier = findEasier(q, next.queue, tx.state);
+      const exposed = next.scaffoldExampleIds ?? [];
+      const easier = findEasier(q, [...next.queue, ...exposed], tx.state);
       if (easier) {
         next.queue.splice(next.index, 0, easier.id);
         next.scaffoldIds = [...next.scaffoldIds, easier.id];
+        const example = scaffoldExample(easier, [...next.queue, ...exposed], q.difficulty);
+        if (example) {
+          next.scaffoldExampleIds = [...exposed, example.id];
+          next.scaffoldLesson = { sourceQuestionId: q.id, practiceQuestionId: easier.id, exampleQuestionId: example.id };
+        }
         tx.emit({ type: 'scaffold', questionId: easier.id, subtopic: q.subtopic, conceptFrom: q.id });
       }
     }
   }
 
   tx.setSession(next);
+  return tx.done();
+}
+
+/** Confirma somente a leitura; a fila e todas as evidências de aprendizado ficam intactas. */
+export function acknowledgeScaffold(state: GameState, practiceQuestionId: string): Result {
+  const tx = new Tx(state);
+  const session = state.session;
+  if (session?.scaffoldLesson?.practiceQuestionId === practiceQuestionId && currentQuestionId(session) === practiceQuestionId) {
+    tx.setSession({ ...session, scaffoldLesson: null });
+  }
   return tx.done();
 }
 
@@ -468,6 +490,7 @@ export function skipCurrent(state: GameState): Result {
   const firstSkip = !session.skippedOnce.includes(qid);
   tx.setSession({
     ...session,
+    ...(session.scaffoldLesson ? { scaffoldLesson: null } : {}),
     queue: firstSkip ? [...session.queue, qid] : session.queue,
     skippedOnce: firstSkip ? [...session.skippedOnce, qid] : session.skippedOnce,
     answers: [
@@ -658,16 +681,15 @@ function bossPool(boss: BossDef, battle?: BattleState) {
 function pickBossQuestion(state: GameState, boss: BossDef, battle: BattleState, now: number): string {
   const pool = bossPool(boss, battle);
   const pickWith = (exclude: Set<string>) =>
-    selectQuestions({
+    selectBossQuestion({
       pool,
       states: state.questionStates,
-      count: 1,
       now,
       seed: hashString(`${battle.id}:${battle.turns.length}`),
       fixedTarget: battleTarget(boss, battle),
       exclude,
       maxReviewShare: 0,
-    })[0];
+    });
   const q =
     pickWith(new Set(battle.usedQuestionIds)) ??
     pickWith(new Set(battle.usedQuestionIds.slice(-3)));
@@ -692,7 +714,7 @@ export function startBattle(state: GameState, bossId: string, battleId: string, 
     bestTurns: prev?.bestTurns ?? null,
   };
   tx.setBossProgress(progress);
-  const battle = createBattle(boss, battleId, now, progress.failedSinceWin);
+  const battle = createBattle(boss, battleId, now, progress.failedSinceWin, bossPrepBonus(boss.id, state.academy));
   battle.currentQuestionId = pickBossQuestion(state, boss, battle, now);
   tx.setBattle(battle);
   return tx.done();
@@ -716,6 +738,7 @@ export function battleAnswer(state: GameState, input: AnswerInput, now: number):
     guessed: correct && input.guessed,
     hints: input.hints,
     subtopic: q.subtopic,
+    knowledgeKey: `${q.topic}:${q.subtopic}`,
   });
   const next: BattleState = { ...after, xpEarned: battle.xpEarned + granted };
 

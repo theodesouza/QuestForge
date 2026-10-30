@@ -24,7 +24,7 @@ export const MISSAO_R3M1_B = batch([
     solution: [
       'Em 1 litro cabem 4 copinhos de 1/4 de litro, pois 4 × 1/4 = 1.',
       'Em 3 litros cabem 3 × 4 = 12 copinhos.',
-      'Na forma de conta: 3 ÷ 1/4 = 3 × 4/1 = 12.',
+      { explanation: 'Na forma de conta.', calculation: ['3 ÷ 1/4 = 3 × 4/1', '= 12'] },
       'Armadilhas: 3/4 vem de multiplicar 3 × 1/4 em vez de dividir; 3 1/4 vem de somar 3 + 1/4; 7 vem de somar 3 com o denominador 4; 1/12 vem de dividir 1/4 por 3, isto é, de inverter a divisão.',
     ],
     concept:
@@ -53,10 +53,10 @@ export const MISSAO_R3M1_B = batch([
       'Para eliminar a vírgula em 62,5/100, multiplique o numerador e o denominador por 10. Em seguida, procure um divisor comum grande.',
     ],
     solution: [
-      '62,5% = 62,5/100.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['62,5% = 62,5/100'] },
       'Multiplicando numerador e denominador por 10: 625/1.000.',
       'Dividindo ambos por 125 (625 = 5 × 125 e 1.000 = 8 × 125): 5/8. Como 5 e 8 não têm divisor comum além de 1, a fração é irredutível.',
-      'Conferência: 5 ÷ 8 = 0,625 = 62,5%.',
+      { explanation: 'Conferência.', calculation: ['5 ÷ 8 = 0,625', '= 62,5%'] },
       'Armadilhas: 3/5 corresponde a 60%, o que acontece ao arredondar 62,5% para 60%; 25/4 vem de escrever 625/100 (falta um zero) e vale 6,25; 8/5 é a fração invertida (160%); 1/16 vem de ler 62,5% como 0,0625, o que dá 625/10.000.',
     ],
     concept:
@@ -91,7 +91,7 @@ export const MISSAO_R3M1_B = batch([
     ],
     solution: [
       'Parênteses: 3 × 4 = 12 e, em seguida, 8 + 12 = 20.',
-      'Fora do parêntese: 2 × 20 = 40 e 36 ÷ 6 = 6.',
+      { explanation: 'Fora do parêntese.', calculation: ['2 × 20 = 40', '36 ÷ 6 = 6'] },
       'Então 100 − 40 + 6 = 66 pontos.',
       'Conferência pelo texto: 8 + 3 × 4 = 20 infrações, que descontam 20 × 2 = 40 pontos; o bônus de cada equipe é 36 ÷ 6 = 6; logo 100 − 40 + 6 = 66.',
       'Armadilhas: 18 vem de somar 8 + 3 antes de multiplicar por 4 (a multiplicação tem prioridade sobre a soma); 54 vem de subtrair o bônus em vez de somá-lo; 102 vem de ignorar os parênteses (100 − 16 + 12 + 6); 16 vem de dividir por 6 todo o resultado anterior (96 ÷ 6), e não apenas o 36.',
@@ -122,7 +122,7 @@ export const MISSAO_R3M1_B = batch([
       'Parta de −3 e avance 7 graus. Quantos graus são necessários para chegar ao zero? E quantos restam depois disso?',
     ],
     solution: [
-      'Subir 7 °C a partir de −3 °C corresponde à conta −3 + 7.',
+      { explanation: 'Subir sete graus é somar 7 à temperatura inicial de −3 °C.', calculation: ['T = −3 + 7', 'T = 7 − 3', 'T = 4 °C'] },
       'De −3 °C até 0 °C são 3 graus; dos 7 graus da subida, restam 7 − 3 = 4 graus acima de zero.',
       'Temperatura final: 4 °C.',
       'Armadilhas: −10 °C vem de tratar a subida como descida (−3 − 7); 10 °C vem de ignorar o sinal negativo e somar 3 + 7; −4 °C vem de calcular 3 − 7; 7 °C vem de esquecer a temperatura inicial.',
@@ -153,9 +153,9 @@ export const MISSAO_R3M1_B = batch([
       'Some os dois galões (2 1/2 + 3) e subtraia 1/4. Só depois pense em quantas vezes 3/8 cabe nesse volume.',
     ],
     solution: [
-      'Total de mel: 2 1/2 + 3 = 5 1/2 L = 22/4 L.',
-      'Após a degustação: 22/4 − 1/4 = 21/4 L (5 1/4 L).',
-      'Número de potes: 21/4 ÷ 3/8 = 21/4 × 8/3 = 168/12 = 14.',
+      { explanation: 'Total de mel.', calculation: ['2 1/2 + 3 = 5 1/2 L', '= 22/4 L'] },
+      { explanation: 'Após a degustação.', calculation: ['22/4 − 1/4 = 21/4 L (5 1/4 L)'] },
+      { explanation: 'Número de potes.', calculation: ['21/4 ÷ 3/8 = 21/4 × 8/3', '= 168/12', '= 14'] },
       'Conferência: 14 × 3/8 = 42/8 = 5 1/4 L, exatamente o volume disponível.',
       'Armadilhas: 14 2/3 vem de esquecer a reserva (22/4 ÷ 3/8); 15 1/3 vem de somar a reserva em vez de subtraí-la; 42 vem de multiplicar por 8 e esquecer de dividir por 3, o que conta quantos oitavos de litro há, e não quantos potes; 1 3/4 vem de dividir por 3 e esquecer de multiplicar por 8.',
     ],
@@ -195,8 +195,8 @@ export const MISSAO_R3M1_B = batch([
       'Comece pelo saldo de R$ 260,00 e aplique o pagamento do dia 3 (−R$ 480,00): o resultado será um número negativo.',
     ],
     solution: [
-      'Dia 3: 260 − 480 = −220.',
-      'Dia 8: −220 + 150 = −70.',
+      { explanation: 'Dia 3.', calculation: ['260 − 480 = −220'] },
+      { explanation: 'Dia 8.', calculation: ['−220 + 150 = −70'] },
       'Dia 14: −70 − 95 = −165. Portanto, o saldo é de −R$ 165,00 (Marta está devendo ao banco).',
       'Depósito x para chegar a +100: −165 + x = 100, logo x = 265. Em outras palavras: R$ 165,00 para zerar a dívida mais R$ 100,00 para ficar com saldo positivo.',
       'Armadilhas: R$ 165,00 apenas zera a conta, sem deixar os R$ 100,00 positivos; R$ 65,00 vem de calcular 165 − 100, como se o saldo fosse positivo; R$ 525,00 esquece o saldo inicial de R$ 260,00 (−480 + 150 − 95 = −425); R$ 565,00 trata o depósito de R$ 150,00 como se fosse uma retirada (260 − 480 − 150 − 95 = −465).',
@@ -227,7 +227,7 @@ export const MISSAO_R3M1_B = batch([
       'Divida 3 por 8, acrescentando casas decimais. Outro caminho é multiplicar numerador e denominador por 125, para obter denominador 1.000.',
     ],
     solution: [
-      '3/8 = 3 ÷ 8.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['3/8 = 3 ÷ 8'] },
       'Como 3 < 8, escreve-se 0, e dividem-se 30 por 8: 3, resto 6; depois 60 por 8: 7, resto 4; depois 40 por 8: 5, resto 0. Logo, 3 ÷ 8 = 0,375.',
       'Outro caminho: 3/8 = (3 × 125)/(8 × 125) = 375/1.000 = 0,375.',
       'Armadilhas: 3,8 g vem de escrever o numerador e o denominador separados por vírgula; 2,67 g vem de dividir 8 por 3, isto é, de inverter a divisão; 0,24 g vem de multiplicar 3 × 8; 0,0375 g vem de errar a posição da vírgula na divisão.',
@@ -259,7 +259,7 @@ export const MISSAO_R3M1_B = batch([
     ],
     solution: [
       'Litros consumidos: 350 ÷ 12,5 = 700 ÷ 25 = 28 litros.',
-      'Custo: 28 × 5,60 = 28 × 5 + 28 × 0,60 = 140 + 16,80 = R$ 156,80.',
+      { explanation: 'Custo.', calculation: ['28 × 5,60 = 28 × 5 + 28 × 0,60', '= 140 + 16,80', '= R$ 156,80'] },
       'Armadilhas: R$ 28,00 é a quantidade de litros, pois falta multiplicar pelo preço; R$ 33,60 vem de somar 28 + 5,60 em vez de multiplicar; R$ 15,68 vem de dividir 35 (e não 350) por 12,5; R$ 1.568,00 vem de ler 12,5 como 1,25, o que daria 280 litros.',
     ],
     concept:
@@ -290,9 +290,9 @@ export const MISSAO_R3M1_B = batch([
       'Arredonde 4,98 para 5 e 9,02 para 9 e multiplique. O valor exato precisa ficar bem próximo desse resultado.',
     ],
     solution: [
-      'Estimativa: 4,98 ≈ 5 e 9,02 ≈ 9, logo o produto é aproximadamente 5 × 9 = 45.',
+      { explanation: 'Faça uma estimativa para saber onde a vírgula deve ficar.', calculation: ['4,98 ≈ 5', '9,02 ≈ 9', '5 × 9 = 45'] },
       'Com os algarismos 449196, o único posicionamento da vírgula que dá um valor próximo de 45 é 44,9196.',
-      'Conferência pelas casas decimais: 4,98 tem 2 casas e 9,02 tem 2 casas, então o produto tem 4 casas decimais: 44,9196.',
+      { explanation: 'Confira o produto inteiro e depois recoloque as quatro casas decimais.', calculation: ['498 × 902', '= 498 × 900 + 498 × 2', '= 448.200 + 996', '= 449.196', '4,98 × 9,02 = 44,9196'] },
       'Arredondando ao centavo: R$ 44,92.',
       'Armadilhas: os demais valores são os mesmos algarismos com a vírgula em outra posição, e todos destoam da estimativa. R$ 4,49 e R$ 0,45 são pequenos demais (menos que o preço de 1 kg), enquanto R$ 449,20 e R$ 4.491,96 são grandes demais (cada quilo custa pouco mais de R$ 9, e ela vendeu menos de 5 kg).',
     ],
@@ -327,9 +327,9 @@ export const MISSAO_R3M1_B = batch([
       'Na descida, o elevador vai do andar 11 ao andar −3. Calcule 11 − (−3) para saber quantos andares ele desce.',
     ],
     solution: [
-      'Descida: 11 − (−3) = 11 + 3 = 14 andares.',
-      'Subida: 5 − (−3) = 5 + 3 = 8 andares.',
-      'Total: 14 + 8 = 22 andares, e 22 × 3 m = 66 m.',
+      { explanation: 'Subtrair um andar negativo equivale a somar sua distância até o térreo.', calculation: ['11 − (−3) = 11 + 3', '= 14 andares'] },
+      { explanation: 'Calcule também a subida do subsolo até o quinto andar.', calculation: ['5 − (−3) = 5 + 3', '= 8 andares'] },
+      { explanation: 'Some as duas distâncias e converta andares em metros.', calculation: ['14 + 8 = 22 andares', '22 × 3 = 66 m'] },
       'Armadilhas: 18 m é apenas o deslocamento líquido (do 11º ao 5º andar, 6 andares); 30 m vem de ignorar o sinal do subsolo (8 + 2 = 10 andares); 22 m esquece de converter andares em metros; 72 m conta pisos em vez de intervalos (15 + 9 = 24 andares).',
     ],
     concept:
@@ -359,10 +359,10 @@ export const MISSAO_R3M1_B = batch([
     ],
     solution: [
       'Em porcentagem: 2/5 = 0,4 = 40%; 0,25 = 25%; e 15% já está nessa forma.',
-      'Ônibus, a pé e bicicleta juntos: 40% + 25% + 15% = 80%.',
+      { explanation: 'Ônibus, a pé e bicicleta juntos.', calculation: ['40% + 25% + 15% = 80%'] },
       'Restante, que vai de carro: 100% − 80% = 20%, e esse grupo tem 12 pessoas.',
       'Se 20% do total são 12, então 10% são 6 e o total (100%) é 60 pessoas.',
-      'Conferência: 40% de 60 = 24; 25% de 60 = 15; 15% de 60 = 9; 24 + 15 + 9 + 12 = 60.',
+      { explanation: 'Conferência.', calculation: ['40% de 60 = 24', '25% de 60 = 15', '15% de 60 = 9', '24 + 15 + 9 + 12 = 60'] },
       'Armadilhas: 15 vem de tratar as 12 pessoas como os 80% dos demais grupos (12 ÷ 0,8); 30 e 48 vêm de associar as 12 pessoas a um dos grupos dados (2/5 ou 0,25) em vez de ao restante; 120 vem de errar a soma dos percentuais, obtendo 90% em vez de 80%, e dividir 12 por 10%.',
     ],
     concept:
@@ -394,7 +394,7 @@ export const MISSAO_R3M1_B = batch([
     solution: [
       'Cobertura: 40% de 7,5 = 0,4 × 7,5 = 3 kg; restam 7,5 − 3 = 4,5 kg.',
       'Decorações: 1/3 de 4,5 = 1,5 kg; restam 4,5 − 1,5 = 3 kg (ou seja, 2/3 de 4,5).',
-      'Bombons: 3 ÷ 3/80 = 3 × 80/3 = 80.',
+      { explanation: 'Bombons.', calculation: ['3 ÷ 3/80 = 3 × 80/3', '= 80'] },
       'Conferência: 80 × 3/80 = 3 kg, exatamente o que sobrou.',
       'Armadilhas: 120 vem de esquecer de descontar as decorações (4,5 ÷ 3/80); 40 vem de entender "usou 1/3" como "sobrou 1/3" (1,5 ÷ 3/80); 240 vem de multiplicar 3 por 80 e esquecer de dividir por 3; 128 vem de ler 40% como 0,04, o que deixaria 4,8 kg para os bombons.',
     ],

@@ -107,6 +107,37 @@ export const MIGRATIONS: Migration[] = [
   },
   {
     version: 4,
+    description: 'Sincronização em nuvem: metadados duráveis (base, pendências, cursor de tentativas)',
+    sql: `
+      CREATE TABLE sync_kv (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    `,
+  },
+  {
+    version: 5,
+    description: 'Academia: progresso por etapa e registro das respostas de aulas',
+    sql: `
+      CREATE TABLE academy_progress (
+        stage_ref TEXT PRIMARY KEY,
+        data TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE TABLE academy_answers (
+        id TEXT PRIMARY KEY,
+        stage_ref TEXT NOT NULL,
+        exercise_id TEXT NOT NULL,
+        mode TEXT NOT NULL,
+        correct INTEGER NOT NULL,
+        hints INTEGER NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX idx_academy_answers_stage ON academy_answers (stage_ref);
+    `,
+  },
+  {
+    version: 6,
     description: 'Ecos superados e dissipados',
     sql: `
       ALTER TABLE question_state ADD COLUMN echo_beaten INTEGER NOT NULL DEFAULT 0;

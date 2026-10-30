@@ -440,7 +440,7 @@ export const MORE_ITEMS: ItemDef[] = [
     price: 140,
   },
   {
-    id: 'title-aprendiz',
+    id: 'title-cartografo-aprendiz',
     slot: 'title',
     name: 'Aprendiz de Cartógrafo',
     rarity: 'comum',
@@ -485,9 +485,9 @@ export const MORE_ITEMS: ItemDef[] = [
     visual: { color: '#FFE08A' },
   },
   {
-    id: 'title-sabio',
+    id: 'title-sabio-dos-mapas',
     slot: 'title',
-    name: 'Sábio do Atlas',
+    name: 'Sábio dos Mapas',
     rarity: 'epico',
     description: 'Conhece cada região pelo nome e cada atalho pelo motivo.',
     howToGet: 'Alcance o nível 40.',

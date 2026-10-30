@@ -22,7 +22,7 @@ export const MISSAO_R3M1_A = batch([
       'Some as vitórias e os empates e subtraia essa soma do total de 15 jogos para achar o número de derrotas.',
     ],
     solution: [
-      'Jogos sem derrota: 7 + 3 = 10.',
+      { explanation: 'Jogos sem derrota.', calculation: ['7 + 3 = 10'] },
       'Derrotas: 15 − 10 = 5 jogos.',
       'Fração das derrotas: 5/15; dividindo numerador e denominador por 5, obtém-se 1/3.',
       'Armadilhas: 2/3 (10/15) é a fração dos jogos em que a equipe não perdeu; 7/15 considera só as vitórias; 1/5 (3/15) considera só os empates; 1/2 (5/10) compara as derrotas com os demais resultados, em vez de compará-las com o total de jogos.',
@@ -69,7 +69,7 @@ export const MISSAO_R3M1_A = batch([
     ],
     solution: [
       'Denominador comum: 12 (todos os denominadores são divisores de 12).',
-      '3/4 = 9/12; 1/2 = 6/12; 7/12 = 7/12; 5/6 = 10/12; 2/3 = 8/12.',
+      { explanation: 'Desenvolva a conta na ordem indicada.', calculation: ['3/4 = 9/12', '1/2 = 6/12', '7/12 = 7/12', '5/6 = 10/12', '2/3 = 8/12'] },
       'Da maior para a menor: 10/12 (Araucária), 9/12 (Ipê), 8/12 (Erva-mate), 7/12 (Pinhão), 6/12 (Imbuia).',
       'O 3º lugar é da equipe com 8/12 = 2/3 da meta.',
       'Armadilhas: 3/4 aparece ao ordenar só pelos numeradores (ou pelos denominadores, achando que denominador maior significa fração maior); 7/12 é a fração da 3ª linha da tabela, e não a do 3º lugar; 5/6 e 1/2 são as frações do 1º e do último colocado.',
@@ -102,7 +102,7 @@ export const MISSAO_R3M1_A = batch([
     solution: [
       'Depois da 1ª etapa, restam 1 − 1/4 = 3/4 do trajeto.',
       'Na 2ª etapa, ele percorre 3/5 desse restante; portanto, sobram 2/5 dele.',
-      'Fração do trajeto que falta no final: 2/5 de 3/4 = 2/5 × 3/4 = 6/20 = 3/10.',
+      { explanation: 'Fração do trajeto que falta no final.', calculation: ['2/5 de 3/4 = 2/5 × 3/4', '= 6/20', '= 3/10'] },
       'Se 3/10 do trajeto valem 90 km, então 1/10 vale 30 km e o trajeto inteiro mede 10 × 30 = 300 km.',
       'Conferência: 1ª etapa = 75 km; faltam 225 km; 2ª etapa = 3/5 de 225 = 135 km; faltam 90 km, como no enunciado.',
       'Armadilhas: 600 km ocorre quando se toma 3/5 como fração do trajeto todo (restaria 1 − 1/4 − 3/5 = 3/20, e 90 ÷ 3/20 = 600); 225 km é a distância que faltava após a 1ª etapa (conta interrompida no meio); 120 km ignora a 2ª etapa (90 = 3/4 do trajeto); 135 km é apenas a distância percorrida na 2ª etapa.',
@@ -135,7 +135,7 @@ export const MISSAO_R3M1_A = batch([
     ],
     solution: [
       'Valor da compra: 3,5 × 4,20 = R$ 14,70 (35 × 42 = 1.470, com duas casas decimais no produto).',
-      'Troco: 20,00 − 14,70 = R$ 5,30.',
+      { explanation: 'Troco.', calculation: ['20,00 − 14,70 = R$ 5,30'] },
       'Armadilhas: R$ 14,70 é o valor da compra, e não o troco; R$ 12,30 vem de somar 3,5 + 4,2 em vez de multiplicar; R$ 7,40 ignora os 0,5 kg (3 × 4,20 = 12,60); R$ 18,53 vem de colocar a vírgula no lugar errado no produto (1,47).',
     ],
     concept:
@@ -166,7 +166,7 @@ export const MISSAO_R3M1_A = batch([
     ],
     solution: [
       'Denominador comum: MMC(5, 4) = 20.',
-      '2/5 = 8/20 e 1/4 = 5/20; já construído: 8/20 + 5/20 = 13/20.',
+      { explanation: '2/5 = 8/20 e 1/4 = 5/20; já construído.', calculation: ['8/20 + 5/20 = 13/20'] },
       'O muro inteiro é 20/20; falta 20/20 − 13/20 = 7/20.',
       'Armadilhas: 13/20 é a fração já construída; 2/3 vem de somar numeradores e denominadores (2/5 + 1/4 = 3/9) e depois subtrair de 1; 3/5 e 3/4 descontam apenas um dos dois dias (1 − 2/5 e 1 − 1/4).',
     ],
@@ -196,9 +196,9 @@ export const MISSAO_R3M1_A = batch([
       'Divida 60 por 20 para saber quantas receitas serão feitas e depois multiplique 3/4 de xícara por esse número.',
     ],
     solution: [
-      'Número de receitas: 60 ÷ 20 = 3.',
+      { explanation: 'Número de receitas.', calculation: ['60 ÷ 20 = 3'] },
       'Polvilho: 3 × 3/4 = 9/4 de xícara, ou seja, 2 xícaras e 1/4 (pois 9/4 = 8/4 + 1/4).',
-      'Conferência: 3/4 + 3/4 + 3/4 = 6/4 + 3/4 = 9/4 = 2 1/4.',
+      { explanation: 'Conferência.', calculation: ['3/4 + 3/4 + 3/4 = 6/4 + 3/4', '= 9/4', '= 2 1/4'] },
       'Armadilhas: 3 3/4 resulta de somar 3 + 3/4 em vez de multiplicar; 1/4 vem de dividir 3/4 por 3; 3/4 é a quantidade de uma única receita; 1 1/2 considera só os 40 pães a mais (2 receitas) e esquece o polvilho da receita original.',
     ],
     concept:
@@ -229,8 +229,8 @@ export const MISSAO_R3M1_A = batch([
     ],
     solution: [
       'Potência dentro do parêntese: 2² = 4; então 12 − 4 = 8.',
-      'Multiplicação e divisão, da esquerda para a direita: 3 × 8 = 24 e 24 ÷ 4 = 6.',
-      'Adição e subtração, da esquerda para a direita: 5 + 6 − 1 = 10.',
+      { explanation: 'Multiplicação e divisão, da esquerda para a direita.', calculation: ['3 × 8 = 24', '24 ÷ 4 = 6'] },
+      { explanation: 'Adição e subtração, da esquerda para a direita.', calculation: ['5 + 6 − 1 = 10'] },
       'Armadilhas: 15 sai de calcular tudo da esquerda para a direita, sem prioridade (5 + 3 = 8; 8 × 8 = 64; 64 ÷ 4 = 16; 16 − 1 = 15); 12 vem de ignorar o parêntese (3 × 12 − 4 = 32; 32 ÷ 4 = 8; 5 + 8 − 1 = 12); 13 vem de dividir por (4 − 1) = 3 (24 ÷ 3 = 8 e 5 + 8 = 13); 11 resulta de esquecer o último termo (5 + 6 = 11).',
     ],
     concept:
@@ -264,9 +264,9 @@ export const MISSAO_R3M1_A = batch([
     ],
     solution: [
       'Em 1 hora: a torneira A enche 1/4 do tanque, a B enche 1/6 e o ralo esvazia 1/12.',
-      'Com tudo aberto, o tanque ganha por hora: 1/4 + 1/6 − 1/12 = 3/12 + 2/12 − 1/12 = 4/12 = 1/3 da capacidade.',
-      'Como já há 1/4 de água, faltam 1 − 1/4 = 3/4 da capacidade.',
-      'Tempo = (3/4) ÷ (1/3) = 3/4 × 3 = 9/4 h = 2,25 h = 2 h + 0,25 × 60 min = 2 h 15 min.',
+      { explanation: 'Use denominador 12. Some as entradas de água e subtraia a saída pelo ralo.', calculation: ['1/4 + 1/6 − 1/12', '= 3/12 + 2/12 − 1/12', '= 4/12', '= 1/3 do tanque por hora'] },
+      { explanation: 'Desconte a água que o tanque já tinha.', calculation: ['1 − 1/4 = 4/4 − 1/4', '= 3/4 do tanque'] },
+      { explanation: 'Divida o volume que falta pela vazão líquida e converta a parte decimal das horas.', calculation: ['t = (3/4) ÷ (1/3)', 't = 3/4 × 3/1', 't = 9/4 h = 2,25 h', '0,25 × 60 = 15 min', 't = 2 h 15 min'] },
       'Armadilhas: 2 h 25 min resulta de ler 2,25 h como 2 h 25 min (0,25 h são 15 min, e não 25); 3 h desconsidera o 1/4 que o tanque já tinha (1 ÷ 1/3); 1 h 48 min ignora o ralo (taxa de 5/12 por hora e (3/4) ÷ (5/12) = 1,8 h); 1 h 30 min soma a vazão do ralo em vez de subtraí-la (taxa de 1/2 por hora e (3/4) ÷ (1/2) = 1,5 h).',
     ],
     concept:
@@ -296,10 +296,10 @@ export const MISSAO_R3M1_A = batch([
       'Calcule separadamente o comprimento total das prateleiras (2 × 3/4) e o dos suportes (3 × 2/5).',
     ],
     solution: [
-      'Prateleiras: 2 × 3/4 = 6/4 = 3/2 m.',
-      'Suportes: 3 × 2/5 = 6/5 m.',
-      'Comprimento usado: 3/2 + 6/5 = 15/10 + 12/10 = 27/10 m = 2 7/10 m.',
-      'Sobra: 4 − 27/10 = 40/10 − 27/10 = 13/10 m = 1 3/10 m.',
+      { explanation: 'Prateleiras.', calculation: ['2 × 3/4 = 6/4', '= 3/2 m'] },
+      { explanation: 'Suportes.', calculation: ['3 × 2/5 = 6/5 m'] },
+      { explanation: 'Comprimento usado.', calculation: ['3/2 + 6/5 = 15/10 + 12/10', '= 27/10 m', '= 2 7/10 m'] },
+      { explanation: 'Sobra.', calculation: ['4 − 27/10 = 40/10 − 27/10', '= 13/10 m', '= 1 3/10 m'] },
       'Armadilhas: 2 7/10 m é o comprimento que foi usado, e não o que sobra; 2 17/20 m ocorre ao descontar só um pedaço de cada medida (4 − 3/4 − 2/5); 2 1/10 m desconta as 2 prateleiras e apenas 1 suporte; 2 1/20 m desconta apenas 1 prateleira e os 3 suportes.',
     ],
     concept:
@@ -330,8 +330,8 @@ export const MISSAO_R3M1_A = batch([
     ],
     solution: [
       'Queda nas 4 primeiras horas: 4 × 3 = 12 °C; à meia-noite: 5 − 12 = −7 °C.',
-      'Aumento nas 3 horas seguintes: 3 × 2 = 6 °C; às 3 h: −7 + 6 = −1 °C.',
-      'Em uma só expressão: 5 − 4 × 3 + 3 × 2 = 5 − 12 + 6 = −1.',
+      { explanation: 'Aumento nas 3 horas seguintes.', calculation: ['3 × 2 = 6 °C', 'às 3 h: −7 + 6 = −1 °C'] },
+      { explanation: 'Em uma só expressão.', calculation: ['5 − 4 × 3 + 3 × 2 = 5 − 12 + 6', '= −1'] },
       'Armadilhas: −7 °C é a temperatura à meia-noite, antes da subida; −13 °C vem de subtrair também o aumento (−7 − 6); 1 °C vem de errar o sinal ao calcular −7 + 6; 11 °C vem de somar a queda e subtrair o aumento (5 + 12 − 6).',
     ],
     concept:
@@ -360,8 +360,8 @@ export const MISSAO_R3M1_A = batch([
       'Multiplique 2/3 por 3/8 (numerador com numerador e denominador com denominador) e simplifique o resultado.',
     ],
     solution: [
-      'O milho ocupa 3/8 de 2/3 do terreno: 3/8 × 2/3 = 6/24.',
-      'Simplificando por 6: 6/24 = 1/4.',
+      { explanation: 'O milho ocupa 3/8 de 2/3 do terreno.', calculation: ['3/8 × 2/3 = 6/24'] },
+      { explanation: 'Simplificando por 6.', calculation: ['6/24 = 1/4'] },
       'Outro caminho: se o terreno tem 24 partes iguais, o plantio ocupa 16 partes (2/3 de 24) e o milho ocupa 3/8 de 16 = 6 partes; 6/24 = 1/4.',
       'Armadilhas: 7/24 vem de subtrair as frações (2/3 − 3/8); 3/8 ignora que essa fração vale só para a área de plantio; 5/11 vem de somar numeradores e denominadores; 1/8 usa o 1/3 não plantado no lugar de 2/3 (1/3 × 3/8).',
     ],
@@ -392,10 +392,10 @@ export const MISSAO_R3M1_A = batch([
       'Calcule 8,4 ÷ 0,4 multiplicando dividendo e divisor por 10 (fica 84 ÷ 4) e, separadamente, o parêntese 2,5 − 0,5.',
     ],
     solution: [
-      'Divisão: 8,4 ÷ 0,4 = 84 ÷ 4 = 21.',
+      { explanation: 'Divisão.', calculation: ['8,4 ÷ 0,4 = 84 ÷ 4', '= 21'] },
       'Parêntese: 2,5 − 0,5 = 2,0; potência: 2² = 4.',
-      'Multiplicação: 3 × 4 = 12.',
-      'Adição e subtração, da esquerda para a direita: 21 − 12 + 1,5 = 9 + 1,5 = 10,5.',
+      { explanation: 'Multiplicação.', calculation: ['3 × 4 = 12'] },
+      { explanation: 'Adição e subtração, da esquerda para a direita.', calculation: ['21 − 12 + 1,5 = 9 + 1,5', '= 10,5'] },
       'Armadilhas: 16,5 vem de esquecer o expoente (3 × 2 = 6; 21 − 6 + 1,5); 4,5 vem de "distribuir" o quadrado (2,5² − 0,5² = 6, e 21 − 18 + 1,5); 7,5 vem de subtrair o último termo (21 − 12 − 1,5); −8,4 vem de errar a vírgula na divisão (8,4 ÷ 0,4 = 2,1, e 2,1 − 12 + 1,5).',
     ],
     concept:

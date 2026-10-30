@@ -104,13 +104,22 @@ export function validateQuestion(q: Question): Issue[] {
 
   if (q.hints.length !== 2 || q.hints.some((h) => h.trim().length < 10)) add('são necessárias 2 dicas');
   if (q.solution.length === 0) add('sem resolução');
+  for (const step of q.solution) {
+    if (typeof step === 'string') {
+      if (!step.trim()) add('passo de resolução vazio');
+    } else {
+      if (!step.explanation.trim()) add('passo sem explicação');
+      if (!step.calculation.length || step.calculation.some(line => !line.trim())) add('conta vazia na resolução');
+    }
+  }
   if (q.concept.trim().length < 20) add('explicação do conceito ausente');
   if (q.estimatedSeconds < 15 || q.estimatedSeconds > 600) add('tempo estimado fora de 15–600 s');
 
   // Alternativas embaralhadas a cada tentativa: textos não podem depender de letra ou posição.
   if (!q.fixedOrder) {
     const letterRef = /\b([Aa]lternativa|[Ll]etra|[Oo]p[çc][ãa]o|[Ii]tem)\s+["“(]?[A-E]\b|\(([A-E])\)\s*$|^[A-E]\)/;
-    for (const text of [...q.hints, ...q.solution, q.concept]) {
+    const solutionText = q.solution.flatMap(step => typeof step === 'string' ? [step] : [step.explanation, ...step.calculation]);
+    for (const text of [...q.hints, ...solutionText, q.concept]) {
       if (letterRef.test(text)) add(`texto cita alternativa pela letra (as alternativas são embaralhadas): "${text.slice(0, 60)}"`);
     }
     for (const text of texts) {

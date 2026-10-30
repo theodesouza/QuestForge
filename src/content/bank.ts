@@ -62,6 +62,7 @@ import { MISSAO_R9M2_B } from './questions/missoes/r9-m2-b';
 import { MISSAO_R9M3_A } from './questions/missoes/r9-m3-a';
 import { MISSAO_R9M3_B } from './questions/missoes/r9-m3-b';
 import { ESTATISTICA } from './questions/estatistica';
+import { EXPANSION_QUESTIONS } from './questions/expansion';
 import { FUNCOES } from './questions/funcoes';
 import { GEOMETRIA } from './questions/geometria';
 import { GRAFICOS } from './questions/graficos';
@@ -71,38 +72,11 @@ import { PROBABILIDADE } from './questions/probabilidade';
 import { RAZAO_PROPORCAO } from './questions/razao-proporcao';
 import type { Question, TopicId } from './types';
 
-export const QUESTIONS: readonly Question[] = [
-  ...RAZAO_PROPORCAO,
-  ...PORCENTAGEM,
-  ...BASICA,
-  ...ESTATISTICA,
-  ...PROBABILIDADE,
-  ...GEOMETRIA,
-  ...FUNCOES,
-  ...GRAFICOS,
-  ...GRANDEZAS,
-  ...FIN_JUROS_SIMPLES,
-  ...FIN_JUROS_COMPOSTOS,
-  ...FIN_COMPRAS_A_PRAZO,
-  ...FIN_CUSTO_BENEFICIO,
-  ...MISSAO_R1M1_A,
-  ...MISSAO_R1M1_B,
-  ...MISSAO_R1M2_A,
-  ...MISSAO_R1M2_B,
-  ...MISSAO_R1M3_A,
-  ...MISSAO_R1M3_B,
-  ...MISSAO_R2M1_A,
-  ...MISSAO_R2M1_B,
-  ...MISSAO_R2M2_A,
-  ...MISSAO_R2M2_B,
-  ...MISSAO_R2M3_A,
-  ...MISSAO_R2M3_B,
-  ...MISSAO_R3M1_A,
-  ...MISSAO_R3M1_B,
-  ...MISSAO_R3M2_A,
-  ...MISSAO_R3M2_B,
-  ...MISSAO_R3M3_A,
-  ...MISSAO_R3M3_B,
+/**
+ * Questões das Regiões 4 a 9 do Atlas. Ainda não têm aula, etapa nem notas de alternativas na Academia
+ * nem a folha de resolução em passos com contas: os testes de cobertura da Academia as deixam de fora.
+ */
+export const ATLAS_QUESTIONS: readonly Question[] = [
   ...MISSAO_R4M1_A,
   ...MISSAO_R4M1_B,
   ...MISSAO_R4M2_A,
@@ -139,6 +113,43 @@ export const QUESTIONS: readonly Question[] = [
   ...MISSAO_R9M2_B,
   ...MISSAO_R9M3_A,
   ...MISSAO_R9M3_B,
+];
+export const ATLAS_QUESTION_IDS: ReadonlySet<string> = new Set(ATLAS_QUESTIONS.map((q) => q.id));
+
+export const QUESTIONS: readonly Question[] = [
+  ...RAZAO_PROPORCAO,
+  ...PORCENTAGEM,
+  ...BASICA,
+  ...ESTATISTICA,
+  ...PROBABILIDADE,
+  ...GEOMETRIA,
+  ...FUNCOES,
+  ...GRAFICOS,
+  ...GRANDEZAS,
+  ...FIN_JUROS_SIMPLES,
+  ...FIN_JUROS_COMPOSTOS,
+  ...FIN_COMPRAS_A_PRAZO,
+  ...FIN_CUSTO_BENEFICIO,
+  ...MISSAO_R1M1_A,
+  ...MISSAO_R1M1_B,
+  ...MISSAO_R1M2_A,
+  ...MISSAO_R1M2_B,
+  ...MISSAO_R1M3_A,
+  ...MISSAO_R1M3_B,
+  ...MISSAO_R2M1_A,
+  ...MISSAO_R2M1_B,
+  ...MISSAO_R2M2_A,
+  ...MISSAO_R2M2_B,
+  ...MISSAO_R2M3_A,
+  ...MISSAO_R2M3_B,
+  ...MISSAO_R3M1_A,
+  ...MISSAO_R3M1_B,
+  ...MISSAO_R3M2_A,
+  ...MISSAO_R3M2_B,
+  ...MISSAO_R3M3_A,
+  ...MISSAO_R3M3_B,
+  ...EXPANSION_QUESTIONS,
+  ...ATLAS_QUESTIONS,
 ];
 
 const BY_ID = new Map(QUESTIONS.map((q) => [q.id, q]));

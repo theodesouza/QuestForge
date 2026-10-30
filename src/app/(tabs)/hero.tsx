@@ -5,16 +5,20 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { LESSONS, courseOf } from '../../content/academy/catalog';
 import { ITEMS, OPTIONAL_SLOTS, RARITY_LABEL, RARITY_TIER, SLOT_LABEL, SLOT_ORDER, getItem, type ItemSlot, type OptionalSlot } from '../../content/items';
+import { lessonSealed } from '../../domain/academy/progress';
 import { ECHO_MAX_AGE_DAYS, echoCount, echoesBeatenCount, echoesFadedCount } from '../../domain/learning/srs';
 import { levelProgress, rankFor } from '../../domain/progression/levels';
 import { rewardsForLevel } from '../../domain/progression/rewards';
+import { TONE } from '../../features/academy/look';
 import { TryOnSheet } from '../../features/hero/TryOnSheet';
 import { useStagePaused } from '../../features/useStagePaused';
 import { unequip } from '../../state/actions';
 import { useGame } from '../../state/store';
 import { Astrolabe } from '../../ui/Astrolabe';
 import { Chip } from '../../ui/Chip';
+import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { Icon } from '../../ui/Icon';
 import { ItemGlyph } from '../../ui/ItemGlyph';
@@ -60,6 +64,9 @@ export default function Hero() {
   const profile = useGame((g) => g.profile);
   const inventory = useGame((g) => g.inventory);
   const questionStates = useGame((g) => g.questionStates);
+  const academy = useGame((g) => g.academy);
+  const seals = useMemo(() => LESSONS.filter((l) => lessonSealed(l, academy)), [academy]);
+  const masteredStages = useMemo(() => Object.values(academy).filter((p) => p.masteredAt !== null).length, [academy]);
   const [slot, setSlot] = useState<ItemSlot>('frame');
   const [view, setView] = useState<View_>('todos');
   const [trying, setTrying] = useState<string | null>(null);
@@ -154,6 +161,37 @@ export default function Hero() {
         <Stat label="Ecos superados" value={String(echoesBeaten)} note="errou e depois acertou" />
         {echoesFaded > 0 ? <Stat label="Ecos dissipados" value={String(echoesFaded)} note="eram muito antigos" /> : null}
       </View>
+
+      <Button label="Ver minha evolução" icon="book" variant="secondary" onPress={() => router.push('/progress')} />
+
+      <Panel accent={colors.verdigris}>
+        <View style={styles.sealsHead}>
+          <Icon name="seal" size={20} color={colors.verdigris} fill={colors.verdigrisGlow} />
+          <Text variant="label" color={colors.verdigris} style={{ flex: 1 }}>
+            Insígnias de domínio
+          </Text>
+          <Pressable onPress={() => router.push('/academy')} accessibilityRole="button" accessibilityLabel="Abrir a Academia" hitSlop={8}>
+            <Text variant="caption" color={colors.brass}>
+              Academia
+            </Text>
+          </Pressable>
+        </View>
+        <Text variant="caption" color={colors.parchmentDim} style={{ marginTop: space.xs }}>
+          {masteredStages} etapa{masteredStages === 1 ? '' : 's'} dominada{masteredStages === 1 ? '' : 's'} sem ajuda · {seals.length} de {LESSONS.length} aulas com insígnia. Uma insígnia exige dominar todas as etapas de uma aula.
+        </Text>
+        {seals.length ? (
+          <View style={styles.seals}>
+            {seals.map((l) => (
+              <View key={l.id} style={[styles.sealChip, { borderColor: TONE[courseOf(l).tone] }]}>
+                <Icon name="seal" size={14} color={TONE[courseOf(l).tone]} fill={colors.ink900} />
+                <Text variant="caption" color={colors.parchment}>
+                  {l.title}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </Panel>
 
       <Panel>
         <Text variant="label" color={colors.brass} style={{ marginBottom: space.md }}>
@@ -288,6 +326,9 @@ export default function Hero() {
 }
 
 const styles = StyleSheet.create({
+  sealsHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  seals: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.md },
+  sealChip: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: space.sm, minHeight: 30, borderRadius: radius.pill, borderWidth: 1 },
   hero: { alignItems: 'center', gap: 2 },
   synergy: {
     flexDirection: 'row',

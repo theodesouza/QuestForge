@@ -20,7 +20,7 @@ const VISIBLE_MS = 2800;
 /** Com leitor de tela, o aviso fica mais tempo (dá para ouvir e tocar). */
 const VISIBLE_SCREEN_READER_MS = 7000;
 /** Telas em que o aviso esperaria: cobriria o HUD e o botão de sair. */
-const HOLD_ON: readonly string[] = ['/session', '/boss'];
+const HOLD_ON: readonly string[] = ['/session', '/boss', '/stage'];
 
 function useScreenReader(): boolean {
   const [on, setOn] = useState(false);

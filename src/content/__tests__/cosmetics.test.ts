@@ -1,3 +1,4 @@
+import { ACADEMY_TITLES } from '../../domain/academy/rewards';
 import { FEATS } from '../../domain/game/feats';
 import { LEVEL_ITEM_TABLE } from '../../domain/progression/rewards';
 import { WEEKLY_FIRST_ITEM } from '../../domain/quests/quests';
@@ -139,6 +140,7 @@ describe('toda peça tem um caminho para ser conquistada', () => {
     for (const id of b.rewards.firstItems) byBoss.add(id);
     byBoss.add(b.rewards.flawlessItem);
   }
+  const byAcademy = new Set<string>([ACADEMY_TITLES.firstMastery, ACADEMY_TITLES.manyMastered.itemId, ACADEMY_TITLES.seals.itemId, ACADEMY_TITLES.allSeals]);
   const sources = (id: string) =>
     [
       STARTER_ITEMS.includes(id as (typeof STARTER_ITEMS)[number]) ? 'inicial' : null,
@@ -146,6 +148,7 @@ describe('toda peça tem um caminho para ser conquistada', () => {
       byLevel.has(id) ? 'nível' : null,
       byFeat.has(id) ? 'feito' : null,
       byBoss.has(id) ? 'chefão' : null,
+      byAcademy.has(id) ? 'academia' : null,
       id === WEEKLY_FIRST_ITEM ? 'encomendas' : null,
     ].filter(Boolean);
 
