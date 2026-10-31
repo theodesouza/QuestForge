@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { slideWidth, tabSlide } from '../features/tabs/slide';
+import { tabSlide } from '../features/tabs/slide';
 import { MapBackdrop } from './MapBackdrop';
 import { space } from './theme';
 
@@ -21,9 +21,11 @@ interface Props {
 
 export function Screen({ children, scroll = true, footer, contentStyle, glow, bottomInset = 0, tab = false }: Props) {
   const insets = useSafeAreaInsets();
+  // A largura entra como número: o estilo animado roda no thread de UI, onde não dá para chamar funções comuns do app.
+  const { width } = useWindowDimensions();
   const slide = useAnimatedStyle(() => {
     const x = tab ? tabSlide.get() : 0;
-    return { transform: [{ translateX: x }], opacity: 1 - Math.min(0.4, (Math.abs(x) / slideWidth()) * 0.4) };
+    return { transform: [{ translateX: x }], opacity: 1 - Math.min(0.4, (Math.abs(x) / width) * 0.4) };
   });
   const padding = {
     paddingTop: insets.top + space.md,

@@ -201,6 +201,11 @@ sem mudar o domínio — veja [docs/CLOUD_SYNC.md](docs/CLOUD_SYNC.md). O `quest
   deslocamento `tabSlide`. Arrastar para o lado move a tela com o dedo; ao soltar, ela sai, a aba muda (`animation: 'none'`) e a nova entra
   pelo lado oposto. A barra de abas usa o mesmo movimento (`goToTab`). Nas pontas o arrasto só resiste; movimento reduzido troca direto.
   Sem biblioteca nativa nova: usa Gesture Handler + Reanimated (o `GestureHandlerRootView` fica na raiz).
+- **Cuidado com worklets** (lição de um incidente): no celular, `useAnimatedStyle` e os callbacks de gesto rodam no thread de UI, onde
+  **não dá para chamar funções comuns do app** (ex.: uma `slideWidth()` que lê `Dimensions`) — o app fecha na primeira tela que monta.
+  Na web tudo roda no mesmo thread e funciona, então o e2e do navegador NÃO pega esse erro. Passe números/objetos já calculados (a largura
+  vem de `useWindowDimensions` fora do worklet) e use `scheduleOnRN` para voltar ao JS. Para conferir o que cada worklet captura:
+  transformar o arquivo com `babel-preset-expo` e ler os `__closure` gerados.
 - **Vibração** (`ui/feedback.ts`): no Android usa `performAndroidHapticsAsync` (canal de feedback ao toque do sistema, que vale até no
   modo silencioso) e cai para o vibrador; Ajustes tem "Testar vibração".
 - **Vigia de quadros** (`ui/perf.ts`): nas cerimônias de efeitos (revelação de item, subida de nível) mede o intervalo entre quadros; se o

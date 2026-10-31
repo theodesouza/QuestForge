@@ -1,11 +1,11 @@
 import { usePathname } from 'expo-router';
 import { Tabs, type BottomTabBarProps } from 'expo-router/tabs';
 import { useEffect, useMemo } from 'react';
-import { AppState, Pressable, StyleSheet, View } from 'react-native';
+import { AppState, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useReducedMotion, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { TAB_ORDER, goToTab, resetSlide, setSystemReduceMotion, slideWidth, tabIndexOf, tabSlide } from '../../features/tabs/slide';
+import { TAB_ORDER, goToTab, resetSlide, setSystemReduceMotion, tabIndexOf, tabSlide } from '../../features/tabs/slide';
 import { EASE_OUT } from '../../ui/calm';
 import { Icon, type IconName } from '../../ui/Icon';
 import { Text } from '../../ui/Text';
@@ -53,7 +53,7 @@ function TabBar({ state, navigation, insets }: BottomTabBarProps) {
 }
 
 /** Arrastar a tela para o lado troca de aba; nas pontas, o arrasto só "resiste". */
-function useSwipe(index: number) {
+function useSwipe(index: number, width: number) {
   return useMemo(
     () =>
       Gesture.Pan()
@@ -67,8 +67,7 @@ function useSwipe(index: number) {
         })
         .onEnd((e) => {
           'worklet';
-          const w = slideWidth();
-          const far = Math.abs(e.translationX) > w * 0.25;
+          const far = Math.abs(e.translationX) > width * 0.25;
           const fast = Math.abs(e.velocityX) > 650 && Math.abs(e.translationX) > 24;
           const toNext = e.translationX < 0;
           const target = index + (toNext ? 1 : -1);
@@ -78,14 +77,15 @@ function useSwipe(index: number) {
             tabSlide.set(withTiming(0, { duration: 220, easing: EASE_OUT }));
           }
         }),
-    [index],
+    [index, width],
   );
 }
 
 export default function TabsLayout() {
   const pathname = usePathname();
   const index = tabIndexOf(pathname);
-  const swipe = useSwipe(index);
+  const { width } = useWindowDimensions();
+  const swipe = useSwipe(index, width);
   const reduceSystem = useReducedMotion();
   useEffect(() => setSystemReduceMotion(reduceSystem), [reduceSystem]);
   useEffect(() => {
