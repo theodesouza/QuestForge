@@ -23,6 +23,7 @@ import { buildExport } from '../sync/export';
 import { SyncEngine, toSyncError } from '../sync/engine';
 import { RESTORE_ERROR_MESSAGES, SYNC_ERROR_MESSAGES, noticeText } from '../sync/messages';
 import type { SyncNotice, SyncStatus } from '../sync/types';
+import { backupBeforeAster } from './backup';
 import { GameController } from './controller';
 import { saveTextFile, shareFile } from './share';
 import { publish, useGameStore } from './store';
@@ -110,6 +111,7 @@ async function openAccount(user: AuthUser): Promise<void> {
   set({ user, cloudEnabled: !!cloud, authError: null });
 
   await ctl.init();
+  await backupBeforeAster(r, ctl.current, appVersion, Date.now());
   if (eng && (await eng.meta()).baseRev === null) {
     set({ status: 'restoring', restoreError: null });
     await restoreFromCloud();

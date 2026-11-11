@@ -20,6 +20,9 @@ import {
 
 const inSlot = (slot: ItemSlot) => ITEMS.filter((i) => i.slot === slot);
 
+/** Espaços que já têm peças no catálogo (o teste do tamanho do catálogo exige que sejam todos). */
+const FILLED_SLOTS = SLOT_ORDER.filter((s) => ITEMS.some((i) => i.slot === s));
+
 describe('catálogo de cosméticos', () => {
   it('ids únicos e nomes únicos por espaço', () => {
     expect(new Set(ITEMS.map((i) => i.id)).size).toBe(ITEMS.length);
@@ -119,11 +122,11 @@ describe('Oficina', () => {
   it('a vitrine está em ordem de preço e todo espaço tem algo à venda', () => {
     const prices = SHOP_ITEMS.map((i) => i.price ?? 0);
     expect(prices).toEqual([...prices].sort((a, b) => a - b));
-    for (const slot of SLOT_ORDER) expect(SHOP_ITEMS.some((i) => i.slot === slot)).toBe(true);
+    for (const slot of FILLED_SLOTS) expect(SHOP_ITEMS.some((i) => i.slot === slot)).toBe(true);
   });
 
   it('um jogador consegue comprar a primeira peça de cada espaço logo no começo (≤ 90 de Tinta)', () => {
-    for (const slot of SLOT_ORDER) {
+    for (const slot of FILLED_SLOTS) {
       const cheapest = Math.min(...SHOP_ITEMS.filter((i) => i.slot === slot).map((i) => i.price ?? Infinity));
       expect(cheapest).toBeLessThanOrEqual(90);
     }
@@ -184,7 +187,7 @@ describe('toda peça tem um caminho para ser conquistada', () => {
     }
   });
 
-  it('espaços opcionais são aura, cenário e título', () => {
-    expect([...OPTIONAL_SLOTS].sort()).toEqual(['aura', 'scene', 'title']);
+  it('só o anel e o núcleo são obrigatórios; os outros espaços podem ficar vazios', () => {
+    expect([...OPTIONAL_SLOTS].sort()).toEqual(['aura', 'ignition', 'lens', 'orbiter', 'scene', 'title', 'trail']);
   });
 });

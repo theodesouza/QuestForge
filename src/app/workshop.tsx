@@ -22,10 +22,14 @@ import { Text } from '../ui/Text';
 import { colors, radius, rarityColor, space } from '../ui/theme';
 
 const SECTION_TITLE: Record<ItemSlot, string> = {
-  frame: 'Molduras',
   core: 'Núcleos',
-  aura: 'Auras',
-  scene: 'Cenários',
+  frame: 'Anéis',
+  aura: 'Campos',
+  orbiter: 'Satélites',
+  trail: 'Rastros',
+  lens: 'Gravidade',
+  scene: 'Ambientes',
+  ignition: 'Ignições',
   title: 'Títulos',
 };
 

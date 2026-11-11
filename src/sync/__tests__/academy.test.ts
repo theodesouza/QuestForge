@@ -48,7 +48,7 @@ describe('Academia no snapshot', () => {
     expect(text).not.toContain('fracoes.partes-do-todo.');
     expect(decodeSyncState(text)).toEqual(s);
     expect(encodeSyncState(decodeSyncState(text))).toBe(text);
-    expect(SNAPSHOT_SCHEMA).toBe(2);
+    expect(SNAPSHOT_SCHEMA).toBe(3);
   });
 
   it('um snapshot do schema 1 (app sem Academia) é lido com a Academia vazia', () => {

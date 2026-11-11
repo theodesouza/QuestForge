@@ -26,7 +26,12 @@ import type { QuestionState } from '../domain/learning/srs';
 import type { QuestsState } from '../domain/quests/quests';
 import { levelForXp } from '../domain/progression/levels';
 
-export const SNAPSHOT_SCHEMA = 2;
+/**
+ * 3 = remake do Áster: novos espaços de equipamento e centenas de peças novas. Um app antigo que lesse
+ * um equipamento com peça que ele não conhece fecharia ao desenhar; com o schema maior ele só recusa
+ * sincronizar e pede atualização.
+ */
+export const SNAPSHOT_SCHEMA = 3;
 
 /** Teto do campo `data` no Firestore (o documento aceita 1 MiB; deixamos folga para os metadados). */
 export const MAX_DATA_CHARS = 900_000;

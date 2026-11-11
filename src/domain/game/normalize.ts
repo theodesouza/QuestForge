@@ -3,6 +3,7 @@
  * estados sem campos que vieram depois; aqui eles recebem valores padrão seguros.
  * Nunca remove nem altera dados existentes.
  */
+import { getItem, hasItem } from '../../content/items';
 import { findNode } from '../../content/regions';
 import { emptyStageProgress, type StageProgress } from '../academy/progress';
 import type { BattleState } from '../boss/battle';
@@ -10,7 +11,7 @@ import type { NodeProgress } from '../campaign/campaign';
 import type { QuestsState } from '../quests/quests';
 import { emptyQuestionState, type QuestionState } from '../learning/srs';
 import { createInitialState } from './game';
-import type { GameState, Profile } from './types';
+import type { Equipped, GameState, Profile } from './types';
 
 type Loose<T> = { [K in keyof T]?: T[K] | null | undefined };
 
@@ -21,12 +22,27 @@ export function normalizeProfile(raw: unknown, now: number): Profile {
   return {
     ...defaults,
     ...(Object.fromEntries(Object.entries(p).filter(([, v]) => v !== undefined)) as Partial<Profile>),
-    equipped: { ...defaults.equipped, ...(p.equipped ?? {}) },
+    equipped: sanitizeEquipped({ ...defaults.equipped, ...(p.equipped ?? {}) }, defaults.equipped),
     totals: { ...defaults.totals, ...(p.totals ?? {}) },
     settings: { ...defaults.settings, ...(p.settings ?? {}) },
     targets: { ...(p.targets ?? {}) },
     tzOffsetMin: typeof p.tzOffsetMin === 'number' ? p.tzOffsetMin : defaults.tzOffsetMin,
   };
+}
+
+/**
+ * Um espaço só pode apontar para uma peça que este app conhece e que é daquele espaço. Uma peça
+ * desconhecida (gravada por uma versão mais nova, depois de uma volta de versão) não derruba o app:
+ * o espaço volta ao inicial (anel e núcleo) ou fica vazio. O inventário não é tocado.
+ */
+export function sanitizeEquipped(equipped: Equipped, defaults: Equipped): Equipped {
+  const out = { ...defaults };
+  for (const slot of Object.keys(defaults) as (keyof Equipped)[]) {
+    const id = equipped[slot];
+    if (typeof id === 'string' && hasItem(id) && getItem(id).slot === slot) (out[slot] as string | null) = id;
+    else if (id === null && defaults[slot] === null) (out[slot] as string | null) = null;
+  }
+  return out;
 }
 
 /**

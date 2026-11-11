@@ -5,7 +5,11 @@
 
 import { MORE_ITEMS } from './cosmetics';
 
-export type ItemSlot = 'frame' | 'core' | 'aura' | 'scene' | 'title';
+/**
+ * Espaços do Áster. Os cinco primeiros existem desde o Astrolábio (os ids antigos continuam valendo:
+ * `frame` é o Anel, `aura` é o Campo, `scene` é o Ambiente); os quatro últimos nasceram com o Áster.
+ */
+export type ItemSlot = 'frame' | 'core' | 'aura' | 'scene' | 'title' | 'orbiter' | 'trail' | 'lens' | 'ignition';
 export type Rarity = 'comum' | 'incomum' | 'raro' | 'epico' | 'lendario';
 /** Hierarquia visual: quanto maior, mais camadas, movimento e presença o efeito tem. */
 export const RARITY_TIER: Record<Rarity, 0 | 1 | 2 | 3 | 4> = { comum: 0, incomum: 1, raro: 2, epico: 3, lendario: 4 };
@@ -35,17 +39,34 @@ export const ELEMENT_LABEL: Record<FxElement, string> = {
 };
 
 export const SLOT_LABEL: Record<ItemSlot, string> = {
-  frame: 'Moldura',
   core: 'Núcleo',
-  aura: 'Aura',
-  scene: 'Cenário',
+  frame: 'Anel',
+  aura: 'Campo',
+  orbiter: 'Satélite',
+  trail: 'Rastro',
+  lens: 'Gravidade',
+  scene: 'Ambiente',
+  ignition: 'Ignição',
   title: 'Título',
 };
 
-/** Ordem em que os espaços aparecem nas telas (Herói e Oficina). */
-export const SLOT_ORDER: readonly ItemSlot[] = ['frame', 'core', 'aura', 'scene', 'title'];
-/** Espaços que podem ficar vazios (moldura e núcleo são obrigatórios). */
-export const OPTIONAL_SLOTS = ['aura', 'scene', 'title'] as const;
+/** O que cada espaço faz, numa linha (Estúdio). */
+export const SLOT_HINT: Record<ItemSlot, string> = {
+  core: 'O corpo do seu Áster: estrela, mundo, singularidade ou cristal.',
+  frame: 'A estrutura que o envolve: anéis de contenção e discos em órbita.',
+  aura: 'A energia ao redor: coroas, escudos e campos.',
+  orbiter: 'Quem gira em torno dele: luas, sondas e criaturas de luz.',
+  trail: 'A matéria em movimento: poeira, jatos e espirais.',
+  lens: 'Como ele dobra o espaço: lentes, ondas e malhas.',
+  scene: 'O céu onde ele vive.',
+  ignition: 'Como ele se acende ao aparecer e ao trocar de peça.',
+  title: 'O nome que você carrega.',
+};
+
+/** Ordem em que os espaços aparecem nas telas (Áster e Oficina). */
+export const SLOT_ORDER: readonly ItemSlot[] = ['core', 'frame', 'aura', 'orbiter', 'trail', 'lens', 'scene', 'ignition', 'title'];
+/** Espaços que podem ficar vazios (anel e núcleo são obrigatórios). */
+export const OPTIONAL_SLOTS = ['aura', 'scene', 'title', 'orbiter', 'trail', 'lens', 'ignition'] as const;
 export type OptionalSlot = (typeof OPTIONAL_SLOTS)[number];
 
 /** Estilos de moldura — cada um desenha o anel do astrolábio de um jeito (src/ui/vfx/frames.tsx). */

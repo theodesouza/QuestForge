@@ -36,7 +36,7 @@ function Cell({ equipped, label, sub, size, level, effects }: { equipped: Equipp
 }
 
 export default function VfxLab() {
-  const routed = useGlobalSearchParams<{ q?: string; boss?: string; felled?: string; grid?: string; core?: string; aura?: string; frame?: string; scene?: string; level?: string; fx?: string; glyphs?: string }>();
+  const routed = useGlobalSearchParams<{ q?: string; boss?: string; felled?: string; grid?: string; core?: string; aura?: string; frame?: string; scene?: string; level?: string; fx?: string; glyphs?: string; orbiter?: string; trail?: string; lens?: string; ignition?: string; trophies?: string; size?: string }>();
   // Na exportação web estática os parâmetros às vezes chegam vazios: lê direto da URL.
   const p =
     Platform.OS === 'web' && typeof window !== 'undefined' && Object.keys(routed).length === 0
@@ -46,7 +46,7 @@ export default function VfxLab() {
   if (p.grid === 'bosses') return <BossLab />;
   const level = Number(p.level ?? 20);
   const effects = (p.fx as EffectsLevel) ?? undefined;
-  const base: Equipped = { frame: p.frame ?? 'frame-bronze', core: p.core ?? 'core-quartzo', aura: p.aura ?? null, scene: p.scene ?? null, title: null };
+  const base: Equipped = { frame: p.frame ?? 'frame-bronze', core: p.core ?? 'core-quartzo', aura: p.aura ?? null, scene: p.scene ?? null, title: null, orbiter: p.orbiter ?? null, trail: p.trail ?? null, lens: p.lens ?? null, ignition: p.ignition ?? null };
 
   if (p.q) {
     const qs = p.q.split(',').map((id) => findQuestion(id)).filter((x) => !!x);

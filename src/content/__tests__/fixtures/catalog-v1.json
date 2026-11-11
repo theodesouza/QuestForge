@@ -1,0 +1,934 @@
+{
+ "note": "Catálogo antes do remake do Áster (116 peças). Nunca editar: é a prova de que nada sumiu.",
+ "total": 116,
+ "items": [
+  {
+   "id": "frame-cobre",
+   "slot": "frame",
+   "rarity": "comum",
+   "name": "Moldura de Cobre",
+   "price": null,
+   "source": "outro"
+  },
+  {
+   "id": "frame-bronze",
+   "slot": "frame",
+   "rarity": "comum",
+   "name": "Moldura de Bronze",
+   "price": null,
+   "source": "level:2"
+  },
+  {
+   "id": "frame-latao",
+   "slot": "frame",
+   "rarity": "incomum",
+   "name": "Moldura de Latão Gravado",
+   "price": null,
+   "source": "level:8"
+  },
+  {
+   "id": "frame-basalto",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura de Basalto",
+   "price": null,
+   "source": "boss:golem-proporcional:first"
+  },
+  {
+   "id": "frame-celeste",
+   "slot": "frame",
+   "rarity": "incomum",
+   "name": "Moldura Celeste",
+   "price": null,
+   "source": "level:16"
+  },
+  {
+   "id": "frame-meridiana",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura Meridiana",
+   "price": null,
+   "source": "level:25"
+  },
+  {
+   "id": "frame-armilar",
+   "slot": "frame",
+   "rarity": "epico",
+   "name": "Esfera Armilar",
+   "price": null,
+   "source": "level:40"
+  },
+  {
+   "id": "core-quartzo",
+   "slot": "core",
+   "rarity": "comum",
+   "name": "Núcleo de Quartzo",
+   "price": null,
+   "source": "outro"
+  },
+  {
+   "id": "core-ambar",
+   "slot": "core",
+   "rarity": "comum",
+   "name": "Núcleo de Âmbar",
+   "price": null,
+   "source": "level:4"
+  },
+  {
+   "id": "core-verdete",
+   "slot": "core",
+   "rarity": "incomum",
+   "name": "Núcleo de Verdete",
+   "price": null,
+   "source": "level:10"
+  },
+  {
+   "id": "core-iris",
+   "slot": "core",
+   "rarity": "incomum",
+   "name": "Núcleo de Íris",
+   "price": null,
+   "source": "level:18"
+  },
+  {
+   "id": "core-solar",
+   "slot": "core",
+   "rarity": "raro",
+   "name": "Núcleo Solar",
+   "price": null,
+   "source": "level:30"
+  },
+  {
+   "id": "core-pulsar",
+   "slot": "core",
+   "rarity": "epico",
+   "name": "Núcleo Pulsar",
+   "price": null,
+   "source": "level:45"
+  },
+  {
+   "id": "aura-brasa",
+   "slot": "aura",
+   "rarity": "comum",
+   "name": "Aura de Brasa",
+   "price": null,
+   "source": "level:6"
+  },
+  {
+   "id": "aura-mare",
+   "slot": "aura",
+   "rarity": "incomum",
+   "name": "Aura de Maré",
+   "price": null,
+   "source": "level:14"
+  },
+  {
+   "id": "aura-aurora",
+   "slot": "aura",
+   "rarity": "raro",
+   "name": "Aura Boreal",
+   "price": null,
+   "source": "level:20"
+  },
+  {
+   "id": "aura-nebulosa",
+   "slot": "aura",
+   "rarity": "epico",
+   "name": "Aura Nebulosa",
+   "price": null,
+   "source": "level:35"
+  },
+  {
+   "id": "aura-aurea",
+   "slot": "aura",
+   "rarity": "lendario",
+   "name": "Proporção Áurea",
+   "price": null,
+   "source": "boss:golem-proporcional:flawless"
+  },
+  {
+   "id": "aura-zenite",
+   "slot": "aura",
+   "rarity": "lendario",
+   "name": "Aura do Zênite",
+   "price": null,
+   "source": "level:50"
+  },
+  {
+   "id": "title-tracador",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Traçador de Rotas",
+   "price": null,
+   "source": "level:3"
+  },
+  {
+   "id": "title-quebra-golem",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Quebra-Golem",
+   "price": null,
+   "source": "boss:golem-proporcional:first"
+  },
+  {
+   "id": "title-incansavel",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Incansável",
+   "price": null,
+   "source": "level:12"
+  },
+  {
+   "id": "title-mestre",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Mestre Cartógrafo",
+   "price": null,
+   "source": "level:25"
+  },
+  {
+   "id": "title-arquiteto",
+   "slot": "title",
+   "rarity": "lendario",
+   "name": "Arquiteto do Atlas",
+   "price": null,
+   "source": "level:50"
+  },
+  {
+   "id": "frame-ambar-cunhado",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura de Âmbar Cunhado",
+   "price": null,
+   "source": "boss:mercador-composto:first"
+  },
+  {
+   "id": "title-amortizador",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Amortizador",
+   "price": null,
+   "source": "boss:mercador-composto:first"
+  },
+  {
+   "id": "core-tesouro",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo do Tesouro",
+   "price": null,
+   "source": "boss:mercador-composto:flawless"
+  },
+  {
+   "id": "frame-tres-arcos",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura dos Três Arcos",
+   "price": null,
+   "source": "boss:quimera-fracionaria:first"
+  },
+  {
+   "id": "title-soma-inteira",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Soma Inteira",
+   "price": null,
+   "source": "boss:quimera-fracionaria:first"
+  },
+  {
+   "id": "core-trindade",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo da Trindade",
+   "price": null,
+   "source": "boss:quimera-fracionaria:flawless"
+  },
+  {
+   "id": "frame-torres",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura das Torres",
+   "price": null,
+   "source": "boss:colosso-euclidiano:first"
+  },
+  {
+   "id": "title-geometra",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Geômetra",
+   "price": null,
+   "source": "boss:colosso-euclidiano:first"
+  },
+  {
+   "id": "core-euclides",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo de Euclides",
+   "price": null,
+   "source": "boss:colosso-euclidiano:flawless"
+  },
+  {
+   "id": "frame-geodo",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura de Geodo",
+   "price": null,
+   "source": "boss:arquiteto-dos-solidos:first"
+  },
+  {
+   "id": "title-volumetra",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Volumetra",
+   "price": null,
+   "source": "boss:arquiteto-dos-solidos:first"
+  },
+  {
+   "id": "core-poliedro",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo do Poliedro",
+   "price": null,
+   "source": "boss:arquiteto-dos-solidos:flawless"
+  },
+  {
+   "id": "frame-observatorio",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura do Observatório",
+   "price": null,
+   "source": "boss:leviata-dos-graficos:first"
+  },
+  {
+   "id": "title-analista",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Analista de Dados",
+   "price": null,
+   "source": "boss:leviata-dos-graficos:first"
+  },
+  {
+   "id": "core-histograma",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo do Histograma",
+   "price": null,
+   "source": "boss:leviata-dos-graficos:flawless"
+  },
+  {
+   "id": "frame-labirinto",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura do Labirinto",
+   "price": null,
+   "source": "boss:esfinge-do-acaso:first"
+  },
+  {
+   "id": "title-mestre-acaso",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Mestre do Acaso",
+   "price": null,
+   "source": "boss:esfinge-do-acaso:first"
+  },
+  {
+   "id": "core-dado",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo do Dado Perfeito",
+   "price": null,
+   "source": "boss:esfinge-do-acaso:flawless"
+  },
+  {
+   "id": "frame-cordilheira",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura da Cordilheira",
+   "price": null,
+   "source": "boss:hidra-das-funcoes:first"
+  },
+  {
+   "id": "title-domador-curvas",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Domador de Curvas",
+   "price": null,
+   "source": "boss:hidra-das-funcoes:first"
+  },
+  {
+   "id": "core-curvas",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo das Curvas",
+   "price": null,
+   "source": "boss:hidra-das-funcoes:flawless"
+  },
+  {
+   "id": "frame-ilhas",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura das Ilhas",
+   "price": null,
+   "source": "boss:leviata-das-escalas:first"
+  },
+  {
+   "id": "title-navegador-escalas",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Navegador das Escalas",
+   "price": null,
+   "source": "boss:leviata-das-escalas:first"
+  },
+  {
+   "id": "core-rosa-medidas",
+   "slot": "core",
+   "rarity": "lendario",
+   "name": "Núcleo da Rosa das Medidas",
+   "price": null,
+   "source": "boss:leviata-das-escalas:flawless"
+  },
+  {
+   "id": "title-constante",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Constante",
+   "price": null,
+   "source": "outro"
+  },
+  {
+   "id": "title-aprendiz",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Aprendiz da Academia",
+   "price": null,
+   "source": "outro"
+  },
+  {
+   "id": "title-estudioso",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Estudioso",
+   "price": null,
+   "source": "outro"
+  },
+  {
+   "id": "title-erudito",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Erudito",
+   "price": null,
+   "source": "outro"
+  },
+  {
+   "id": "title-sabio",
+   "slot": "title",
+   "rarity": "lendario",
+   "name": "Sábio do Atlas",
+   "price": null,
+   "source": "outro"
+  },
+  {
+   "id": "frame-ferro",
+   "slot": "frame",
+   "rarity": "comum",
+   "name": "Moldura de Ferro Forjado",
+   "price": 60,
+   "source": "oficina"
+  },
+  {
+   "id": "frame-prata",
+   "slot": "frame",
+   "rarity": "incomum",
+   "name": "Moldura de Prata Lunar",
+   "price": 150,
+   "source": "oficina"
+  },
+  {
+   "id": "core-rubi",
+   "slot": "core",
+   "rarity": "comum",
+   "name": "Núcleo de Rubi",
+   "price": 60,
+   "source": "oficina"
+  },
+  {
+   "id": "core-safira",
+   "slot": "core",
+   "rarity": "incomum",
+   "name": "Núcleo de Safira",
+   "price": 140,
+   "source": "oficina"
+  },
+  {
+   "id": "aura-nevoa",
+   "slot": "aura",
+   "rarity": "comum",
+   "name": "Aura de Névoa Domada",
+   "price": 80,
+   "source": "oficina"
+  },
+  {
+   "id": "aura-lunar",
+   "slot": "aura",
+   "rarity": "incomum",
+   "name": "Aura Lunar",
+   "price": 180,
+   "source": "oficina"
+  },
+  {
+   "id": "title-viajante",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Viajante Noturno",
+   "price": 50,
+   "source": "oficina"
+  },
+  {
+   "id": "title-contador",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Contador de Estrelas",
+   "price": 120,
+   "source": "oficina"
+  },
+  {
+   "id": "frame-ardosia",
+   "slot": "frame",
+   "rarity": "comum",
+   "name": "Moldura de Ardósia",
+   "price": 75,
+   "source": "oficina"
+  },
+  {
+   "id": "frame-perolas",
+   "slot": "frame",
+   "rarity": "comum",
+   "name": "Moldura de Pérolas",
+   "price": 110,
+   "source": "oficina"
+  },
+  {
+   "id": "frame-corrente",
+   "slot": "frame",
+   "rarity": "comum",
+   "name": "Moldura de Corrente",
+   "price": 120,
+   "source": "oficina"
+  },
+  {
+   "id": "frame-ondas",
+   "slot": "frame",
+   "rarity": "incomum",
+   "name": "Moldura de Ondas",
+   "price": 190,
+   "source": "oficina"
+  },
+  {
+   "id": "frame-sol-nascente",
+   "slot": "frame",
+   "rarity": "incomum",
+   "name": "Moldura do Sol Nascente",
+   "price": 230,
+   "source": "oficina"
+  },
+  {
+   "id": "frame-louros",
+   "slot": "frame",
+   "rarity": "incomum",
+   "name": "Coroa de Louros",
+   "price": null,
+   "source": "level:22"
+  },
+  {
+   "id": "frame-runica",
+   "slot": "frame",
+   "rarity": "raro",
+   "name": "Moldura Rúnica",
+   "price": null,
+   "source": "level:33"
+  },
+  {
+   "id": "frame-cristalina",
+   "slot": "frame",
+   "rarity": "epico",
+   "name": "Moldura Cristalina",
+   "price": null,
+   "source": "level:47"
+  },
+  {
+   "id": "core-jade",
+   "slot": "core",
+   "rarity": "comum",
+   "name": "Núcleo de Jade",
+   "price": 70,
+   "source": "oficina"
+  },
+  {
+   "id": "core-coral",
+   "slot": "core",
+   "rarity": "comum",
+   "name": "Núcleo de Coral",
+   "price": 85,
+   "source": "oficina"
+  },
+  {
+   "id": "core-ametista",
+   "slot": "core",
+   "rarity": "incomum",
+   "name": "Núcleo de Ametista",
+   "price": 150,
+   "source": "oficina"
+  },
+  {
+   "id": "core-obsidiana",
+   "slot": "core",
+   "rarity": "incomum",
+   "name": "Núcleo de Obsidiana",
+   "price": 165,
+   "source": "oficina"
+  },
+  {
+   "id": "core-esmeralda",
+   "slot": "core",
+   "rarity": "raro",
+   "name": "Núcleo de Esmeralda",
+   "price": null,
+   "source": "level:28"
+  },
+  {
+   "id": "core-gelo",
+   "slot": "core",
+   "rarity": "raro",
+   "name": "Núcleo de Gelo Eterno",
+   "price": null,
+   "source": "level:37"
+  },
+  {
+   "id": "core-eclipse",
+   "slot": "core",
+   "rarity": "epico",
+   "name": "Núcleo do Eclipse",
+   "price": null,
+   "source": "level:42"
+  },
+  {
+   "id": "aura-petalas",
+   "slot": "aura",
+   "rarity": "comum",
+   "name": "Aura de Pétalas",
+   "price": 95,
+   "source": "oficina"
+  },
+  {
+   "id": "aura-cinzas",
+   "slot": "aura",
+   "rarity": "comum",
+   "name": "Aura de Cinzas",
+   "price": 85,
+   "source": "oficina"
+  },
+  {
+   "id": "aura-vagalumes",
+   "slot": "aura",
+   "rarity": "incomum",
+   "name": "Aura de Vagalumes",
+   "price": 200,
+   "source": "oficina"
+  },
+  {
+   "id": "aura-neve",
+   "slot": "aura",
+   "rarity": "incomum",
+   "name": "Aura de Neve",
+   "price": 190,
+   "source": "oficina"
+  },
+  {
+   "id": "aura-eletrica",
+   "slot": "aura",
+   "rarity": "raro",
+   "name": "Aura Elétrica",
+   "price": null,
+   "source": "level:27"
+  },
+  {
+   "id": "aura-constelacao",
+   "slot": "aura",
+   "rarity": "epico",
+   "name": "Aura de Constelações",
+   "price": null,
+   "source": "level:39"
+  },
+  {
+   "id": "scene-noite",
+   "slot": "scene",
+   "rarity": "comum",
+   "name": "Noite Estrelada",
+   "price": 100,
+   "source": "oficina"
+  },
+  {
+   "id": "scene-colinas",
+   "slot": "scene",
+   "rarity": "comum",
+   "name": "Colinas ao Entardecer",
+   "price": 90,
+   "source": "oficina"
+  },
+  {
+   "id": "scene-mar",
+   "slot": "scene",
+   "rarity": "incomum",
+   "name": "Mar Aberto",
+   "price": 210,
+   "source": "oficina"
+  },
+  {
+   "id": "scene-dunas",
+   "slot": "scene",
+   "rarity": "incomum",
+   "name": "Dunas de Âmbar",
+   "price": 200,
+   "source": "oficina"
+  },
+  {
+   "id": "scene-floresta",
+   "slot": "scene",
+   "rarity": "incomum",
+   "name": "Floresta Silenciosa",
+   "price": 220,
+   "source": "oficina"
+  },
+  {
+   "id": "scene-pedreira",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Vale de Pedra",
+   "price": null,
+   "source": "feat:scene:golem-proporcional"
+  },
+  {
+   "id": "scene-mercado",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Mercado de Âmbar à Noite",
+   "price": null,
+   "source": "feat:scene:mercador-composto"
+  },
+  {
+   "id": "scene-planicie",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Planície dos Três Arcos",
+   "price": null,
+   "source": "feat:scene:quimera-fracionaria"
+  },
+  {
+   "id": "scene-torres",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Planalto das Torres",
+   "price": null,
+   "source": "feat:scene:colosso-euclidiano"
+  },
+  {
+   "id": "scene-cavernas",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Caverna de Cristais",
+   "price": null,
+   "source": "feat:scene:arquiteto-dos-solidos"
+  },
+  {
+   "id": "scene-mirante",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Mirante dos Gráficos",
+   "price": null,
+   "source": "feat:scene:leviata-dos-graficos"
+  },
+  {
+   "id": "scene-labirinto",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Corredores do Labirinto",
+   "price": null,
+   "source": "feat:scene:esfinge-do-acaso"
+  },
+  {
+   "id": "scene-cordilheira",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Cordilheira ao Amanhecer",
+   "price": null,
+   "source": "feat:scene:hidra-das-funcoes"
+  },
+  {
+   "id": "scene-ilhas",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Arquipélago ao Anoitecer",
+   "price": null,
+   "source": "feat:scene:leviata-das-escalas"
+  },
+  {
+   "id": "scene-polar",
+   "slot": "scene",
+   "rarity": "raro",
+   "name": "Campo Polar",
+   "price": null,
+   "source": "level:32"
+  },
+  {
+   "id": "scene-observatorio",
+   "slot": "scene",
+   "rarity": "epico",
+   "name": "Observatório do Atlas",
+   "price": null,
+   "source": "level:46"
+  },
+  {
+   "id": "scene-cosmos",
+   "slot": "scene",
+   "rarity": "lendario",
+   "name": "Cosmos Áureo",
+   "price": null,
+   "source": "feat:legend"
+  },
+  {
+   "id": "title-madrugador",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Madrugador",
+   "price": 40,
+   "source": "oficina"
+  },
+  {
+   "id": "title-coruja",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Coruja de Biblioteca",
+   "price": 55,
+   "source": "oficina"
+  },
+  {
+   "id": "title-faroleiro",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Faroleiro",
+   "price": 60,
+   "source": "oficina"
+  },
+  {
+   "id": "title-bussola",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Bússola Viva",
+   "price": 110,
+   "source": "oficina"
+  },
+  {
+   "id": "title-sonhos",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Cartógrafo de Sonhos",
+   "price": 130,
+   "source": "oficina"
+  },
+  {
+   "id": "title-navegante",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Navegante de Fórmulas",
+   "price": 140,
+   "source": "oficina"
+  },
+  {
+   "id": "title-cartografo-aprendiz",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Aprendiz de Cartógrafo",
+   "price": null,
+   "source": "level:5"
+  },
+  {
+   "id": "title-explorador",
+   "slot": "title",
+   "rarity": "comum",
+   "name": "Explorador das Margens",
+   "price": null,
+   "source": "level:9"
+  },
+  {
+   "id": "title-estrategista",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Estrategista",
+   "price": null,
+   "source": "level:15"
+  },
+  {
+   "id": "title-veterano",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Veterano de Mapas",
+   "price": null,
+   "source": "level:20"
+  },
+  {
+   "id": "title-estrela-guia",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Estrela-Guia",
+   "price": null,
+   "source": "level:30"
+  },
+  {
+   "id": "title-sabio-dos-mapas",
+   "slot": "title",
+   "rarity": "epico",
+   "name": "Sábio dos Mapas",
+   "price": null,
+   "source": "level:40"
+  },
+  {
+   "id": "title-cacador-ecos",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Caçador de Ecos",
+   "price": null,
+   "source": "feat:echoes:10"
+  },
+  {
+   "id": "title-senhor-ecos",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Senhor dos Ecos",
+   "price": null,
+   "source": "feat:echoes:40"
+  },
+  {
+   "id": "title-mil-passos",
+   "slot": "title",
+   "rarity": "incomum",
+   "name": "Mil Passos",
+   "price": null,
+   "source": "feat:answers:1000"
+  },
+  {
+   "id": "title-estrelado",
+   "slot": "title",
+   "rarity": "raro",
+   "name": "Estrelado",
+   "price": null,
+   "source": "feat:stars:6"
+  },
+  {
+   "id": "title-lenda",
+   "slot": "title",
+   "rarity": "lendario",
+   "name": "Lenda do Atlas",
+   "price": null,
+   "source": "feat:legend"
+  }
+ ]
+}

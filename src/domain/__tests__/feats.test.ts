@@ -145,7 +145,7 @@ describe('Cenário (novo espaço de equipamento)', () => {
 
   it('perfis salvos antes do Cenário ganham o espaço vazio sem perder o resto', () => {
     const old = { ...createInitialState(T0).profile, equipped: { frame: 'frame-bronze', core: 'core-ambar', aura: 'aura-brasa', title: null } };
-    expect(normalizeProfile(old, T0).equipped).toEqual({ frame: 'frame-bronze', core: 'core-ambar', aura: 'aura-brasa', scene: null, title: null });
+    expect(normalizeProfile(old, T0).equipped).toEqual({ frame: 'frame-bronze', core: 'core-ambar', aura: 'aura-brasa', scene: null, title: null, orbiter: null, trail: null, lens: null, ignition: null });
   });
 });
 

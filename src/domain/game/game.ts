@@ -73,7 +73,7 @@ export function createInitialState(now: number): GameState {
     xp: 0,
     ink: 0,
     restedPool: 0,
-    equipped: { frame: STARTER_ITEMS[0], core: STARTER_ITEMS[1], aura: null, scene: null, title: null },
+    equipped: { frame: STARTER_ITEMS[0], core: STARTER_ITEMS[1], aura: null, scene: null, title: null, orbiter: null, trail: null, lens: null, ignition: null },
     targets: {},
     totals: { answered: 0, correct: 0, timeMs: 0, sessions: 0 },
     settings: DEFAULT_SETTINGS,
@@ -811,7 +811,7 @@ export function equipItem(state: GameState, itemId: string): Result {
   return tx.done();
 }
 
-/** Aura, cenário e título podem ser removidos; moldura e núcleo são obrigatórios. */
+/** Só o anel e o núcleo são obrigatórios; os outros espaços podem ficar vazios. */
 export function unequipSlot(state: GameState, slot: OptionalSlot): Result {
   const tx = new Tx(state);
   tx.patchProfile({ equipped: { ...tx.profile.equipped, [slot]: null } });

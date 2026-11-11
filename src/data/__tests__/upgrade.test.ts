@@ -80,7 +80,7 @@ describe.each(['v0.1.0-sessao', 'v0.1.0-batalha'])('atualização a partir de %s
     expect(s.profile.xp).toBe(old.profile.xp);
     expect(s.profile.ink).toBe(old.profile.ink);
     // Perfis da v0.1.0 não tinham Cenário: o equipamento antigo continua igual e o novo espaço nasce vazio.
-    expect(s.profile.equipped).toEqual({ ...old.profile.equipped, scene: null });
+    expect(s.profile.equipped).toEqual({ ...old.profile.equipped, scene: null, orbiter: null, trail: null, lens: null, ignition: null });
     expect(s.profile.restedPool).toBeGreaterThan(0);
     expect(events.some((e) => e.type === 'rested')).toBe(true);
     expect(s.quests.daily?.quests).toHaveLength(3);

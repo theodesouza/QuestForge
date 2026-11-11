@@ -27,9 +27,14 @@ export interface Equipped {
   frame: string;
   core: string;
   aura: string | null;
-  /** Cenário: o pano de fundo do herói. */
+  /** Ambiente: o céu atrás do Áster. */
   scene: string | null;
   title: string | null;
+  /** Espaços que nasceram com o Áster (vazios em quem veio do Astrolábio). */
+  orbiter: string | null;
+  trail: string | null;
+  lens: string | null;
+  ignition: string | null;
 }
 
 export interface Profile {
