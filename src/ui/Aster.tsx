@@ -184,7 +184,7 @@ export const Aster = memo(function Aster({ level, equipped, size = 240, animate 
       {synergy ? <MythicBack s={synergy} /> : null}
       <Well uid={uid} />
       {lensItem ? <LensFx v={lensItem.visual} r={R} tier={RARITY_TIER[lensItem.rarity]} /> : <InnateLens uid={uid} tone={tone} r={R} tides={traits.tides} />}
-      {auraItem ? <AuraBack v={auraItem.visual} /> : null}
+      {auraItem ? <AuraBack v={auraItem.visual} r={R} /> : null}
       {traits.jets ? <Jets uid={uid} tone={tone} r={R} /> : null}
       {depth('back')}
 
@@ -198,7 +198,7 @@ export const Aster = memo(function Aster({ level, equipped, size = 240, animate 
       {synergy ? <SynergyFx s={synergy} /> : null}
 
       {depth('front')}
-      {auraItem ? <AuraFront v={auraItem.visual} /> : null}
+      {auraItem ? <AuraFront v={auraItem.visual} r={R} /> : null}
       {trophies > 0 || traits.crown ? <Crown lit={Math.min(9, trophies)} linked={traits.crown} tone={tone} /> : null}
       {traits.zenith ? <Zenith tone={tone2} /> : null}
     </>

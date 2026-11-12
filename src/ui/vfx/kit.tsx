@@ -60,6 +60,8 @@ export function Facets({ n, r, rotate = 0, color = '#FFFFFF', opacity = 0.35 }: 
 
 export interface AuraProps {
   v: ItemVisual;
+  /** Raio do corpo do Áster (os campos novos se medem por ele). */
+  r?: number;
 }
 
 export interface AuraFx {

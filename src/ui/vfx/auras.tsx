@@ -14,6 +14,7 @@ import { Circle, Defs, Ellipse, G, Path, Polygon, Polyline, RadialGradient, Stop
 import { Breathe, C, Extra, Glimmer, Layer, Particles, Spin, Sway, Wave } from './engine';
 import { crescent, curtain, flame, goldenSpiral, lightning, ngon, polar, ray, spiral, star, wavyCircle } from './geometry';
 import { Cinzas, Constelacao, Eletrica, Neve, Petalas, Vagalumes } from './auras2';
+import { FIELDS } from './fields';
 import { HaloRing, useGid, type AuraFx, type AuraProps } from './kit';
 import type { AuraFxId } from './rules';
 
@@ -410,12 +411,14 @@ export const AURAS: Record<AuraFxId, AuraFx> = {
   constelacao: Constelacao,
 };
 
-export function AuraBack({ v }: AuraProps) {
-  const fx = AURAS[v.fx as AuraFxId];
-  return fx ? <fx.Back v={v} /> : null;
+const fxOf = (id?: string): AuraFx | undefined => (id ? (AURAS[id as AuraFxId] ?? FIELDS[id]) : undefined);
+
+export function AuraBack({ v, r }: AuraProps) {
+  const fx = fxOf(v.fx);
+  return fx ? <fx.Back v={v} r={r} /> : null;
 }
 
-export function AuraFront({ v }: AuraProps) {
-  const fx = AURAS[v.fx as AuraFxId];
-  return fx?.Front ? <fx.Front v={v} /> : null;
+export function AuraFront({ v, r }: AuraProps) {
+  const fx = fxOf(v.fx);
+  return fx?.Front ? <fx.Front v={v} r={r} /> : null;
 }
