@@ -4,6 +4,7 @@
  * /vfx-lab?core=…&aura=…&frame=…&scene=…&level=…            → um astrolábio grande
  */
 import { Redirect, useGlobalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { findQuestion } from '../content/bank';
 import type { BossArt as BossArtId } from '../content/bosses';
@@ -21,10 +22,17 @@ import { resolveSynergy } from '../ui/vfx/synergy';
 
 const QA = process.env.EXPO_PUBLIC_QA === '1';
 
-function Cell({ equipped, label, sub, size, level, effects, trophies, still }: { equipped: Equipped; label: string; sub: string; size: number; level: number; effects?: EffectsLevel; trophies?: number; still?: boolean }) {
+function Cell({ equipped, label, sub, size, level, effects, trophies, still, pulse }: { equipped: Equipped; label: string; sub: string; size: number; level: number; effects?: EffectsLevel; trophies?: number; still?: boolean; pulse?: boolean }) {
+  // Ignições: o laboratório reacende o Áster a cada 2 s para dar tempo de fotografar o meio do gesto.
+  const [key, setKey] = useState(0);
+  useEffect(() => {
+    if (!pulse) return;
+    const t = setInterval(() => setKey((k) => k + 1), 2000);
+    return () => clearInterval(t);
+  }, [pulse]);
   return (
     <View style={styles.cell}>
-      <Aster level={level} equipped={equipped} size={size} effects={effects} trophies={trophies} animate={!still} />
+      <Aster level={level} equipped={equipped} size={size} effects={effects} trophies={trophies} animate={!still} igniteKey={key} />
       <Text variant="caption" align="center">
         {label}
       </Text>
@@ -128,7 +136,7 @@ export default function VfxLab() {
     return (
       <ScrollView style={styles.root} contentContainerStyle={styles.grid}>
         {all.slice(from, to).map((i) => (
-          <Cell key={i.id} equipped={{ ...base, [slot]: i.id }} label={i.name} sub={`${RARITY_LABEL[i.rarity]} · ${i.visual.fx ?? i.visual.frameStyle ?? ''}`} size={cellSize} level={level} effects={effects} trophies={trophies} still={still} />
+          <Cell key={i.id} equipped={{ ...base, [slot]: i.id }} label={i.name} sub={`${RARITY_LABEL[i.rarity]} · ${i.visual.fx ?? i.visual.frameStyle ?? ''}`} size={cellSize} level={level} effects={effects} trophies={trophies} still={still} pulse={slot === 'ignition'} />
         ))}
       </ScrollView>
     );

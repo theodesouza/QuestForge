@@ -7,8 +7,8 @@
  */
 import type { ReactNode } from 'react';
 import { Circle, G, Path, Polyline } from 'react-native-svg';
-import { Breathe, C, Extra, FxExtent, Glimmer, Particles, Spin, Sway, Wave } from './engine';
-import { curtain, lightning, spiral } from './geometry';
+import { Breathe, C, Extra, FxExtent, Glimmer, Layer, Particles, Spin, Sway, Wave } from './engine';
+import { lightning, spiral } from './geometry';
 import type { DepthProps, DepthRender } from './orbiters';
 import { Plane } from './space';
 
@@ -23,47 +23,58 @@ const c2 = (p: DepthProps) => p.v.color2 ?? W;
 // ————————————————————————————————————————————————————— comuns
 
 /** Poeira Estelar — grãos parados que acendem e apagam devagar. */
-const Poeira: DepthRender = (p) => F(p, <Particles mode="twinkle" count={16} period={5200} colors={[W, p.v.color]} size={[1.6, 3]} radius={[p.r + 10, 108]} sparkle seed={3} />);
+const Poeira: DepthRender = (p) => F(p, <Particles mode="twinkle" count={24} period={5200} colors={[W, p.v.color]} size={[2.1, 4.1]} radius={[p.r + 10, 108]} sparkle seed={3} />);
 
 /** Rastro Orbital — três grãos em órbita, cada um com uma cauda curta. */
-const Orbital: DepthRender = (p) => <Particles mode="orbit" half={p.half} count={3} period={9000} colors={[W, p.v.color]} size={[2.4, 3.2]} radius={[78, 78]} tilt={SQ} plane={PLANE} trail={5} seed={5} />;
+const Orbital: DepthRender = (p) => (
+  <>
+    <Plane tilt={PLANE} squash={SQ} half={p.half}>
+      <FxExtent r={82}>
+        <Layer>
+          <Circle cx={C} cy={C} r={78} stroke={p.v.color} strokeOpacity={0.28} strokeWidth={0.9} fill="none" strokeDasharray="2 5" />
+        </Layer>
+      </FxExtent>
+    </Plane>
+    <Particles mode="orbit" half={p.half} count={4} period={9000} colors={[W, p.v.color]} size={[3.1, 4.3]} radius={[78, 78]} tilt={SQ} plane={PLANE} trail={5} seed={5} />
+  </>
+);
 
 /** Brasas Ascendentes — sobem de baixo do corpo, ondulando. */
-const Brasas: DepthRender = (p) => F(p, <Particles mode="rise" count={10} period={3600} colors={[p.v.color, c2(p)]} size={[1.8, 3.2]} radius={[p.r * 0.6, p.r + 34]} arc={[110, 250]} travel={46} glow seed={7} />);
+const Brasas: DepthRender = (p) => F(p, <Particles mode="rise" count={15} period={3600} colors={[p.v.color, c2(p)]} size={[2.3, 4.3]} radius={[p.r * 0.6, p.r + 34]} arc={[110, 250]} travel={46} glow seed={7} />);
 
 /** Neve Cósmica — cai devagar, sem vento. */
-const Neve: DepthRender = (p) => F(p, <Particles mode="fall" count={14} period={7200} colors={[W, p.v.color]} size={[1.6, 3]} radius={[30, 104]} arc={[-80, 80]} travel={150} seed={9} />);
+const Neve: DepthRender = (p) => F(p, <Particles mode="fall" count={21} period={7200} colors={[W, p.v.color]} size={[2.1, 4.1]} radius={[30, 104]} arc={[-80, 80]} travel={150} seed={9} />);
 
 /** Vento Solar — partículas atravessam o palco de um lado ao outro, em linha reta. */
-const Vento: DepthRender = (p) => F(p, <Particles mode="streak" count={12} period={3000} colors={[W, p.v.color]} size={[1.4, 2.4]} radius={[p.r + 6, 104]} travel={118} plane={-8} trail={3} seed={11} />);
+const Vento: DepthRender = (p) => F(p, <Particles mode="streak" count={18} period={3000} colors={[W, p.v.color]} size={[1.8, 3.2]} radius={[p.r + 6, 104]} travel={118} plane={-8} trail={3} seed={11} />);
 
 /** Bolhas — esferas grandes e quase transparentes, subindo. */
-const Bolhas: DepthRender = (p) => F(p, <Particles mode="rise" count={9} period={6400} colors={[p.v.color, W]} size={[4, 9]} radius={[20, 96]} arc={[100, 260]} travel={120} alpha={0.34} seed={13} />);
+const Bolhas: DepthRender = (p) => F(p, <Particles mode="rise" count={14} period={6400} colors={[p.v.color, W]} size={[5.2, 12.2]} radius={[20, 96]} arc={[100, 260]} travel={120} alpha={0.34} seed={13} />);
 
 /** Fagulhas — saltam do corpo para fora, como de uma pedra de amolar. */
-const Fagulhas: DepthRender = (p) => F(p, <Particles mode="radial" count={12} period={2200} colors={[W, p.v.color, c2(p)]} size={[1.4, 2.8]} radius={[p.r, 100]} sparkle seed={15} />);
+const Fagulhas: DepthRender = (p) => F(p, <Particles mode="radial" count={18} period={2200} colors={[W, p.v.color, c2(p)]} size={[1.8, 3.8]} radius={[p.r, 100]} sparkle seed={15} />);
 
 // ————————————————————————————————————————————————————— incomuns
 
 /** Cauda de Cometa — duas pontas de luz com caudas longas, em órbitas cruzadas. */
 const Cauda: DepthRender = (p) => (
   <>
-    <Particles mode="orbit" half={p.half} count={1} period={6200} colors={[W]} size={[3.2, 3.2]} radius={[84, 84]} tilt={SQ} plane={PLANE} trail={10} glow seed={17} />
-    <Particles mode="orbit" half={p.half} count={1} period={8400} colors={[p.v.color]} size={[2.8, 2.8]} radius={[70, 70]} tilt={0.4} plane={34} trail={10} reverse seed={19} />
+    <Particles mode="orbit" half={p.half} count={1} period={6200} colors={[W]} size={[4.2, 4.3]} radius={[84, 84]} tilt={SQ} plane={PLANE} trail={10} glow seed={17} />
+    <Particles mode="orbit" half={p.half} count={1} period={8400} colors={[p.v.color]} size={[3.6, 3.8]} radius={[70, 70]} tilt={0.4} plane={34} trail={10} reverse seed={19} />
   </>
 );
 
 /** Espiral de Acreção — caem em espiral, cada vez mais rápido, até sumir no corpo. */
-const Espiral: DepthRender = (p) => <Particles mode="spiral" half={p.half} count={14} period={5200} colors={[W, p.v.color, c2(p)]} size={[1.6, 3]} radius={[p.r * 0.7, 102]} tilt={SQ} plane={PLANE} turns={2} trail={2} seed={21} />;
+const Espiral: DepthRender = (p) => <Particles mode="spiral" half={p.half} count={21} period={5200} colors={[W, p.v.color, c2(p)]} size={[2.1, 4.1]} radius={[p.r * 0.7, 102]} tilt={SQ} plane={PLANE} turns={2} trail={2} seed={21} />;
 
 /** Chuva de Meteoros — riscos diagonais, com cauda. */
-const Chuva: DepthRender = (p) => F(p, <Particles mode="streak" count={9} period={1900} colors={[W, p.v.color]} size={[1.8, 2.8]} radius={[10, 104]} travel={124} plane={38} trail={6} seed={23} />);
+const Chuva: DepthRender = (p) => F(p, <Particles mode="streak" count={14} period={1900} colors={[W, p.v.color]} size={[2.3, 3.8]} radius={[10, 104]} travel={124} plane={38} trail={6} seed={23} />);
 
 /** Fonte de Luz — jorra para cima e cai em arco dos dois lados. */
-const Fonte: DepthRender = (p) => F(p, <Particles mode="fountain" count={16} period={2800} colors={[W, p.v.color, c2(p)]} size={[1.6, 3]} radius={[p.r, 70]} travel={38} glow seed={25} />);
+const Fonte: DepthRender = (p) => F(p, <Particles mode="fountain" count={24} period={2800} colors={[W, p.v.color, c2(p)]} size={[2.1, 4.1]} radius={[p.r, 70]} travel={38} glow seed={25} />);
 
 /** Pétalas ao Vento — caem girando, levadas de lado. */
-const Petalas: DepthRender = (p) => F(p, <Particles mode="fall" count={12} period={6000} colors={[p.v.color, c2(p), W]} size={[3, 5]} radius={[34, 104]} arc={[-70, 70]} travel={140} sparkle seed={27} />);
+const Petalas: DepthRender = (p) => F(p, <Particles mode="fall" count={18} period={6000} colors={[p.v.color, c2(p), W]} size={[3.9, 6.8]} radius={[34, 104]} arc={[-70, 70]} travel={140} sparkle seed={27} />);
 
 /** Pulso — a cada batida, um anel de luz e uma leva de faíscas. */
 const Pulso: DepthRender = (p) =>
@@ -78,52 +89,52 @@ const Pulso: DepthRender = (p) =>
           </Wave>
         ))}
       </FxExtent>
-      <Particles mode="radial" count={8} period={3200} colors={[W, p.v.color]} size={[1.6, 2.6]} radius={[p.r, 104]} seed={29} />
+      <Particles mode="radial" count={12} period={3200} colors={[W, p.v.color]} size={[2.1, 3.5]} radius={[p.r, 104]} seed={29} />
     </>,
   );
 
 /** Enxame Errante — pontos que vagam cada um na sua órbita, sem ordem. */
 const Enxame: DepthRender = (p) => (
   <>
-    <Particles mode="orbit" half={p.half} count={5} period={11000} colors={[p.v.color, W]} size={[2, 3.2]} radius={[60, 96]} tilt={0.5} plane={-40} glow seed={31} />
-    <Particles mode="orbit" half={p.half} count={5} period={15000} colors={[c2(p), W]} size={[2, 3.2]} radius={[64, 100]} tilt={0.3} plane={30} reverse glow seed={33} />
-    {F(p, <Particles mode="twinkle" count={6} period={3000} colors={[p.v.color]} size={[2, 3]} radius={[50, 106]} seed={35} />)}
+    <Particles mode="orbit" half={p.half} count={8} period={11000} colors={[p.v.color, W]} size={[2.6, 4.3]} radius={[60, 96]} tilt={0.5} plane={-40} glow seed={31} />
+    <Particles mode="orbit" half={p.half} count={8} period={15000} colors={[c2(p), W]} size={[2.6, 4.3]} radius={[64, 100]} tilt={0.3} plane={30} reverse glow seed={33} />
+    {F(p, <Particles mode="twinkle" count={9} period={3000} colors={[p.v.color]} size={[2.6, 4.1]} radius={[50, 106]} seed={35} />)}
   </>
 );
 
 // ————————————————————————————————————————————————————— raros
 
 /** Hélice Dupla — duas fitas enroladas subindo de um polo e descendo do outro. */
-const Helice: DepthRender = (p) => F(p, <Particles mode="helix" count={22} period={3600} colors={[p.v.color, c2(p)]} size={[2, 3.2]} radius={[p.r * 0.7, p.r * 0.7]} travel={74} plane={PLANE} turns={2.5} glow seed={37} />);
+const Helice: DepthRender = (p) => F(p, <Particles mode="helix" count={33} period={3600} colors={[p.v.color, c2(p)]} size={[2.6, 4.3]} radius={[p.r * 0.7, p.r * 0.7]} travel={74} plane={PLANE} turns={2.5} glow seed={37} />);
 
 /** Órbitas Cruzadas — três planos, três elétrons: o desenho de um átomo. */
 const Atomo: DepthRender = (p) => (
   <>
     {[-60, 0, 60].map((plane, i) => (
-      <Particles key={plane} mode="orbit" half={p.half} count={1} period={4200 + i * 900} colors={[i === 1 ? W : p.v.color]} size={[3.2, 3.2]} radius={[88, 88]} tilt={0.32} plane={plane} trail={9} glow seed={39 + i} />
+      <Particles key={plane} mode="orbit" half={p.half} count={1} period={4200 + i * 900} colors={[i === 1 ? W : p.v.color]} size={[4.2, 4.3]} radius={[88, 88]} tilt={0.32} plane={plane} trail={9} glow seed={39 + i} />
     ))}
   </>
 );
 
 /** Trilha do Infinito — percorre um oito deitado, cruzando o corpo no meio. */
-const Lemniscata: DepthRender = (p) => <Particles mode="lemniscate" half={p.half} count={5} period={7000} colors={[W, p.v.color, c2(p)]} size={[2.4, 3.4]} radius={[102, 102]} tilt={0.5} plane={-6} trail={8} glow seed={43} />;
+const Lemniscata: DepthRender = (p) => <Particles mode="lemniscate" half={p.half} count={8} period={7000} colors={[W, p.v.color, c2(p)]} size={[3.1, 4.6]} radius={[102, 102]} tilt={0.5} plane={-6} trail={8} glow seed={43} />;
 
 /** Cascata — desce pelos dois lados do corpo e vira névoa embaixo. */
 const Cascata: DepthRender = (p) =>
   F(
     p,
     <>
-      <Particles mode="fall" count={12} period={2600} colors={[W, p.v.color]} size={[1.6, 2.6]} radius={[p.r + 4, p.r + 22]} arc={[-140, -40]} travel={96} trail={3} seed={45} />
-      <Particles mode="fall" count={12} period={2600} colors={[W, p.v.color]} size={[1.6, 2.6]} radius={[p.r + 4, p.r + 22]} arc={[40, 140]} travel={96} trail={3} seed={47} />
-      <Particles mode="twinkle" count={8} period={2200} colors={[W, p.v.color]} size={[3, 6]} radius={[70, 104]} arc={[140, 220]} alpha={0.4} seed={49} />
+      <Particles mode="fall" count={18} period={2600} colors={[W, p.v.color]} size={[2.1, 3.5]} radius={[p.r + 4, p.r + 22]} arc={[-140, -40]} travel={96} trail={3} seed={45} />
+      <Particles mode="fall" count={18} period={2600} colors={[W, p.v.color]} size={[2.1, 3.5]} radius={[p.r + 4, p.r + 22]} arc={[40, 140]} travel={96} trail={3} seed={47} />
+      <Particles mode="twinkle" count={12} period={2200} colors={[W, p.v.color]} size={[3.9, 8.1]} radius={[70, 104]} arc={[140, 220]} alpha={0.4} seed={49} />
     </>,
   );
 
 /** Maré de Poeira — dois cinturões de grãos girando em sentidos opostos. */
 const MarePoeira: DepthRender = (p) => (
   <>
-    <Particles mode="orbit" half={p.half} count={16} period={18000} colors={[p.v.color, W]} size={[1.4, 2.6]} radius={[66, 76]} tilt={SQ} plane={PLANE} seed={51} />
-    <Particles mode="orbit" half={p.half} count={20} period={26000} colors={[c2(p), W]} size={[1.4, 2.6]} radius={[90, 102]} tilt={SQ} plane={PLANE} reverse seed={53} />
+    <Particles mode="orbit" half={p.half} count={24} period={18000} colors={[p.v.color, W]} size={[1.8, 3.5]} radius={[66, 76]} tilt={SQ} plane={PLANE} seed={51} />
+    <Particles mode="orbit" half={p.half} count={30} period={26000} colors={[c2(p), W]} size={[1.8, 3.5]} radius={[90, 102]} tilt={SQ} plane={PLANE} reverse seed={53} />
   </>
 );
 
@@ -132,7 +143,7 @@ const RaiosCosmicos: DepthRender = (p) =>
   F(
     p,
     <>
-      <Particles mode="converge" count={10} period={1800} colors={[W, p.v.color]} size={[1.6, 2.6]} radius={[p.r * 2, 112]} trail={5} seed={55} />
+      <Particles mode="converge" count={15} period={1800} colors={[W, p.v.color]} size={[2.1, 3.5]} radius={[p.r * 2, 112]} trail={5} seed={55} />
       <FxExtent r={p.r + 12}>
         {[0, 0.34, 0.67].map((ph, i) => (
           <Glimmer key={ph} period={1800} phase={ph} window={0.16} peak={0.9}>
@@ -164,40 +175,50 @@ const Vortice: DepthRender = (p) => (
       </Plane>,
     )}
     {[0, 0.33, 0.66].map((ph, i) => (
-      <Particles key={ph} mode="spiral" half={p.half} count={9} period={8000} colors={[W, i === 1 ? c2(p) : p.v.color]} size={[1.6, 3]} radius={[p.r * 0.8, 104]} tilt={SQ} plane={PLANE} turns={1.2} phaseShift={ph} trail={2} seed={57} />
+      <Particles key={ph} mode="spiral" half={p.half} count={14} period={8000} colors={[W, i === 1 ? c2(p) : p.v.color]} size={[2.1, 4.1]} radius={[p.r * 0.8, 104]} tilt={SQ} plane={PLANE} turns={1.2} phaseShift={ph} trail={2} seed={57} />
     ))}
-    <Extra>{F(p, <Particles mode="twinkle" count={7} period={3200} colors={[W]} size={[1.8, 3]} radius={[60, 108]} sparkle seed={59} />)}</Extra>
+    <Extra>{F(p, <Particles mode="twinkle" count={10} period={3200} colors={[W]} size={[2.3, 4.1]} radius={[60, 108]} sparkle seed={59} />)}</Extra>
   </>
 );
 
-/** Fitas de Aurora — cortinas de luz presas aos polos, balançando. */
-const AuroraRastro: DepthRender = (p) =>
-  B(
+/** Fitas de Aurora — fitas de luz presas aos polos, ondulando devagar. */
+const AuroraRastro: DepthRender = (p) => {
+  const ribbon = (y: number, amp: number, waves: number, phase: number) => {
+    let d = '';
+    for (let x = -96; x <= 96; x += 6) {
+      const k = 1 - Math.pow(x / 100, 2);
+      d += `${x === -96 ? 'M' : 'L'}${(C + x).toFixed(1)} ${(C + y - k * 20 * Math.sign(y) * -1 + Math.sin((x / 96) * Math.PI * waves + phase) * amp * k).toFixed(1)} `;
+    }
+    return d;
+  };
+  return B(
     p,
     <>
       <FxExtent r={112}>
         {[-1, 1].map((side) => (
-          <Sway key={side} period={5200 + side * 600} degrees={5} phase={side * 0.2} glow={{ period: 3400, opacity: [0.45, 0.95] }}>
-            <G fill={side < 0 ? p.v.color : c2(p)} fillOpacity={0.4}>
-              {[-34, -17, 0, 17, 34].map((d, i) => (
-                <Path key={d} d={curtain((side < 0 ? 0 : 180) + d, p.r + 4, 84 + (i % 2) * 20, 12)} />
+          <Sway key={side} period={6200 + side * 800} degrees={3} phase={side * 0.2} glow={{ period: 3800, opacity: [0.5, 1] }}>
+            <G fill="none" strokeLinecap="round">
+              {[0, 1, 2].map((i) => (
+                <Path key={i} d={ribbon(side * (p.r + 14 + i * 13), 7 - i, 2 + i, i * 1.4)} stroke={i === 1 ? c2(p) : p.v.color} strokeOpacity={0.5 - i * 0.12} strokeWidth={9 - i * 2} />
               ))}
+              <Path d={ribbon(side * (p.r + 14), 7, 2, 0)} stroke={W} strokeOpacity={0.6} strokeWidth={1} />
             </G>
           </Sway>
         ))}
       </FxExtent>
-      <Particles mode="rise" count={10} period={4200} colors={[W, p.v.color]} size={[1.6, 2.6]} radius={[p.r, p.r + 40]} arc={[-40, 40]} travel={50} seed={61} />
+      <Particles mode="rise" count={14} period={4200} colors={[W, p.v.color]} size={[2, 3.4]} radius={[p.r, p.r + 40]} arc={[-50, 50]} travel={50} seed={61} />
       <Extra>
-        <Particles mode="fall" count={8} period={4200} colors={[W, c2(p)]} size={[1.6, 2.6]} radius={[p.r, p.r + 40]} arc={[140, 220]} travel={50} seed={63} />
+        <Particles mode="fall" count={12} period={4200} colors={[W, c2(p)]} size={[2, 3.4]} radius={[p.r, p.r + 40]} arc={[130, 230]} travel={50} seed={63} />
       </Extra>
     </>,
   );
+};
 
 /** Tempestade de Íons — faíscas em órbita rápida e descargas que saltam entre elas. */
 const TempestadeIon: DepthRender = (p) => (
   <>
-    <Particles mode="orbit" half={p.half} count={7} period={3400} colors={[W, p.v.color]} size={[2, 3]} radius={[80, 92]} tilt={0.4} plane={PLANE} trail={4} glow seed={65} />
-    <Particles mode="orbit" half={p.half} count={5} period={4600} colors={[c2(p), W]} size={[2, 3]} radius={[62, 70]} tilt={0.5} plane={40} reverse trail={4} seed={67} />
+    <Particles mode="orbit" half={p.half} count={10} period={3400} colors={[W, p.v.color]} size={[2.6, 4.1]} radius={[80, 92]} tilt={0.4} plane={PLANE} trail={4} glow seed={65} />
+    <Particles mode="orbit" half={p.half} count={8} period={4600} colors={[c2(p), W]} size={[2.6, 4.1]} radius={[62, 70]} tilt={0.5} plane={40} reverse trail={4} seed={67} />
     {F(
       p,
       <FxExtent r={112}>
@@ -230,12 +251,12 @@ const ViaLactea: DepthRender = (p) => (
         </Spin>
       </FxExtent>
     </Plane>
-    <Particles mode="orbit" half={p.half} count={30} period={44000} colors={[W, p.v.color, c2(p), '#FFE7A3']} size={[1.2, 3]} radius={[p.r + 12, 108]} tilt={0.3} plane={PLANE} seed={71} />
-    <Particles mode="orbit" half={p.half} count={8} period={30000} colors={[W]} size={[2.4, 3.6]} radius={[p.r + 20, 100]} tilt={0.3} plane={PLANE} sparkle glow seed={73} />
+    <Particles mode="orbit" half={p.half} count={45} period={44000} colors={[W, p.v.color, c2(p), '#FFE7A3']} size={[1.6, 4.1]} radius={[p.r + 12, 108]} tilt={0.3} plane={PLANE} seed={71} />
+    <Particles mode="orbit" half={p.half} count={12} period={30000} colors={[W]} size={[3.1, 4.9]} radius={[p.r + 20, 100]} tilt={0.3} plane={PLANE} sparkle glow seed={73} />
     {F(
       p,
       <Extra min={0.8}>
-        <Particles mode="twinkle" count={10} period={3600} colors={[W, '#FFE7A3']} size={[1.6, 2.8]} radius={[40, 112]} sparkle seed={75} />
+        <Particles mode="twinkle" count={15} period={3600} colors={[W, '#FFE7A3']} size={[2.1, 3.8]} radius={[40, 112]} sparkle seed={75} />
       </Extra>,
     )}
   </>
@@ -246,8 +267,8 @@ const BigBang: DepthRender = (p) =>
   F(
     p,
     <>
-      <Particles mode="converge" count={16} period={5200} colors={[W, p.v.color]} size={[1.6, 3]} radius={[p.r * 1.4, 112]} trail={3} seed={77} />
-      <Particles mode="radial" count={18} period={5200} colors={[W, c2(p), p.v.color]} size={[1.8, 3.4]} radius={[p.r * 0.6, 112]} phaseShift={0.5} sparkle glow trail={2} seed={79} />
+      <Particles mode="converge" count={24} period={5200} colors={[W, p.v.color]} size={[2.1, 4.1]} radius={[p.r * 1.4, 112]} trail={3} seed={77} />
+      <Particles mode="radial" count={27} period={5200} colors={[W, c2(p), p.v.color]} size={[2.3, 4.6]} radius={[p.r * 0.6, 112]} phaseShift={0.5} sparkle glow trail={2} seed={79} />
       <FxExtent r={112}>
         {[0.5, 0.62].map((ph) => (
           <Wave key={ph} period={5200} phase={ph} from={p.r * 0.5} to={110} drawnAt={70} peak={0.75} hold={0.55}>
@@ -260,7 +281,7 @@ const BigBang: DepthRender = (p) =>
         </Breathe>
       </FxExtent>
       <Extra min={0.8}>
-        <Particles mode="twinkle" count={8} period={5200} colors={[W]} size={[2, 3.4]} radius={[50, 110]} sparkle seed={81} />
+        <Particles mode="twinkle" count={12} period={5200} colors={[W]} size={[2.6, 4.6]} radius={[50, 110]} sparkle seed={81} />
       </Extra>
     </>,
   );

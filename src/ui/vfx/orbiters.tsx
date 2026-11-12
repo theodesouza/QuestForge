@@ -28,7 +28,7 @@ type Orbit = Omit<OrbiterProps, 'half' | 'children'>;
 /** Um satélite na órbita padrão (o que não for dito, vale o plano dos anéis). */
 function Sat({ p, o, children }: { p: DepthProps; o: Orbit; children: ReactNode }) {
   return (
-    <Orbiter half={p.half} plane={PLANE} squash={SQ} {...o}>
+    <Orbiter half={p.half} plane={PLANE} squash={SQ} depth={[0.9, 1.45]} {...o}>
       {children}
     </Orbiter>
   );
