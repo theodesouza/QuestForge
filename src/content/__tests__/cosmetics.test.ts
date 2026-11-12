@@ -3,6 +3,7 @@ import { FEATS } from '../../domain/game/feats';
 import { LEVEL_ITEM_TABLE } from '../../domain/progression/rewards';
 import { WEEKLY_FIRST_ITEM } from '../../domain/quests/quests';
 import { AURA_FX, CORE_FX, SCENE_FX } from '../../ui/vfx/rules';
+import { ASTER_ITEMS } from '../aster';
 import { BOSSES } from '../bosses';
 import {
   CUSTOM_FRAME_STYLES,
@@ -20,8 +21,9 @@ import {
 
 const inSlot = (slot: ItemSlot) => ITEMS.filter((i) => i.slot === slot);
 
-/** Espaços que já têm peças no catálogo (o teste do tamanho do catálogo exige que sejam todos). */
-const FILLED_SLOTS = SLOT_ORDER.filter((s) => ITEMS.some((i) => i.slot === s));
+/** Peças que nasceram com o Áster: o desenho delas é conferido em aster-catalog.test.ts. */
+const ASTER_IDS = new Set(ASTER_ITEMS.map((i) => i.id));
+const legacyIn = (slot: ItemSlot) => inSlot(slot).filter((i) => !ASTER_IDS.has(i.id));
 
 describe('catálogo de cosméticos', () => {
   it('ids únicos e nomes únicos por espaço', () => {
@@ -63,21 +65,21 @@ describe('catálogo de cosméticos', () => {
 
 describe('visual de cada peça', () => {
   it('toda moldura tem um estilo conhecido; os estilos novos aparecem no catálogo', () => {
-    for (const f of inSlot('frame')) expect(FRAME_STYLES).toContain(f.visual.frameStyle);
-    const used = new Set(inSlot('frame').map((f) => f.visual.frameStyle));
+    for (const f of legacyIn('frame')) expect(FRAME_STYLES).toContain(f.visual.frameStyle);
+    const used = new Set(legacyIn('frame').map((f) => f.visual.frameStyle));
     for (const style of CUSTOM_FRAME_STYLES) expect(used.has(style)).toBe(true);
   });
 
   it('todo cenário aponta para um desenho único', () => {
-    const fx = inSlot('scene').map((s) => s.visual.fx);
+    const fx = legacyIn('scene').map((s) => s.visual.fx);
     for (const id of fx) expect(SCENE_FX as readonly (string | undefined)[]).toContain(id);
     expect(new Set(fx).size).toBe(fx.length);
     expect(new Set(SCENE_FX).size).toBe(SCENE_FX.length);
   });
 
   it('todo desenho de núcleo e aura é usado por exatamente uma peça (sem efeito órfão)', () => {
-    expect([...inSlot('core').map((i) => i.visual.fx)].sort()).toEqual([...CORE_FX].sort());
-    expect([...inSlot('aura').map((i) => i.visual.fx)].sort()).toEqual([...AURA_FX].sort());
+    expect([...legacyIn('core').map((i) => i.visual.fx)].sort()).toEqual([...CORE_FX].sort());
+    expect([...legacyIn('aura').map((i) => i.visual.fx)].sort()).toEqual([...AURA_FX].sort());
   });
 
   it('núcleos e auras da Natureza existem (Ressonância possível)', () => {
@@ -122,11 +124,11 @@ describe('Oficina', () => {
   it('a vitrine está em ordem de preço e todo espaço tem algo à venda', () => {
     const prices = SHOP_ITEMS.map((i) => i.price ?? 0);
     expect(prices).toEqual([...prices].sort((a, b) => a - b));
-    for (const slot of FILLED_SLOTS) expect(SHOP_ITEMS.some((i) => i.slot === slot)).toBe(true);
+    for (const slot of SLOT_ORDER) expect(SHOP_ITEMS.some((i) => i.slot === slot)).toBe(true);
   });
 
   it('um jogador consegue comprar a primeira peça de cada espaço logo no começo (≤ 90 de Tinta)', () => {
-    for (const slot of FILLED_SLOTS) {
+    for (const slot of SLOT_ORDER) {
       const cheapest = Math.min(...SHOP_ITEMS.filter((i) => i.slot === slot).map((i) => i.price ?? Infinity));
       expect(cheapest).toBeLessThanOrEqual(90);
     }

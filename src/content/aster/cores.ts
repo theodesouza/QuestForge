@@ -41,7 +41,7 @@ export const ASTER_CORES: AsterItem[] = [
   core('core-hemisferio', 'Estrela de Duas Faces', 'raro', 'hemisferio', ['#FFE7A3', '#1A2346'], 'Metade luz, metade sombra, girando rápido demais para escolher um lado.', feat('accuracy:80'), { element: 'lunar' }),
 
   // ——— épicos ———
-  core('core-cefeida', 'Cefeida', 'epico', 'cefeida', ['#FFD36B', '#FF6A55'], 'Pulsa num período exato. A cada batida, um anel de luz mede a distância até ela.', level(34), { element: 'aureo' }),
+  core('core-cefeida', 'Cefeida', 'epico', 'cefeida', ['#FFD36B', '#FF6A55'], 'Pulsa num período exato. A cada batida, um anel de luz mede a distância até ela.', level(38), { element: 'aureo' }),
   core('core-magnetar', 'Magnetar', 'epico', 'magnetar', ['#9B87FF', '#5C8DFF'], 'Linhas de campo cerradas e tremores que percorrem a crosta.', feat('bosses:6'), { element: 'tempestade' }),
   core('core-buraco-kerr', 'Buraco Negro de Kerr', 'epico', 'buraco-kerr', ['#FF9F43', '#FF5C7A'], 'Gira. O disco se dobra por cima da sombra e um lado brilha mais que o outro.', level(41), { element: 'astral' }),
   core('core-buraco-branco', 'Buraco Branco', 'epico', 'buraco-branco', ['#BFE9FF', '#9B87FF'], 'O avesso: nada entra, tudo sai. Jorra luz em todas as direções.', feat('flawless:3'), { element: 'lunar' }),

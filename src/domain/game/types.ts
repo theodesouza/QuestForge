@@ -219,6 +219,8 @@ export type GameEvent =
   | { type: 'ink'; amount: number }
   | { type: 'levelUp'; from: number; to: number; rewards: { level: number; rewards: Reward[] }[] }
   | { type: 'item'; itemId: string; source: string; autoEquipped: boolean; slot: ItemSlot }
+  /** Várias peças entregues de uma vez (níveis e feitos que já estavam cumpridos): uma remessa, sem cerimônia por peça. */
+  | { type: 'shipment'; items: { itemId: string; source: string }[] }
   | { type: 'echo'; questionId: string }
   | { type: 'echoesFaded'; count: number }
   | { type: 'news'; id: string; title: string; detail: string }

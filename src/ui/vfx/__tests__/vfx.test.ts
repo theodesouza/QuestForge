@@ -1,3 +1,4 @@
+import { ASTER_ITEMS } from '../../../content/aster';
 import { ITEMS, RARITY_TIER, getItem } from '../../../content/items';
 import { createInitialState } from '../../../domain/game/game';
 import { normalizeProfile } from '../../../domain/game/normalize';
@@ -5,8 +6,12 @@ import { AURA_FX, CORE_FX, resolveSynergy } from '../rules';
 
 describe('catálogo de efeitos', () => {
   it('todo núcleo e toda aura têm efeito próprio e elemento', () => {
+    // As peças do Áster têm registro próprio (bodies2/fields), conferido em aster-catalog.test.ts.
+    const aster = new Set(ASTER_ITEMS.map((i) => i.id));
     for (const item of ITEMS.filter((i) => i.slot === 'core' || i.slot === 'aura')) {
       expect(item.visual.element).toBeDefined();
+      expect(typeof item.visual.fx).toBe('string');
+      if (aster.has(item.id)) continue;
       const registry: readonly string[] = item.slot === 'core' ? CORE_FX : AURA_FX;
       expect(registry).toContain(item.visual.fx);
     }

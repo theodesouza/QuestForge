@@ -37,6 +37,7 @@ import {
 } from '../progression/xp';
 import { hashString } from '../util/random';
 import { dayKey, type QuestIncrement } from '../quests/quests';
+import { deliverCatalog } from './catalog';
 import { grantFeats } from './feats';
 import { announceNews, markNewsSeen } from './news';
 import { grantInk, grantItem, grantXp, once } from './grant';
@@ -169,6 +170,7 @@ export function touch(state: GameState, now: number, tzOffsetMin?: number): Resu
     tx.emit({ type: 'echoesFaded', count: faded.length });
   }
   announceNews(tx, now);
+  deliverCatalog(tx, now);
   return tx.done();
 }
 
@@ -862,5 +864,6 @@ export function buyItem(state: GameState, itemId: string, now: number): Result {
     tx.emit({ type: 'purchase', itemId, price });
   });
   if (!bought) throw new Error('Compra já registrada');
+  grantFeats(tx, now); // forjar e colecionar também são feitos
   return tx.done();
 }

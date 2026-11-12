@@ -28,7 +28,7 @@ export const ASTER_ORBITERS: AsterItem[] = [
   sat('orbiter-balao', 'Balão Explorador', 'incomum', 'balao', ['#FF6A55', '#F4ECDC'], 'Um cesto, um envelope listrado e nenhuma pressa.', shop(200)),
 
   // ——— raros ———
-  sat('orbiter-estacao-orb', 'Estação Orbital', 'raro', 'estacao-orb', ['#C9D1F0', '#FFD36B'], 'Uma roda com raios, girando para fazer gravidade.', level(23)),
+  sat('orbiter-estacao-orb', 'Estação Orbital', 'raro', 'estacao-orb', ['#C9D1F0', '#FFD36B'], 'Uma roda com raios, girando para fazer gravidade.', level(21)),
   sat('orbiter-peixes', 'Carpas de Luz', 'raro', 'peixes', ['#FF8A3C', '#F4ECDC'], 'Duas, perseguindo a cauda uma da outra.', feat('echoes:25')),
   sat('orbiter-solidos', 'Sólidos de Platão', 'raro', 'solidos', ['#38D6B0', '#F2B54A'], 'Os cinco, e só cinco: não existe um sexto.', feat('region:cavernas-volumetricas')),
   sat('orbiter-constantes', 'Constantes', 'raro', 'constantes', ['#9B87FF', '#F2B54A'], 'π, e, φ, ∞ e i: os números que aparecem em todo lugar.', feat('correct:1000')),
@@ -40,7 +40,7 @@ export const ASTER_ORBITERS: AsterItem[] = [
   sat('orbiter-baleia', 'Baleia Estelar', 'epico', 'baleia', ['#5C8DFF', '#BFE9FF'], 'Enorme e sem pressa. Nada pelo vazio como se fosse mar.', feat('time:12h')),
   sat('orbiter-serpente', 'Serpente de Constelação', 'epico', 'serpente', ['#38D6B0', '#FFD36B'], 'A cabeça puxa; cada estrela do corpo segue a da frente.', feat('region:planicies-numericas')),
   sat('orbiter-frota', 'Frota Exploradora', 'epico', 'frota', ['#F2B54A', '#FF9F43'], 'Três naves em fila, com os motores acesos.', feat('missions:27')),
-  sat('orbiter-engrenagens', 'Engrenagens do Tempo', 'epico', 'engrenagens', ['#F2B54A', '#C98A5B'], 'Três rodas, três velocidades: quanto menor, mais depressa.', level(38)),
+  sat('orbiter-engrenagens', 'Engrenagens do Tempo', 'epico', 'engrenagens', ['#F2B54A', '#C98A5B'], 'Três rodas, três velocidades: quanto menor, mais depressa.', level(34)),
   sat('orbiter-fases', 'Fases da Lua', 'epico', 'fases', ['#F4ECDC'], 'Oito luas, cada uma num ponto do mês.', feat('weekly:12')),
 
   // ——— lendários ———

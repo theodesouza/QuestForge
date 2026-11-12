@@ -27,7 +27,7 @@ export const ASTER_RINGS: AsterItem[] = [
   ring('frame-luzes', 'Anel de Lanternas', 'incomum', 'luzes', ['#FFD36B', '#FF8FD1'], 'Doze luzes presas a um fio, como lanternas numa festa.', shop(220)),
 
   // ——— raros ———
-  ring('frame-acrecao', 'Disco de Acreção', 'raro', 'acrecao', ['#FF9F43', '#B3243F'], 'Matéria caindo em espiral: branca por dentro, vermelha por fora.', level(21)),
+  ring('frame-acrecao', 'Disco de Acreção', 'raro', 'acrecao', ['#FF9F43', '#B3243F'], 'Matéria caindo em espiral: branca por dentro, vermelha por fora.', level(23)),
   ring('frame-giroscopio', 'Giroscópio', 'raro', 'giroscopio', ['#F2B54A', '#38D6B0'], 'Dois aros em planos cruzados; cada um gira no próprio eixo.', feat('missions:9')),
   ring('frame-partido', 'Anel Partido', 'raro', 'partido', ['#FF6A55', '#DCE3FF'], 'Algo o quebrou. Restam arcos, e os estilhaços ainda se espalham pela falha.', feat('bosswins:5')),
   ring('frame-portal', 'Anel-Portal', 'raro', 'portal', ['#7FB6FF', '#FFD36B'], 'Nove travas em volta. Acendem em ordem, como quem disca um endereço.', feat('region:labirinto-acaso')),

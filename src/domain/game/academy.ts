@@ -27,6 +27,7 @@ import {
   STUDIED_REWARD,
 } from '../academy/rewards';
 import { DAY_MS } from '../learning/srs';
+import { grantFeats } from './feats';
 import { grantInk, grantItem, grantXp, once } from './grant';
 import { Tx } from './tx';
 import type { GameState, Result } from './types';
@@ -287,6 +288,7 @@ function afterMastery(tx: Tx, lessonId: string, now: number) {
   if (mastered >= ACADEMY_TITLES.manyMastered.count) grantItem(tx, ACADEMY_TITLES.manyMastered.itemId, 'academia', now);
   if (seals >= ACADEMY_TITLES.seals.count) grantItem(tx, ACADEMY_TITLES.seals.itemId, 'academia', now);
   if (LESSONS.length > 0 && seals === LESSONS.length) grantItem(tx, ACADEMY_TITLES.allSeals, 'academia', now);
+  grantFeats(tx, now); // etapas dominadas e insígnias também são feitos
 }
 
 /** Etapas cujo "Aprender" está completo (para a interface marcar a conclusão). */

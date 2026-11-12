@@ -2,6 +2,7 @@
  * Recompensas por nível. Toda recompensa tem uma chave de registro única
  * (`level:N`) — concedê-la duas vezes é impossível (ver game/grant.ts).
  */
+import { ASTER_ITEMS } from '../../content/aster';
 import { MAX_LEVEL } from './levels';
 
 export type Reward =
@@ -40,6 +41,9 @@ const LEVEL_ITEMS: Record<number, string[]> = {
   47: ['frame-cristalina'],
   50: ['aura-zenite', 'title-arquiteto'],
 };
+
+// As peças novas do Áster dizem o próprio nível na ficha (`get`): entram na mesma tabela.
+for (const item of ASTER_ITEMS) if (item.get.by === 'level') (LEVEL_ITEMS[item.get.level] ??= []).push(item.id);
 
 /** Tinta concedida ao alcançar o nível — cresce devagar, com bônus nas patentes. */
 export function inkForLevel(level: number): number {

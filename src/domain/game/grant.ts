@@ -54,15 +54,29 @@ function applyReward(tx: Tx, reward: Reward, source: string, now: number) {
 
 const STARTERS = new Set<string>(STARTER_ITEMS);
 
+/** Peça entregue em remessa (sem cerimônia própria). */
+export interface Shipped {
+  itemId: string;
+  source: string;
+}
+
 /**
  * Adiciona um item ao inventário (no-op se já possuído). Equipa automaticamente
  * quando o espaço está vazio ou ocupado por um item inicial — assim a primeira
  * recompensa aparece no personagem na hora, sem desfazer escolhas do jogador.
+ *
+ * Com `shipment`, a peça só entra na coleção: nada é equipado (quem já joga escolheu o que
+ * veste, inclusive deixar um espaço vazio) e, em vez de um evento por peça, ela é anotada na
+ * remessa para ser anunciada de uma vez.
  */
-export function grantItem(tx: Tx, itemId: string, source: string, now: number) {
+export function grantItem(tx: Tx, itemId: string, source: string, now: number, shipment?: Shipped[]) {
   if (tx.state.inventory[itemId]) return;
   const item = getItem(itemId);
   tx.addInventory({ itemId, acquiredAt: now, source });
+  if (shipment) {
+    shipment.push({ itemId, source });
+    return;
+  }
   const current = tx.profile.equipped[item.slot];
   const autoEquip = current === null || STARTERS.has(current);
   if (autoEquip) tx.patchProfile({ equipped: { ...tx.profile.equipped, [item.slot]: itemId } });

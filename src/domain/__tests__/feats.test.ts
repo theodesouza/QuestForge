@@ -37,7 +37,7 @@ const wonBoss = (id: string, flawless = false) => ({
   failedSinceWin: 0,
   firstWinAt: T0,
   flawless,
-  bestTurns: 6,
+  bestTurns: 14, // acima do limite do feito "veloz"
 });
 
 describe('feitos', () => {

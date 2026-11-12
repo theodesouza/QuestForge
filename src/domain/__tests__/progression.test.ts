@@ -46,6 +46,7 @@ describe('recompensas por nível', () => {
   it('nível 2 concede a primeira moldura e Tinta', () => {
     expect(rewardsForLevel(2)).toEqual([
       { kind: 'item', itemId: 'frame-bronze' },
+      { kind: 'item', itemId: 'title-aprendiz-orbita' },
       { kind: 'ink', amount: 14 },
     ]);
   });
@@ -55,7 +56,7 @@ describe('recompensas por nível', () => {
     expect(rewardsForLevel(51)).toEqual([]);
   });
   it('próxima recompensa com item', () => {
-    expect(nextItemLevel(1)).toEqual({ level: 2, itemIds: ['frame-bronze'] });
+    expect(nextItemLevel(1)).toEqual({ level: 2, itemIds: ['frame-bronze', 'title-aprendiz-orbita'] });
     expect(nextItemLevel(4)?.level).toBe(5);
     expect(nextItemLevel(5)?.level).toBe(6);
     expect(nextItemLevel(50)).toBeNull();

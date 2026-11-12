@@ -65,7 +65,7 @@ export const FEAT_TEXT = {
   'bosswins:5': { label: 'Feito: 5 vitórias contra chefões', how: 'Vença 5 batalhas de chefão (revanches contam).' },
   'bosswins:15': { label: 'Feito: 15 vitórias contra chefões', how: 'Vença 15 batalhas de chefão (revanches contam).' },
   'bosswins:30': { label: 'Feito: 30 vitórias contra chefões', how: 'Vença 30 batalhas de chefão (revanches contam).' },
-  swift: { label: 'Feito: chefão derrotado em 6 golpes', how: 'Derrote um chefão em até 6 golpes.' },
+  swift: { label: 'Feito: chefão derrotado em 9 golpes', how: 'Derrote um chefão em até 9 golpes.' },
   'echoes:25': { label: 'Feito: 25 Ecos superados', how: 'Supere 25 Ecos (acerte o que tinha errado).' },
   'echoes:75': { label: 'Feito: 75 Ecos superados', how: 'Supere 75 Ecos (acerte o que tinha errado).' },
   'echoes:150': { label: 'Feito: 150 Ecos superados', how: 'Supere 150 Ecos (acerte o que tinha errado).' },
