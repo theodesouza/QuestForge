@@ -92,10 +92,11 @@ export function Extra({ min = 0.5, children }: { min?: number; children: ReactNo
  * Relógio 0→1 em loop linear. Parado (movimento reduzido), fica em `rest`,
  * o que distribui fases e partículas num quadro estático equilibrado.
  */
-export function useLoop(periodMs: number, rest = 0.3): SharedValue<number> {
+export function useLoop(periodMs: number, rest = 0.3, off = false): SharedValue<number> {
   const { animate, paused } = useFx();
   const v = useSharedValue(rest);
   useEffect(() => {
+    if (off) return; // quem usa um relógio externo não precisa do laço
     if (!animate) {
       cancelAnimation(v);
       v.set(rest);
@@ -115,7 +116,7 @@ export function useLoop(periodMs: number, rest = 0.3): SharedValue<number> {
       v.set(loop);
     }
     return () => cancelAnimation(v);
-  }, [animate, paused, periodMs, rest, v]);
+  }, [animate, paused, periodMs, rest, v, off]);
   return v;
 }
 
@@ -352,7 +353,17 @@ export type ParticleMode =
   /** Convergem em espiral para o centro (carga de energia). */
   | 'converge'
   /** Ficam paradas e cintilam devagar (estrelas). */
-  | 'twinkle';
+  | 'twinkle'
+  /** Caem em espiral num plano inclinado até o centro (acreção). */
+  | 'spiral'
+  /** Sobem (ou descem) enroladas em hélice dupla (jatos polares). */
+  | 'helix'
+  /** Percorrem um oito deitado (∞). */
+  | 'lemniscate'
+  /** Saltam do centro e caem em arco (fonte). */
+  | 'fountain'
+  /** Cruzam o palco em linha reta, na direção de `plane` (meteoros, vento). */
+  | 'streak';
 
 export interface ParticleSpec {
   mode: ParticleMode;
@@ -386,6 +397,18 @@ export interface ParticleSpec {
    * apagadas — no MESMO sistema (um relógio só), não em sistemas separados.
    */
   trail?: number;
+  /**
+   * Órbitas com profundidade de verdade: 'back' mostra só a metade de trás da órbita (desenhe antes do
+   * núcleo) e 'front' só a da frente (depois do núcleo). Vale para orbit, spiral e lemniscate.
+   */
+  half?: 'back' | 'front';
+  /** Voltas dadas em `spiral` e `helix` (padrão 1,5). */
+  turns?: number;
+  /**
+   * Relógio externo 0→1 (uma passada só: ignições). Com ele todas as partículas andam juntas,
+   * sem laço próprio.
+   */
+  clock?: SharedValue<number>;
 }
 
 function rand(seed: number) {
@@ -422,7 +445,7 @@ function useParticleItems(spec: ParticleSpec): P[] {
   const n = useCount(spec.count);
   const trail = spec.trail ? Math.max(1, Math.round(spec.trail * density)) : 0;
   // Chaves primitivas: arrays literais mudam de identidade a cada render.
-  const key = [n, trail, spec.seed ?? 7, spec.mode, spec.size.join(), spec.radius.join(), (spec.arc ?? [0, 360]).join(), spec.colors.join(), spec.phaseShift ?? 0, spec.reverse ? 1 : 0].join('|');
+  const key = [n, trail, spec.seed ?? 7, spec.mode, spec.size.join(), spec.radius.join(), (spec.arc ?? [0, 360]).join(), spec.colors.join(), spec.phaseShift ?? 0, spec.reverse ? 1 : 0, spec.clock ? 1 : 0].join('|');
   return useMemo<P[]>(() => {
     const rnd = rand(spec.seed ?? 7);
     const [a0, a1] = spec.arc ?? [0, 360];
@@ -431,7 +454,7 @@ function useParticleItems(spec: ParticleSpec): P[] {
       const d = spec.size[0] + (spec.size[1] - spec.size[0]) * rnd();
       const head: P = {
         phase: ((i + rnd() * 0.6) / n + (spec.phaseShift ?? 0) + 1) % 1,
-        speed: spec.mode === 'orbit' ? 1 : 0.75 + rnd() * 0.5,
+        speed: spec.mode === 'orbit' || spec.mode === 'lemniscate' ? 1 : 0.75 + rnd() * 0.5,
         angle: ((a0 + (a1 - a0) * ((i + rnd() * 0.8) / n) - 90) * Math.PI) / 180,
         r: spec.radius[0] + (spec.radius[1] - spec.radius[0]) * rnd(),
         r2: spec.radius[1],
@@ -459,6 +482,11 @@ interface ParticleOpts {
   travel: number;
   dir: number;
   r0: number;
+  /** -1 = só a metade de trás, 1 = só a da frente, 0 = tudo. */
+  half: number;
+  turns: number;
+  /** Uma passada só (relógio externo): todas juntas. */
+  oneShot: boolean;
 }
 
 function optsOf(spec: ParticleSpec): ParticleOpts {
@@ -469,13 +497,23 @@ function optsOf(spec: ParticleSpec): ParticleOpts {
     travel: spec.travel ?? 30,
     dir: spec.reverse ? -1 : 1,
     r0: spec.radius[0],
+    half: spec.half === 'back' ? -1 : spec.half === 'front' ? 1 : 0,
+    turns: spec.turns ?? 1.5,
+    oneShot: !!spec.clock,
   };
+}
+
+/** Metade da órbita em que o ponto está: quem tem sin(a) ≥ 0 está na frente. Devolve 0 se não deve aparecer. */
+function halfGate(sinA: number, half: number): number {
+  'worklet';
+  if (half === 0) return 1;
+  return (sinA >= 0 ? 1 : -1) === half ? 1 : 0;
 }
 
 /** Posição (unidades do palco, relativa ao centro), opacidade e escala de uma partícula no instante `clock`. */
 function particleFrame(p: P, o: ParticleOpts, clock: number): { x: number; y: number; o: number; k: number } {
   'worklet';
-  const u = (clock * p.speed + p.phase) % 1;
+  const u = o.oneShot ? Math.min(0.999, Math.max(0, clock)) : (clock * p.speed + p.phase) % 1;
   if (o.mode === 'orbit') {
     const a = p.angle + o.dir * u * TAU;
     const ex = Math.cos(a) * p.r;
@@ -484,8 +522,71 @@ function particleFrame(p: P, o: ParticleOpts, clock: number): { x: number; y: nu
     return {
       x: ex * Math.cos(o.plane) - ey * Math.sin(o.plane),
       y: ex * Math.sin(o.plane) + ey * Math.cos(o.plane),
-      o: 0.35 + 0.65 * depth,
+      o: (0.35 + 0.65 * depth) * halfGate(Math.sin(a), o.half),
       k: 0.75 + 0.45 * depth,
+    };
+  }
+  if (o.mode === 'spiral') {
+    const a = p.angle + o.dir * u * o.turns * TAU;
+    const r = p.r2 - (p.r2 - o.r0) * u;
+    const ex = Math.cos(a) * r;
+    const ey = Math.sin(a) * r * o.tilt;
+    const depth = 0.5 + 0.5 * Math.sin(a);
+    return {
+      x: ex * Math.cos(o.plane) - ey * Math.sin(o.plane),
+      y: ex * Math.sin(o.plane) + ey * Math.cos(o.plane),
+      o: Math.sin(Math.PI * u) * (0.45 + 0.55 * depth) * halfGate(Math.sin(a), o.half),
+      k: (1 - 0.45 * u) * (0.8 + 0.4 * depth),
+    };
+  }
+  if (o.mode === 'helix') {
+    // p.angle decide o polo (cima/baixo); p.r é o raio da hélice; duas fitas defasadas de meia volta.
+    const up = Math.sin(p.angle) < 0 ? -1 : 1;
+    const a = u * o.turns * TAU + (Math.cos(p.angle) < 0 ? Math.PI : 0) + p.phase * TAU;
+    const depth = 0.5 + 0.5 * Math.cos(a);
+    const y = up * (o.r0 + u * o.travel);
+    const x = Math.sin(a) * p.wobble * 1.6 * (1 + u);
+    return {
+      x: x * Math.cos(o.plane) - y * Math.sin(o.plane),
+      y: x * Math.sin(o.plane) + y * Math.cos(o.plane),
+      o: Math.sin(Math.PI * u) * (0.4 + 0.6 * depth),
+      k: (1 - 0.4 * u) * (0.75 + 0.45 * depth),
+    };
+  }
+  if (o.mode === 'lemniscate') {
+    const a = p.angle + o.dir * u * TAU;
+    const q = 1 + Math.sin(a) * Math.sin(a);
+    const ex = (p.r * Math.cos(a)) / q;
+    const ey = ((p.r * Math.sin(a) * Math.cos(a)) / q) * 1.5 * o.tilt;
+    const depth = 0.5 + 0.5 * Math.sin(a);
+    return {
+      x: ex * Math.cos(o.plane) - ey * Math.sin(o.plane),
+      y: ex * Math.sin(o.plane) + ey * Math.cos(o.plane),
+      o: (0.4 + 0.6 * depth) * halfGate(Math.sin(a), o.half),
+      k: 0.75 + 0.45 * depth,
+    };
+  }
+  if (o.mode === 'fountain') {
+    // Sai do raio r0 para cima, abre conforme o ângulo sorteado e cai em arco.
+    const side = Math.cos(p.angle);
+    const x = side * (o.r0 * 0.3 + u * p.r);
+    const y = -o.r0 - o.travel * (2.4 * u - 2.6 * u * u);
+    return {
+      x: x * Math.cos(o.plane) - y * Math.sin(o.plane),
+      y: x * Math.sin(o.plane) + y * Math.cos(o.plane),
+      o: Math.sin(Math.PI * Math.min(1, u * 1.1)),
+      k: 1 - 0.35 * u,
+    };
+  }
+  if (o.mode === 'streak') {
+    // Atravessa em linha reta; p.r (com sinal pelo ângulo) é o afastamento lateral da trilha.
+    const off = p.r * (Math.sin(p.angle) < 0 ? -1 : 1);
+    const along = (u - 0.5) * o.travel * 2;
+    return {
+      x: along * Math.cos(o.plane) - off * Math.sin(o.plane),
+      y: along * Math.sin(o.plane) + off * Math.cos(o.plane),
+      o: Math.sin(Math.PI * u),
+      k: 0.8 + 0.4 * Math.sin(Math.PI * u),
     };
   }
   if (o.mode === 'radial') {
@@ -550,7 +651,8 @@ function FlatParticles({ spec }: { spec: ParticleSpec }) {
 function LiveParticles({ spec }: { spec: ParticleSpec }) {
   const { px } = useFx();
   const items = useParticleItems(spec);
-  const clock = useLoop(spec.period, 0.3);
+  const loop = useLoop(spec.period, 0.3, !!spec.clock);
+  const clock = spec.clock ?? loop;
   const unit = px / STAGE;
   return (
     <View pointerEvents="none" style={fill}>
