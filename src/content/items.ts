@@ -3,6 +3,7 @@
  * vendidos por dinheiro real. Raros e lendários vêm de feitos, nunca de sorte.
  */
 
+import { ASTER_ITEMS } from './aster';
 import { MORE_ITEMS } from './cosmetics';
 
 /**
@@ -678,8 +679,8 @@ const BASE_ITEMS: ItemDef[] = [
   },
 ];
 
-/** Catálogo completo: o conjunto original mais as peças de personalização (cosmetics.ts). */
-export const ITEMS: ItemDef[] = [...BASE_ITEMS, ...MORE_ITEMS];
+/** Catálogo completo: o conjunto original, a segunda leva (cosmetics.ts) e as peças do Áster (aster/). */
+export const ITEMS: ItemDef[] = [...BASE_ITEMS, ...MORE_ITEMS, ...ASTER_ITEMS];
 
 const BY_ID = new Map(ITEMS.map((i) => [i.id, i]));
 

@@ -11,7 +11,7 @@
  * Todo corpo cabe no raio do Áster (`r`, que cresce com o nível).
  */
 import type { ReactNode } from 'react';
-import { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polygon, RadialGradient, Rect, Stop } from 'react-native-svg';
+import { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polygon, Polyline, RadialGradient, Rect, Stop } from 'react-native-svg';
 import type { BodyProps, BodyRender } from './bodies';
 import { Breathe, C, Extra, FxExtent, Glimmer, Layer, Particles, Spin, Wave } from './engine';
 import { arc, lightning, ngon, polar, ray, spiral } from './geometry';
@@ -303,7 +303,7 @@ const Magnetar: BodyRender = ({ v, r }) => (
       </Spin>
       {[0, 0.33, 0.66].map((ph, i) => (
         <Glimmer key={ph} period={2700} phase={ph} window={0.22} peak={0.95}>
-          <Path d={lightning(40 + i * 120, r * 0.62, r * 1.55, 6, 7, 60 + i)} stroke={W} strokeWidth={1.3} fill="none" strokeLinejoin="round" />
+          <Polyline points={lightning(40 + i * 120, r * 0.62, r * 1.55, 6, 7, 60 + i)} stroke={W} strokeWidth={1.3} fill="none" strokeLinejoin="round" />
         </Glimmer>
       ))}
     </FxExtent>
@@ -400,33 +400,39 @@ const MundoDeserto: BodyRender = ({ v, r }) => (
   />
 );
 
-/** Coração de Cometa — comum: gelo sujo e irregular, com uma cabeleira de gás. */
+/** Coração de Cometa — comum: um bloco de gelo sujo girando, com uma cabeleira de gás soprada para um lado. */
 const Cometa: BodyRender = ({ v, r }) => {
   const id = useGid('cm');
   return (
     <>
-      <FxExtent r={r * 1.7}>
-        <Breathe period={3800} opacity={[0.55, 1]} scale={[0.96, 1.05]}>
-          <Glow id={id} color={v.color} r={r * 1.6} opacity={0.5} />
+      <FxExtent r={r * 2}>
+        <Breathe period={3800} opacity={[0.6, 1]} scale={[0.96, 1.05]}>
+          <Glow id={id} color={v.color} r={r * 1.5} opacity={0.5} />
+          <G transform={`rotate(-24 ${C} ${C})`}>
+            <Polygon points={`${C},${C - r * 0.5} ${C + r * 1.9},${C - r * 0.16} ${C + r * 1.9},${C + r * 0.16} ${C},${C + r * 0.5}`} fill={v.color} fillOpacity={0.16} />
+            <Polygon points={`${C},${C - r * 0.26} ${C + r * 1.6},${C - r * 0.05} ${C + r * 1.6},${C + r * 0.05} ${C},${C + r * 0.26}`} fill={W} fillOpacity={0.16} />
+          </G>
         </Breathe>
-        <Layer>
-          <Polygon
-            points={[0, 52, 98, 150, 205, 262, 318].map((d, i) => {
-              const p = polar(r * (0.5 + ((i * 37) % 23) / 60), d);
-              return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
-            }).join(' ')}
-            fill="#DDEBFF"
-            stroke={W}
-            strokeOpacity={0.7}
-            strokeWidth={1}
-            strokeLinejoin="round"
-          />
-          <Polygon points={`${C - r * 0.2},${C - r * 0.3} ${C + r * 0.1},${C - r * 0.1} ${C - r * 0.12},${C + r * 0.2}`} fill="#7FA6D8" fillOpacity={0.6} />
-          <Polygon points={`${C + r * 0.12},${C + r * 0.05} ${C + r * 0.38},${C + r * 0.02} ${C + r * 0.2},${C + r * 0.32}`} fill="#4A6FA8" fillOpacity={0.5} />
-          <Line x1={C - r * 0.28} y1={C - r * 0.26} x2={C - r * 0.02} y2={C - r * 0.42} stroke={W} strokeOpacity={0.85} strokeWidth={1.2} strokeLinecap="round" />
-        </Layer>
       </FxExtent>
-      <Particles mode="streak" count={7} period={2800} colors={[W, v.color]} size={[1.6, 2.8]} radius={[2, r * 0.5]} travel={r * 1.5} plane={-24} seed={5} />
+      <Orb
+        r={r * 0.66}
+        lit={W}
+        mid="#CFE6FF"
+        dark={v.color2 ?? '#3C6EA8'}
+        limb={0.7}
+        gloss={0.5}
+        atmosphere={v.color}
+        atmosphereSize={0.5}
+        surface={
+          <Tile r={r * 0.66}>
+            <Blotches n={7} color="#4A6FA8" seed={3} size={[7, 15]} opacity={0.5} />
+            <Cracks n={7} color="#22406E" seed={4} width={1} opacity={0.7} />
+            <Craters n={5} seed={5} />
+          </Tile>
+        }
+        spin={16000}
+      />
+      <Particles mode="streak" count={7} period={2600} colors={[W, v.color]} size={[1.6, 2.8]} radius={[2, r * 0.45]} travel={r * 1.6} plane={-24} seed={5} />
     </>
   );
 };
@@ -615,7 +621,9 @@ const MundoTempestade: BodyRender = ({ v, r }) => (
         <Tile r={r}>
           <Bands colors={['#2A3458', '#3C4A78', '#1E2644', '#4A5A8C', '#232C50', '#34407A']} seed={52} wobble={4.5} />
           <Ellipse cx={62} cy={44} rx={13} ry={9} fill="#0A0E20" fillOpacity={0.7} />
-          <Path d={spiral(1, 9, 1.6, 0, 40).replace(/(-?\d+\.?\d*),(-?\d+\.?\d*)/g, (_, x, y) => `${(Number(x) - 120 + 62).toFixed(1)},${(Number(y) - 120 + 44).toFixed(1)}`)} stroke="#C8D4FF" strokeOpacity={0.6} strokeWidth={0.9} fill="none" />
+          <G transform="translate(-58 -76)">
+            <Path d={spiral(1, 9, 1.6, 0, 40)} stroke="#C8D4FF" strokeOpacity={0.6} strokeWidth={0.9} fill="none" />
+          </G>
         </Tile>
       }
       spin={17000}
@@ -629,7 +637,7 @@ const MundoTempestade: BodyRender = ({ v, r }) => (
     <FxExtent r={r}>
       {[0, 0.4, 0.72].map((ph, i) => (
         <Glimmer key={ph} period={3100} phase={ph} window={0.14} peak={1}>
-          <Path d={lightning(60 + i * 110, r * 0.12, r * 0.86, 5, 8, 20 + i)} stroke={i === 1 ? W : v.color} strokeWidth={1.4} fill="none" strokeLinejoin="round" />
+          <Polyline points={lightning(60 + i * 110, r * 0.12, r * 0.86, 5, 8, 20 + i)} stroke={i === 1 ? W : v.color} strokeWidth={1.4} fill="none" strokeLinejoin="round" />
           <Circle cx={polar(r * 0.5, 60 + i * 110).x} cy={polar(r * 0.5, 60 + i * 110).y} r={r * 0.3} fill={v.color} fillOpacity={0.18} />
         </Glimmer>
       ))}
@@ -888,7 +896,7 @@ const Protoestrela: BodyRender = ({ v, r }) => {
   return (
     <FxExtent r={r * 1.5}>
       <Spin period={52000}>
-        <Puffs r={r} id={id} colors={[v.color, v.color2 ?? v.color, W]} puffs={[{ x: -0.3, y: -0.1, rx: 0.95, ry: 0.7, c: 1 }, { x: 0.35, y: 0.2, rx: 0.85, ry: 0.62, c: 0 }, { x: 0, y: 0.4, rx: 0.7, ry: 0.45, c: 1, o: 0.7 }]} />
+        <Puffs r={r} id={id} colors={[v.color, v.color2 ?? v.color, W]} puffs={[{ x: -0.35, y: -0.15, rx: 1.25, ry: 0.95, c: 1 }, { x: 0.4, y: 0.25, rx: 1.15, ry: 0.85, c: 0 }, { x: 0, y: 0.45, rx: 0.9, ry: 0.6, c: 1, o: 0.8 }, { x: 0, y: 0, rx: 0.7, ry: 0.7, c: 0 }]} />
       </Spin>
       <Breathe period={3000} scale={[0.86, 1.12]} opacity={[0.65, 1]}>
         <Circle cx={C} cy={C} r={r * 0.34} fill={v.color} fillOpacity={0.5} />
@@ -904,7 +912,7 @@ const GotaNebular: BodyRender = ({ v, r }) => {
   return (
     <FxExtent r={r * 1.5}>
       <Breathe period={5200} scale={[0.96, 1.05]} opacity={[0.75, 1]}>
-        <Puffs r={r} id={id} colors={[v.color, v.color2 ?? v.color, W]} puffs={[{ x: 0, y: 0.25, rx: 0.9, ry: 0.85, c: 0 }, { x: 0, y: -0.45, rx: 0.5, ry: 0.8, c: 1 }, { x: -0.1, y: 0.3, rx: 0.4, ry: 0.4, c: 2, o: 0.7 }]} />
+        <Puffs r={r} id={id} colors={[v.color, v.color2 ?? v.color, W]} puffs={[{ x: 0, y: 0.3, rx: 1.15, ry: 1.05, c: 0 }, { x: 0, y: -0.5, rx: 0.65, ry: 1, c: 1 }, { x: 0, y: 0.3, rx: 0.8, ry: 0.75, c: 0 }, { x: -0.1, y: 0.3, rx: 0.45, ry: 0.45, c: 2, o: 0.8 }]} />
         <Path d={`M${C - r * 0.5} ${C + r * 0.5} Q${C} ${C + r * 0.1} ${C + r * 0.45} ${C + r * 0.55}`} stroke={INK} strokeOpacity={0.55} strokeWidth={r * 0.1} fill="none" strokeLinecap="round" />
       </Breathe>
       <Layer>
@@ -969,7 +977,7 @@ const Supernova: BodyRender = ({ v, r }) => {
   const shell = (seed: number, k: number, color: string) => (
     <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round">
       {Array.from({ length: 9 }, (_, i) => (
-        <Path key={i} d={lightning(i * 40 + seed * 7, r * k * 0.82, r * k * 1.08, 4, 5, seed + i)} strokeWidth={1.3} strokeOpacity={0.85} />
+        <Polyline key={i} points={lightning(i * 40 + seed * 7, r * k * 0.82, r * k * 1.08, 4, 5, seed + i)} strokeWidth={1.3} strokeOpacity={0.85} />
       ))}
       {Array.from({ length: 6 }, (_, i) => (
         <Path key={`a${i}`} d={arc(r * k, i * 60 + seed * 11, i * 60 + seed * 11 + 34)} strokeWidth={1.8} strokeOpacity={0.7} />
