@@ -5,7 +5,7 @@ import { missingConfig } from '../../auth/config';
 import { createInitialState } from '../../domain/game/game';
 import { signIn } from '../../state/session';
 import { useGameStore } from '../../state/store';
-import { Astrolabe } from '../../ui/Astrolabe';
+import { Aster } from '../../ui/Aster';
 import { Button } from '../../ui/Button';
 import { useReduceMotion } from '../../ui/feedback';
 import { Screen } from '../../ui/Screen';
@@ -32,7 +32,7 @@ export function LoginScreen() {
   return (
     <Screen footer={footer} scroll>
       <Animated.View entering={reduce ? undefined : FadeIn.duration(700)} style={styles.welcome}>
-        <Astrolabe level={1} equipped={STARTER} size={250} animate={!reduce} />
+        <Aster level={1} equipped={STARTER} size={250} animate={!reduce} />
         <Text variant="label" color={colors.brass}>
           QuestForge
         </Text>

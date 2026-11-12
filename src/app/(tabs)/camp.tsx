@@ -24,7 +24,7 @@ import { useStagePaused } from '../../features/useStagePaused';
 import { useStarter } from '../../features/useStarter';
 import { dismissRestedNotice, refreshQuests, startEchoHunt, startExpedition, startFocus, startMission, startStageDrill } from '../../state/actions';
 import { useGame, useGameStore } from '../../state/store';
-import { Astrolabe } from '../../ui/Astrolabe';
+import { Aster } from '../../ui/Aster';
 import { SceneStage } from '../../ui/SceneStage';
 import { Button } from '../../ui/Button';
 import { Chip } from '../../ui/Chip';
@@ -152,7 +152,7 @@ export default function Camp() {
       <Animated.View entering={enter(1)} style={styles.hero}>
         <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver herói" style={{ alignSelf: 'stretch', alignItems: 'center' }}>
           <SceneStage scene={profile.equipped.scene} height={260} animate={!reduce} paused={stagePaused}>
-            <Astrolabe level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} />
+            <Aster level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} />
           </SceneStage>
         </Pressable>
         <View style={styles.levelRow}>

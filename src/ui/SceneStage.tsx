@@ -12,7 +12,7 @@ import Svg from 'react-native-svg';
 import { getItem } from '../content/items';
 import type { EffectsLevel } from '../domain/game/types';
 import { useGameStore } from '../state/store';
-import { DENSITY } from './Astrolabe';
+import { DENSITY } from './Aster';
 import { colors, radius } from './theme';
 import { FxProvider } from './vfx/engine';
 import { SceneArt, SceneLive } from './vfx/scenes';

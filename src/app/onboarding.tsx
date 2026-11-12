@@ -10,7 +10,7 @@ import Animated, { FadeIn, FadeInRight } from 'react-native-reanimated';
 import type { Goal, SelfLevel } from '../domain/game/types';
 import { finishOnboarding, startExpedition } from '../state/actions';
 import { useGame } from '../state/store';
-import { Astrolabe } from '../ui/Astrolabe';
+import { Aster } from '../ui/Aster';
 import { Button } from '../ui/Button';
 import { Chip } from '../ui/Chip';
 import { haptic, useReduceMotion } from '../ui/feedback';
@@ -107,7 +107,7 @@ export default function Onboarding() {
 
       {step === 0 ? (
         <Animated.View entering={reduce ? undefined : FadeIn.duration(700)} style={styles.welcome}>
-          <Astrolabe level={1} equipped={equipped} size={270} animate={!reduce} />
+          <Aster level={1} equipped={equipped} size={270} animate={!reduce} />
           <Text variant="label" color={colors.brass}>
             QuestForge
           </Text>

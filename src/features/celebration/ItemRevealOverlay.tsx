@@ -23,7 +23,7 @@ import { BOSSES } from '../../content/bosses';
 import { dismissReveal, equip, lowerEffectsForSpeed } from '../../state/actions';
 import { useGameStore } from '../../state/store';
 import { featSourceLabel } from '../../domain/game/feats';
-import { Astrolabe, DENSITY } from '../../ui/Astrolabe';
+import { Aster, DENSITY } from '../../ui/Aster';
 import { SceneStage } from '../../ui/SceneStage';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
@@ -169,11 +169,11 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
                 {preview && item.slot === 'scene' ? (
                   <View style={{ width: stage * 0.96 }}>
                     <SceneStage scene={itemId} height={stage * 0.9} animate={animateFx} effects={effects}>
-                      <Astrolabe level={level} equipped={preview} size={stage * 0.68} animate={animateFx} effects={effects} />
+                      <Aster level={level} equipped={preview} size={stage * 0.68} animate={animateFx} effects={effects} />
                     </SceneStage>
                   </View>
                 ) : preview ? (
-                  <Astrolabe level={level} equipped={preview} size={stage * 0.82} animate={animateFx} effects={effects} />
+                  <Aster level={level} equipped={preview} size={stage * 0.82} animate={animateFx} effects={effects} />
                 ) : (
                   <View style={[styles.titleBadge, { borderColor: color }]}>
                     <Text variant="label" color={colors.mist}>

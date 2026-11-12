@@ -82,6 +82,10 @@ export interface OrbProps {
   spin?: number;
   spinReverse?: boolean;
   surfaceOpacity?: number;
+  /** Segunda camada (nuvens), acima da superfície e em outra velocidade: dá paralaxe. */
+  clouds?: ReactNode;
+  cloudSpin?: number;
+  cloudOpacity?: number;
   /** Escuro da borda (0 = sem sombra de esfera: corpos que emitem luz, como estrelas). */
   limb?: number;
   /** Brilho de atmosfera em volta (cor) e o quanto ele se espalha. */
@@ -95,6 +99,8 @@ export interface OrbProps {
   pulse?: { period: number; scale: [number, number] };
   cx?: number;
   cy?: number;
+  /** Conteúdo desenhado DENTRO da esfera (entre o corpo e os reflexos): o que a redoma guarda. */
+  children?: ReactNode;
 }
 
 function breathe(t: number): number {
@@ -144,8 +150,9 @@ export function Orb(p: OrbProps) {
       {limb > 0 || p.glass ? <Circle cx={cx} cy={cy} r={r} fill={`url(#${shade})`} /> : null}
       {gloss > 0 ? (
         <>
-          <Ellipse cx={cx - r * 0.36} cy={cy - r * 0.44} rx={r * 0.3} ry={r * 0.17} fill="#FFFFFF" fillOpacity={gloss} transform={`rotate(-32 ${cx - r * 0.36} ${cy - r * 0.44})`} />
-          <Circle cx={cx + r * 0.42} cy={cy + r * 0.5} r={r * 0.06} fill="#FFFFFF" fillOpacity={gloss * 0.55} />
+          <Ellipse cx={cx - r * 0.4} cy={cy - r * 0.5} rx={r * 0.26} ry={r * 0.1} fill="#FFFFFF" fillOpacity={gloss * 0.9} transform={`rotate(-36 ${cx - r * 0.4} ${cy - r * 0.5})`} />
+          <Ellipse cx={cx - r * 0.62} cy={cy - r * 0.2} rx={r * 0.05} ry={r * 0.13} fill="#FFFFFF" fillOpacity={gloss * 0.5} transform={`rotate(-18 ${cx - r * 0.62} ${cy - r * 0.2})`} />
+          <Circle cx={cx + r * 0.46} cy={cy + r * 0.52} r={r * 0.05} fill="#FFFFFF" fillOpacity={gloss * 0.5} />
         </>
       ) : null}
       {p.glass ? <Circle cx={cx} cy={cy} r={r - 0.6} stroke="#FFFFFF" strokeOpacity={0.34} strokeWidth={1.1} fill="none" /> : null}
@@ -169,6 +176,13 @@ export function Orb(p: OrbProps) {
             <G transform={`translate(${cx + r - r * 0.6} ${cy - r})`}>{p.surface}</G>
           </G>
         ) : null}
+        {p.clouds ? (
+          <G clipPath={`url(#${clip})`} opacity={p.cloudOpacity ?? 0.8}>
+            <G transform={`translate(${cx - r - r * 1.1} ${cy - r})`}>{p.clouds}</G>
+            <G transform={`translate(${cx + r - r * 1.1} ${cy - r})`}>{p.clouds}</G>
+          </G>
+        ) : null}
+        {p.children}
         {top}
       </G>
     );
@@ -187,6 +201,8 @@ export function Orb(p: OrbProps) {
         </Svg>
       </View>
       {p.surface ? <Surface r={r} cx={cx} cy={cy} unit={unit} period={p.spin ?? 0} reverse={!!p.spinReverse} opacity={p.surfaceOpacity ?? 1} art={p.surface} /> : null}
+      {p.clouds ? <Surface r={r} cx={cx} cy={cy} unit={unit} period={p.cloudSpin ?? 0} reverse={!!p.spinReverse} opacity={p.cloudOpacity ?? 0.8} art={p.clouds} /> : null}
+      {p.children}
       <View pointerEvents="none" style={box}>
         <Svg width={2 * R * unit} height={2 * R * unit} viewBox={vb}>
           {defs}

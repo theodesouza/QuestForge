@@ -12,7 +12,7 @@ import type { EffectsLevel, Equipped } from '../domain/game/types';
 import { BossArt } from '../features/boss/BossArt';
 import { StemBlocks } from '../features/question/StemBlocks';
 import { BossLab } from '../features/boss/BossLab';
-import { Astrolabe } from '../ui/Astrolabe';
+import { Aster } from '../ui/Aster';
 import { SceneStage } from '../ui/SceneStage';
 import { ItemGlyph } from '../ui/ItemGlyph';
 import { Text } from '../ui/Text';
@@ -21,10 +21,10 @@ import { resolveSynergy } from '../ui/vfx/synergy';
 
 const QA = process.env.EXPO_PUBLIC_QA === '1';
 
-function Cell({ equipped, label, sub, size, level, effects }: { equipped: Equipped; label: string; sub: string; size: number; level: number; effects?: EffectsLevel }) {
+function Cell({ equipped, label, sub, size, level, effects, trophies, still }: { equipped: Equipped; label: string; sub: string; size: number; level: number; effects?: EffectsLevel; trophies?: number; still?: boolean }) {
   return (
     <View style={styles.cell}>
-      <Astrolabe level={level} equipped={equipped} size={size} effects={effects} />
+      <Aster level={level} equipped={equipped} size={size} effects={effects} trophies={trophies} animate={!still} />
       <Text variant="caption" align="center">
         {label}
       </Text>
@@ -36,7 +36,7 @@ function Cell({ equipped, label, sub, size, level, effects }: { equipped: Equipp
 }
 
 export default function VfxLab() {
-  const routed = useGlobalSearchParams<{ q?: string; boss?: string; felled?: string; grid?: string; core?: string; aura?: string; frame?: string; scene?: string; level?: string; fx?: string; glyphs?: string; orbiter?: string; trail?: string; lens?: string; ignition?: string; trophies?: string; size?: string }>();
+  const routed = useGlobalSearchParams<{ q?: string; boss?: string; felled?: string; grid?: string; core?: string; aura?: string; frame?: string; scene?: string; level?: string; fx?: string; glyphs?: string; still?: string; from?: string; to?: string; orbiter?: string; trail?: string; lens?: string; ignition?: string; trophies?: string; size?: string }>();
   // Na exportação web estática os parâmetros às vezes chegam vazios: lê direto da URL.
   const p =
     Platform.OS === 'web' && typeof window !== 'undefined' && Object.keys(routed).length === 0
@@ -106,6 +106,33 @@ export default function VfxLab() {
     );
   }
 
+  const trophies = Number(p.trophies ?? 0);
+  const still = p.still === '1';
+  const cellSize = Number(p.size ?? 170);
+  if (p.grid === 'evo') {
+    // Evolução: o mesmo equipamento em cada patente (nível 1, 5, 10 … 50), com os chefões vencidos crescendo junto.
+    return (
+      <ScrollView style={styles.root} contentContainerStyle={styles.grid}>
+        {[1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((l, i) => (
+          <Cell key={l} equipped={base} label={`Nível ${l}`} sub={`${Math.min(9, i)} chefões`} size={cellSize} level={l} effects={effects} trophies={Math.min(9, i)} still={still} />
+        ))}
+      </ScrollView>
+    );
+  }
+  if (p.grid && p.grid.startsWith('slot:')) {
+    // Galeria de um espaço qualquer: /vfx-lab?grid=slot:orbiter (&from=0&to=12 para fatiar).
+    const slot = p.grid.slice(5) as keyof Equipped;
+    const all = ITEMS.filter((x) => x.slot === slot);
+    const from = Number(p.from ?? 0);
+    const to = Number(p.to ?? all.length);
+    return (
+      <ScrollView style={styles.root} contentContainerStyle={styles.grid}>
+        {all.slice(from, to).map((i) => (
+          <Cell key={i.id} equipped={{ ...base, [slot]: i.id }} label={i.name} sub={`${RARITY_LABEL[i.rarity]} · ${i.visual.fx ?? i.visual.frameStyle ?? ''}`} size={cellSize} level={level} effects={effects} trophies={trophies} still={still} />
+        ))}
+      </ScrollView>
+    );
+  }
   if (p.grid) {
     const cells: { equipped: Equipped; label: string; sub: string }[] = [];
     if (p.grid === 'cores') {
@@ -120,7 +147,7 @@ export default function VfxLab() {
           {ITEMS.filter((x) => x.slot === 'scene').map((i) => (
             <View key={i.id} style={styles.sceneCell}>
               <SceneStage scene={i.id} height={260} effects={effects}>
-                <Astrolabe level={level} equipped={{ ...base, scene: i.id }} size={220} effects={effects} />
+                <Aster level={level} equipped={{ ...base, scene: i.id }} size={220} effects={effects} />
               </SceneStage>
               <Text variant="caption" align="center">
                 {i.name} · {RARITY_LABEL[i.rarity]}
@@ -170,7 +197,7 @@ export default function VfxLab() {
     <View style={[styles.root, styles.single]}>
       <View style={{ width: 360 }}>
         <SceneStage scene={base.scene} height={360} effects={effects}>
-          <Astrolabe level={level} equipped={base} size={330} effects={effects} />
+          <Aster level={level} equipped={base} size={330} effects={effects} trophies={trophies} animate={!still} />
         </SceneStage>
       </View>
       <Text variant="subheading" align="center">

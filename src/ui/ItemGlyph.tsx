@@ -14,7 +14,7 @@ import { colors, rarityColor } from './theme';
 import { AuraBack, AuraFront } from './vfx/auras';
 import { CoreFx } from './vfx/cores';
 import { C, FxProvider, STAGE } from './vfx/engine';
-import { Segments } from './Astrolabe';
+import { Segments } from './vfx/rings';
 import { frameParts, isCustomFrame } from './vfx/frames';
 import { star } from './vfx/geometry';
 import { SceneArt } from './vfx/scenes';

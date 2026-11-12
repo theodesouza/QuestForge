@@ -16,7 +16,7 @@ import { TryOnSheet } from '../../features/hero/TryOnSheet';
 import { useStagePaused } from '../../features/useStagePaused';
 import { unequip } from '../../state/actions';
 import { useGame } from '../../state/store';
-import { Astrolabe } from '../../ui/Astrolabe';
+import { Aster } from '../../ui/Aster';
 import { Chip } from '../../ui/Chip';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
@@ -121,7 +121,7 @@ export default function Hero() {
       <Text variant="title">Herói</Text>
       <View style={styles.hero}>
         <SceneStage scene={profile.equipped.scene} height={336} animate={!reduce} paused={stagePaused || !!trying} reserve>
-          <Astrolabe level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} paused={stagePaused || !!trying} />
+          <Aster level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} paused={stagePaused || !!trying} />
         </SceneStage>
         <Text variant="heading" align="center">
           {profile.name || 'Cartógrafo sem nome'}

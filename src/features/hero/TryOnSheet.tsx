@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ELEMENT_LABEL, RARITY_LABEL, SLOT_LABEL, getItem } from '../../content/items';
 import type { Equipped } from '../../domain/game/types';
 import { equip } from '../../state/actions';
-import { Astrolabe } from '../../ui/Astrolabe';
+import { Aster } from '../../ui/Aster';
 import { SceneStage } from '../../ui/SceneStage';
 import { Button } from '../../ui/Button';
 import { calm } from '../../ui/calm';
@@ -74,7 +74,7 @@ function Sheet({ itemId, owned, level, equipped, lockedNote, onClose }: Omit<Pro
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.handle} />
           <SceneStage scene={shown.scene} height={304} animate={!reduce} reserve={item.slot === 'scene'}>
-            <Astrolabe level={level} equipped={shown} size={item.slot === 'scene' ? 250 : 280} animate={!reduce} />
+            <Aster level={level} equipped={shown} size={item.slot === 'scene' ? 250 : 280} animate={!reduce} />
           </SceneStage>
           <View style={styles.center}>
             <Text variant="label" color={color} style={{ letterSpacing: 2 }}>

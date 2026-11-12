@@ -11,7 +11,7 @@ import { getItem, RARITY_LABEL, SLOT_LABEL } from '../../content/items';
 import { rankFor } from '../../domain/progression/levels';
 import { dismissCelebration, lowerEffectsForSpeed } from '../../state/actions';
 import { useGameStore } from '../../state/store';
-import { Astrolabe } from '../../ui/Astrolabe';
+import { Aster } from '../../ui/Aster';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
 import { useSlowFrames } from '../../ui/perf';
@@ -54,7 +54,7 @@ export function LevelUpOverlay() {
       <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Fechar celebração" />
       <View style={[styles.content, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.xl }]} pointerEvents="box-none">
         <Animated.View entering={reduce ? undefined : calm.appear(0, 480)}>
-          <Astrolabe level={celebration.to} equipped={equipped} size={264} animate={!reduce && !lite} />
+          <Aster level={celebration.to} equipped={equipped} size={264} animate={!reduce && !lite} />
         </Animated.View>
         <View style={styles.center} accessible accessibilityRole="header">
           <Text variant="label" color={colors.brass}>
