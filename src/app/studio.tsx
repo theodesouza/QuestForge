@@ -85,7 +85,7 @@ const Tile = memo(function Tile({ item, owned, inUse, selected, width, onPick }:
           </Text>
         </View>
       ) : (
-        <ItemGlyph itemId={item.id} size={Math.min(72, width - 28)} locked={!owned} />
+        <ItemGlyph itemId={item.id} size={Math.min(64, width - 30)} locked={!owned} />
       )}
       <Pips rarity={item.rarity} dim={!owned} />
       {item.slot === 'title' ? null : (
@@ -142,7 +142,8 @@ export default function Studio() {
 
   const cols = Math.max(3, Math.min(6, Math.floor((width - PAD * 2 + GAP) / (104 + GAP))));
   const tileW = Math.floor((width - PAD * 2 - GAP * (cols - 1)) / cols);
-  const stageH = Math.round(Math.min(310, Math.max(188, height * 0.3)));
+  // O palco cede espaço à grade em telas baixas: a peça escolhida precisa de vizinhas à vista.
+  const stageH = Math.round(Math.min(290, Math.max(168, height * 0.245)));
 
   const counts = useMemo(() => {
     const out = {} as Record<ItemSlot, { owned: number; total: number }>;
@@ -318,9 +319,6 @@ export default function Studio() {
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={styles.listHead}>
-            <Text variant="caption" color={colors.mist}>
-              {SLOT_HINT[slot]}
-            </Text>
             <View style={styles.filters}>
               {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
                 <Chip key={f} label={FILTER_LABEL[f]} selected={filter === f} onPress={() => setFilter(f)} />
@@ -350,7 +348,7 @@ export default function Studio() {
               </View>
               {previewing ? <IconButton icon="close" label="Desfazer a prévia" onPress={() => setPicked(null)} color={colors.mist} /> : null}
             </View>
-            <Text variant="caption" color={colors.parchmentDim} numberOfLines={3}>
+            <Text variant="caption" color={colors.parchmentDim} numberOfLines={2}>
               {focus.description}
             </Text>
             {!owned ? (
@@ -371,7 +369,12 @@ export default function Studio() {
             ) : owned && inUse && isOptional(focus.slot) ? (
               <Button label={`Em uso · Remover ${SLOT_LABEL[focus.slot].toLowerCase()}`} variant="ghost" size="md" loading={busy} onPress={() => run(() => unequip(focus.slot as never))} />
             ) : owned ? (
-              <Button label="Em uso" variant="ghost" size="md" disabled onPress={() => undefined} />
+              <View style={styles.wearing}>
+                <Icon name="check" size={14} color={colors.brass} />
+                <Text variant="caption" color={colors.brass}>
+                  Em uso
+                </Text>
+              </View>
             ) : price !== undefined ? (
               <Button
                 label={confirm === focus.id ? `Confirmar · ${price} de Tinta` : `Forjar · ${price} de Tinta`}
@@ -385,7 +388,7 @@ export default function Studio() {
           </>
         ) : (
           <Text variant="caption" color={colors.mist}>
-            Nada em uso em {SLOT_LABEL[slot]}. Toque numa peça para ver como fica no seu Áster.
+            {SLOT_HINT[slot]} Nada em uso aqui: toque numa peça para ver como fica no seu Áster.
           </Text>
         )}
       </View>
@@ -402,7 +405,7 @@ const styles = StyleSheet.create({
   previewTag: { position: 'absolute', top: 10, left: 10, paddingHorizontal: 8, paddingVertical: 4, borderRadius: radius.pill, backgroundColor: colors.parchment },
   synergy: { position: 'absolute', top: 10, right: 10, maxWidth: '62%', flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4, borderRadius: radius.pill, borderWidth: 1, backgroundColor: 'rgba(11, 16, 32, 0.72)' },
   rail: { gap: 6, paddingVertical: 2 },
-  slot: { width: 76, alignItems: 'center', gap: 2, paddingVertical: 6, borderRadius: radius.md, borderWidth: 1, borderColor: 'transparent' },
+  slot: { width: 72, alignItems: 'center', gap: 1, paddingVertical: 4, borderRadius: radius.md, borderWidth: 1, borderColor: 'transparent' },
   slotActive: { borderColor: colors.line, backgroundColor: colors.ink800 },
   slotEmpty: { width: 38, height: 38, borderRadius: 19, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.ink500, alignItems: 'center', justifyContent: 'center' },
   list: { paddingHorizontal: PAD, paddingBottom: space.xl, gap: GAP },
@@ -413,17 +416,18 @@ const styles = StyleSheet.create({
   headBar: { width: 3, height: 14, borderRadius: 2 },
   headCount: { marginLeft: 'auto' },
   row: { flexDirection: 'row', gap: GAP },
-  tile: { alignItems: 'center', gap: 4, paddingTop: space.sm, paddingBottom: 6, paddingHorizontal: 4, borderRadius: radius.md, borderWidth: 1.2, minHeight: 138 },
+  tile: { alignItems: 'center', gap: 4, paddingTop: space.sm, paddingBottom: 6, paddingHorizontal: 4, borderRadius: radius.md, borderWidth: 1.2, minHeight: 128 },
   tileSelected: { borderWidth: 2, backgroundColor: colors.ink700 },
   tileName: { minHeight: 36 },
-  plate: { alignSelf: 'stretch', minHeight: 72, marginHorizontal: 4, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1, backgroundColor: colors.ink850 },
+  plate: { alignSelf: 'stretch', minHeight: 64, marginHorizontal: 4, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1, backgroundColor: colors.ink850 },
   pips: { flexDirection: 'row', gap: 3, height: 7, alignItems: 'center' },
   pip: { width: 5, height: 5, borderRadius: 1, transform: [{ rotate: '45deg' }] },
   inUse: { backgroundColor: colors.brass, paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill },
   hint: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   tagText: { fontSize: 10, lineHeight: 12, letterSpacing: 0.6 },
-  bar: { paddingHorizontal: PAD, paddingTop: space.md, gap: space.sm, borderTopWidth: 1, borderColor: colors.line, backgroundColor: colors.ink850 },
+  bar: { paddingHorizontal: PAD, paddingTop: space.sm, gap: 6, borderTopWidth: 1, borderColor: colors.line, backgroundColor: colors.ink850 },
   barHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   barText: { flex: 1 },
   how: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  wearing: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 },
 });

@@ -167,8 +167,9 @@ describe('avisos de novidade', () => {
       expect.objectContaining({ id: 'cosmetics-v2', title: 'Novidades na personalização' }),
       expect.objectContaining({ id: 'atlas-r4-r5', title: 'Duas novas regiões no Atlas' }),
       expect.objectContaining({ id: 'atlas-r6-r9', title: 'Quatro novas regiões no Atlas' }),
+      expect.objectContaining({ id: 'aster', title: 'O Astrolábio despertou' }),
     ]);
-    expect(first.delta.ledger).toEqual(expect.arrayContaining(['news:cosmetics-v2', 'news:atlas-r4-r5', 'news:atlas-r6-r9']));
+    expect(first.delta.ledger).toEqual(expect.arrayContaining(['news:cosmetics-v2', 'news:atlas-r4-r5', 'news:atlas-r6-r9', 'news:aster']));
     expect(newsOf(touch(first.state, T0 + 2000, 180).events)).toEqual([]);
   });
 

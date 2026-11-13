@@ -1,52 +1,76 @@
 /**
- * Fundo cartográfico: grade de meridianos, curvas de nível e poucas estrelas.
- * Estático e memoizado — custo de renderização desprezível.
+ * Fundo de todas as telas: espaço profundo. Um degradê do alto, duas nuvens tênues na cor do
+ * lugar (`glow`), um campo de estrelas em três tamanhos e algumas órbitas finas — o mesmo céu do
+ * Áster, bem mais discreto, para o conteúdo continuar na frente.
+ * Estático e memoizado: custo de renderização desprezível.
  */
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
-import Svg, { Circle, Defs, G, Line, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Ellipse, G, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { colors } from './theme';
 
-const STARS: [number, number, number][] = [
-  [0.12, 0.06, 1.1], [0.82, 0.04, 0.9], [0.64, 0.14, 1.3], [0.28, 0.2, 0.8], [0.92, 0.27, 1],
-  [0.06, 0.38, 0.9], [0.5, 0.33, 0.7], [0.75, 0.5, 1.1], [0.18, 0.62, 0.8], [0.9, 0.7, 0.9],
-  [0.4, 0.78, 1], [0.08, 0.9, 1.2], [0.66, 0.92, 0.8],
-];
+/** Sorteio fixo: o céu é sempre o mesmo, em qualquer tela e a cada abertura. */
+function field(seed: number, n: number): [number, number, number][] {
+  let a = seed >>> 0;
+  const r = () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  return Array.from({ length: n }, () => [r(), r(), r()]);
+}
+
+const DUST = field(7, 46);
+const BRIGHT = field(19, 9);
 
 export const MapBackdrop = memo(function MapBackdrop({ glow = colors.brass }: { glow?: string }) {
   const { width, height } = useWindowDimensions();
-  const gridStep = 56;
-  const vLines = Math.ceil(width / gridStep);
-  const hLines = Math.ceil(height / gridStep);
-  const contour = (k: number) => {
-    const y = height * (0.18 + k * 0.17);
-    return `M -20 ${y} C ${width * 0.25} ${y - 40 - k * 6}, ${width * 0.55} ${y + 50}, ${width + 20} ${y - 20 + k * 4}`;
-  };
+  const orbits = useMemo(
+    () =>
+      [
+        { cx: width * 0.86, cy: height * 0.12, rx: width * 0.74, ry: width * 0.26, rot: -22, o: 0.07 },
+        { cx: width * 0.86, cy: height * 0.12, rx: width * 1.02, ry: width * 0.38, rot: -22, o: 0.045 },
+        { cx: width * 0.08, cy: height * 0.82, rx: width * 0.8, ry: width * 0.3, rot: 18, o: 0.05 },
+      ] as const,
+    [width, height],
+  );
   return (
     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
       <Defs>
-        <LinearGradient id="bdglow" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={glow} stopOpacity={0.09} />
-          <Stop offset="0.45" stopColor={colors.ink900} stopOpacity={0} />
+        <LinearGradient id="bdsky" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#0D1330" />
+          <Stop offset="0.5" stopColor={colors.ink900} />
+          <Stop offset="1" stopColor="#080B18" />
         </LinearGradient>
+        <RadialGradient id="bdglow" cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor={glow} stopOpacity={0.13} />
+          <Stop offset="1" stopColor={glow} stopOpacity={0} />
+        </RadialGradient>
+        <RadialGradient id="bdcool" cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor={colors.iris} stopOpacity={0.09} />
+          <Stop offset="1" stopColor={colors.iris} stopOpacity={0} />
+        </RadialGradient>
       </Defs>
-      <Rect x={0} y={0} width={width} height={height} fill={colors.ink900} />
-      <Rect x={0} y={0} width={width} height={height} fill="url(#bdglow)" />
-      <G stroke={colors.mist} strokeOpacity={0.05} strokeWidth={1}>
-        {Array.from({ length: vLines }, (_, i) => (
-          <Line key={`v${i}`} x1={i * gridStep + 12} y1={0} x2={i * gridStep + 12} y2={height} />
-        ))}
-        {Array.from({ length: hLines }, (_, i) => (
-          <Line key={`h${i}`} x1={0} y1={i * gridStep + 20} x2={width} y2={i * gridStep + 20} />
+      <Rect x={0} y={0} width={width} height={height} fill="url(#bdsky)" />
+      <Ellipse cx={width * 0.82} cy={height * 0.1} rx={width * 0.9} ry={height * 0.3} fill="url(#bdglow)" />
+      <Ellipse cx={width * 0.1} cy={height * 0.78} rx={width * 0.8} ry={height * 0.28} fill="url(#bdcool)" />
+      <G fill="none" stroke={colors.parchment} strokeWidth={1}>
+        {orbits.map((o, i) => (
+          <Ellipse key={i} cx={o.cx} cy={o.cy} rx={o.rx} ry={o.ry} strokeOpacity={o.o} strokeDasharray={i === 1 ? '2 7' : undefined} transform={`rotate(${o.rot} ${o.cx} ${o.cy})`} />
         ))}
       </G>
-      <G stroke={colors.brass} strokeOpacity={0.06} strokeWidth={1.2} fill="none">
-        {[0, 1, 2, 3, 4].map((k) => (
-          <Path key={k} d={contour(k)} strokeDasharray={k % 2 ? '6 8' : undefined} />
+      <G fill={colors.parchment}>
+        {DUST.map(([x, y, s], i) => (
+          <Circle key={i} cx={x * width} cy={y * height} r={0.5 + s * 0.7} fillOpacity={0.14 + s * 0.26} />
         ))}
       </G>
-      {STARS.map(([x, y, r], i) => (
-        <Circle key={i} cx={x * width} cy={y * height} r={r} fill={colors.parchment} fillOpacity={0.35} />
+      {BRIGHT.map(([x, y, s], i) => (
+        <G key={i}>
+          <Circle cx={x * width} cy={y * height} r={3 + s * 2} fill={i % 3 ? '#BFD6FF' : '#FFE2B8'} fillOpacity={0.07} />
+          <Circle cx={x * width} cy={y * height} r={1 + s * 0.6} fill={i % 3 ? '#DCE8FF' : '#FFF0D6'} fillOpacity={0.6} />
+        </G>
       ))}
     </Svg>
   );

@@ -97,12 +97,12 @@ function Sheet({ itemId, owned, level, equipped, lockedNote, onClose }: Omit<Pro
             ) : null}
             {item.slot === 'title' ? (
               <Text variant="caption" color={colors.mist} align="center">
-                Títulos aparecem embaixo do seu nome no Acampamento e no Herói.
+                Títulos aparecem embaixo do seu nome no Acampamento e na aba Áster.
               </Text>
             ) : null}
             {item.slot === 'scene' ? (
               <Text variant="caption" color={colors.mist} align="center">
-                O Cenário fica atrás do astrolábio no Acampamento e no Herói.
+                O Ambiente fica atrás do Áster no Acampamento e na aba Áster.
               </Text>
             ) : null}
           </View>

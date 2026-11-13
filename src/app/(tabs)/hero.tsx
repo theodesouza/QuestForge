@@ -107,7 +107,7 @@ export default function Hero() {
 
   return (
     <Screen tab bottomInset={TAB_BAR_SPACE}>
-      <Text variant="title">Herói</Text>
+      <Text variant="title">Seu Áster</Text>
       <View style={styles.hero}>
         <Pressable
           onPress={() => {
@@ -145,50 +145,6 @@ export default function Hero() {
         )}
       </View>
 
-      <View style={styles.stats}>
-        <Stat label="questões respondidas" value={String(answered)} />
-        <Stat
-          label="de acerto"
-          value={answered >= MIN_FOR_ACCURACY ? `${Math.round((correct / answered) * 100)}%` : '—'}
-          note={answered >= MIN_FOR_ACCURACY ? undefined : `após ${MIN_FOR_ACCURACY} respostas`}
-        />
-        <Stat label="de estudo" value={formatTime(timeMs)} />
-        <Stat label="Ecos ativos" value={String(echoes)} note={`somem após ${ECHO_MAX_AGE_DAYS} dias`} />
-        <Stat label="Ecos superados" value={String(echoesBeaten)} note="errou e depois acertou" />
-        {echoesFaded > 0 ? <Stat label="Ecos dissipados" value={String(echoesFaded)} note="eram muito antigos" /> : null}
-      </View>
-
-      <Button label="Ver minha evolução" icon="book" variant="secondary" onPress={() => router.push('/progress')} />
-
-      <Panel accent={colors.verdigris}>
-        <View style={styles.sealsHead}>
-          <Icon name="seal" size={20} color={colors.verdigris} fill={colors.verdigrisGlow} />
-          <Text variant="label" color={colors.verdigris} style={{ flex: 1 }}>
-            Insígnias de domínio
-          </Text>
-          <Pressable onPress={() => router.push('/academy')} accessibilityRole="button" accessibilityLabel="Abrir a Academia" hitSlop={8}>
-            <Text variant="caption" color={colors.brass}>
-              Academia
-            </Text>
-          </Pressable>
-        </View>
-        <Text variant="caption" color={colors.parchmentDim} style={{ marginTop: space.xs }}>
-          {masteredStages} etapa{masteredStages === 1 ? '' : 's'} dominada{masteredStages === 1 ? '' : 's'} sem ajuda · {seals.length} de {LESSONS.length} aulas com insígnia. Uma insígnia exige dominar todas as etapas de uma aula.
-        </Text>
-        {seals.length ? (
-          <View style={styles.seals}>
-            {seals.map((l) => (
-              <View key={l.id} style={[styles.sealChip, { borderColor: TONE[courseOf(l).tone] }]}>
-                <Icon name="seal" size={14} color={TONE[courseOf(l).tone]} fill={colors.ink900} />
-                <Text variant="caption" color={colors.parchment}>
-                  {l.title}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ) : null}
-      </Panel>
-
       <Panel accent={colors.brass}>
         <Text variant="label" color={colors.brass}>
           Evolução do Áster
@@ -214,13 +170,13 @@ export default function Hero() {
 
       <View style={{ gap: space.md }}>
         <View style={styles.collectionHead}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text variant="subheading">Em uso</Text>
             <Text variant="caption" color={colors.mist}>
               Toque num espaço para trocar a peça
             </Text>
           </View>
-          <Chip label={`Oficina · ${profile.ink} Tinta`} icon="ink" color={colors.iris} onPress={() => router.push('/workshop')} />
+          <Chip label={`${profile.ink} Tinta`} icon="ink" color={colors.iris} onPress={() => router.push('/workshop')} accessibilityLabel={`Oficina. Você tem ${profile.ink} de Tinta`} />
         </View>
         <View style={styles.loadout}>
           {SLOTS.map((s) => {
@@ -275,6 +231,50 @@ export default function Hero() {
             </View>
           ))}
         </View>
+      </Panel>
+
+      <View style={styles.stats}>
+        <Stat label="questões respondidas" value={String(answered)} />
+        <Stat
+          label="de acerto"
+          value={answered >= MIN_FOR_ACCURACY ? `${Math.round((correct / answered) * 100)}%` : '—'}
+          note={answered >= MIN_FOR_ACCURACY ? undefined : `após ${MIN_FOR_ACCURACY} respostas`}
+        />
+        <Stat label="de estudo" value={formatTime(timeMs)} />
+        <Stat label="Ecos ativos" value={String(echoes)} note={`somem após ${ECHO_MAX_AGE_DAYS} dias`} />
+        <Stat label="Ecos superados" value={String(echoesBeaten)} note="errou e depois acertou" />
+        {echoesFaded > 0 ? <Stat label="Ecos dissipados" value={String(echoesFaded)} note="eram muito antigos" /> : null}
+      </View>
+
+      <Button label="Ver minha evolução" icon="book" variant="secondary" onPress={() => router.push('/progress')} />
+
+      <Panel accent={colors.verdigris}>
+        <View style={styles.sealsHead}>
+          <Icon name="seal" size={20} color={colors.verdigris} fill={colors.verdigrisGlow} />
+          <Text variant="label" color={colors.verdigris} style={{ flex: 1 }}>
+            Insígnias de domínio
+          </Text>
+          <Pressable onPress={() => router.push('/academy')} accessibilityRole="button" accessibilityLabel="Abrir a Academia" hitSlop={8}>
+            <Text variant="caption" color={colors.brass}>
+              Academia
+            </Text>
+          </Pressable>
+        </View>
+        <Text variant="caption" color={colors.parchmentDim} style={{ marginTop: space.xs }}>
+          {masteredStages} etapa{masteredStages === 1 ? '' : 's'} dominada{masteredStages === 1 ? '' : 's'} sem ajuda · {seals.length} de {LESSONS.length} aulas com insígnia. Uma insígnia exige dominar todas as etapas de uma aula.
+        </Text>
+        {seals.length ? (
+          <View style={styles.seals}>
+            {seals.map((l) => (
+              <View key={l.id} style={[styles.sealChip, { borderColor: TONE[courseOf(l).tone] }]}>
+                <Icon name="seal" size={14} color={TONE[courseOf(l).tone]} fill={colors.ink900} />
+                <Text variant="caption" color={colors.parchment}>
+                  {l.title}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
       </Panel>
 
       {road.length > 0 ? (

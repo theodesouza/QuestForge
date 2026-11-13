@@ -115,7 +115,7 @@ export default function Onboarding() {
             O mapa da matemática foi apagado.
           </Text>
           <Text variant="body" color={colors.parchmentDim} align="center">
-            A Névoa do Esquecimento cobriu o Atlas. Cada questão que você resolve redesenha um pedaço do mundo — e forja o seu astrolábio.
+            A Névoa do Esquecimento cobriu o Atlas. Cada questão que você resolve redesenha um pedaço do mundo — e alimenta o seu Áster.
           </Text>
         </Animated.View>
       ) : null}

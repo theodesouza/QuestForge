@@ -65,11 +65,11 @@ export function LevelUpOverlay() {
           </Text>
           {rankChanged ? (
             <Text variant="subheading" color={colors.verdigris} align="center">
-              Nova patente: {rankFor(celebration.to).title} — uma estrela a mais no seu astrolábio.
+              Nova patente: {rankFor(celebration.to).title} — o seu Áster ganhou um traço novo.
             </Text>
           ) : (
             <Text variant="body" color={colors.parchmentDim} align="center">
-              Seu astrolábio ganhou novas gravações.
+              Seu Áster cresceu um pouco.
             </Text>
           )}
         </View>

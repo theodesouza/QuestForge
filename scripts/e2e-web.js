@@ -266,7 +266,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await shot('camp-scrolled');
   await page.getByRole('tab', { name: 'Atlas' }).click();
   await shot('atlas');
-  await page.getByRole('tab', { name: 'Herói' }).click();
+  await page.getByRole('tab', { name: 'Áster' }).click();
   await shot('hero');
   await page.getByRole('tab', { name: 'Acampamento' }).click();
   await wait(500);
@@ -468,7 +468,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   if (!(after < before)) throw new Error(`Compra não descontou Tinta: ${before} → ${after}`);
 
   // Cenários: filtrar a vitrine, experimentar antes de comprar, comprar e ver atrás do herói.
-  await page.getByRole('button', { name: /^Cenários/ }).click();
+  await page.getByRole('button', { name: /^Ambientes/ }).click();
   await wait(500);
   await shot('workshop-scenes');
   const sceneBefore = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene);
@@ -490,28 +490,35 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await wait(600);
   await shot('camp-scene');
 
-  await page.getByRole('tab', { name: 'Herói' }).click();
+  await page.getByRole('tab', { name: 'Áster' }).click();
   await shot('hero-after');
-  // Coleção: filtros por espaço e por posse; remover e recolocar o cenário.
-  await page.getByRole('button', { name: /^Cenário \d+\/\d+/ }).click();
-  await wait(500);
-  await shot('hero-collection-scenes');
-  await page.getByRole('button', { name: 'Remover cenário' }).click();
-  await wait(500);
-  if (await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene)) throw new Error('Remover cenário não limpou o espaço');
-  await page.getByRole('button', { name: 'Bloqueados', exact: true }).click();
+  // Estúdio: trilho de espaços, filtros, remover o ambiente e experimentar uma peça bloqueada.
+  await page.mouse.wheel(0, 900);
   await wait(400);
-  await shot('hero-collection-locked');
-  await page.getByRole('button', { name: 'Todos', exact: true }).click();
+  await page.getByRole('button', { name: 'Abrir o Estúdio' }).click();
+  await wait(1200);
+  await shot('studio');
+  await page.getByRole('tab', { name: /^Ambiente/ }).click();
+  await wait(600);
+  await shot('studio-scenes');
+  await page.getByRole('button', { name: /Remover ambiente/ }).click();
+  await wait(600);
+  if (await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.scene)) throw new Error('Remover ambiente não limpou o espaço');
+  await page.getByRole('button', { name: 'A conquistar', exact: true }).click();
+  await wait(400);
+  await shot('studio-locked');
+  await page.getByRole('button', { name: 'Tudo', exact: true }).click();
   await wait(300);
-  // Experimentar um núcleo (prévia com transformação) — inclusive um bloqueado.
-  await page.getByRole('button', { name: /^Núcleo/ }).first().click();
+  // Prévia de um núcleo bloqueado: veste no Áster sem mudar o que está equipado.
+  await page.getByRole('tab', { name: /^Núcleo/ }).click();
   await wait(500);
-  await page.getByRole('button', { name: /^Núcleo do Tesouro/ }).click();
+  const coreBefore = await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.core);
+  await page.getByRole('button', { name: /^Anã Vermelha/ }).first().click();
   await wait(1400);
-  await shot('hero-tryon-locked');
-  await page.getByRole('button', { name: 'Fechar', exact: false }).last().click();
-  await wait(500);
+  await shot('studio-preview-locked');
+  if ((await page.evaluate(() => globalThis.__qf.store.getState().game.profile.equipped.core)) !== coreBefore) throw new Error('A prévia trocou o núcleo equipado');
+  await page.getByRole('button', { name: 'Voltar' }).first().click();
+  await wait(600);
   await page.getByRole('tab', { name: 'Acampamento' }).click();
   await wait(500);
   await page.getByRole('button', { name: 'Ajustes' }).click();

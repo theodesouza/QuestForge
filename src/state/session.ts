@@ -213,6 +213,8 @@ export async function boot(): Promise<void> {
       store: useGameStore,
       getQuestion,
       getItem,
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- só no gancho de QA: navegar sem recarregar a página
+      go: (href: string) => (require('expo-router') as typeof import('expo-router')).router.replace(href as never),
       shown: (questionId: string, attemptKey: string, key: AltKey) => displayLetter(alternativeOrder(getQuestion(questionId), attemptKey), key),
     };
   }

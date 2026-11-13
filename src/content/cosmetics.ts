@@ -14,7 +14,7 @@ export const MORE_ITEMS: ItemDef[] = [
   {
     id: 'frame-ardosia',
     slot: 'frame',
-    name: 'Moldura de Ardósia',
+    name: 'Anel de Ardósia',
     rarity: 'comum',
     description: 'Pedra escura e fria, riscada a giz por quem anota tudo.',
     howToGet: 'Oficina: 75 de Tinta.',
@@ -24,7 +24,7 @@ export const MORE_ITEMS: ItemDef[] = [
   {
     id: 'frame-perolas',
     slot: 'frame',
-    name: 'Moldura de Pérolas',
+    name: 'Anel de Pérolas',
     rarity: 'comum',
     description: 'Uma pérola para cada dúvida que virou certeza.',
     howToGet: 'Oficina: 110 de Tinta.',
@@ -34,7 +34,7 @@ export const MORE_ITEMS: ItemDef[] = [
   {
     id: 'frame-corrente',
     slot: 'frame',
-    name: 'Moldura de Corrente',
+    name: 'Anel de Corrente',
     rarity: 'comum',
     description: 'Um elo por exercício: ninguém quebra uma corrente feita um elo de cada vez.',
     howToGet: 'Oficina: 120 de Tinta.',
@@ -44,7 +44,7 @@ export const MORE_ITEMS: ItemDef[] = [
   {
     id: 'frame-ondas',
     slot: 'frame',
-    name: 'Moldura de Ondas',
+    name: 'Anel de Ondas',
     rarity: 'incomum',
     description: 'Ondas que vão e voltam, como a revisão que volta sempre mais forte.',
     howToGet: 'Oficina: 190 de Tinta.',
@@ -54,7 +54,7 @@ export const MORE_ITEMS: ItemDef[] = [
   {
     id: 'frame-sol-nascente',
     slot: 'frame',
-    name: 'Moldura do Sol Nascente',
+    name: 'Anel do Sol Nascente',
     rarity: 'incomum',
     description: 'Os primeiros raios sobre o mapa: cada manhã de estudo conta.',
     howToGet: 'Oficina: 230 de Tinta.',
@@ -73,7 +73,7 @@ export const MORE_ITEMS: ItemDef[] = [
   {
     id: 'frame-runica',
     slot: 'frame',
-    name: 'Moldura Rúnica',
+    name: 'Anel Rúnico',
     rarity: 'raro',
     description: 'Runas de números esquecidos que despertam quando você os entende.',
     howToGet: 'Alcance o nível 33.',
@@ -82,7 +82,7 @@ export const MORE_ITEMS: ItemDef[] = [
   {
     id: 'frame-cristalina',
     slot: 'frame',
-    name: 'Moldura Cristalina',
+    name: 'Anel Cristalino',
     rarity: 'epico',
     description: 'Cristais que crescem para fora, como ideias que já não cabem num caderno só.',
     howToGet: 'Alcance o nível 47.',
@@ -204,7 +204,7 @@ export const MORE_ITEMS: ItemDef[] = [
     slot: 'aura',
     name: 'Aura Elétrica',
     rarity: 'raro',
-    description: 'Faíscas de ideias que se acendem sozinhas ao redor do astrolábio.',
+    description: 'Faíscas de ideias que se acendem sozinhas ao redor do Áster.',
     howToGet: 'Alcance o nível 27.',
     visual: { color: '#7FF3FF', color2: '#F2B54A', element: 'tempestade', fx: 'eletrica' },
   },

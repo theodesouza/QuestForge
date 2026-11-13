@@ -153,7 +153,7 @@ export default function Camp() {
 
       {/* Herói */}
       <Animated.View entering={enter(1)} style={styles.hero}>
-        <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver herói" style={{ alignSelf: 'stretch', alignItems: 'center' }}>
+        <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver o seu Áster" style={{ alignSelf: 'stretch', alignItems: 'center' }}>
           <SceneStage scene={profile.equipped.scene} height={260} animate={!reduce} paused={stagePaused}>
             <Aster level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} trophies={trophies} igniteKey={profile.xp} />
           </SceneStage>

@@ -109,7 +109,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-cobre',
     slot: 'frame',
-    name: 'Moldura de Cobre',
+    name: 'Anel de Cobre',
     rarity: 'comum',
     description: 'O primeiro anel de todo cartógrafo. Simples, firme, confiável.',
     howToGet: 'Equipamento inicial.',
@@ -118,7 +118,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-bronze',
     slot: 'frame',
-    name: 'Moldura de Bronze',
+    name: 'Anel de Bronze',
     rarity: 'comum',
     description: 'Gravada com as primeiras marcas de escala. Prova de que você começou de verdade.',
     howToGet: 'Alcance o nível 2.',
@@ -127,7 +127,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-latao',
     slot: 'frame',
-    name: 'Moldura de Latão Gravado',
+    name: 'Anel de Latão Gravado',
     rarity: 'incomum',
     description: 'Cada entalhe marca um conceito que você já conseguiu medir.',
     howToGet: 'Alcance o nível 8.',
@@ -136,7 +136,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-basalto',
     slot: 'frame',
-    name: 'Moldura de Basalto',
+    name: 'Anel de Basalto',
     rarity: 'raro',
     description: 'Talhada da couraça do Golem Proporcional. Pesa como uma regra de três bem montada.',
     howToGet: 'Derrote o Golem Proporcional.',
@@ -145,7 +145,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-celeste',
     slot: 'frame',
-    name: 'Moldura Celeste',
+    name: 'Anel Celeste',
     rarity: 'incomum',
     description: 'Reflete o céu noturno sobre o qual todos os mapas são traçados.',
     howToGet: 'Alcance o nível 16.',
@@ -154,7 +154,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-meridiana',
     slot: 'frame',
-    name: 'Moldura Meridiana',
+    name: 'Anel Meridiano',
     rarity: 'raro',
     description: 'Os meridianos se cruzam aqui. Marca de quem já traçou metade do Atlas.',
     howToGet: 'Alcance o nível 25.',
@@ -329,7 +329,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-ambar-cunhado',
     slot: 'frame',
-    name: 'Moldura de Âmbar Cunhado',
+    name: 'Anel de Âmbar Cunhado',
     rarity: 'raro',
     description: 'Fundida com as moedas do cofre do Mercador. Brilha como conta paga em dia.',
     howToGet: 'Derrote o Mercador Composto.',
@@ -357,7 +357,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-tres-arcos',
     slot: 'frame',
-    name: 'Moldura dos Três Arcos',
+    name: 'Anel dos Três Arcos',
     rarity: 'raro',
     description: 'Um anel em três arcos — 1/2, 1/3 e 1/6 — que juntos fecham o círculo inteiro.',
     howToGet: 'Derrote a Quimera Fracionária.',
@@ -385,7 +385,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-torres',
     slot: 'frame',
-    name: 'Moldura das Torres',
+    name: 'Anel das Torres',
     rarity: 'raro',
     description: 'Um polígono regular inscrito no círculo, com régua e compasso: cada vértice, uma demonstração.',
     howToGet: 'Derrote o Colosso Euclidiano.',
@@ -413,7 +413,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-geodo',
     slot: 'frame',
-    name: 'Moldura de Geodo',
+    name: 'Anel de Geodo',
     rarity: 'raro',
     description: 'Cubos de cristal empilhados em volta do anel, cada um com três faces à vista.',
     howToGet: 'Derrote o Arquiteto dos Sólidos.',
@@ -441,7 +441,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-observatorio',
     slot: 'frame',
-    name: 'Moldura do Observatório',
+    name: 'Anel do Observatório',
     rarity: 'raro',
     description: 'Barras de um histograma em volta do anel e um ponteiro de radar que varre o contorno.',
     howToGet: 'Derrote o Leviatã dos Gráficos.',
@@ -469,7 +469,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-labirinto',
     slot: 'frame',
-    name: 'Moldura do Labirinto',
+    name: 'Anel do Labirinto',
     rarity: 'raro',
     description: 'Muralhas em greca em volta do anel, com um ponto de luz que percorre o labirinto sem nunca se perder.',
     howToGet: 'Derrote a Esfinge do Acaso.',
@@ -497,7 +497,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-cordilheira',
     slot: 'frame',
-    name: 'Moldura da Cordilheira',
+    name: 'Anel da Cordilheira',
     rarity: 'raro',
     description: 'Picos nevados em volta do anel e uma onda de função que corre por dentro, sem nunca cruzar a rocha.',
     howToGet: 'Derrote a Hidra das Funções.',
@@ -525,7 +525,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-ilhas',
     slot: 'frame',
-    name: 'Moldura das Ilhas',
+    name: 'Anel das Ilhas',
     rarity: 'raro',
     description: 'Um anel graduado como régua e transferidor, com um marco de navegação que gira na borda.',
     howToGet: 'Derrote o Leviatã das Escalas.',
@@ -600,7 +600,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-ferro',
     slot: 'frame',
-    name: 'Moldura de Ferro Forjado',
+    name: 'Anel de Ferro Forjado',
     rarity: 'comum',
     description: 'Sólida e sem enfeites, feita na bigorna da Oficina.',
     howToGet: 'Oficina: 60 de Tinta.',
@@ -610,7 +610,7 @@ const BASE_ITEMS: ItemDef[] = [
   {
     id: 'frame-prata',
     slot: 'frame',
-    name: 'Moldura de Prata Lunar',
+    name: 'Anel de Prata Lunar',
     rarity: 'incomum',
     description: 'Dois anéis de prata que refletem a lua sobre o mapa.',
     howToGet: 'Oficina: 150 de Tinta.',

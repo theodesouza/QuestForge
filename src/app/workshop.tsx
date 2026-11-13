@@ -90,7 +90,7 @@ export default function Workshop() {
         <Pill icon="ink" value={String(ink)} color={colors.iris} label="Tinta" />
       </View>
       <Text variant="body" color={colors.parchmentDim}>
-        Troque a Tinta que você ganha estudando por peças para o seu astrolábio. Toque em Experimentar para ver como a peça fica antes de
+        Troque a Tinta que você ganha estudando por peças para o seu Áster. Toque em Experimentar para ver como a peça fica antes de
         comprar. Itens raros, épicos e lendários não estão à venda: eles vêm de níveis, chefões e feitos.
       </Text>
       <Text variant="caption" color={colors.mist}>

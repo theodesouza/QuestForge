@@ -15,7 +15,7 @@ const TABS: Record<string, { label: string; icon: IconName }> = {
   camp: { label: 'Acampamento', icon: 'camp' },
   atlas: { label: 'Atlas', icon: 'atlas' },
   academy: { label: 'Academia', icon: 'scroll' },
-  hero: { label: 'Herói', icon: 'hero' },
+  hero: { label: 'Áster', icon: 'hero' },
 };
 
 function TabBar({ state, navigation, insets }: BottomTabBarProps) {
