@@ -241,5 +241,7 @@ Guia completo, com a regra de reversão segura: `docs/ASTER.md`.
 - [x] Estúdio de personalização, aba Áster, miniaturas com o desenho real, remessa em lote e tela de boas-vindas "O Astrolábio despertou"
 - [x] Identidade no app inteiro: fundo de espaço profundo, textos, aba; molduras antigas viram "Anel …" (mesmos ids)
 - [x] Auditoria automática de worklets (`src/__tests__/worklets.test.ts`) — o erro do incidente de 30/10 agora reprova nos testes
+- [x] Validado antes de publicar: 797 testes, tipos e lint verdes; jogo inteiro no navegador sem erros (149 capturas: 9 regiões, 9 chefões, Oficina, Estúdio); bundle Android compilado
+- [x] Publicado em 13/11/2026 só no canal `preview` (runtime 0.3.0, sem mudança nativa): commit `af73816`, grupo `143aaeb4-f96a-4b4e-ade9-b4ea5af5d060`, update `01a1d719-9bed-7332-8ef8-45b4c6ca4b16`; manifesto servido ao APK, hash do bundle e textos novos conferidos
 - [ ] Conferir no aparelho: fluidez do Estúdio e do Áster com muitas peças em intensidade Alta
 - [ ] Progresso dos feitos na ficha da peça bloqueada ("62 de 100")
