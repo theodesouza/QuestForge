@@ -181,6 +181,10 @@ export function dismissReveal(id: string) {
   useGameStore.setState((s) => ({ reveals: s.reveals.filter((r) => r.id !== id) }));
 }
 
+export function dismissShipment(id: string) {
+  useGameStore.setState((s) => ({ shipments: s.shipments.filter((x) => x.id !== id) }));
+}
+
 export function dismissCelebration(id: string) {
   useGameStore.setState((s) => ({ celebrations: s.celebrations.filter((c) => c.id !== id) }));
 }

@@ -1,22 +1,22 @@
 /**
- * Herói — o astrolábio em destaque, estatísticas honestas, equipamentos,
- * coleção (com o caminho para cada item) e a estrada de recompensas.
+ * Herói — o Áster em destaque, o que ele já ganhou com a patente e o que vem a seguir, as nove
+ * peças em uso (cada uma abre o Estúdio no seu espaço), a coleção por raridade, estatísticas
+ * honestas e a estrada de recompensas.
  */
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { LESSONS, courseOf } from '../../content/academy/catalog';
-import { ITEMS, OPTIONAL_SLOTS, RARITY_LABEL, RARITY_TIER, SLOT_LABEL, SLOT_ORDER, getItem, type ItemSlot, type OptionalSlot } from '../../content/items';
+import { BOSSES } from '../../content/bosses';
+import { ITEMS, RARITY_LABEL, SLOT_LABEL, SLOT_ORDER, getItem, type Rarity } from '../../content/items';
 import { lessonSealed } from '../../domain/academy/progress';
 import { ECHO_MAX_AGE_DAYS, echoCount, echoesBeatenCount, echoesFadedCount } from '../../domain/learning/srs';
-import { levelProgress, rankFor } from '../../domain/progression/levels';
+import { RANKS, levelProgress, rankFor } from '../../domain/progression/levels';
 import { rewardsForLevel } from '../../domain/progression/rewards';
 import { TONE } from '../../features/academy/look';
-import { TryOnSheet } from '../../features/hero/TryOnSheet';
 import { useStagePaused } from '../../features/useStagePaused';
-import { unequip } from '../../state/actions';
 import { useGame } from '../../state/store';
-import { Aster } from '../../ui/Aster';
+import { Aster, RANK_TRAIT_LABEL } from '../../ui/Aster';
 import { Chip } from '../../ui/Chip';
 import { Button } from '../../ui/Button';
 import { haptic, useReduceMotion } from '../../ui/feedback';
@@ -31,9 +31,7 @@ import { resolveSynergy } from '../../ui/vfx/synergy';
 
 const SLOTS = SLOT_ORDER;
 const MIN_FOR_ACCURACY = 10;
-type View_ = 'todos' | 'meus' | 'bloqueados';
-const VIEW_LABEL: Record<View_, string> = { todos: 'Todos', meus: 'Meus', bloqueados: 'Bloqueados' };
-const isOptional = (s: ItemSlot): s is OptionalSlot => (OPTIONAL_SLOTS as readonly string[]).includes(s);
+const RARITIES: Rarity[] = ['comum', 'incomum', 'raro', 'epico', 'lendario'];
 
 function formatTime(ms: number): string {
   const min = Math.round(ms / 60000);
@@ -67,9 +65,9 @@ export default function Hero() {
   const academy = useGame((g) => g.academy);
   const seals = useMemo(() => LESSONS.filter((l) => lessonSealed(l, academy)), [academy]);
   const masteredStages = useMemo(() => Object.values(academy).filter((p) => p.masteredAt !== null).length, [academy]);
-  const [slot, setSlot] = useState<ItemSlot>('frame');
-  const [view, setView] = useState<View_>('todos');
-  const [trying, setTrying] = useState<string | null>(null);
+  const bosses = useGame((g) => g.bosses);
+  const [spark, setSpark] = useState(0);
+  const trophies = useMemo(() => BOSSES.filter((b) => (bosses[b.id]?.wins ?? 0) > 0).length, [bosses]);
   const synergy = useMemo(() => resolveSynergy(profile.equipped), [profile.equipped]);
   const progress = levelProgress(profile.xp);
   const rank = rankFor(progress.level);
@@ -96,44 +94,42 @@ export default function Hero() {
     return list;
   }, [progress.level]);
 
-  // Do mais simples ao mais raro; dentro da mesma raridade, na ordem do catálogo.
-  const items = useMemo(
+  const byRarity = useMemo(
     () =>
-      ITEMS.filter((i) => i.slot === slot)
-        .map((item, order) => ({ item, order }))
-        .sort((a, b) => RARITY_TIER[a.item.rarity] - RARITY_TIER[b.item.rarity] || a.order - b.order)
-        .map((x) => x.item)
-        .filter((i) => view === 'todos' || (view === 'meus' ? !!inventory[i.id] : !inventory[i.id])),
-    [slot, view, inventory],
+      RARITIES.map((rarity) => {
+        const all = ITEMS.filter((i) => i.rarity === rarity);
+        return { rarity, owned: all.filter((i) => inventory[i.id]).length, total: all.length };
+      }),
+    [inventory],
   );
-  const counts = useMemo(() => {
-    const out = {} as Record<ItemSlot, { owned: number; total: number }>;
-    for (const s of SLOTS) {
-      const all = ITEMS.filter((i) => i.slot === s);
-      out[s] = { owned: all.filter((i) => inventory[i.id]).length, total: all.length };
-    }
-    return out;
-  }, [inventory]);
-  const equippedId = profile.equipped[slot];
+  const nextRank = RANKS[rank.index + 1];
+  const openStudio = (slot?: string) => router.push(slot ? { pathname: '/studio', params: { slot } } : '/studio');
 
   return (
     <Screen tab bottomInset={TAB_BAR_SPACE}>
       <Text variant="title">Herói</Text>
       <View style={styles.hero}>
-        <SceneStage scene={profile.equipped.scene} height={336} animate={!reduce} paused={stagePaused || !!trying} reserve>
-          <Aster level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} paused={stagePaused || !!trying} />
-        </SceneStage>
+        <Pressable
+          onPress={() => {
+            haptic('impact');
+            setSpark((n) => n + 1);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Seu Áster. Toque para acender"
+          style={{ alignSelf: 'stretch' }}
+        >
+          <SceneStage scene={profile.equipped.scene} height={336} animate={!reduce} paused={stagePaused} reserve>
+            <Aster level={progress.level} equipped={profile.equipped} size={300} animate={!reduce} paused={stagePaused} trophies={trophies} igniteKey={spark} />
+          </SceneStage>
+        </Pressable>
         <Text variant="heading" align="center">
-          {profile.name || 'Cartógrafo sem nome'}
+          {profile.name || 'Viajante sem nome'}
         </Text>
         <Text variant="subheading" color={colors.brass} align="center">
           {profile.equipped.title ? getItem(profile.equipped.title).name : rank.title}
         </Text>
         <Text variant="caption" color={colors.mist} align="center">
           Nível {progress.level} · patente {rank.title} · {profile.xp.toLocaleString('pt-BR')} XP no total
-        </Text>
-        <Text variant="caption" color={colors.mistDim} align="center" style={{ marginTop: space.xs }}>
-          A estrela do astrolábio ganha uma ponta a cada patente; o anel ganha gravações a cada nível.
         </Text>
         {synergy ? (
           <View style={[styles.synergy, { borderColor: synergy.kind === 'mythic' ? MYTHIC_COLOR : colors.line }]}>
@@ -144,7 +140,7 @@ export default function Hero() {
           </View>
         ) : (
           <Text variant="caption" color={colors.mistDim} align="center">
-            Dica: núcleo e aura do mesmo elemento entram em Ressonância.
+            Dica: núcleo e campo do mesmo elemento entram em Ressonância.
           </Text>
         )}
       </View>
@@ -193,108 +189,93 @@ export default function Hero() {
         ) : null}
       </Panel>
 
-      <Panel>
-        <Text variant="label" color={colors.brass} style={{ marginBottom: space.md }}>
-          Equipamento
+      <Panel accent={colors.brass}>
+        <Text variant="label" color={colors.brass}>
+          Evolução do Áster
         </Text>
-        <View style={styles.slots}>
-          {SLOTS.map((s) => {
-            const id = profile.equipped[s];
-            return (
-              <Pressable
-                key={s}
-                style={[styles.slot, slot === s && styles.slotActive]}
-                onPress={() => setSlot(s)}
-                accessibilityRole="button"
-                accessibilityLabel={`${SLOT_LABEL[s]}: ${id ? getItem(id).name : 'vazio'}`}
-              >
-                {id ? <ItemGlyph itemId={id} size={44} /> : <View style={styles.emptySlot} />}
-                <Text variant="caption" color={slot === s ? colors.brass : colors.mist}>
-                  {SLOT_LABEL[s]}
-                </Text>
-              </Pressable>
-            );
-          })}
+        <Text variant="caption" color={colors.parchmentDim} style={{ marginTop: space.xs }}>
+          O corpo cresce a cada nível. Na patente {rank.title}, ele já tem {RANK_TRAIT_LABEL.slice(1, rank.index + 1).length ? RANK_TRAIT_LABEL.slice(1, rank.index + 1).join(', ') : RANK_TRAIT_LABEL[0]}.
+        </Text>
+        {nextRank ? (
+          <View style={styles.next}>
+            <Icon name="sparkle" size={14} color={colors.brass} />
+            <Text variant="caption" color={colors.parchment} style={{ flex: 1 }}>
+              No nível {nextRank.from} ({nextRank.title}): {RANK_TRAIT_LABEL[rank.index + 1]}.
+            </Text>
+          </View>
+        ) : null}
+        <View style={styles.next}>
+          <Icon name="seal" size={14} color={colors.brass} />
+          <Text variant="caption" color={colors.parchment} style={{ flex: 1 }}>
+            Coroa: {trophies} de {BOSSES.length} estrelas — cada chefão vencido acende uma.
+          </Text>
         </View>
       </Panel>
 
       <View style={{ gap: space.md }}>
         <View style={styles.collectionHead}>
           <View>
-            <Text variant="subheading">Coleção</Text>
+            <Text variant="subheading">Em uso</Text>
             <Text variant="caption" color={colors.mist}>
-              {owned} de {ITEMS.length} peças
+              Toque num espaço para trocar a peça
             </Text>
           </View>
           <Chip label={`Oficina · ${profile.ink} Tinta`} icon="ink" color={colors.iris} onPress={() => router.push('/workshop')} />
         </View>
-        <View style={styles.filters}>
-          {SLOTS.map((s) => (
-            <Chip key={s} label={`${SLOT_LABEL[s]} ${counts[s].owned}/${counts[s].total}`} selected={slot === s} onPress={() => setSlot(s)} />
-          ))}
+        <View style={styles.loadout}>
+          {SLOTS.map((s) => {
+            const id = profile.equipped[s];
+            const item = id ? getItem(id) : null;
+            return (
+              <Pressable
+                key={s}
+                style={[styles.cell, item ? { borderColor: `${rarityColor[item.rarity]}66` } : null]}
+                onPress={() => {
+                  haptic('select');
+                  openStudio(s);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`${SLOT_LABEL[s]}: ${item ? `${item.name}, ${RARITY_LABEL[item.rarity]}` : 'vazio'}. Abrir no Estúdio`}
+              >
+                {item && s !== 'title' ? <ItemGlyph itemId={item.id} size={46} /> : <View style={styles.emptySlot}>{item ? <Icon name="sparkle" size={16} color={item.visual.color} /> : null}</View>}
+                <Text variant="label" color={colors.mist} style={styles.cellLabel}>
+                  {SLOT_LABEL[s]}
+                </Text>
+                <Text variant="caption" align="center" numberOfLines={2} color={item ? colors.parchment : colors.mistDim}>
+                  {item ? item.name : 'Vazio'}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
-        <View style={styles.filters}>
-          {(Object.keys(VIEW_LABEL) as View_[]).map((v) => (
-            <Chip key={v} label={VIEW_LABEL[v]} selected={view === v} onPress={() => setView(v)} />
-          ))}
-        </View>
-        {isOptional(slot) && equippedId ? (
-          <Pressable
-            style={styles.none}
-            onPress={() => unequip(slot)}
-            accessibilityRole="button"
-            accessibilityLabel={`Remover ${SLOT_LABEL[slot].toLowerCase()}`}
-          >
-            <Icon name="close" size={16} color={colors.mist} />
-            <Text variant="caption" color={colors.mist}>
-              Remover {SLOT_LABEL[slot].toLowerCase()}
-            </Text>
-          </Pressable>
-        ) : null}
-        {items.length === 0 ? (
-          <Text variant="caption" color={colors.mist}>
-            {view === 'meus' ? 'Você ainda não tem peças nesta categoria.' : 'Você já tem todas as peças desta categoria.'}
-          </Text>
-        ) : null}
-        {items.map((item) => {
-          const has = !!inventory[item.id];
-          const isEquipped = equippedId === item.id;
-          return (
-            <Pressable
-              key={item.id}
-              onPress={() => {
-                haptic('select');
-                setTrying(item.id);
-              }}
-              accessibilityRole="button"
-              accessibilityLabel={`${item.name}, ${RARITY_LABEL[item.rarity]}. ${has ? (isEquipped ? 'Equipado' : 'Toque para experimentar e equipar') : `Bloqueado: ${item.howToGet}. Toque para ver uma prévia`}`}
-              style={[styles.item, isEquipped && { borderColor: colors.brass }, !has && styles.itemLocked]}
-            >
-              <ItemGlyph itemId={item.id} size={52} locked={!has} />
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text variant="subheading" color={has ? colors.parchment : colors.mistDim}>
-                  {item.name}
-                </Text>
-                <Text variant="caption" color={has ? rarityColor[item.rarity] : colors.mistDim}>
-                  {RARITY_LABEL[item.rarity]}
-                </Text>
-                <Text variant="caption" color={has ? colors.parchmentDim : colors.mist}>
-                  {has ? item.description : item.howToGet}
-                </Text>
-              </View>
-              {isEquipped ? (
-                <View style={styles.equippedTag}>
-                  <Text variant="label" color={colors.ink900}>
-                    Em uso
-                  </Text>
-                </View>
-              ) : !has ? (
-                <Icon name="lock" size={18} color={colors.mistDim} />
-              ) : null}
-            </Pressable>
-          );
-        })}
+        <Button label="Abrir o Estúdio" icon="sparkle" onPress={() => openStudio()} />
       </View>
+
+      <Panel>
+        <View style={styles.collectionHead}>
+          <Text variant="label" color={colors.brass}>
+            Coleção
+          </Text>
+          <Text variant="caption" color={colors.mist}>
+            {owned} de {ITEMS.length} peças
+          </Text>
+        </View>
+        <View style={{ gap: space.sm, marginTop: space.md }}>
+          {byRarity.map((r) => (
+            <View key={r.rarity} style={styles.rarityRow} accessible accessibilityLabel={`${RARITY_LABEL[r.rarity]}: ${r.owned} de ${r.total}`}>
+              <Text variant="caption" color={rarityColor[r.rarity]} style={styles.rarityName}>
+                {RARITY_LABEL[r.rarity]}
+              </Text>
+              <View style={styles.track}>
+                <View style={[styles.fill, { width: `${Math.round((r.owned / Math.max(1, r.total)) * 100)}%`, backgroundColor: rarityColor[r.rarity] }]} />
+              </View>
+              <Text variant="caption" color={colors.mist} style={styles.rarityCount}>
+                {r.owned}/{r.total}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </Panel>
 
       {road.length > 0 ? (
         <Panel tone="sunken">
@@ -314,13 +295,6 @@ export default function Hero() {
           ))}
         </Panel>
       ) : null}
-      <TryOnSheet
-        itemId={trying}
-        owned={!!(trying && inventory[trying])}
-        level={progress.level}
-        equipped={profile.equipped}
-        onClose={() => setTrying(null)}
-      />
     </Screen>
   );
 }
@@ -351,25 +325,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lineSoft,
   },
-  slots: { flexDirection: 'row', gap: 2 },
-  slot: { flex: 1, alignItems: 'center', gap: 6, paddingVertical: space.sm, paddingHorizontal: 2, borderRadius: radius.md, borderWidth: 1, borderColor: 'transparent' },
-  slotActive: { borderColor: colors.line, backgroundColor: colors.ink850 },
-  emptySlot: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.ink500 },
+  next: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.sm },
+  loadout: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  cell: { flexBasis: '30%', flexGrow: 1, alignItems: 'center', gap: 3, paddingVertical: space.md, paddingHorizontal: 4, borderRadius: radius.md, borderWidth: 1.2, borderColor: colors.lineSoft, backgroundColor: colors.ink800, minHeight: 124 },
+  cellLabel: { fontSize: 10, lineHeight: 12, marginTop: 2 },
+  emptySlot: { width: 46, height: 46, borderRadius: 23, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.ink500, alignItems: 'center', justifyContent: 'center' },
+  rarityRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  rarityName: { width: 76 },
+  rarityCount: { width: 48, textAlign: 'right' },
+  track: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.ink700, overflow: 'hidden' },
+  fill: { height: 6, borderRadius: 3 },
   collectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
-  filters: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  none: { flexDirection: 'row', alignItems: 'center', gap: space.sm, alignSelf: 'flex-start', paddingVertical: space.xs },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    padding: space.md,
-    borderRadius: radius.md,
-    borderWidth: 1.2,
-    borderColor: colors.lineSoft,
-    backgroundColor: colors.ink800,
-  },
-  itemLocked: { backgroundColor: colors.ink850 },
-  equippedTag: { backgroundColor: colors.brass, paddingHorizontal: 8, paddingVertical: 4, borderRadius: radius.pill },
   roadRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 6 },
   roadLevel: { width: 26, textAlign: 'right' },
   roadDot: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },

@@ -364,12 +364,22 @@ function actFrame(clock: number, a: Act): { o: number; s: number; r: number } {
 
 /** Camada SVG do palco movida por um relógio externo de uma passada. */
 export function ActLayer({ clock, act, children }: { clock: SharedValue<number>; act: Act; children: ReactNode }) {
-  const { px, flat } = useFx();
+  const { px, flat, poster } = useFx();
   const s = useAnimatedStyle(() => {
     const f = actFrame(clock.value, act);
     return { opacity: f.o, transform: [{ scale: f.s }, { rotate: `${f.r}deg` }] };
   });
-  if (flat) return null;
+  if (flat) {
+    // Miniatura: uma fotografia do ato num instante fixo (o meio da sua janela, se o instante geral cair fora).
+    if (poster === undefined) return null;
+    const at = poster > act.t0 && poster < act.t1 ? poster : act.t0 + (act.t1 - act.t0) * 0.45;
+    const f = actFrame(at, act);
+    return (
+      <G opacity={Math.max(0.35, f.o)} transform={`translate(${C} ${C}) scale(${f.s.toFixed(3)}) rotate(${f.r.toFixed(1)}) translate(${-C} ${-C})`}>
+        {children}
+      </G>
+    );
+  }
   return (
     <Animated.View pointerEvents="none" style={[fill, s]}>
       <Svg width={px} height={px} viewBox={`0 0 ${STAGE} ${STAGE}`}>

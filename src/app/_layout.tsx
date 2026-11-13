@@ -14,6 +14,7 @@ import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ItemRevealOverlay } from '../features/celebration/ItemRevealOverlay';
+import { ShipmentOverlay } from '../features/celebration/ShipmentOverlay';
 import { LevelUpOverlay } from '../features/celebration/LevelUpOverlay';
 import { DialogHost } from '../features/dialog/DialogHost';
 import { ToastHost } from '../features/toast/ToastHost';
@@ -91,6 +92,7 @@ export default function RootLayout() {
             <ToastHost />
             <LevelUpOverlay />
             <ItemRevealOverlay />
+            <ShipmentOverlay />
           </>
         )}
         <DialogHost />

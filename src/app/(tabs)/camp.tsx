@@ -55,6 +55,9 @@ export default function Camp() {
   const stagePaused = useStagePaused();
   const profile = useGame((g) => g.profile);
   const questionStates = useGame((g) => g.questionStates);
+  const bossProgress = useGame((g) => g.bosses);
+  // Cada chefão vencido acende uma estrela na coroa do Áster.
+  const trophies = useMemo(() => Object.values(bossProgress).filter((b) => b.wins > 0).length, [bossProgress]);
   const campaign = useGame((g) => g.campaign);
   const bosses = useGame((g) => g.bosses);
   const session = useGame((g) => g.session);
@@ -152,7 +155,7 @@ export default function Camp() {
       <Animated.View entering={enter(1)} style={styles.hero}>
         <Pressable onPress={() => router.push('/hero')} accessibilityRole="button" accessibilityLabel="Ver herói" style={{ alignSelf: 'stretch', alignItems: 'center' }}>
           <SceneStage scene={profile.equipped.scene} height={260} animate={!reduce} paused={stagePaused}>
-            <Aster level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} />
+            <Aster level={progress.level} equipped={profile.equipped} size={236} animate={!reduce} paused={stagePaused} trophies={trophies} igniteKey={profile.xp} />
           </SceneStage>
         </Pressable>
         <View style={styles.levelRow}>

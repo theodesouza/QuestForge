@@ -12,6 +12,9 @@ export interface News {
   detail: string;
 }
 
+/** A novidade do remake: quem já jogava vê a tela de boas-vindas uma vez. */
+export const ASTER_NEWS_ID = 'aster';
+
 export const NEWS: readonly News[] = [
   {
     id: 'cosmetics-v2',
@@ -27,6 +30,12 @@ export const NEWS: readonly News[] = [
     id: 'atlas-r6-r9',
     title: 'Quatro novas regiões no Atlas',
     detail: 'Observatório dos Dados, Labirinto do Acaso, Cordilheira das Funções e Ilhas da Medida, cada uma com um chefão de mecânica própria.',
+  },
+  {
+    // O remake do Áster. Não vira aviso: abre a tela de boas-vindas (ver state/store.ts e ShipmentOverlay).
+    id: ASTER_NEWS_ID,
+    title: 'O Astrolábio despertou',
+    detail: 'Ele agora é o Áster, um corpo celeste que cresce com você. Tudo o que você conquistou continua aqui.',
   },
 ];
 

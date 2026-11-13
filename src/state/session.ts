@@ -197,6 +197,7 @@ function resetUi() {
     celebrations: [],
     toasts: [],
     reveals: [],
+    shipments: [],
     lastSummary: null,
     restedNotice: null,
   });
@@ -332,7 +333,7 @@ export async function deleteAccount(): Promise<void> {
 export async function resetProgress(): Promise<void> {
   if (engine) await engine.resetProgress();
   else await requireController().reset();
-  set({ celebrations: [], toasts: [], reveals: [], lastSummary: null, restedNotice: null });
+  set({ celebrations: [], toasts: [], reveals: [], shipments: [], lastSummary: null, restedNotice: null });
 }
 
 /** Exporta tudo o que o app guarda desta conta (JSON) e abre o menu de compartilhar. */

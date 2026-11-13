@@ -49,6 +49,8 @@ export interface FxConfig {
   flat?: boolean;
   /** Fora de foco: os relógios congelam onde estão (sem custo por quadro). */
   paused?: boolean;
+  /** Modo plano: instante (0–1) em que os atos de uma passada (ignições) são fotografados. Sem ele, não aparecem. */
+  poster?: number;
   /**
    * Raio (unidades do palco) até onde as camadas desenham. Cada camada vira um bitmap no
    * Android: núcleos (raio ~60) não precisam de um bitmap do palco inteiro.

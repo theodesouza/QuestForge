@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { AuthUser } from '../auth/types';
 import { findLesson } from '../content/academy/catalog';
+import { ASTER_NEWS_ID } from '../domain/game/news';
 import type { GameEvent, GameState, SessionSummary } from '../domain/game/types';
 import type { Reward } from '../domain/progression/rewards';
 import type { SyncStatus } from '../sync/types';
@@ -29,6 +30,20 @@ export interface ItemReveal {
   source: string;
   autoEquipped: boolean;
 }
+
+/**
+ * Remessa: várias peças chegando de uma vez (o que a pessoa já tinha feito por merecer quando o
+ * catálogo cresceu, ou um fim de sessão que rende muitas). Uma tela só, em vez de uma cerimônia por peça.
+ */
+export interface Shipment {
+  id: string;
+  items: { itemId: string; source: string }[];
+  /** Primeira abertura depois do remake: a remessa vem com as boas-vindas ao Áster. */
+  rebirth: boolean;
+}
+
+/** Acima disto, as revelações de uma mesma publicação viram remessa. */
+const MAX_REVEALS_AT_ONCE = 3;
 
 /**
  * loading      — abrindo o app (lendo a sessão salva);
@@ -63,6 +78,7 @@ export interface GameStore {
   now: number;
   toasts: Toast[];
   reveals: ItemReveal[];
+  shipments: Shipment[];
 }
 
 export const useGameStore = create<GameStore>(() => ({
@@ -81,6 +97,7 @@ export const useGameStore = create<GameStore>(() => ({
   now: 0,
   toasts: [],
   reveals: [],
+  shipments: [],
 }));
 
 let celebrationSeq = 0;
@@ -97,8 +114,11 @@ export function publish(state: GameState, events: GameEvent[]) {
     ];
   }
   const toasts: Toast[] = [];
-  const reveals: ItemReveal[] = [];
+  let reveals: ItemReveal[] = [];
+  const shipments: Shipment[] = [];
+  const rebirth = events.some((e) => e.type === 'news' && e.id === ASTER_NEWS_ID);
   for (const e of events) {
+    if (e.type === 'shipment') shipments.push({ id: `s${celebrationSeq++}`, items: e.items, rebirth: false });
     if (e.type === 'item') reveals.push({ id: `r${celebrationSeq++}`, itemId: e.itemId, source: e.source, autoEquipped: e.autoEquipped });
     if (e.type === 'sessionComplete') patch.lastSummary = e.summary;
     if (e.type === 'rested') patch.restedNotice = e.gained;
@@ -113,7 +133,7 @@ export function publish(state: GameState, events: GameEvent[]) {
         detail: `${e.count} Eco${e.count > 1 ? 's' : ''} muito antigo${e.count > 1 ? 's' : ''} deixou${e.count > 1 ? 'aram' : ''} de pesar — as questões seguem na sua rota.`,
       });
     }
-    if (e.type === 'news') toasts.push({ id: `t${celebrationSeq++}`, tone: 'news', title: e.title, detail: e.detail });
+    if (e.type === 'news' && e.id !== ASTER_NEWS_ID) toasts.push({ id: `t${celebrationSeq++}`, tone: 'news', title: e.title, detail: e.detail });
     if (e.type === 'academy' && e.milestone === 'sealed' && e.lessonId) {
       toasts.push({
         id: `t${celebrationSeq++}`,
@@ -131,8 +151,20 @@ export function publish(state: GameState, events: GameEvent[]) {
       });
     }
   }
+  // Muitas peças de uma vez (fora as de chefão, que a batalha já mostra): uma remessa, não uma fila de cerimônias.
+  const loose = reveals.filter((r) => !r.source.startsWith('boss:'));
+  if (loose.length > MAX_REVEALS_AT_ONCE) {
+    shipments.push({ id: `s${celebrationSeq++}`, items: loose.map((r) => ({ itemId: r.itemId, source: r.source })), rebirth: false });
+    reveals = reveals.filter((r) => r.source.startsWith('boss:'));
+  }
+  if (rebirth) {
+    // As boas-vindas levam a remessa junto (ou vão sozinhas, se não havia nada a entregar).
+    if (shipments.length) shipments[0] = { ...shipments[0], rebirth: true };
+    else shipments.push({ id: `s${celebrationSeq++}`, items: [], rebirth: true });
+  }
   if (toasts.length) patch.toasts = [...useGameStore.getState().toasts, ...toasts];
   if (reveals.length) patch.reveals = [...useGameStore.getState().reveals, ...reveals];
+  if (shipments.length) patch.shipments = [...useGameStore.getState().shipments, ...shipments];
   useGameStore.setState(patch);
 }
 
