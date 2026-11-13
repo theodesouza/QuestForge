@@ -23,7 +23,7 @@ ponte entre aparelhos. Sem anúncios e sem telemetria.
 ```
 src/
 ├── app/            Rotas (telas finas). Só compõem features; nenhuma regra de jogo aqui.
-├── ui/             Design system: tokens, tipografia, ícones SVG, componentes base, Astrolábio.
+├── ui/             Design system: tokens, tipografia, ícones SVG, componentes base, Áster (ver docs/ASTER.md).
 ├── features/       Composição de telas por funcionalidade (session, boss, home, hero, atlas…).
 ├── state/          Store Zustand + "actions" que orquestram domínio → persistência → store;
 │                   `session.ts`: conta → banco da conta → restauração/sincronização → jogo.

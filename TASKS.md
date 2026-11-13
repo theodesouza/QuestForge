@@ -228,3 +228,18 @@ Implementado e testado em Node/emuladores (detalhes em `docs/CLOUD_SYNC.md`):
 - [x] Versão corrigida das abas/diálogos publicada só no canal `preview` (runtime 0.3.0, grupo `13448c94-116f-4e3a-8bbb-8127e5a5a443`, update `01a18f4a`); manifesto servido e textos novos no bundle. Falta conferir no aparelho que abre sem fechar; só depois levar ao `production`. Reversão: grupo `ed1db83f-f717-4572-81f8-00f38d14ce5f`
 - [ ] Chave de assinatura própria para publicação na Play Store
 - [x] Abertura simples: apenas QuestForge em branco sobre fundo escuro, sem ilustração ou espera artificial. APK 0.2.2/versionCode 6 gerado em 19/10/2026 às 20h07 de Brasília (build `cf33019c-173f-4686-ac4a-ff6521e807d3`, código `1ad811b`), com pacote e assinatura iguais aos anteriores. Assinatura criptográfica, versão/runtime, fundo nativo e imagem extraída do APK conferidos. Tipos, lint, configuração Expo e área segura da imagem passaram. Nenhuma alteração em dados ou fluxo de carregamento; aparência em aparelho físico ainda pendente.
+
+## Remake do Áster (personalização ×3)
+
+Guia completo, com a regra de reversão segura: `docs/ASTER.md`.
+
+- [x] Base de dados segura: quatro espaços novos (satélite, rastro, gravidade, ignição) só acrescentam chaves; peça desconhecida não quebra; backup `backup:pre-aster` na primeira abertura; snapshot da nuvem no esquema 3
+- [x] Motor: esfera com superfície girando, planos inclinados com frente/trás, órbitas com oclusão, atos de uma passada, modos novos de partícula
+- [x] O Áster no lugar do Astrolábio: corpo que cresce com o nível; cinturão, luas, marés, jatos, coroa e zênite por patente; uma estrela na coroa por chefão vencido
+- [x] Catálogo de 116 para 350 peças (38 núcleos, 31 anéis, 26 campos, 26 ambientes, 30 satélites, 25 rastros, 18 efeitos de gravidade, 14 ignições, 26 títulos), cada uma com desenho próprio
+- [x] Origens como dado na ficha (Oficina, nível, 80 feitos novos) e remessa retroativa ao abrir o app, sem trocar o que está equipado
+- [x] Estúdio de personalização, aba Áster, miniaturas com o desenho real, remessa em lote e tela de boas-vindas "O Astrolábio despertou"
+- [x] Identidade no app inteiro: fundo de espaço profundo, textos, aba; molduras antigas viram "Anel …" (mesmos ids)
+- [x] Auditoria automática de worklets (`src/__tests__/worklets.test.ts`) — o erro do incidente de 30/10 agora reprova nos testes
+- [ ] Conferir no aparelho: fluidez do Estúdio e do Áster com muitas peças em intensidade Alta
+- [ ] Progresso dos feitos na ficha da peça bloqueada ("62 de 100")

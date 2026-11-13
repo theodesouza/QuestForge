@@ -61,23 +61,77 @@ Os ids dos espaços antigos **não mudam** (os dados gravados continuam valendo)
   núcleo → [metade da frente] → campo (frente) → sinergia → coroa → ignição.
 - Peças com profundidade exportam `Back` e `Front` (como as auras antigas).
 
-## Catálogo (meta: ~348 peças, o triplo de 116)
+## Catálogo (350 peças: o triplo das 116 de antes, e mais duas)
 
-| espaço | antes | meta |
-|---|---|---|
-| Núcleo | 23 | 60 |
-| Anel | 25 | 55 |
-| Campo | 14 | 40 |
-| Ambiente | 17 | 41 |
-| Satélite | 0 | 30 |
-| Rastro | 0 | 25 |
-| Gravidade | 0 | 18 |
-| Ignição | 0 | 14 |
-| Título | 37 | 62 |
+| espaço | antes | novas | hoje | onde está o desenho |
+|---|---|---|---|---|
+| Núcleo | 23 | 38 | 61 | `bodies2.tsx` (as antigas: `cores*.tsx`, dentro do corpo de cristal) |
+| Anel | 25 | 31 | 56 | `rings2.tsx` (as antigas: `frames.tsx`, como anel de contenção) |
+| Campo | 14 | 26 | 40 | `fields.tsx` (as antigas: `auras*.tsx`) |
+| Ambiente | 17 | 26 | 43 | `skies.tsx` (os antigos: `scenes.tsx`; peças comuns em `scenekit.tsx`) |
+| Satélite | 0 | 30 | 30 | `orbiters.tsx` |
+| Rastro | 0 | 25 | 25 | `trails.tsx` |
+| Gravidade | 0 | 18 | 18 | `lenses.tsx` |
+| Ignição | 0 | 14 | 14 | `ignitions.tsx` |
+| Título | 37 | 26 | 63 | só texto e cor |
 
 Raridade = estrutura, não cor: comum (1–2 camadas, quase parado), incomum (+ um movimento), raro
 (+ silhueta própria e partículas), épico (+ sistema secundário), lendário (+ comportamento único).
+`src/content/__tests__/aster-catalog.test.ts` cobra: tamanho ≥ 3 × 116, toda ficha com desenho,
+nenhum desenho órfão ou repetido, nomes e descrições únicos, todas as raridades em todo espaço.
+
+### Ficha de uma peça nova
+
+`src/content/aster/<espaço>.ts`, uma linha por peça:
+`piece(espaço, id, nome, raridade, fx, [cor, cor2], descrição, origem)`. A origem é um dado:
+`shop(preço)` (só comuns e incomuns), `level(n)` ou `feat(id)`. O texto "como conseguir", o preço,
+a tabela de níveis e os feitos saem dela — não há segunda lista para manter em dia.
+Elemento dos núcleos e campos (Ressonância): `src/content/aster/elements.ts`.
+As molduras antigas passaram a se chamar "Anel …" (mesmos ids).
+
+## Origem e entrega das peças
+
+- **Níveis**: `LEVEL_ITEM_TABLE` (`domain/progression/rewards.ts`) junta a tabela antiga com as fichas
+  `level(n)`. Hoje todo nível de 2 a 50 dá ao menos uma peça.
+- **Feitos**: 80 feitos novos (`FEAT_TEXT` em `content/aster/source.ts`). A regra de cada um é lida do
+  id (`answers:500`, `region:<id>`, `collect:150`…) em `domain/game/feats.ts`; um id sem regra
+  quebra na carga. Conferidos ao fim de sessão, vitória de chefão, compra na Oficina e domínio de
+  etapa na Academia. `grantFeats` repete até não sobrar nada (feito de coleção pode se cumprir com
+  as peças que outro acabou de dar).
+- **Remessa retroativa** (`domain/game/catalog.ts → deliverCatalog`, chamada em `touch`, ao abrir o
+  app): toda peça de nível já alcançado e de feito já cumprido entra na coleção de uma vez. Não
+  equipa nada (quem já joga escolheu o que veste, inclusive deixar um espaço vazio) e emite um
+  único evento `shipment` em vez de um `item` por peça. Idempotente.
+  Prova: `src/domain/__tests__/aster-delivery.test.ts`.
+- **Daqui para a frente**: peça ganha jogando tem cerimônia própria e veste sozinha o espaço se ele
+  estiver vazio (regra de sempre). Mais de três numa mesma ação viram remessa (`state/store.ts`).
+
+## Telas
+
+- **Estúdio** (`src/app/studio.tsx`, rota `/studio?slot=`): Áster vivo no topo, trilho dos nove
+  espaços, grade por raridade (lista virtualizada), filtros (tudo, minhas, à venda, a conquistar).
+  Tocar numa peça a veste como prévia — inclusive bloqueada; nada muda até "Equipar". A barra de
+  baixo mostra raridade, elemento, descrição, como conseguir e a ação (equipar, remover, forjar).
+- **Aba Áster** (`(tabs)/hero.tsx`): o Áster, o que a patente já deu e o que vem a seguir, coroa de
+  chefões, as nove peças em uso (cada uma abre o Estúdio no seu espaço), coleção por raridade.
+- **Miniaturas** (`ui/ItemGlyph.tsx`): o desenho real de cada peça nova, parado, em volta de um
+  corpo neutro. Ignições usam um quadro fixo (`FxConfig.poster`).
+- **Remessa / renascimento** (`features/celebration/ShipmentOverlay.tsx`): na primeira abertura
+  depois do remake (novidade `news:aster`), a tela "O Astrolábio despertou" apresenta o Áster, lista
+  o que continua igual e mostra as peças entregues. Quem instala agora não a vê. Uma tela de cada
+  vez: subida de nível → boas-vindas → revelações de peça → remessa.
+- **Fundo** (`ui/MapBackdrop.tsx`): espaço profundo em todas as telas.
+
+## Validação
+
+- `npx jest` — inclui preservação (`aster-preservation`), entrega (`aster-delivery`), catálogo
+  (`aster-catalog`), interface da remessa (`state/__tests__/shipments`) e a auditoria de worklets
+  (`src/__tests__/worklets.test.ts`: compila cada arquivo como o Metro e reprova função comum
+  chamada dentro de worklet — o erro que fechava o app em laço em 30/10).
+- Laboratório visual (build com `EXPO_PUBLIC_QA=1`): `/vfx-lab?grid=evo`, `grid=slot:<espaço>`
+  (`&from=&to=&size=&level=`), `grid=scenes`, `grid=synergy`.
+- `node scripts/e2e-web.js <pasta>`: o jogo inteiro no navegador, incluindo o Estúdio.
 
 ## Andamento
 
-Ver as tarefas "Remake 1–9" no TASKS.md.
+Ver a seção "Remake do Áster" no TASKS.md.
