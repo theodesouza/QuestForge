@@ -33,7 +33,7 @@ const AURA_SIDE = STAGE / 2.8;
 const AURA_WINDOW = [C - AURA_SIDE / 2, -0.3 * AURA_SIDE, AURA_SIDE] as const;
 
 /** Peças do Áster: lado da janela do palco (centrada) que cada espaço mostra na miniatura. */
-const ASTER_WINDOW: Partial<Record<ItemSlot, number>> = { core: 90, frame: 214, aura: 196, orbiter: 204, trail: 212, lens: 204, ignition: 224 };
+const ASTER_WINDOW: Partial<Record<ItemSlot, number>> = { core: 90, frame: 214, aura: 196, orbiter: 156, trail: 168, lens: 172, ignition: 224 };
 const THUMB_R = 30;
 
 /** O corpo neutro em volta do qual a peça é mostrada (anel, campo, satélite…). */
