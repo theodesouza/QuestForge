@@ -77,6 +77,22 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
       await page.getByRole('button', { name: 'Continuar', exact: false }).last().click();
       await wait(500);
     }
+    // Remessa: várias peças de uma vez (níveis seguidos, feitos de coleção) numa tela só.
+    for (let i = 0; i < 3; i++) {
+      const pending = await page.evaluate(() => {
+        const s = globalThis.__qf.store.getState();
+        const path = location.pathname;
+        return s.shipments.length && s.celebrations.length === 0 && s.reveals.length === 0 && path !== '/session' && path !== '/boss' ? s.shipments[0].items.length : 0;
+      });
+      if (!pending) break;
+      await wait(900);
+      if (!seenRarity.has('shipment')) {
+        seenRarity.add('shipment');
+        await shot(`shipment-${pending}`);
+      }
+      await page.getByRole('button', { name: 'Fechar', exact: true }).last().click();
+      await wait(500);
+    }
   };
 
   const dismissCelebrations = async (shotName) => {
@@ -428,16 +444,19 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     ['r8', 'hidra', 'Hidra das Funções', [2], 3400],
     ['r9', 'escalas', 'Leviatã das Escalas', [2], 3800],
   ]) {
+    await dismissReveals(); // feitos pagos na vitória anterior (vitórias contra chefões, coleção)
     await page.getByRole('tab', { name: 'Acampamento' }).click();
     await wait(800);
     for (const m of ['m1', 'm2', 'm3']) await playMission(`${region}-${m}`);
     await fightBoss(boss, name, misses);
+    await dismissReveals();
     await page.mouse.move(195, 500);
     await page.mouse.wheel(0, wheel);
     await shot(`atlas-after-${boss}`);
   }
 
   // Encomendas.
+  await dismissReveals();
   await page.getByRole('tab', { name: 'Acampamento' }).click();
   await wait(800);
   await page.mouse.move(195, 500);

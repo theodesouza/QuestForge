@@ -1,7 +1,7 @@
 # QuestForge — RPG de matemática para o ENEM
 
 Você é um **Cartógrafo** num mundo cujo mapa foi apagado pela Névoa do Esquecimento.
-Cada questão de matemática resolvida redesenha um pedaço do Atlas, forja o seu astrolábio
+Cada questão de matemática resolvida redesenha um pedaço do Atlas, alimenta o seu Áster
 e enfraquece os guardiões das regiões. Estudar é evoluir — e o app separa com honestidade
 **esforço** (XP), **território** (campanha) e **aprendizado real** (domínio e revisão espaçada).
 

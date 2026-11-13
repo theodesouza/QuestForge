@@ -58,8 +58,10 @@ export function ItemRevealOverlay() {
   const reveal = useGameStore((s) => s.reveals[0]);
   const celebrating = useGameStore((s) => s.celebrations.length > 0);
   const game = useGameStore((s) => s.game);
+  // As boas-vindas do renascimento vêm antes de qualquer cerimônia de peça.
+  const rebirth = useGameStore((s) => s.shipments.some((x) => x.rebirth));
   const pathname = usePathname();
-  if (!reveal || !game || celebrating || HOLD_ON.includes(pathname)) return null;
+  if (!reveal || !game || celebrating || rebirth || HOLD_ON.includes(pathname)) return null;
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent navigationBarTranslucent onRequestClose={() => dismissReveal(reveal.id)}>
       <Reveal key={reveal.id} revealId={reveal.id} itemId={reveal.itemId} source={reveal.source} level={levelForXp(game.profile.xp)} />

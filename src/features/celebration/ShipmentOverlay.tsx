@@ -39,9 +39,11 @@ const KEPT = ['Nível, XP e Tinta', 'Missões, estrelas e chefões', 'Todas as p
 export function ShipmentOverlay() {
   const shipment = useGameStore((s) => s.shipments[0]);
   const celebrating = useGameStore((s) => s.celebrations.length > 0);
+  // Uma tela de cada vez: as cerimônias de peça (espólio de chefão, por exemplo) passam primeiro.
+  const revealing = useGameStore((s) => s.reveals.length > 0);
   const game = useGameStore((s) => s.game);
   const pathname = usePathname();
-  if (!shipment || !game || celebrating || HOLD_ON.includes(pathname)) return null;
+  if (!shipment || !game || celebrating || (revealing && !shipment.rebirth) || HOLD_ON.includes(pathname)) return null;
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent navigationBarTranslucent onRequestClose={() => dismissShipment(shipment.id)}>
       <Sheet key={shipment.id} shipment={shipment} />
