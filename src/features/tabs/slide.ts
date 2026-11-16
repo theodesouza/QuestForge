@@ -29,6 +29,11 @@ let systemReduce = false;
 export const setSystemReduceMotion = (v: boolean) => {
   systemReduce = v;
 };
+/** Janela larga (computador): a navegação é um trilho lateral e a troca de aba é direta, sem deslize. */
+let wideLayout = false;
+export const setWideLayout = (v: boolean) => {
+  wideLayout = v;
+};
 
 export function tabIndexOf(pathname: string): number {
   const name = pathname.replace(/^\//, '').split('/')[0];
@@ -71,7 +76,7 @@ export function goToTab(from: number, target: number, fromX = 0, velocity = 0): 
   haptic('select');
   const dir: 1 | -1 = target > from ? 1 : -1;
   const name = TAB_ORDER[target];
-  if (reduced()) {
+  if (wideLayout || reduced()) {
     tabSlide.set(0);
     router.navigate(`/${name}` as never);
     return;

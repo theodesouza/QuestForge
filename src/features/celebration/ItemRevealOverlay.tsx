@@ -254,7 +254,7 @@ function Reveal({ revealId, itemId, source, level }: { revealId: string; itemId:
 
 const styles = StyleSheet.create({
   scrim: { zIndex: 110 },
-  content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.xl, gap: space.lg },
+  content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.xl, gap: space.lg, width: '100%', maxWidth: 540, alignSelf: 'center' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   info: { alignItems: 'center', gap: space.xs, minHeight: 60 },
   rarity: { letterSpacing: 2 },

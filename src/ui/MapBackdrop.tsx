@@ -5,7 +5,7 @@
  * Estático e memoizado: custo de renderização desprezível.
  */
 import { memo, useMemo } from 'react';
-import { StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, type ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { colors } from './theme';
 
@@ -22,6 +22,10 @@ function field(seed: number, n: number): [number, number, number][] {
   return Array.from({ length: n }, () => [r(), r(), r()]);
 }
 
+// No navegador o fundo se prende à janela: assim ele continua de ponta a ponta mesmo quando a tela
+// que o contém é uma coluna centrada (layout largo).
+const FILL = Platform.OS === 'web' ? ({ position: 'fixed', left: 0, top: 0 } as unknown as ViewStyle) : StyleSheet.absoluteFill;
+
 const DUST = field(7, 46);
 const BRIGHT = field(19, 9);
 
@@ -37,7 +41,7 @@ export const MapBackdrop = memo(function MapBackdrop({ glow = colors.brass }: { 
     [width, height],
   );
   return (
-    <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
+    <Svg pointerEvents="none" style={FILL} width={width} height={height}>
       <Defs>
         <LinearGradient id="bdsky" x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor="#0D1330" />

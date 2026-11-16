@@ -73,6 +73,7 @@ export function ToastHost() {
         key={toast.id}
         entering={reduce ? FadeIn : calm.toast()}
         exiting={reduce ? FadeOut : FadeOutUp.duration(200)}
+        style={styles.lane}
       >
         <Pressable
           onPress={() => dismissToast(toast.id)}
@@ -97,7 +98,8 @@ export function ToastHost() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', left: space.lg, right: space.lg, zIndex: 90 },
+  wrap: { position: 'absolute', left: space.lg, right: space.lg, zIndex: 90, alignItems: 'center' },
+  lane: { width: '100%', maxWidth: 520 },
   toast: {
     flexDirection: 'row',
     alignItems: 'center',

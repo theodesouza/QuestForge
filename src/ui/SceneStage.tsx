@@ -64,6 +64,9 @@ const styles = StyleSheet.create({
   empty: { width: '100%', alignItems: 'center', justifyContent: 'center' },
   stage: {
     width: '100%',
+    // Janela larga: o palco não estica além de um quadro confortável (a arte é quadrada e seria cortada numa faixa).
+    maxWidth: 640,
+    alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

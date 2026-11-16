@@ -19,6 +19,8 @@ export type AuthErrorCode =
   | 'unauthenticated' // sessão expirada/revogada
   | 'requires-recent-login' // operação sensível: entrar de novo antes
   | 'account-mismatch' // entrou com outra conta Google na hora de confirmar
+  | 'popup-blocked' // (computador) o navegador bloqueou a janela de contas
+  | 'domain' // (computador) o endereço do site não está autorizado no Firebase
   | 'unavailable' // login indisponível nesta plataforma/build
   | 'unknown';
 
@@ -44,6 +46,8 @@ export const AUTH_MESSAGES: Record<AuthErrorCode, string> = {
   unauthenticated: 'Sua sessão expirou. Entre com o Google novamente.',
   'requires-recent-login': 'Por segurança, entre com o Google novamente para continuar.',
   'account-mismatch': 'Use a mesma conta Google que está em uso neste app para confirmar.',
+  'popup-blocked': 'O navegador bloqueou a janela do Google. Permita pop-ups para este site e tente de novo.',
+  domain: 'Este endereço ainda não foi autorizado para login. No Firebase, abra Authentication → Settings → Authorized domains e adicione o endereço deste site.',
   unavailable: 'O login com Google não está disponível nesta plataforma.',
   unknown: 'Não foi possível entrar agora. Tente de novo em instantes.',
 };

@@ -181,7 +181,7 @@ function Sheet({ shipment }: { shipment: Shipment }) {
 
 const styles = StyleSheet.create({
   scrim: { flex: 1, backgroundColor: 'rgba(6, 9, 20, 0.97)' },
-  body: { paddingHorizontal: space.xl, gap: space.lg, alignItems: 'center', paddingBottom: space.lg },
+  body: { paddingHorizontal: space.xl, gap: space.lg, alignItems: 'center', paddingBottom: space.lg, width: '100%', maxWidth: 580, alignSelf: 'center' },
   center: { alignItems: 'center', gap: space.xs, alignSelf: 'stretch' },
   kicker: { letterSpacing: 2.4 },
   stage: { alignSelf: 'stretch' },
@@ -194,5 +194,5 @@ const styles = StyleSheet.create({
   rarityN: { fontSize: 20, lineHeight: 24 },
   glyphs: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: space.sm },
   more: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.lineSoft, backgroundColor: colors.ink700 },
-  actions: { paddingHorizontal: space.xl, paddingTop: space.md, gap: space.sm },
+  actions: { paddingHorizontal: space.xl, paddingTop: space.md, gap: space.sm, width: '100%', maxWidth: 580, alignSelf: 'center' },
 });

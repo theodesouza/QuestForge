@@ -27,6 +27,13 @@ const FIREBASE_CODES: Record<string, AuthErrorCode> = {
   'auth/invalid-api-key': 'config',
   'auth/app-not-authorized': 'config',
   'auth/internal-error': 'config',
+  // Navegador (versão para computador)
+  'auth/popup-closed-by-user': 'cancelled',
+  'auth/user-cancelled': 'cancelled',
+  'auth/cancelled-popup-request': 'in-progress',
+  'auth/popup-blocked': 'popup-blocked',
+  'auth/unauthorized-domain': 'domain',
+  'auth/web-storage-unsupported': 'unavailable',
 };
 
 export function mapAuthError(e: unknown): AuthError {

@@ -21,6 +21,7 @@ import { Chip } from '../ui/Chip';
 import { haptic, useReduceMotion } from '../ui/feedback';
 import { Icon } from '../ui/Icon';
 import { IconButton } from '../ui/IconButton';
+import { useWide } from '../ui/layout';
 import { ItemGlyph } from '../ui/ItemGlyph';
 import { MapBackdrop } from '../ui/MapBackdrop';
 import { Pill } from '../ui/Pill';
@@ -34,6 +35,8 @@ const FILTER_LABEL: Record<Filter, string> = { todos: 'Tudo', meus: 'Minhas', ve
 const RARITIES: Rarity[] = ['comum', 'incomum', 'raro', 'epico', 'lendario'];
 const GAP = space.sm;
 const PAD = space.lg;
+/** Largura máxima do Estúdio em dois painéis. */
+const WIDE_MAX = 1320;
 
 type Row = { key: string; kind: 'head'; rarity: Rarity; owned: number; total: number } | { key: string; kind: 'tiles'; items: ItemDef[] };
 
@@ -140,10 +143,14 @@ export default function Studio() {
   const owned = focus ? !!inventory[focus.id] : false;
   const inUse = focus ? equipped[slot] === focus.id : false;
 
-  const cols = Math.max(3, Math.min(6, Math.floor((width - PAD * 2 + GAP) / (104 + GAP))));
-  const tileW = Math.floor((width - PAD * 2 - GAP * (cols - 1)) / cols);
+  // Janela larga: dois painéis. A grade só conta com a largura do painel dela.
+  const wide = useWide();
+  const paneW = Math.round(Math.min(520, Math.max(360, width * 0.38)));
+  const listW = wide ? Math.min(WIDE_MAX, width) - paneW - PAD * 3 : width;
+  const cols = Math.max(3, Math.min(7, Math.floor((listW - PAD * 2 + GAP) / ((wide ? 118 : 104) + GAP))));
+  const tileW = Math.floor((listW - PAD * 2 - GAP * (cols - 1)) / cols);
   // O palco cede espaço à grade em telas baixas: a peça escolhida precisa de vizinhas à vista.
-  const stageH = Math.round(Math.min(290, Math.max(168, height * 0.245)));
+  const stageH = wide ? Math.round(Math.min(paneW - PAD, Math.max(260, height * 0.46))) : Math.round(Math.min(290, Math.max(168, height * 0.245)));
 
   const counts = useMemo(() => {
     const out = {} as Record<ItemSlot, { owned: number; total: number }>;
@@ -230,10 +237,7 @@ export default function Studio() {
   const short = price !== undefined ? Math.max(0, price - profile.ink) : 0;
   const titleShown = shown.title ? getItem(shown.title).name : rankFor(level).title;
 
-  return (
-    <View style={styles.root}>
-      <MapBackdrop glow={focus ? rarityColor[focus.rarity] : undefined} />
-      <View style={[styles.top, { paddingTop: insets.top + space.sm }]}>
+  const header = (
         <View style={styles.header}>
           <IconButton icon="chevronLeft" label="Voltar" onPress={() => router.back()} color={colors.parchment} />
           <View style={styles.headerText}>
@@ -246,7 +250,8 @@ export default function Studio() {
             <Pill icon="ink" value={String(profile.ink)} color={colors.iris} label="Tinta" />
           </Pressable>
         </View>
-
+  );
+  const stage = (
         <Pressable
           onPress={() => {
             haptic('impact');
@@ -279,8 +284,9 @@ export default function Studio() {
             ) : null}
           </SceneStage>
         </Pressable>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+  );
+  const slots = (
+    <>
           {SLOT_ORDER.map((s) => {
             const id = equipped[s];
             const active = s === slot;
@@ -303,9 +309,9 @@ export default function Studio() {
               </Pressable>
             );
           })}
-        </ScrollView>
-      </View>
-
+    </>
+  );
+  const list = (
       <FlatList
         data={rows}
         keyExtractor={(r) => r.key}
@@ -332,8 +338,9 @@ export default function Studio() {
           </Text>
         }
       />
-
-      <View style={[styles.bar, { paddingBottom: insets.bottom + space.md }]}>
+  );
+  const bar = (
+      <View style={wide ? styles.barWide : [styles.bar, { paddingBottom: insets.bottom + space.md }]}>
         {focus ? (
           <>
             <View style={styles.barHead}>
@@ -392,6 +399,40 @@ export default function Studio() {
           </Text>
         )}
       </View>
+  );
+
+  if (wide) {
+    // Computador: o Áster e a ficha da peça ficam à esquerda, sempre à vista; as peças rolam à direita.
+    return (
+      <View style={styles.root}>
+        <MapBackdrop glow={focus ? rarityColor[focus.rarity] : undefined} />
+        <View style={[styles.wideRow, { paddingTop: insets.top + space.xl }]}>
+          <View style={[styles.widePane, { width: paneW }]}>
+            {header}
+            {stage}
+            {bar}
+          </View>
+          <View style={styles.wideList}>
+            <View style={styles.railWrap}>{slots}</View>
+            {list}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.root}>
+      <MapBackdrop glow={focus ? rarityColor[focus.rarity] : undefined} />
+      <View style={[styles.top, { paddingTop: insets.top + space.sm }]}>
+        {header}
+        {stage}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+          {slots}
+        </ScrollView>
+      </View>
+      {list}
+      {bar}
     </View>
   );
 }
@@ -429,5 +470,10 @@ const styles = StyleSheet.create({
   barHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   barText: { flex: 1 },
   how: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  wideRow: { flex: 1, flexDirection: 'row', gap: PAD, paddingHorizontal: PAD, paddingBottom: PAD, width: '100%', maxWidth: WIDE_MAX, alignSelf: 'center' },
+  widePane: { gap: space.md },
+  wideList: { flex: 1, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.lineSoft, backgroundColor: 'rgba(14, 20, 40, 0.6)', overflow: 'hidden' },
+  railWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingHorizontal: PAD, paddingTop: space.md },
+  barWide: { padding: PAD, gap: space.sm, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.ink850 },
   wearing: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 },
 });

@@ -46,6 +46,7 @@ import { Panel } from '../ui/Panel';
 import { ProgressBar } from '../ui/ProgressBar';
 import { Screen } from '../ui/Screen';
 import { Text } from '../ui/Text';
+import { FOCUS_MAX, column } from '../ui/layout';
 import { colors, radius, rarityColor, space } from '../ui/theme';
 
 function traitIcon(boss: BossDef): 'shield' | 'lock' | 'target' | 'star' | 'dice' | 'flame' {
@@ -725,7 +726,8 @@ export default function BossScreen() {
 const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingLeft: space.xxxl - 4 },
   headDot: { width: 9, height: 9, borderRadius: 5 },
-  root: { flex: 1, backgroundColor: colors.ink900 },
+  // Janela larga: a tela inteira vira uma coluna centrada (o fundo continua de ponta a ponta).
+  root: { flex: 1, backgroundColor: colors.ink900, ...column(FOCUS_MAX) },
   introArt: { alignItems: 'center', paddingTop: space.lg },
   center: { alignItems: 'center', gap: space.xs },
   lines: { gap: space.sm },

@@ -107,7 +107,7 @@ export function LevelUpOverlay() {
 
 const styles = StyleSheet.create({
   scrim: { backgroundColor: colors.scrim, zIndex: 100 },
-  content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.xl, gap: space.xl },
+  content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.xl, gap: space.xl, width: '100%', maxWidth: 540, alignSelf: 'center' },
   center: { alignItems: 'center', gap: space.xs },
   level: { fontSize: 52, lineHeight: 56 },
   rewards: { alignSelf: 'stretch', gap: space.sm },

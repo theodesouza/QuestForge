@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View, useWindowDimensions, type StyleProp, type
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tabSlide } from '../features/tabs/slide';
+import { CONTENT_MAX, RAIL_W, column, useWide } from './layout';
 import { MapBackdrop } from './MapBackdrop';
 import { space } from './theme';
 
@@ -27,29 +28,34 @@ export function Screen({ children, scroll = true, footer, contentStyle, glow, bo
     const x = tab ? tabSlide.get() : 0;
     return { transform: [{ translateX: x }], opacity: 1 - Math.min(0.4, (Math.abs(x) / width) * 0.4) };
   });
+  // Janela larga: as abas viram um trilho à esquerda (sem barra embaixo) e o conteúdo fica numa coluna centrada.
+  const wide = useWide();
+  const rail = wide && tab ? RAIL_W : 0;
   const padding = {
-    paddingTop: insets.top + space.md,
-    paddingBottom: (footer ? space.lg : insets.bottom + space.xxl) + bottomInset,
+    paddingTop: insets.top + (wide ? space.xxl : space.md),
+    paddingBottom: (footer ? space.lg : insets.bottom + space.xxl) + (rail ? 0 : bottomInset),
   };
   const Root = tab ? Animated.View : View;
   return (
-    <Root style={tab ? [styles.root, slide] : styles.root}>
+    <Root style={[styles.root, rail ? { paddingLeft: rail } : null, tab ? slide : null]}>
       <MapBackdrop glow={glow} />
       {scroll ? (
         <ScrollView
-          contentContainerStyle={[styles.content, padding, contentStyle]}
+          contentContainerStyle={[styles.content, COLUMN, padding, contentStyle]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           {children}
         </ScrollView>
       ) : (
-        <View style={[styles.content, styles.fill, padding, contentStyle]}>{children}</View>
+        <View style={[styles.content, COLUMN, styles.fill, padding, contentStyle]}>{children}</View>
       )}
-      {footer ? <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>{footer}</View> : null}
+      {footer ? <View style={[styles.footer, COLUMN, { paddingBottom: insets.bottom + space.md }]}>{footer}</View> : null}
     </Root>
   );
 }
+
+const COLUMN = column(CONTENT_MAX);
 
 const styles = StyleSheet.create({
   root: { flex: 1 },

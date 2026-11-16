@@ -41,6 +41,7 @@ import { IconButton } from '../ui/IconButton';
 import { MapBackdrop } from '../ui/MapBackdrop';
 import { RichText } from '../ui/RichText';
 import { Text } from '../ui/Text';
+import { FOCUS_MAX, column } from '../ui/layout';
 import { colors, radius, space } from '../ui/theme';
 
 const MODES: { mode: StageMode; label: string; icon: IconName }[] = [
@@ -516,7 +517,8 @@ function AtlasLink({ loc, progress }: { loc: StageLocation; progress: StageProgr
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.ink900 },
+  // Janela larga: a tela inteira vira uma coluna centrada (o fundo continua de ponta a ponta).
+  root: { flex: 1, backgroundColor: colors.ink900, ...column(FOCUS_MAX) },
   top: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.sm, paddingBottom: space.sm },
   topText: { flex: 1, gap: 2 },
   tabs: { flexDirection: 'row', gap: space.xs, paddingHorizontal: space.lg, paddingBottom: space.sm },

@@ -25,6 +25,7 @@ import { IconButton } from '../ui/IconButton';
 import { MapBackdrop } from '../ui/MapBackdrop';
 import { Text } from '../ui/Text';
 import { Button } from '../ui/Button';
+import { FOCUS_MAX, column } from '../ui/layout';
 import { colors, space } from '../ui/theme';
 
 export default function SessionScreen() {
@@ -218,7 +219,8 @@ export default function SessionScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.ink900 },
+  // Janela larga: a tela inteira vira uma coluna centrada (o fundo continua de ponta a ponta).
+  root: { flex: 1, backgroundColor: colors.ink900, ...column(FOCUS_MAX) },
   top: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.sm, paddingBottom: space.sm },
   topCenter: { flex: 1, gap: 6 },
   xp: { flexDirection: 'row', alignItems: 'center', gap: 4, minWidth: 52, justifyContent: 'flex-end', paddingRight: space.sm },
